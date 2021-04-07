@@ -3,11 +3,13 @@ package repositories
 import (
 	"context"
 	"github.com/jackc/pgx/v4/pgxpool"
+	uuid "github.com/satori/go.uuid"
 	"xws2021-nistagram/models"
 )
 
 type UserRepository interface {
 	GetAllUsers() ([]models.User, error)
+	CreateUser(user *models.User) error
 }
 
 type userRepository struct {
@@ -43,4 +45,23 @@ func (repository *userRepository) GetAllUsers() ([]models.User, error) {
 	}
 
 	return users, nil
+}
+
+func (repository *userRepository) CreateUser(user *models.User) error {
+	tx, err := repository.DB.Begin(context.Background())
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(context.Background())
+
+	user.ID = uuid.NewV4().String()
+
+	query := "insert into registered_users (id, first_name, last_name) values ($1, $2, $3)"
+	_, err = tx.Exec(context.Background(), query, user.ID, user.FirstName, user.LastName)
+
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(context.Background())
 }

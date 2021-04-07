@@ -19,7 +19,8 @@ func main() {
 	r := mux.NewRouter()
 	usersRouter := r.PathPrefix("/users").Subrouter()
 
-	usersRouter.HandleFunc("/hello", userController.GetAllUsers).Methods("GET")
+	usersRouter.HandleFunc("", userController.GetAllUsers).Methods("GET")
+	usersRouter.HandleFunc("", userController.CreateUser).Methods("POST")
 
 	http.Handle("/", r)
 	http.ListenAndServe(":8001", r)
