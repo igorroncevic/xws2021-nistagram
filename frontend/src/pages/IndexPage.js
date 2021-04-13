@@ -14,7 +14,7 @@ export default class IndexPage extends React.Component {
             user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
             showModal : false,
             badCredentials : true,
-            reCaptcha : false,
+            reCaptcha : 0,
             logInDisabled : false
         }
     }
@@ -48,7 +48,7 @@ export default class IndexPage extends React.Component {
                         <a href={'/#'} style={{float : "right"}}> Forgot password?</a>
                     </div>
                     <br/>
-                    {this.state.reCaptcha &&
+                    {this.state.reCaptcha >= 3 &&
                     <ReCAPTCHA
                         style={{display: "inline-block"}}
                         theme="light"
@@ -84,11 +84,11 @@ export default class IndexPage extends React.Component {
 
     closeCaptcha = () => {
         this.setState({
-            reCaptcha : false,
+            reCaptcha : 0,
             logInDisabled : false
         })
     }
-    
+
     validateForm = () => {
         return this.state.email.length > 0 && this.state.password.length > 0;
     }
@@ -118,11 +118,18 @@ export default class IndexPage extends React.Component {
             .get("proba")
             .then(res => console.log("Sta treba"))
             .catch(res => {
-                this.setState({
-                    reCaptcha : true,
-                    logInDisabled : true,
-                    badCredentials : false
-                })
+                if(this.state.reCaptcha >= 2) {
+                    this.setState({
+                        reCaptcha: this.state.reCaptcha + 1,
+                        logInDisabled: true,
+                        badCredentials: false
+                    })
+                }else {
+                    this.setState({
+                        reCaptcha: this.state.reCaptcha + 1,
+                        badCredentials: false
+                    })
+                }
             });
     }
 
