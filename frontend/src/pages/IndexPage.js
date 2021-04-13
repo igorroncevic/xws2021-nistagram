@@ -1,15 +1,21 @@
 import * as React from "react";
 import {Button, Form, Modal,} from "react-bootstrap";
+import ReCAPTCHA from "react-google-recaptcha";
+import axios from "axios";
+
+const TEST_SITE_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
 
 export default class IndexPage extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             password : '',
             email : '',
             user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
             showModal : false,
-            badCredentials : false
+            badCredentials : true,
+            reCaptcha : false,
+            logInDisabled : false
         }
     }
 
@@ -42,17 +48,26 @@ export default class IndexPage extends React.Component {
                         <a href={'/#'} style={{float : "right"}}> Forgot password?</a>
                     </div>
                     <br/>
-                    <br/>
-                    <Button  block size="lg" disabled={!this.validateForm} onClick={this.handleSubmit}>
+                    {this.state.reCaptcha &&
+                    <ReCAPTCHA
+                        style={{display: "inline-block"}}
+                        theme="light"
+                        ref={React.createRef()}
+                        sitekey={TEST_SITE_KEY}
+                        onChange={this.closeCaptcha}
+                        asyncScriptOnLoad={this.asyncScriptOnLoad}
+                    />
+                    }
+                    <Button   block size="lg" disabled={this.state.logInDisabled} onClick={this.handleSubmit}>
                         Login
                     </Button>
                 </Form>
-                <br/>
                 <br/>
                 <div style={{display : " table"}}>
                     <p style={{display: "table-cell"}}>Don't have account?</p>
                     <a style={{display: "table-cell"}} className="nav-link" style={{'color' : '#00d8fe', 'fontWeight' : 'bold'}} href='#' name="workHours" onClick={this.handleModal}>Register</a>
                 </div>
+
 
                 <Modal show={this.state.showModal} onHide={this.closeModal}  style={{'height':650}} >
                     <Modal.Header closeButton style={{'background':'silver'}}>
@@ -67,6 +82,13 @@ export default class IndexPage extends React.Component {
         )
     }
 
+    closeCaptcha = () => {
+        this.setState({
+            reCaptcha : false,
+            logInDisabled : false
+        })
+    }
+    
     validateForm = () => {
         return this.state.email.length > 0 && this.state.password.length > 0;
     }
@@ -92,7 +114,16 @@ export default class IndexPage extends React.Component {
     }
 
     handleSubmit = () => {
-
+        axios
+            .get("proba")
+            .then(res => console.log("Sta treba"))
+            .catch(res => {
+                this.setState({
+                    reCaptcha : true,
+                    logInDisabled : true,
+                    badCredentials : false
+                })
+            });
     }
 
 }
