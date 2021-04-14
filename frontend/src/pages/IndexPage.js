@@ -75,7 +75,7 @@ export default class IndexPage extends React.Component {
                         <Modal.Title>Registration</Modal.Title>
                     </Modal.Header>
                     <Modal.Body style={{'background':'silver'}}>
-                        <RegistrationPage></RegistrationPage>
+                        <RegistrationPage/>
                     </Modal.Body>
                 </Modal>
 
