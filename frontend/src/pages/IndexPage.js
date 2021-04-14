@@ -2,6 +2,7 @@ import * as React from "react";
 import {Button, Form, Modal,} from "react-bootstrap";
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from "axios";
+import RegistrationPage from "./RegistrationPage";
 
 const TEST_SITE_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
 
@@ -74,6 +75,7 @@ export default class IndexPage extends React.Component {
                         <Modal.Title>Registration</Modal.Title>
                     </Modal.Header>
                     <Modal.Body style={{'background':'silver'}}>
+                        <RegistrationPage></RegistrationPage>
                     </Modal.Body>
                 </Modal>
 
