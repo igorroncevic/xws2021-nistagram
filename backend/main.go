@@ -9,7 +9,7 @@ import (
 
 func main() {
 	var dbConf util.DbConfig
-	if _, err := confl.DecodeFile("dbconfig.conf", &dbConf); err != nil {
+	if _, err := confl.DecodeFile("./backend/dbconfig.conf", &dbConf); err != nil {
 		panic(err)
 	}
 

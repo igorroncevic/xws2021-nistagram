@@ -4,12 +4,12 @@ import (
 	"context"
 	"github.com/jackc/pgx/v4/pgxpool"
 	uuid "github.com/satori/go.uuid"
-	"xws2021-nistagram/models"
+	models2 "xws2021-nistagram/models"
 )
 
 type UserRepository interface {
-	GetAllUsers() ([]models.User, error)
-	CreateUser(user *models.User) error
+	GetAllUsers() ([]models2.User, error)
+	CreateUser(user *models2.User) error
 }
 
 type userRepository struct {
@@ -25,8 +25,8 @@ func NewUserRepo(db *pgxpool.Pool) UserRepository {
 	}
 }
 
-func (repository *userRepository) GetAllUsers() ([]models.User, error) {
-	var users []models.User
+func (repository *userRepository) GetAllUsers() ([]models2.User, error) {
+	var users []models2.User
 
 	query := "select u.id, u.first_name, u.last_name from registered_users u"
 	rows, err := repository.DB.Query(context.Background(), query)
@@ -36,7 +36,7 @@ func (repository *userRepository) GetAllUsers() ([]models.User, error) {
 	}
 
 	for rows.Next() {
-		var user models.User
+		var user models2.User
 		err := rows.Scan(&user.ID, &user.FirstName, &user.LastName)
 		if err != nil {
 			return nil, err
@@ -47,7 +47,7 @@ func (repository *userRepository) GetAllUsers() ([]models.User, error) {
 	return users, nil
 }
 
-func (repository *userRepository) CreateUser(user *models.User) error {
+func (repository *userRepository) CreateUser(user *models2.User) error {
 	tx, err := repository.DB.Begin(context.Background())
 	if err != nil {
 		return err

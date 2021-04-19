@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"os"
-	"xws2021-nistagram/controllers"
-	"xws2021-nistagram/repositories"
-	"xws2021-nistagram/services"
+	controllers2 "xws2021-nistagram/controllers"
+	repositories2 "xws2021-nistagram/repositories"
+	services2 "xws2021-nistagram/services"
 )
 
 type DbConfig struct {
@@ -28,10 +28,10 @@ func GetConnectionPool(conf DbConfig) *pgxpool.Pool {
 	return connection
 }
 
-func GetUsersController(connpool *pgxpool.Pool) controllers.UserController {
-	userRepository := repositories.NewUserRepo(connpool)
-	userService := services.UserService{Repository: userRepository}
-	userController := controllers.UserController{Service: userService}
+func GetUsersController(connpool *pgxpool.Pool) controllers2.UserController {
+	userRepository := repositories2.NewUserRepo(connpool)
+	userService := services2.UserService{Repository: userRepository}
+	userController := controllers2.UserController{Service: userService}
 
 	fmt.Println("User controller up and running.")
 
