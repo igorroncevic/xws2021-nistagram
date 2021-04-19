@@ -3,13 +3,13 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
-	models2 "xws2021-nistagram/models"
-	services2 "xws2021-nistagram/services"
-	"xws2021-nistagram/util/errors"
+	"xws2021-nistagram/backend/models"
+	"xws2021-nistagram/backend/services"
+	"xws2021-nistagram/backend/util/errors"
 )
 
 type UserController struct {
-	Service services2.UserService
+	Service services.UserService
 }
 
 func (controller *UserController) GetAllUsers(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +26,7 @@ func (controller *UserController) GetAllUsers(w http.ResponseWriter, r *http.Req
 }
 
 func (controller *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
-	var newUser models2.User
+	var newUser models.User
 
 	json.NewDecoder(r.Body).Decode(&newUser)
 	err := controller.Service.CreateUser(&newUser)
@@ -35,5 +35,5 @@ func (controller *UserController) CreateUser(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(newUser)
+	w.WriteHeader(http.StatusCreated)
 }

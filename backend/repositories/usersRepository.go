@@ -4,12 +4,12 @@ import (
 	"context"
 	"github.com/jackc/pgx/v4/pgxpool"
 	uuid "github.com/satori/go.uuid"
-	models2 "xws2021-nistagram/models"
+	"xws2021-nistagram/backend/models"
 )
 
 type UserRepository interface {
-	GetAllUsers() ([]models2.User, error)
-	CreateUser(user *models2.User) error
+	GetAllUsers() ([]models.User, error)
+	CreateUser(user *models.User) error
 }
 
 type userRepository struct {
@@ -25,10 +25,10 @@ func NewUserRepo(db *pgxpool.Pool) UserRepository {
 	}
 }
 
-func (repository *userRepository) GetAllUsers() ([]models2.User, error) {
-	var users []models2.User
+func (repository *userRepository) GetAllUsers() ([]models.User, error) {
+	var users []models.User
 
-	query := "select u.id, u.first_name, u.last_name from registered_users u"
+	query := "select u.id, u.first_name, u.last_name, u.email from registered_users u"
 	rows, err := repository.DB.Query(context.Background(), query)
 	defer rows.Close()
 	if err != nil {
@@ -36,8 +36,8 @@ func (repository *userRepository) GetAllUsers() ([]models2.User, error) {
 	}
 
 	for rows.Next() {
-		var user models2.User
-		err := rows.Scan(&user.ID, &user.FirstName, &user.LastName)
+		var user models.User
+		err := rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email)
 		if err != nil {
 			return nil, err
 		}
@@ -47,7 +47,7 @@ func (repository *userRepository) GetAllUsers() ([]models2.User, error) {
 	return users, nil
 }
 
-func (repository *userRepository) CreateUser(user *models2.User) error {
+func (repository *userRepository) CreateUser(user *models.User) error {
 	tx, err := repository.DB.Begin(context.Background())
 	if err != nil {
 		return err
@@ -56,8 +56,8 @@ func (repository *userRepository) CreateUser(user *models2.User) error {
 
 	user.ID = uuid.NewV4().String()
 
-	query := "insert into registered_users (id, first_name, last_name) values ($1, $2, $3)"
-	_, err = tx.Exec(context.Background(), query, user.ID, user.FirstName, user.LastName)
+	query := `insert into registered_users (id, first_name, last_name, "email", "password") values ($1, $2, $3, $4, $5)`
+	_, err = tx.Exec(context.Background(), query, user.ID, user.FirstName, user.LastName, user.Email, user.Password)
 
 	if err != nil {
 		return err

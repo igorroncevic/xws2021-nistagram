@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"os"
-	controllers2 "xws2021-nistagram/controllers"
-	repositories2 "xws2021-nistagram/repositories"
-	services2 "xws2021-nistagram/services"
+	controllers2 "xws2021-nistagram/backend/controllers"
+	repositories2 "xws2021-nistagram/backend/repositories"
+	services2 "xws2021-nistagram/backend/services"
 )
 
 type DbConfig struct {
