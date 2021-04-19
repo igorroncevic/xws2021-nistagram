@@ -1,8 +1,8 @@
 package services
 
 import (
-	"fmt"
 	"xws2021-nistagram/backend/models"
+	"xws2021-nistagram/backend/models/dtos"
 	"xws2021-nistagram/backend/repositories"
 	"xws2021-nistagram/backend/util/encryption"
 )
@@ -12,14 +12,14 @@ type UserService struct {
 }
 
 func (service *UserService) GetAllUsers() ([]models.User, error) {
-	users, error := service.Repository.GetAllUsers()
-	return users, error
+	return service.Repository.GetAllUsers()
 }
 
 func (service *UserService) CreateUser(user *models.User) error {
-	fmt.Println(user.Password)
 	user.Password = encryption.HashAndSalt([]byte(user.Password))
-	fmt.Println(user.Password)
-	error := service.Repository.CreateUser(user)
-	return error
+	return service.Repository.CreateUser(user)
+}
+
+func (service *UserService) LoginUser(data dtos.LoginDTO) error {
+	return service.Repository.CheckPassword(data)
 }

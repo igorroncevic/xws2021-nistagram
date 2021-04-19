@@ -12,3 +12,7 @@ func HashAndSalt(password []byte) string{
 	}
 	return string(hash)
 }
+
+func CompareHashAndPassword(hash []byte, password []byte) error{
+	return bcrypt.CompareHashAndPassword(hash, password)
+}

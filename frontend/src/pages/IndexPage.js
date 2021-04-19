@@ -117,8 +117,11 @@ export default class IndexPage extends React.Component {
 
     handleSubmit = () => {
         axios
-            .get("proba")
-            .then(res => console.log("Sta treba"))
+            .post("http://localhost:8001/users/login", {
+                email: this.state.email,
+                password: this.state.password
+            })
+            .then(res => alert("Login successful"))
             .catch(res => {
                 if(this.state.reCaptcha >= 2) {
                     this.setState({

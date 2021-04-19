@@ -5,11 +5,14 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 	uuid "github.com/satori/go.uuid"
 	"xws2021-nistagram/backend/models"
+	"xws2021-nistagram/backend/models/dtos"
+	"xws2021-nistagram/backend/util/encryption"
 )
 
 type UserRepository interface {
 	GetAllUsers() ([]models.User, error)
 	CreateUser(user *models.User) error
+	CheckPassword(data dtos.LoginDTO) (error)
 }
 
 type userRepository struct {
@@ -45,6 +48,31 @@ func (repository *userRepository) GetAllUsers() ([]models.User, error) {
 	}
 
 	return users, nil
+}
+
+func (repository *userRepository) CheckPassword(data dtos.LoginDTO) error {
+	var user models.User
+
+	query := "select u.id, u.password from registered_users u where u.email = $1"
+	rows, err := repository.DB.Query(context.Background(), query, data.Email)
+	defer rows.Close()
+	if err != nil {
+		return err
+	}
+
+	for rows.Next() {
+		err := rows.Scan(&user.ID, &user.Password)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = encryption.CompareHashAndPassword([]byte(user.Password), []byte(data.Password))
+	if err != nil{
+		return err
+	}
+
+	return nil
 }
 
 func (repository *userRepository) CreateUser(user *models.User) error {

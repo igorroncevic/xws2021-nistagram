@@ -23,6 +23,7 @@ func main() {
 
 	usersRouter.HandleFunc("", userController.GetAllUsers).Methods("GET")
 	usersRouter.HandleFunc("/register", userController.CreateUser).Methods("POST")
+	usersRouter.HandleFunc("/login", userController.LoginUser).Methods("POST")
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"}, // All origins, for now
