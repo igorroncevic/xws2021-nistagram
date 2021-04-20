@@ -2,8 +2,8 @@ package services
 
 import (
 	"xws2021-nistagram/backend/models"
-	"xws2021-nistagram/backend/models/dtos"
 	"xws2021-nistagram/backend/repositories"
+	"xws2021-nistagram/backend/util/auth"
 	"xws2021-nistagram/backend/util/encryption"
 )
 
@@ -20,6 +20,6 @@ func (service *UserService) CreateUser(user *models.User) error {
 	return service.Repository.CreateUser(user)
 }
 
-func (service *UserService) LoginUser(data dtos.LoginDTO) error {
+func (service *UserService) LoginUser(data auth.Credentials) error {
 	return service.Repository.CheckPassword(data)
 }

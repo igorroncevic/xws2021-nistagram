@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"xws2021-nistagram/backend/models"
-	"xws2021-nistagram/backend/models/dtos"
 	"xws2021-nistagram/backend/services"
-	"xws2021-nistagram/backend/util/errors"
+	"xws2021-nistagram/backend/util/auth"
+	"xws2021-nistagram/backend/util/customerr"
 )
 
 type UserController struct {
@@ -17,7 +17,7 @@ func (controller *UserController) GetAllUsers(w http.ResponseWriter, r *http.Req
 	users, err := controller.Service.GetAllUsers()
 
 	if err != nil {
-		errors.WriteErrToClient(w, err)
+		customerr.WriteErrToClient(w, err)
 		return
 	}
 
@@ -32,7 +32,7 @@ func (controller *UserController) CreateUser(w http.ResponseWriter, r *http.Requ
 	json.NewDecoder(r.Body).Decode(&newUser)
 	err := controller.Service.CreateUser(&newUser)
 	if err != nil {
-		errors.WriteErrToClient(w, err)
+		customerr.WriteErrToClient(w, err)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -40,14 +40,28 @@ func (controller *UserController) CreateUser(w http.ResponseWriter, r *http.Requ
 }
 
 func (controller *UserController) LoginUser(w http.ResponseWriter, r *http.Request) {
-	var loginData dtos.LoginDTO
+	var loginData auth.Credentials
 
 	json.NewDecoder(r.Body).Decode(&loginData)
 	err := controller.Service.LoginUser(loginData)
 	if err != nil {
-		errors.WriteErrToClient(w, err)
+		customerr.WriteErrToClient(w, err)
 		return
 	}
+
+	generatedJwt, expirationTime, err := auth.GenerateJwt(loginData.Email)
+	if err != nil{
+		customerr.WriteErrToClient(w, err)
+		return
+	}
+
+	 // Expires has bad timezone on client-side
+	http.SetCookie(w, &http.Cookie{
+		Name:    "token",
+		Value:   generatedJwt,
+		Expires: expirationTime,
+	})
 	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(generatedJwt))
 	w.WriteHeader(http.StatusOK)
 }

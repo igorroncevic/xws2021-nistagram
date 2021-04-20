@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Button, Form, Modal,} from "react-bootstrap";
+import { Button, Form, Modal, } from "react-bootstrap";
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from "axios";
 import RegistrationPage from "./RegistrationPage";
@@ -10,20 +10,20 @@ export default class IndexPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            password : '',
-            email : '',
-            user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
-            showModal : false,
-            badCredentials : true,
-            reCaptcha : 0,
-            logInDisabled : false
+            password: '',
+            email: '',
+            user: !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
+            showModal: false,
+            badCredentials: true,
+            reCaptcha: 0,
+            logInDisabled: false
         }
     }
 
     render() {
         return (
-            <div style={{padding : '60px 0', margin : '0 auto', maxWidth : '320px'}}>
-                <br/>
+            <div style={{ padding: '60px 0', margin: '0 auto', maxWidth: '320px' }}>
+                <br />
                 <Form onSubmit={this.handleSubmit}>
                     <Form.Group size="lg" controlId="email">
                         <Form.Label>Email</Form.Label>
@@ -44,38 +44,38 @@ export default class IndexPage extends React.Component {
                             onChange={e => this.handleInputChange(e)}
                         />
                     </Form.Group>
-                    <p hidden={this.state.badCredentials} style={{color : "red"}}> Invalid username or password!</p>
-                    <div style={{display : "flex"}}>
-                        <a href={'/#'} style={{float : "right"}}> Forgot password?</a>
+                    <p hidden={this.state.badCredentials} style={{ color: "red" }}> Invalid username or password!</p>
+                    <div style={{ display: "flex" }}>
+                        <a href={'/#'} style={{ float: "right" }}> Forgot password?</a>
                     </div>
-                    <br/>
+                    <br />
                     {this.state.reCaptcha >= 3 &&
-                    <ReCAPTCHA
-                        style={{display: "inline-block"}}
-                        theme="light"
-                        ref={React.createRef()}
-                        sitekey={TEST_SITE_KEY}
-                        onChange={this.closeCaptcha}
-                        asyncScriptOnLoad={this.asyncScriptOnLoad}
-                    />
+                        <ReCAPTCHA
+                            style={{ display: "inline-block" }}
+                            theme="light"
+                            ref={React.createRef()}
+                            sitekey={TEST_SITE_KEY}
+                            onChange={this.closeCaptcha}
+                            asyncScriptOnLoad={this.asyncScriptOnLoad}
+                        />
                     }
-                    <Button   block size="lg" disabled={this.state.logInDisabled} onClick={this.handleSubmit}>
+                    <Button block size="lg" disabled={this.state.logInDisabled} onClick={this.handleSubmit}>
                         Login
                     </Button>
                 </Form>
-                <br/>
-                <div style={{display : " table"}}>
-                    <p style={{display: "table-cell"}}>Don't have account?</p>
-                    <a style={{display: "table-cell"}} className="nav-link" style={{'color' : '#00d8fe', 'fontWeight' : 'bold'}} href='#' name="workHours" onClick={this.handleModal}>Register</a>
+                <br />
+                <div style={{ display: " table" }}>
+                    <p style={{ display: "table-cell" }}>Don't have account?</p>
+                    <a style={{ display: "table-cell" }} className="nav-link" style={{ 'color': '#00d8fe', 'fontWeight': 'bold' }} href='#' name="workHours" onClick={this.handleModal}>Register</a>
                 </div>
 
 
-                <Modal show={this.state.showModal} onHide={this.closeModal}  style={{'height':650}} >
-                    <Modal.Header closeButton style={{'background':'silver'}}>
+                <Modal show={this.state.showModal} onHide={this.closeModal} style={{ 'height': 650 }} >
+                    <Modal.Header closeButton style={{ 'background': 'silver' }}>
                         <Modal.Title>Registration</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body style={{'background':'silver'}}>
-                        <RegistrationPage/>
+                    <Modal.Body style={{ 'background': 'silver' }}>
+                        <RegistrationPage />
                     </Modal.Body>
                 </Modal>
 
@@ -86,8 +86,8 @@ export default class IndexPage extends React.Component {
 
     closeCaptcha = () => {
         this.setState({
-            reCaptcha : 0,
-            logInDisabled : false
+            reCaptcha: 0,
+            logInDisabled: false
         })
     }
 
@@ -95,15 +95,15 @@ export default class IndexPage extends React.Component {
         return this.state.email.length > 0 && this.state.password.length > 0;
     }
 
-    handleModal=()=>{
+    handleModal = () => {
         this.setState({
             showModal: !this.state.showModal,
         });
     }
 
-    closeModal=()=>{
+    closeModal = () => {
         this.setState({
-            showModal : !this.state.showModal
+            showModal: !this.state.showModal
         });
     }
 
@@ -111,7 +111,7 @@ export default class IndexPage extends React.Component {
     handleInputChange = (event) => {
         const target = event.target;
         this.setState({
-            [target.name] : target.value,
+            [target.name]: target.value,
         })
     }
 
@@ -121,15 +121,18 @@ export default class IndexPage extends React.Component {
                 email: this.state.email,
                 password: this.state.password
             })
-            .then(res => alert("Login successful"))
+            .then(res => {
+                 alert("Login successful "); 
+                 localStorage.setItem("jwt", res.data); // Change asap 
+            })
             .catch(res => {
-                if(this.state.reCaptcha >= 2) {
+                if (this.state.reCaptcha >= 2) {
                     this.setState({
                         reCaptcha: this.state.reCaptcha + 1,
                         logInDisabled: true,
                         badCredentials: false
                     })
-                }else {
+                } else {
                     this.setState({
                         reCaptcha: this.state.reCaptcha + 1,
                         badCredentials: false

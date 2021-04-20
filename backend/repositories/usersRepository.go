@@ -5,14 +5,14 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 	uuid "github.com/satori/go.uuid"
 	"xws2021-nistagram/backend/models"
-	"xws2021-nistagram/backend/models/dtos"
+	"xws2021-nistagram/backend/util/auth"
 	"xws2021-nistagram/backend/util/encryption"
 )
 
 type UserRepository interface {
 	GetAllUsers() ([]models.User, error)
 	CreateUser(user *models.User) error
-	CheckPassword(data dtos.LoginDTO) (error)
+	CheckPassword(data auth.Credentials) (error)
 }
 
 type userRepository struct {
@@ -50,7 +50,7 @@ func (repository *userRepository) GetAllUsers() ([]models.User, error) {
 	return users, nil
 }
 
-func (repository *userRepository) CheckPassword(data dtos.LoginDTO) error {
+func (repository *userRepository) CheckPassword(data auth.Credentials) error {
 	var user models.User
 
 	query := "select u.id, u.password from registered_users u where u.email = $1"
