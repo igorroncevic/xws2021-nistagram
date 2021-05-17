@@ -3,11 +3,11 @@ package images
 import (
 	"bytes"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"image"
 	"os"
 	"strings"
-	"errors"
 )
 
 // Open an image from a file
@@ -49,7 +49,7 @@ func SaveImage(filename string, base64string string) error{
 	switch imageType{
 	case "image/jpeg", "image/jpg":
 		extension = ".jpg"
-		encoder = GetJPEGEncoder()
+		encoder = GetJPEGEncoder(EncoderSaving)
 		break
 	case "image/png":
 		extension = ".png"
@@ -99,7 +99,7 @@ func LoadImageToBase64(filename string) (string, error) {
 	switch mimetypeSuffix {
 	case "jpg", "jpeg":
 		base64string = "data:image/jpeg;base64,"
-		encoder = GetJPEGEncoder()
+		encoder = GetJPEGEncoder(EncoderLoading)
 		break
 	case "png":
 		base64string = "data:image/png;base64,"
