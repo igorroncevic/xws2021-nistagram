@@ -6,18 +6,18 @@ import (
 	"github.com/rs/cors"
 	"net/http"
 	"strings"
-	"xws2021-nistagram/backend/util"
 	"xws2021-nistagram/backend/util/auth"
+	"xws2021-nistagram/backend/util/setup"
 )
 
 func main() {
-	var dbConf util.DbConfig
+	var dbConf setup.DbConfig
 	if _, err := confl.DecodeFile("./backend/dbconfig.conf", &dbConf); err != nil {
 		panic(err)
 	}
 
-	dbPool := util.GetConnectionPool(dbConf)
-	userController := util.GetUsersController(dbPool)
+	db := setup.InitDatabase(dbConf)
+	userController := setup.GetUsersController(db)
 
 	r := mux.NewRouter()
 

@@ -1,7 +1,9 @@
 package persistence
 
+import "time"
+
 type Product struct {
-	Id string
+	Id string `gorm:"primaryKey"`
 	Name string
 	Price float32
 	IsActive bool
@@ -18,20 +20,20 @@ const (
 )
 
 type Order struct {
-	Id           string
+	Id           string `gorm:"primaryKey"`
 	UserId       string
 	PaymentType  PaymentType
-	ShippingDate string //TODO
+	ShippingDate time.Time //TODO
 	Referral     int
 }
 
 type OrderProducts struct{
-	OrderId string
-	ProductId string
+	OrderId string `gorm:"primaryKey"`
+	ProductId string `gorm:"primaryKey"`
 }
 
 type CommonReport struct{
-	Id string
+	Id string `gorm:"primaryKey"`
 	CampaignId string
 	PlacementNum int
 	LinkClickNum int
@@ -51,13 +53,13 @@ type StoryReport struct{
 }
 
 type UserM struct{
-	Id           string
+	Id           string `gorm:"primaryKey"`
 	FirstName    string
 	LastName     string
 	Email        string
 	Username     string
 	Role         UserRoleM
-	BirthDate    string // TODO
+	BirthDate    time.Time // TODO
 	ProfilePhoto string
 	PhoneNumber  string
 	Sex          string

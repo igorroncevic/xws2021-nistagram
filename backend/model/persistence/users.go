@@ -1,13 +1,15 @@
 package persistence
 
+import "time"
+
 type User struct {
-	Id           string
+	Id           string `gorm:"primaryKey"`
 	FirstName    string
 	LastName     string
 	Email        string
 	Username     string
 	Role         UserRole
-	BirthDate    string // TODO
+	BirthDate    time.Time
 	ProfilePhoto string
 	PhoneNumber  string
 	Sex          string
@@ -15,27 +17,27 @@ type User struct {
 }
 
 type UserAdditionalInfo struct {
-	Id        string
+	Id        string `gorm:"primaryKey"`
 	Biography string
 	Website   string
 	Category  UserCategory
 }
 
 type Privacy struct {
-	UserId string
+	UserId string `gorm:"primaryKey"`
 	IsProfilePublic bool
 	IsDMPublic bool
 	IsTagEnabled bool
 }
 
 type BlockedUsers struct {
-	UserId string
-	BlockedUserId string
+	UserId string `gorm:"primaryKey"`
+	BlockedUserId string `gorm:"primaryKey"`
 }
 
 type Followers struct {
-	UsedId string
-	FollowerId string
+	UsedId string `gorm:"primaryKey"`
+	FollowerId string `gorm:"primaryKey"`
 	IsMuted bool
 	IsCloseFriend bool
 	IsApprovedRequest bool
@@ -43,15 +45,15 @@ type Followers struct {
 }
 
 type VerificationRequest struct {
+	UserId string `gorm:"primaryKey"`
 	FirstName string
 	LastName string
 	DocumentPhoto string
-	UserId string
 	IsApproved bool
-	DateCreated string
+	CreatedAt time.Time
 }
 
 type APIKeys struct {
-	UserId string
+	UserId string `gorm:"primaryKey"`
 	APIKey string
 }

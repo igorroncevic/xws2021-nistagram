@@ -1,12 +1,9 @@
 package repositories
 
 import (
-	"context"
-	"github.com/jackc/pgx/v4/pgxpool"
-	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 	"xws2021-nistagram/backend/models"
 	"xws2021-nistagram/backend/util/auth"
-	"xws2021-nistagram/backend/util/encryption"
 )
 
 type UserRepository interface {
@@ -16,22 +13,21 @@ type UserRepository interface {
 }
 
 type userRepository struct {
-	DB *pgxpool.Pool
+	DB *gorm.DB
 }
 
-func NewUserRepo(db *pgxpool.Pool) UserRepository {
+func NewUserRepo(db *gorm.DB) (UserRepository, error) {
 	if db == nil {
-		panic("UserRepository not created, pgxpool is nil")
+		panic("UserRepository not created, gorm.DB is nil")
 	}
-	return &userRepository{
-		DB: db,
-	}
+
+	return &userRepository{ DB: db }, nil
 }
 
 func (repository *userRepository) GetAllUsers() ([]models.User, error) {
 	var users []models.User
 
-	query := "select u.id, u.first_name, u.last_name, u.email from registered_users u"
+	/*query := "select u.id, u.first_name, u.last_name, u.email from registered_users u"
 	rows, err := repository.DB.Query(context.Background(), query)
 	defer rows.Close()
 	if err != nil {
@@ -45,13 +41,13 @@ func (repository *userRepository) GetAllUsers() ([]models.User, error) {
 			return nil, err
 		}
 		users = append(users, user)
-	}
+	}*/
 
 	return users, nil
 }
 
 func (repository *userRepository) CheckPassword(data auth.Credentials) error {
-	var user models.User
+	/*var user models.User
 
 	query := "select u.id, u.password from registered_users u where u.email = $1"
 	rows, err := repository.DB.Query(context.Background(), query, data.Email)
@@ -71,12 +67,13 @@ func (repository *userRepository) CheckPassword(data auth.Credentials) error {
 	if err != nil{
 		return err
 	}
+	*/
 
 	return nil
 }
 
 func (repository *userRepository) CreateUser(user *models.User) error {
-	tx, err := repository.DB.Begin(context.Background())
+	/*tx, err := repository.DB.Begin(context.Background())
 	if err != nil {
 		return err
 	}
@@ -91,5 +88,6 @@ func (repository *userRepository) CreateUser(user *models.User) error {
 		return err
 	}
 
-	return tx.Commit(context.Background())
+	return tx.Commit(context.Background())*/
+	return nil
 }
