@@ -1,15 +1,15 @@
 package repositories
 
 import (
+	"github.com/david-drvar/xws2021-nistagram/common"
+	"github.com/david-drvar/xws2021-nistagram/user_service/model"
 	"gorm.io/gorm"
-	"xws2021-nistagram/backend/models"
-	"xws2021-nistagram/backend/util/auth"
 )
 
 type UserRepository interface {
-	GetAllUsers() ([]models.User, error)
-	CreateUser(user *models.User) error
-	CheckPassword(data auth.Credentials) (error)
+	GetAllUsers() ([]model.User, error)
+	CreateUser(user *model.User) error
+	CheckPassword(data common.Credentials) (error)
 }
 
 type userRepository struct {
@@ -24,8 +24,8 @@ func NewUserRepo(db *gorm.DB) (UserRepository, error) {
 	return &userRepository{ DB: db }, nil
 }
 
-func (repository *userRepository) GetAllUsers() ([]models.User, error) {
-	var users []models.User
+func (repository *userRepository) GetAllUsers() ([]model.User, error) {
+	var users []model.User
 
 	/*query := "select u.id, u.first_name, u.last_name, u.email from registered_users u"
 	rows, err := repository.DB.Query(context.Background(), query)
@@ -46,7 +46,7 @@ func (repository *userRepository) GetAllUsers() ([]models.User, error) {
 	return users, nil
 }
 
-func (repository *userRepository) CheckPassword(data auth.Credentials) error {
+func (repository *userRepository) CheckPassword(data common.Credentials) error {
 	/*var user models.User
 
 	query := "select u.id, u.password from registered_users u where u.email = $1"
@@ -72,7 +72,7 @@ func (repository *userRepository) CheckPassword(data auth.Credentials) error {
 	return nil
 }
 
-func (repository *userRepository) CreateUser(user *models.User) error {
+func (repository *userRepository) CreateUser(user *model.User) error {
 	/*tx, err := repository.DB.Begin(context.Background())
 	if err != nil {
 		return err

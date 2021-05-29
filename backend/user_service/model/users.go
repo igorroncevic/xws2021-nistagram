@@ -1,4 +1,4 @@
-package persistence
+package model
 
 import "time"
 
@@ -8,6 +8,7 @@ type User struct {
 	LastName     string
 	Email        string
 	Username     string
+	Password	 string
 	Role         UserRole
 	BirthDate    time.Time
 	ProfilePhoto string

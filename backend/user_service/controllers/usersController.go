@@ -2,11 +2,11 @@ package controllers
 
 import (
 	"encoding/json"
+	"github.com/david-drvar/xws2021-nistagram/common"
+	"github.com/david-drvar/xws2021-nistagram/user_service/model"
+	"github.com/david-drvar/xws2021-nistagram/user_service/services"
+	"github.com/david-drvar/xws2021-nistagram/user_service/util/customerr"
 	"net/http"
-	"xws2021-nistagram/backend/models"
-	"xws2021-nistagram/backend/services"
-	"xws2021-nistagram/backend/util/auth"
-	"xws2021-nistagram/backend/util/customerr"
 )
 
 type UserController struct {
@@ -27,7 +27,7 @@ func (controller *UserController) GetAllUsers(w http.ResponseWriter, r *http.Req
 }
 
 func (controller *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
-	var newUser models.User
+	var newUser model.User
 
 	json.NewDecoder(r.Body).Decode(&newUser)
 	err := controller.Service.CreateUser(&newUser)
@@ -40,7 +40,7 @@ func (controller *UserController) CreateUser(w http.ResponseWriter, r *http.Requ
 }
 
 func (controller *UserController) LoginUser(w http.ResponseWriter, r *http.Request) {
-	var loginData auth.Credentials
+	var loginData common.Credentials
 
 	json.NewDecoder(r.Body).Decode(&loginData)
 	err := controller.Service.LoginUser(loginData)
@@ -49,7 +49,7 @@ func (controller *UserController) LoginUser(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	generatedJwt, expirationTime, err := auth.GenerateJwt(loginData.Email)
+	generatedJwt, expirationTime, err := common.GenerateJwt(loginData.Email)
 	if err != nil{
 		customerr.WriteErrToClient(w, err)
 		return

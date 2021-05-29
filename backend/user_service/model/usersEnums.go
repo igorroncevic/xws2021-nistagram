@@ -1,4 +1,4 @@
-package persistence
+package model
 
 type UserRole string
 const (
