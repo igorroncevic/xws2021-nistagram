@@ -2,21 +2,18 @@ package main
 
 import (
 	"github.com/david-drvar/xws2021-nistagram/common"
-	"github.com/david-drvar/xws2021-nistagram/user_service/util"
+	"github.com/david-drvar/xws2021-nistagram/user_service/util/setup"
 	"github.com/gorilla/mux"
-	"github.com/lytics/confl"
-	"github.com/rs/cors"
 	"net/http"
 )
 
 func main() {
-	var dbConf common.DbConfig
-	if _, err := confl.DecodeFile("./../dbconfig.conf", &dbConf); err != nil {
-		panic(err)
+	db := common.InitDatabase()
+	err := setup.FillDatabase(db)
+	if err != nil {
+		panic("Cannot setup database tables. Error message: " + err.Error())
 	}
-
-	db := common.InitDatabase(dbConf)
-	userController := util.GetUsersController(db)
+	userController := setup.GetUsersController(db)
 
 	r := mux.NewRouter()
 
@@ -29,12 +26,7 @@ func main() {
 
 	usersRouter.Use(common.AuthMiddleware) // Authenticate user's JWT before letting them access these endpoints
 
-	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"*"}, // All origins, for now
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders: []string{"*"},
-		AllowCredentials: true,
-	})
+	c := common.SetupCors()
 
 	http.Handle("/", c.Handler(r))
 	http.ListenAndServe(":8001", c.Handler(r))

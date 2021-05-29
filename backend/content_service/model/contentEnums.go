@@ -1,4 +1,4 @@
-package persistence
+package model
 
 type PostType string
 const(

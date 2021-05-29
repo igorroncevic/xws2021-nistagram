@@ -1,10 +1,12 @@
-package persistence
+package model
+
+import "time"
 
 type Message struct{
 	Id string
 	SenderId string
 	ReceiverId string
-	DateCreated string // TODO
+	DateCreated time.Time // TODO
 	ContentType string
 	IsRead bool
 	Content string // interface{}, can be anything

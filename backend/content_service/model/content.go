@@ -1,4 +1,4 @@
-package persistence
+package model
 
 import "time"
 
@@ -9,7 +9,7 @@ type Post struct{
 	Type        PostType
 	Description string
 	Location    string
-	CreatedAt time.Time
+	CreatedAt   time.Time
 }
 
 type Story struct{

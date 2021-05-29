@@ -1,4 +1,4 @@
-package persistence
+package model
 
 import "time"
 
@@ -52,13 +52,13 @@ type StoryReport struct{
 	ViewsNum int
 }
 
-type UserM struct{
+type User struct{
 	Id           string `gorm:"primaryKey"`
 	FirstName    string
 	LastName     string
 	Email        string
 	Username     string
-	Role         UserRoleM
+	Role         UserRole
 	BirthDate    time.Time // TODO
 	ProfilePhoto string
 	PhoneNumber  string
@@ -66,8 +66,8 @@ type UserM struct{
 	IsActive     bool
 }
 
-type UserRoleM string
+type UserRole string
 const (
-	BasicM UserRoleM = "Basic"
-	AgentM           = "Agent"
+	Basic UserRole = "Basic"
+	Agent           = "Agent"
 )
