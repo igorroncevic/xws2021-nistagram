@@ -1,9 +1,10 @@
-package auth
+package common
 
 import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -21,6 +22,32 @@ var (
 	expirationMinutes = 5
 	jwtKey = []byte("some-jwt-key")
 )
+
+func AuthMiddleware(next http.Handler) http.Handler{
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.String(), "favicon.ico") {
+			// Allow favicon.ico to load
+			next.ServeHTTP(w, r)
+		}
+
+		authHeader := r.Header.Get("Authorization")
+		splitHeader := strings.Split(authHeader, " ")
+		if len(splitHeader) != 2{
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		jwtString := splitHeader[1]
+		status, err := ValidateJWT(jwtString)
+
+		if err != nil{
+			w.WriteHeader(status)
+			return
+		}else{
+			next.ServeHTTP(w, r)
+		}
+	})
+}
 
 func GenerateJwt(email string) (string, time.Time, error){
 	expirationTime := time.Now().Add(time.Duration(expirationMinutes) * time.Minute)
@@ -121,3 +148,4 @@ func RefreshJWT(jwtString string) (string, time.Time, int, error){
 
 	return tokenString, expirationTime, http.StatusOK, nil
 }
+
