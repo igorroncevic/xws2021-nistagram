@@ -1,22 +1,24 @@
 package repositories
 
 import (
+	"context"
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model"
+	userspb "github.com/david-drvar/xws2021-nistagram/user_service/proto"
 	"gorm.io/gorm"
 )
 
 type UserRepository interface {
 	GetAllUsers() ([]model.User, error)
-	CreateUser(user *model.User) error
-	CheckPassword(data common.Credentials) (error)
+	CreateUser(context.Context, *userspb.User) error
+	CheckPassword(data common.Credentials) error
 }
 
 type userRepository struct {
 	DB *gorm.DB
 }
 
-func NewUserRepo(db *gorm.DB) (UserRepository, error) {
+func NewUserRepo(db *gorm.DB) (*userRepository, error) {
 	if db == nil {
 		panic("UserRepository not created, gorm.DB is nil")
 	}
@@ -72,7 +74,7 @@ func (repository *userRepository) CheckPassword(data common.Credentials) error {
 	return nil
 }
 
-func (repository *userRepository) CreateUser(user *model.User) error {
+func (repository *userRepository) CreateUser(ctx context.Context, user *userspb.User) error {
 	/*tx, err := repository.DB.Begin(context.Background())
 	if err != nil {
 		return err
