@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Button, Form, Modal} from "react-bootstrap";
 import ReCAPTCHA from "react-google-recaptcha";
 import RegistrationPage from "./RegistrationPage";
@@ -14,7 +14,9 @@ export function IndexPage(){
     const[reCaptcha,setCaptcha]=useState(0);
     const[logInDisabled,setLogInDisabled]=useState(false);
     const[showModal,setShowModal]=useState(false);
-
+    useEffect(() => {
+        document.body.style.backgroundColor = "#C0C0C0"
+    });
     const sendParams=()=>{
         axios
             .post("http://localhost:8001/users/login", {
