@@ -7,6 +7,12 @@ export default function RegistrationPageHooks() {
     // Declare a new state variable, which we'll call "count"
     const [password, setPassword] = useState("");
     const [passwordStrength, setPasswordStrength] = useState("");
+    const [birthDate, setBirthDate] = useState("");
+    const [sex, setSex] = useState("");
+    const [username, setUsername] = useState("");
+    const [usernameErr, setUsernameErr] = useState("Enter username");
+    const [phoneNumber, setPhoneNumber] = useState("");
+    const [phoneNumberErr, setPhoneNumberErr] = useState("Enter phone number in form +38160123456");
     const [id, setId] = useState("");
     const [email, setEmail] = useState("");
     const [firstName, setFirstName] = useState("");
@@ -52,6 +58,19 @@ export default function RegistrationPageHooks() {
             case "rePassword" :
                 setRePassword(target.value);
                 break;
+            case "birthDate" :
+                setBirthDate(target.value);
+                break;
+            case "sex" :
+                setSex(target.value);
+                break;
+            case "phoneNumber" :
+                setPhoneNumber(target.value);
+                break;
+            case "username" :
+                setUsername(target.value);
+                break;
+
         }
         validationErrorMessage(event);
     }
@@ -75,6 +94,12 @@ export default function RegistrationPageHooks() {
             case 'rePassword':
                 setRePasswordErr( isValidRepeatedPassword(rePassword) ? '' : 'This password must match the previous!')
                 break;
+            case 'phoneNumber':
+                setPhoneNumberErr( isPhoneNumberValid(phoneNumber) ? '' : 'Enter phone number')
+                break;
+            case 'username':
+                setUsernameErr( isUsernameValid(username) ? '' : 'Enter username')
+                break;
             default:
                 /*this.setState({
                     validForm: true
@@ -82,6 +107,14 @@ export default function RegistrationPageHooks() {
                 break;
         }
 
+    }
+
+    function isUsernameValid(value) {
+        return /^[a-z0-9_.]+$/.test(value);
+    }
+
+    function isPhoneNumberValid(value) {
+        return /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/.test(value);
     }
 
     function checkNameAndSurname(value) {
@@ -174,6 +207,46 @@ export default function RegistrationPageHooks() {
                 <div className="col-sm-5 mb-2">
                     <input  disabled = {(disabled)? "disabled" : ""}  type="text" value={lastName} name="lastName" onChange={(e) => handleInputChange(e) } className="form-control" placeholder="Last Name"/>
                     {submitted && lastNameErr.length > 0 && <span className="text-danger">{lastNameErr}</span>}
+
+                </div>
+                <div className="col-sm-4">
+                </div>
+            </div>
+            <div className="row" style={{marginTop: '1rem'}}>
+                <label  className="col-sm-2 col-form-label">Birth date</label>
+                <div className="col-sm-6 mb-2">
+                    <input  disabled = {(disabled)? "disabled" : ""}   type="date" value={birthDate} name="birthDate" onChange={(e) => handleInputChange(e) } className="form-control" id="birthDate" />
+                </div>
+                <div className="col-sm-4">
+                </div>
+            </div>
+            <div className="row" style={{marginTop: '1rem'}}>
+                <label  className="col-sm-2 col-form-label">Sex</label>
+                <div className="col-sm-6 mb-2">
+                    <select onChange={(e) => handleInputChange(e)} name={"sex"} value={sex}>
+                        <option value="MALE">Male</option>
+                        <option value="FEMALE">Female</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+                <div className="col-sm-4">
+                </div>
+            </div>
+            <div className="row" style={{marginTop: '1rem'}}>
+                <label  className="col-sm-2 col-form-label">Phone number</label>
+                <div className="col-sm-6 mb-2">
+                    <input  disabled = {(disabled)? "disabled" : ""}   type="text" value={phoneNumber} name="phoneNumber" onChange={(e) => handleInputChange(e) } className="form-control" id="phoneNumber" placeholder="+38160123456" />
+                    {submitted && phoneNumberErr.length > 0 && <span className="text-danger">{phoneNumberErr}</span>}
+
+                </div>
+                <div className="col-sm-4">
+                </div>
+            </div>
+            <div className="row" style={{marginTop: '1rem'}}>
+                <label  className="col-sm-2 col-form-label">Username</label>
+                <div className="col-sm-6 mb-2">
+                    <input  disabled = {(disabled)? "disabled" : ""}   type="text" value={username} name="username" onChange={(e) => handleInputChange(e) } className="form-control" id="username" />
+                    {submitted && usernameErr.length > 0 && <span className="text-danger">{usernameErr}</span>}
 
                 </div>
                 <div className="col-sm-4">
