@@ -1,27 +1,12 @@
-import './App.css';
-import * as React from "react";
-import {BrowserRouter, Switch, Route} from 'react-router-dom';
-import IndexPage from "./pages/IndexPage";
+import  React from "react";
+import {LoginPage} from './pages/LoginPage.js'
 
-export default class App extends React.Component {
-  constructor () {
-    super();
-    this.state = {
-      userRole : "",
-      username : "",
-      Id : ""
-    }
-  };
-  render() {
-    document.title = "Nistagram"
+function App () {
     return (
-        <BrowserRouter>
-          <Switch>
-            <Route exact path="/"  render={(props) => <IndexPage {...props} /> } />
-
-          </Switch>
-        </BrowserRouter>
+        <div className="App">
+            Here is the Latest React version: <strong>{React.version}</strong>
+        <LoginPage/>
+        </div>
     );
-  }
 }
-
+export default App
