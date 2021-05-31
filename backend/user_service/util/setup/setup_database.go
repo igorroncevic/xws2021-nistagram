@@ -13,6 +13,7 @@ func FillDatabase(db *gorm.DB) error {
 		&model.Followers{},
 		&model.VerificationRequest{},
 		&model.APIKeys{},
-		)
+	)
+
 	return err
 }
