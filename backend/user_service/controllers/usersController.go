@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
@@ -30,7 +31,7 @@ func (controller *UserController) CreateUser(w http.ResponseWriter, r *http.Requ
 	var newUser persistence.User
 
 	json.NewDecoder(r.Body).Decode(&newUser)
-	err := controller.Service.CreateUser(&newUser)
+	err := controller.Service.CreateUser(context.Background(), &newUser)
 	if err != nil {
 		customerr.WriteErrToClient(w, err)
 		return

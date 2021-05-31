@@ -35,7 +35,7 @@ func (s *Server) GetCloser() io.Closer {
 	return s.closer
 }
 
-func (s *Server) CreateUser(ctx context.Context, in *userspb.CreateUserRequest) (*userspb.User, error) {
+func (s *Server) CreateUser(ctx context.Context, in *userspb.CreateUserRequest) (*userspb.EmptyResponse, error) {
 	return s.userController.CreateUser(ctx, in)
 }
 

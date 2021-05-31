@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/david-drvar/xws2021-nistagram/common"
+	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/user_service/repositories"
@@ -23,13 +24,21 @@ func NewUserService(db *gorm.DB) (*UserService, error){
 	}, err
 }
 
-func (service *UserService) GetAllUsers() ([]persistence.User, error) {
-	return service.repository.GetAllUsers()
+func (service *UserService) GetAllUsers(ctx context.Context) ([]persistence.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.GetAllUsers(ctx)
 }
 
-func (service *UserService) CreateUser(user *persistence.User) error {
+func (service *UserService) CreateUser(ctx context.Context, user *persistence.User) (error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	user.Password = encryption.HashAndSalt([]byte(user.Password))
-	return service.repository.CreateUser(user)
+	return service.repository.CreateUser(ctx, user)
 }
 
 func (service *UserService) LoginUser(ctx context.Context, data common.Credentials) error {

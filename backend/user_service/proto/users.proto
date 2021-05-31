@@ -8,14 +8,14 @@ import "google/protobuf/timestamp.proto";
 option go_package = "github.com/xws2021-nistagram/user_service/proto";
 
 service Users {
-  rpc CreateUser (CreateUserRequest) returns (User){
+  rpc CreateUser (CreateUserRequest) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/api/users",
       body: "user"
     };
   }
 
-  rpc GetAllUsers (EmptyRequest) returns (UsersResponse){
+  rpc GetAllUsers (EmptyRequest) returns (UsersResponse) {
     option(google.api.http) = {
       get: "/api/users"
     };
@@ -46,3 +46,4 @@ message CreateUserRequest {
 }
 
 message EmptyRequest {}
+message EmptyResponse {}

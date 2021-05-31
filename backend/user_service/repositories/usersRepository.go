@@ -1,17 +1,19 @@
 package repositories
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/david-drvar/xws2021-nistagram/common"
+	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
 	"gorm.io/gorm"
 )
 
 type UserRepository interface {
-	GetAllUsers() ([]persistence.User, error)
-	CreateUser(user *persistence.User) error
+	GetAllUsers(context.Context) ([]persistence.User, error)
+	CreateUser(context.Context, *persistence.User) error
 	CheckPassword(data common.Credentials) error
 	UpdateUserProfile(dto domain.User) (bool, error)
 }
@@ -27,7 +29,6 @@ func NewUserRepo(db *gorm.DB) (*userRepository, error) {
 
 	return &userRepository{ DB: db }, nil
 }
-
 
 
 func (repository *userRepository) UpdateUserProfile(userDTO domain.User) (bool, error) {
@@ -77,7 +78,11 @@ func(repository *userRepository) GetUserByUsername(username string) (domain.User
 }
 
 
-func (repository *userRepository) GetAllUsers() ([]persistence.User, error) {
+func (repository *userRepository) GetAllUsers(ctx context.Context) ([]persistence.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllUsers")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	var users []persistence.User
 
 	/*query := "select u.id, u.first_name, u.last_name, u.email from registered_users u"
@@ -126,7 +131,10 @@ func (repository *userRepository) CheckPassword(data common.Credentials) error {
 }
 
 
-func (repository *userRepository) CreateUser(user *persistence.User) error {
+func (repository *userRepository) CreateUser(ctx context.Context, user *persistence.User) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
 	/*tx, err := repository.DB.Begin(context.Background())
 	if err != nil {
 		return err
