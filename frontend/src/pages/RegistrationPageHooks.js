@@ -9,6 +9,7 @@ export default function RegistrationPageHooks() {
     const [passwordStrength, setPasswordStrength] = useState("");
     const [birthDate, setBirthDate] = useState("");
     const [sex, setSex] = useState("");
+    const [biography, setBiography] = useState("");
     const [username, setUsername] = useState("");
     const [usernameErr, setUsernameErr] = useState("Enter username");
     const [phoneNumber, setPhoneNumber] = useState("");
@@ -69,6 +70,9 @@ export default function RegistrationPageHooks() {
                 break;
             case "username" :
                 setUsername(target.value);
+                break;
+            case "biography" :
+                setBiography(target.value);
                 break;
 
         }
@@ -207,7 +211,6 @@ export default function RegistrationPageHooks() {
                 <div className="col-sm-5 mb-2">
                     <input  disabled = {(disabled)? "disabled" : ""}  type="text" value={lastName} name="lastName" onChange={(e) => handleInputChange(e) } className="form-control" placeholder="Last Name"/>
                     {submitted && lastNameErr.length > 0 && <span className="text-danger">{lastNameErr}</span>}
-
                 </div>
                 <div className="col-sm-4">
                 </div>
@@ -248,6 +251,14 @@ export default function RegistrationPageHooks() {
                     <input  disabled = {(disabled)? "disabled" : ""}   type="text" value={username} name="username" onChange={(e) => handleInputChange(e) } className="form-control" id="username" />
                     {submitted && usernameErr.length > 0 && <span className="text-danger">{usernameErr}</span>}
 
+                </div>
+                <div className="col-sm-4">
+                </div>
+            </div>
+            <div className="row" style={{marginTop: '1rem'}}>
+                <label  className="col-sm-2 col-form-label">Biography</label>
+                <div className="col-sm-6 mb-2">
+                    <input  disabled = {(disabled)? "disabled" : ""}   type="text" value={biography} name="biography" onChange={(e) => handleInputChange(e) } className="form-control" id="biography" />
                 </div>
                 <div className="col-sm-4">
                 </div>
