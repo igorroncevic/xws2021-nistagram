@@ -14,5 +14,6 @@ func FillDatabase(db *gorm.DB) error {
 		&persistence.VerificationRequest{},
 		&persistence.APIKeys{},
 		)
+
 	return err
 }

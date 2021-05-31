@@ -20,7 +20,7 @@ type userRepository struct {
 	DB *gorm.DB
 }
 
-func NewUserRepo(db *gorm.DB) (UserRepository, error) {
+func NewUserRepo(db *gorm.DB) (*userRepository, error) {
 	if db == nil {
 		panic("UserRepository not created, gorm.DB is nil")
 	}
@@ -124,6 +124,7 @@ func (repository *userRepository) CheckPassword(data common.Credentials) error {
 
 	return nil
 }
+
 
 func (repository *userRepository) CreateUser(user *persistence.User) error {
 	/*tx, err := repository.DB.Begin(context.Background())
