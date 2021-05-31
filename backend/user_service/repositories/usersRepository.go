@@ -1,22 +1,28 @@
 package repositories
 
 import (
+	"context"
+	"errors"
+	"fmt"
 	"github.com/david-drvar/xws2021-nistagram/common"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model"
+	"github.com/david-drvar/xws2021-nistagram/common/tracer"
+	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
+	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
 	"gorm.io/gorm"
 )
 
 type UserRepository interface {
-	GetAllUsers() ([]model.User, error)
-	CreateUser(user *model.User) error
-	CheckPassword(data common.Credentials) (error)
+	GetAllUsers(context.Context) ([]persistence.User, error)
+	CreateUser(context.Context, *persistence.User) error
+	CheckPassword(data common.Credentials) error
+	UpdateUserProfile(dto domain.User) (bool, error)
 }
 
 type userRepository struct {
 	DB *gorm.DB
 }
 
-func NewUserRepo(db *gorm.DB) (UserRepository, error) {
+func NewUserRepo(db *gorm.DB) (*userRepository, error) {
 	if db == nil {
 		panic("UserRepository not created, gorm.DB is nil")
 	}
@@ -24,8 +30,60 @@ func NewUserRepo(db *gorm.DB) (UserRepository, error) {
 	return &userRepository{ DB: db }, nil
 }
 
-func (repository *userRepository) GetAllUsers() ([]model.User, error) {
-	var users []model.User
+
+func (repository *userRepository) UpdateUserProfile(userDTO domain.User) (bool, error) {
+	var user persistence.User
+	var userAdditionalInfo persistence.UserAdditionalInfo
+
+	db := repository.DB.Model(&user).Where("id = ?", userDTO.Id ).Updates(persistence.User{FirstName: userDTO.FirstName, LastName: userDTO.LastName, Email: userDTO.Email, Username: userDTO.Username, BirthDate: userDTO.BirthDate,
+	    	 PhoneNumber: userDTO.PhoneNumber, Sex: userDTO.Sex})
+
+	fmt.Println(db.RowsAffected)
+
+	if db.Error != nil  {
+		return false, db.Error
+	}else if db.RowsAffected == 0 {
+		return false, errors.New("rows affected is equal to zero")
+	}
+	db = repository.DB.Model(&userAdditionalInfo).Where("id = ?", userDTO.Id ).Updates(persistence.UserAdditionalInfo{Website: userDTO.Website, Category: userDTO.Category, Biography: userDTO.Biography}).Find(1)
+
+	if db.Error != nil {
+		return false, db.Error
+	}else if db.RowsAffected == 0 {
+		return false, errors.New("rows affected is equal to zero")
+	}
+
+	return true, nil
+}
+
+func(repository *userRepository) GetUserByUsername(username string) (domain.User, error) {
+	var dbUser persistence.User
+	var dbUserAdditionalInfo persistence.UserAdditionalInfo
+
+	db := repository.DB.Where("username = ?", username).Find(&dbUser)
+	if db.Error != nil{
+		return domain.User{}, db.Error
+	}
+
+	db = repository.DB.Where("id = ?", dbUser.Id).Find(&dbUserAdditionalInfo)
+	if db.Error != nil{
+		return domain.User{}, db.Error
+	}
+	user := &domain.User{}
+
+	user.GenerateUserDTO(dbUser, dbUserAdditionalInfo)
+
+	return *user, nil
+
+}
+
+
+func (repository *userRepository) GetAllUsers(ctx context.Context) ([]persistence.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllUsers")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var users []persistence.User
 
 	/*query := "select u.id, u.first_name, u.last_name, u.email from registered_users u"
 	rows, err := repository.DB.Query(context.Background(), query)
@@ -72,7 +130,11 @@ func (repository *userRepository) CheckPassword(data common.Credentials) error {
 	return nil
 }
 
-func (repository *userRepository) CreateUser(user *model.User) error {
+
+func (repository *userRepository) CreateUser(ctx context.Context, user *persistence.User) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
 	/*tx, err := repository.DB.Begin(context.Background())
 	if err != nil {
 		return err
