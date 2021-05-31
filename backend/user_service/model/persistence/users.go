@@ -1,15 +1,18 @@
-package model
+package persistence
 
-import "time"
+import (
+	"github.com/david-drvar/xws2021-nistagram/user_service/model"
+	"time"
+)
 
 type User struct {
 	Id           string `gorm:"primaryKey"`
 	FirstName    string
 	LastName     string
 	Email        string
-	Username     string
-	Password	 string
-	Role         UserRole
+	Username     string `gorm:"unique"`
+	Password     string
+	Role         model.UserRole
 	BirthDate    time.Time
 	ProfilePhoto string
 	PhoneNumber  string
@@ -21,7 +24,7 @@ type UserAdditionalInfo struct {
 	Id        string `gorm:"primaryKey"`
 	Biography string
 	Website   string
-	Category  UserCategory
+	Category  model.UserCategory
 }
 
 type Privacy struct {
