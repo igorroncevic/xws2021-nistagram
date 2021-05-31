@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package proto;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/xws2021-nistagram/user_service/proto";
+
+service Users {
+  rpc CreateUser (CreateUserRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users",
+      body: "user"
+    };
+  }
+
+  rpc GetAllUsers (EmptyRequest) returns (UsersResponse) {
+    option(google.api.http) = {
+      get: "/api/users"
+    };
+  }
+}
+
+message User {
+  string id = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string email = 4;
+  string username = 5;
+  string password = 6;
+  string role = 7;
+  google.protobuf.Timestamp birthdate = 8;
+  string profilePhoto = 9;
+  string phoneNumber = 10;
+  string sex = 11;
+  bool isActive = 12;
+}
+
+message UsersResponse {
+  repeated User users = 1;
+}
+
+message CreateUserRequest {
+  User user = 1;
+}
+
+message EmptyRequest {}
+message EmptyResponse {}
