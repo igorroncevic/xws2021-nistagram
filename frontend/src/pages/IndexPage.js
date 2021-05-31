@@ -66,7 +66,6 @@ export function IndexPage(){
     const closeCaptcha = () => {
         setCaptcha(0);
         setLogInDisabled(false);
-
     }
 
     const handleModal = () => {
@@ -76,7 +75,6 @@ export function IndexPage(){
     const closeModal = () => {
         setShowModal(!showModal)
     }
-
 
     return (
         <div style={{ padding: '60px 0', margin: '0 auto', maxWidth: '320px' }}>
@@ -93,6 +91,9 @@ export function IndexPage(){
                     <Form.Control  name="password" type="password" onChange={handleChange} value={details.password}/>
                 </Form.Group>
                 <p hidden={badCredentials} style={{ color: "red" }}> Invalid username or password!</p>
+                <div style={{display : "flex"}}>
+                    <a href={'/forgotten'} style={{'color': '#089A87',float : "right"}}> Forgot password?</a>
+                </div>
                 {reCaptcha >= 3 &&
                 <ReCAPTCHA
                     style={{ display: "inline-block" }}
