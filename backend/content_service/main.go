@@ -6,7 +6,7 @@ import (
 )
 
 func main(){
-	db := common.InitDatabase()
+	db := common.InitDatabase(common.ContentDatabase)
 	err := setup.FillDatabase(db)
 	if err != nil {
 		panic("Cannot setup database tables. Error message: " + err.Error())

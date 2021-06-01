@@ -1,5 +1,5 @@
 *.conf
-!../dbconfig.example.conf
+!*.example.conf
 .idea
 
 backend/content_service/content/

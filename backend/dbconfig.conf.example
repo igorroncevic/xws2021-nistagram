@@ -1,0 +1,4 @@
+user_database_url=postgresql://localhost:5432/xws_users?user=postgres&password=root
+content_database_url=postgresql://localhost:5432/xws_content?user=postgres&password=root
+agent_database_url=postgresql://localhost:5432/xws_agent?user=postgres&password=root
+recommendation_database_url=postgresql://localhost:5432/xws_recommendation?user=postgres&password=root
