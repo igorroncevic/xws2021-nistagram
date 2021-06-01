@@ -15,6 +15,7 @@ import (
 type UserRepository interface {
 	GetAllUsers(context.Context) ([]persistence.User, error)
 	CreateUser(context.Context, *persistence.User) error
+	CreateUserWithAdditionalInfo(context.Context, *persistence.User, *persistence.UserAdditionalInfo) error
 	CheckPassword(data common.Credentials) error
 	UpdateUserProfile(dto domain.User) (bool, error)
 }
@@ -137,7 +138,22 @@ func (repository *userRepository) CreateUser(ctx context.Context, user *persiste
 	user.Id = uuid.New().String()
 	result := repository.DB.Create(&user)
 
-	//todo dodaj additional info
-
 	return result.Error
+}
+
+func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Context, user *persistence.User, userAdditionalInfo *persistence.UserAdditionalInfo) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	user.Id = uuid.New().String()
+	resultUser := repository.DB.Create(&user)
+	if resultUser.Error != nil {
+		return nil
+	}
+
+	userAdditionalInfo.Id = user.Id
+	resultUserAdditionalInfo := repository.DB.Create(&userAdditionalInfo)
+
+	return resultUserAdditionalInfo.Error
 }
