@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package proto;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/xws2021-nistagram/user_service/proto";
+
+service Privacy {
+    rpc CreatePrivacy (CreatePrivacyRequest) returns (EmptyResponsePrivacy) {
+        option(google.api.http) = {
+            post: "/api/privacy",
+            body: "*"
+        };
+    }
+
+    rpc UpdatePrivacy (CreatePrivacyRequest) returns (EmptyResponsePrivacy) {
+        option(google.api.http) = {
+            post: "/api/privacy/update",
+            body: "*"
+        };
+    }
+}
+
+message PrivacyMessage {
+    string Id = 1;
+    bool isProfilePublic = 2;
+    bool isDmPublic = 3;
+    bool isTagEnabled = 4;
+}
+
+message CreatePrivacyRequest {
+    PrivacyMessage privacy = 1;
+}
+
+message EmptyResponsePrivacy {}
+message EmptyRequestPrivacy {}
