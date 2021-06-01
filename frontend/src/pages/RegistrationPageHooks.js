@@ -177,13 +177,18 @@ export default function RegistrationPageHooks() {
 
     async function sendParams() {
         axios
-            .post('http://localhost:8080/auth/save', {
-                'id':'',
+            .post('http://localhost:8001/api/users', {
+                'id':'1',
                 'firstName' : firstName,
                 'lastName' : lastName,
                 'email' : email,
+                'username' : username,
                 'password' : password,
-                'rePassword':rePassword
+                'role' : 'Basic',
+                'birthdate' : "2017-01-15T01:30:15.01Z",
+                'profilePhoto' : 'idk',
+                'sex' : 'MAN',
+                'isActive' : true
             })
             .then(res => {
                 setErrorMessage(false);
@@ -191,6 +196,7 @@ export default function RegistrationPageHooks() {
                 setDisabled(!disabled);
             }).catch(res => {
                 setErrorMessage(true);
+                console.log("NE RADI")
         })
 
     }

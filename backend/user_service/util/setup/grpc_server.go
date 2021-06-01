@@ -14,7 +14,7 @@ import (
 	"net/http"
 )
 
-func GRPCServer(db *gorm.DB){
+func GRPCServer(db *gorm.DB) {
 	// Create a listener on TCP port
 	lis, err := net.Listen("tcp", grpc_common.Users_service_address)
 	if err != nil {
@@ -59,4 +59,3 @@ func GRPCServer(db *gorm.DB){
 	log.Println("Serving gRPC-Gateway on " + grpc_common.Users_gateway_address)
 	log.Fatalln(gwServer.ListenAndServe())
 }
-
