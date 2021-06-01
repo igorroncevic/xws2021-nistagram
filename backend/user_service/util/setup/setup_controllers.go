@@ -14,12 +14,12 @@ func GetUsersController(db *gorm.DB) *controllers.UserGrpcController {
 	return userController
 }
 
-func GetPrivacyController(db *gorm.DB) controllers.PrivacyController {
+func GetPrivacyController(db *gorm.DB) *controllers.PrivacyGrpcController {
 	/*privacyRepository, _ := repositories.NewPrivacyRepo(db)
-	privacyService := services.PrivacyService{Repository: privacyRepository}
-	privacyController := controllers.PrivacyController{Service: privacyService}*/
+	privacyService := services.PrivacyService{Repository: privacyRepository}*/
+	privacyController, _ := controllers.NewPrivacyController(db)
 
 	fmt.Println("User controller up and running.")
 
-	return controllers.PrivacyController{} //privacyController
+	return privacyController//privacyController
 }

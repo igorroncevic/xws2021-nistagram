@@ -8,6 +8,7 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
+	"github.com/david-drvar/xws2021-nistagram/user_service/util/encryption"
 	"gorm.io/gorm"
 )
 
@@ -16,6 +17,7 @@ type UserRepository interface {
 	CreateUser(context.Context, *persistence.User) error
 	CheckPassword(data common.Credentials) error
 	UpdateUserProfile(dto domain.User) (bool, error)
+	UpdateUserPassword(password domain.Password) (bool, error)
 }
 
 type userRepository struct {
@@ -30,6 +32,31 @@ func NewUserRepo(db *gorm.DB) (*userRepository, error) {
 	return &userRepository{ DB: db }, nil
 }
 
+
+func (repository *userRepository) UpdateUserPassword(password domain.Password) (bool, error){
+	var user *persistence.User
+
+	db := repository.DB.Select("password").Where("id = ?", password.Id).Find(&user)
+	if db.Error != nil {
+		return false, db.Error
+	}else if db.RowsAffected == 0 {
+		return false, errors.New("rows affected is equal to zero")
+	}
+
+	err := encryption.CompareHashAndPassword([]byte(user.Password), []byte(password.OldPassword))
+	if err != nil {
+		return false, err
+	}
+
+	db = repository.DB.Model(&user).Where("id = ?", password.Id).Updates(persistence.User{Password:  encryption.HashAndSalt([]byte(password.NewPassword))})
+	if db.Error != nil {
+		return false, db.Error
+	}else if db.RowsAffected == 0 {
+		return false, errors.New("rows affected is equal to zero")
+	}
+
+	return true, nil
+}
 
 func (repository *userRepository) UpdateUserProfile(userDTO domain.User) (bool, error) {
 	var user persistence.User

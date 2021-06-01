@@ -52,3 +52,16 @@ func (service *UserService) UpdateUserProfile(userDTO domain.User) (bool, error)
 
 	return service.repository.UpdateUserProfile(userDTO)
 }
+
+func (service *UserService) UpdateUserPassword(password domain.Password) (bool, error) {
+	if password.NewPassword != password.RepeatedPassword {
+		return false, errors.New("Passwords do not match!")
+	}
+
+	_, err := service.repository.UpdateUserPassword(password)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
