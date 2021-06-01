@@ -3,8 +3,6 @@ package main
 import (
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/content_service/util/setup"
-	"github.com/gorilla/mux"
-	"net/http"
 )
 
 func main(){
@@ -14,14 +12,5 @@ func main(){
 		panic("Cannot setup database tables. Error message: " + err.Error())
 	}
 
-	r := mux.NewRouter()
-
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello from content service!"))
-	}).Methods("GET")
-
-	c := common.SetupCors()
-
-	http.Handle("/", c.Handler(r))
-	http.ListenAndServe(":8002", c.Handler(r))
+	setup.GRPCServer(db)
 }

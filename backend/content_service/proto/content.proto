@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+package proto;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/xws2021-nistagram/content_service/proto";
+
+service Content {
+  rpc CreatePost (Post) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/content/post",
+      body: "*"
+    };
+  }
+
+  rpc GetAllPosts (EmptyRequest) returns (PostArray) {
+    option(google.api.http) = {
+      get: "/api/content/post"
+    };
+  }
+}
+
+message Post {
+  string id = 1;
+  string userId = 2;
+  bool isAd = 3;
+  string type = 4;
+  string description = 5;
+  string location = 6;
+  google.protobuf.Timestamp createdAt = 7;
+  repeated Media media = 8;
+  repeated Tag tags = 9;
+  repeated Comment comments = 10;
+  repeated Like likes = 11;
+  repeated Like dislikes = 12;
+}
+
+// Used for basic preview of posts, comments and likes/dislikes will be fetched on request
+message ReducedPost {
+  string id = 1;
+  string userId = 2;
+  bool isAd = 3;
+  string type = 4;
+  string description = 5;
+  string location = 6;
+  google.protobuf.Timestamp createdAt = 7;
+  repeated Media media = 8;
+  repeated Tag tags = 9;
+  int32 commentsNum = 10;
+  int32 likesNum = 11;
+  int32 dislikesNum = 12;
+}
+
+message Story {
+  string id = 1;
+  string userId = 2;
+  bool isAd = 3;
+  string type = 4;
+  string description = 5;
+  string location = 6;
+  google.protobuf.Timestamp createdAt = 7;
+  repeated Media media = 8;
+  repeated Tag tags = 9;
+  bool isCloseFriends = 10;
+}
+
+message Media {
+  string id = 1;
+  string type = 2;
+  string postId = 3;
+  string content = 4;
+  int32 orderNum = 5;
+}
+
+message Tag {
+  string postId = 1;
+  string userId = 2;
+  string username = 3;
+}
+
+message Collection {
+  string id = 1;
+  string name = 2;
+  string userId = 3;
+  repeated Post posts = 4;
+}
+
+message Favorites {
+  string userId = 1;
+  repeated Collection collections = 2;
+  repeated Post unclassified = 3;
+}
+
+message Like {
+  string postId = 1;
+  string userId = 2;
+  bool isLike = 3;
+}
+
+message Comment {
+  string postId = 1;
+  string userId = 2;
+  string username = 3;
+  string content = 4;
+  google.protobuf.Timestamp createdAt = 5;
+}
+
+message Highlight {
+  string id = 1;
+  string name = 2;
+  repeated Story stories = 3;
+}
+
+message PostArray {
+  repeated Post posts = 1;
+}
+
+message StoryArray {
+  repeated Story stories = 1;
+}
+
+message EmptyRequest {}
+message EmptyResponse {}

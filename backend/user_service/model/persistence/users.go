@@ -39,8 +39,8 @@ func (u User) ConvertToGrpc() (*userspb.User) {
 	}
 }
 
-func (u User) ConvertFromGrpc(user *userspb.User) *User {
-	return &User{
+func (u *User) ConvertFromGrpc(user *userspb.User) {
+	u = &User{
 		Id:           user.Id,
 		FirstName:    user.FirstName,
 		LastName:     user.LastName,
