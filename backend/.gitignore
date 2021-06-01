@@ -2,4 +2,4 @@
 !../dbconfig.example.conf
 .idea
 
-backend/content_service/content/*
+backend/content_service/content/
