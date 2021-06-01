@@ -75,7 +75,6 @@ func (repository *userRepository) GetUserByUsername(username string) (domain.Use
 	user.GenerateUserDTO(dbUser, dbUserAdditionalInfo)
 
 	return *user, nil
-
 }
 
 func (repository *userRepository) GetAllUsers(ctx context.Context) ([]persistence.User, error) {
@@ -141,15 +140,35 @@ func (repository *userRepository) CreateUser(ctx context.Context, user *persiste
 	return result.Error
 }
 
+func (repository *userRepository) CheckEmailExists(ctx context.Context, email string) bool {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	count := int64(0)
+	repository.DB.Model(persistence.User{}).Where("email = ?", email).Count(&count)
+	return count > 0
+
+}
+
 func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Context, user *persistence.User, userAdditionalInfo *persistence.UserAdditionalInfo) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	_, err := repository.GetUserByUsername(user.Username)
+	if err != nil {
+		return errors.New("username already exists")
+	}
+
+	if repository.CheckEmailExists(ctx, user.Email) {
+		return errors.New("email already exists")
+	}
+
 	user.Id = uuid.New().String()
 	resultUser := repository.DB.Create(&user)
 	if resultUser.Error != nil {
-		return nil
+		return resultUser.Error
 	}
 
 	userAdditionalInfo.Id = user.Id

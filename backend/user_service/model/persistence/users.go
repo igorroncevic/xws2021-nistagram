@@ -11,7 +11,7 @@ type User struct {
 	Id           string `gorm:"primaryKey"`
 	FirstName    string
 	LastName     string
-	Email        string
+	Email        string `gorm:"unique"`
 	Username     string `gorm:"unique"`
 	Password     string
 	Role         model.UserRole

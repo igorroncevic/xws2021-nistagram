@@ -38,7 +38,7 @@ func (s *UserGrpcController) CreateUser(ctx context.Context, in *userspb.CreateU
 
 	err := s.service.CreateUserWithAdditionalInfo(ctx, &user, &userAdditionalInfo)
 	if err != nil {
-		return &userspb.EmptyResponse{}, status.Errorf(codes.Unknown, "Could not create user")
+		return &userspb.EmptyResponse{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
 	return &userspb.EmptyResponse{}, nil
