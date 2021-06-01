@@ -16,6 +16,7 @@ import (
 type ContentRepository interface {
 	GetAllPosts(context.Context) ([]persistence.Post, error)
 	CreatePost(context.Context, *domain.Post) error
+	GetPostById(context.Context, string) (*persistence.Post, error)
 }
 
 type contentRepository struct {
@@ -43,6 +44,21 @@ func (repository *contentRepository) GetAllPosts(ctx context.Context) ([]persist
 
 	return posts, nil
 }
+
+func (repository *contentRepository) GetPostById(ctx context.Context, id string) (*persistence.Post, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPosts")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	post := &persistence.Post{}
+	result := repository.DB.Where("id = ?", id).First(&post)
+	if result.Error != nil {
+		return post, result.Error
+	}
+
+	return post, nil
+}
+
 
 func (repository *contentRepository) CreatePost(ctx context.Context, post *domain.Post) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreatePost")

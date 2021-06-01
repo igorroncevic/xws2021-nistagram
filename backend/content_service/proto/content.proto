@@ -10,14 +10,27 @@ option go_package = "github.com/xws2021-nistagram/content_service/proto";
 service Content {
   rpc CreatePost (Post) returns (EmptyResponse) {
     option(google.api.http) = {
-      post: "/api/content/post",
+      post: "/api/content/posts",
       body: "*"
     };
   }
 
   rpc GetAllPosts (EmptyRequest) returns (PostArray) {
     option(google.api.http) = {
-      get: "/api/content/post"
+      get: "/api/content/posts"
+    };
+  }
+
+  rpc CreateComment (Comment) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/content/comments",
+      body: "*"
+    };
+  }
+
+  rpc GetCommentsForPost (RequestId) returns (CommentsArray) {
+    option(google.api.http) = {
+      get: "/api/content/comments/{id}"
     };
   }
 }
@@ -100,11 +113,12 @@ message Like {
 }
 
 message Comment {
-  string postId = 1;
-  string userId = 2;
-  string username = 3;
-  string content = 4;
-  google.protobuf.Timestamp createdAt = 5;
+  string id = 1;
+  string postId = 2;
+  string userId = 3;
+  string username = 4;
+  string content = 5;
+  google.protobuf.Timestamp createdAt = 6;
 }
 
 message Highlight {
@@ -119,6 +133,14 @@ message PostArray {
 
 message StoryArray {
   repeated Story stories = 1;
+}
+
+message CommentsArray {
+  repeated Comment comments = 1;
+}
+
+message RequestId {
+  string id = 1;
 }
 
 message EmptyRequest {}

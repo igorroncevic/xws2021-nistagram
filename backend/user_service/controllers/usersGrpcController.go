@@ -48,7 +48,7 @@ func (s *UserGrpcController) GetAllUsers(ctx context.Context, in *userspb.EmptyR
 	if err != nil{
 		return &userspb.UsersResponse{
 			Users: []*userspb.User{},
-		}, status.Errorf(codes.Unknown, "Could retrieve users")
+		}, status.Errorf(codes.Unknown, "Could not retrieve users")
 	}
 
 	responseUsers := []*userspb.User{}

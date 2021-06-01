@@ -70,6 +70,7 @@ type Like struct {
 }
 
 type Comment struct {
+	Id			string
 	PostId 		string
 	UserId 		string
 	Username 	string

@@ -43,12 +43,16 @@ func (s *ContentGrpcController) CreatePost(ctx context.Context, in *contentpb.Po
 }
 
 func (s *ContentGrpcController) GetAllPosts(ctx context.Context, in *contentpb.EmptyRequest) (*contentpb.PostArray, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPosts")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	posts, err := s.service.GetAllPosts(ctx)
 
 	if err != nil{
 		return &contentpb.PostArray{
 			Posts: []*contentpb.Post{},
-		}, status.Errorf(codes.Unknown, "Could retrieve posts")
+		}, status.Errorf(codes.Unknown, "Could not retrieve posts")
 	}
 
 	responsePosts := []*contentpb.Post{}

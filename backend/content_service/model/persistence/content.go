@@ -2,8 +2,6 @@ package persistence
 
 import (
 	"github.com/david-drvar/xws2021-nistagram/content_service/model"
-	contentpb "github.com/david-drvar/xws2021-nistagram/content_service/proto"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 )
 
@@ -15,30 +13,6 @@ type Post struct{
 	Description string
 	Location    string
 	CreatedAt   time.Time
-}
-
-func (p *Post) ConvertFromGrpc(post *contentpb.Post) {
-	p = &Post{
-		Id:          post.Id,
-		UserId:      post.UserId,
-		IsAd:        post.IsAd,
-		Type:        model.GetPostType(post.Type),
-		Description: post.Description,
-		Location:    post.Location,
-		CreatedAt:   post.CreatedAt.AsTime(),
-	}
-}
-
-func (p Post) ConvertToGrpc() *contentpb.Post {
-	return &contentpb.Post{
-		Id:          p.Id,
-		UserId:      p.UserId,
-		IsAd:        p.IsAd,
-		Type:        p.Type.String(),
-		Description: p.Description,
-		Location:    p.Location,
-		CreatedAt:   timestamppb.New(p.CreatedAt),
-	}
 }
 
 type Story struct{
@@ -77,11 +51,12 @@ type PostLikes struct {
 	IsLike bool
 }
 
-type PostComments struct {
-	PostId string `gorm:"primaryKey"`
-	UserId string `gorm:"primaryKey"`
+type Comment struct {
+	Id		string `gorm:"primaryKey"`
+	PostId  string
+	UserId  string
 	Content string
-	CreatedAt time.Time //TODO
+	CreatedAt time.Time
 }
 
 type HighLights struct {

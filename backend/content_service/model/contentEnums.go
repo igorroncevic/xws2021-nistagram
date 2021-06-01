@@ -21,9 +21,9 @@ func (pt PostType) String() string{
 
 func GetPostType(pt string) PostType{
 	switch pt {
-	case "Post":
+	case "Post", "post":
 		return TypePost
-	case "Story":
+	case "Story", "story":
 		return TypeStory
 	default:
 		return ""

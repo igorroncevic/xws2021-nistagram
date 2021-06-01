@@ -10,28 +10,41 @@ import (
 )
 
 type ContentService struct {
-	repository repositories.ContentRepository
+	contentRepository repositories.ContentRepository
+	commentRepository repositories.CommentRepository
 }
 
 func NewContentService(db *gorm.DB) (*ContentService, error){
-	repository, err := repositories.NewContentRepo(db)
+	contentRepository, err := repositories.NewContentRepo(db)
+	if err != nil {
+		return nil, err
+	}
+
+	commentRepository, err := repositories.NewCommentRepo(db)
+	if err != nil {
+		return nil, err
+	}
 
 	return &ContentService{
-		repository: repository,
+		contentRepository,
+		commentRepository,
 	}, err
 }
 
+// TODO Use ReducedPost to reduce amount of data being transfered
 func (service *ContentService) GetAllPosts(ctx context.Context) ([]domain.Post, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPosts")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	posts := []domain.Post{}
 
-	dbPosts, err := service.repository.GetAllPosts(ctx)
+	dbPosts, err := service.contentRepository.GetAllPosts(ctx)
 	if err != nil{
 		return posts, err
 	}
 
+	// TODO Retrieve all domain data
 	for _, post := range dbPosts{
 		comments := []domain.Comment{}
 		likes := []domain.Like{}
@@ -53,5 +66,5 @@ func (service *ContentService) CreatePost(ctx context.Context, post *domain.Post
 		return errors.New("cannot create empty post")
 	}
 
-	return service.repository.CreatePost(ctx, post)
+	return service.contentRepository.CreatePost(ctx, post)
 }

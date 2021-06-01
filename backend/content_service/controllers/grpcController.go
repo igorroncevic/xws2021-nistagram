@@ -12,16 +12,19 @@ import (
 type Server struct {
 	contentpb.UnimplementedContentServer
 	contentController *ContentGrpcController
+	commentController *CommentGrpcController
 	tracer otgo.Tracer
 	closer io.Closer
 }
 
 func NewServer(db *gorm.DB) (*Server, error) {
-	controller, _ := NewContentController(db)
-	tracer, closer := tracer.Init("contentService")
+	contentController, _ := NewContentController(db)
+	commentController, _ := NewCommentController(db)
+	tracer, closer := tracer.Init("global_ContentGrpcController")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
-		contentController: controller,
+		contentController: contentController,
+		commentController: commentController,
 		tracer: tracer,
 		closer: closer,
 	}, nil
@@ -42,4 +45,13 @@ func (s *Server) CreatePost(ctx context.Context, in *contentpb.Post) (*contentpb
 func (s *Server) GetAllPosts(ctx context.Context, in *contentpb.EmptyRequest) (*contentpb.PostArray, error) {
 	return s.contentController.GetAllPosts(ctx, in)
 }
+
+func (s *Server) CreateComment(ctx context.Context, in *contentpb.Comment) (*contentpb.EmptyResponse, error) {
+	return s.commentController.CreateComment(ctx, in)
+}
+
+func (s *Server) GetCommentsForPost(ctx context.Context, in *contentpb.RequestId) (*contentpb.CommentsArray, error) {
+	return s.commentController.GetCommentsForPost(ctx, in.Id)
+}
+
 

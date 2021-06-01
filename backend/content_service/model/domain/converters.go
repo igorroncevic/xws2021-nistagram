@@ -110,6 +110,7 @@ func ConvertMultipleMediaToGrpc(m []Media) []*contentpb.Media{
 func (c *Comment) ConvertFromGrpc(comment *contentpb.Comment) *Comment{
 	if c == nil { c = &Comment{} }
 	return &Comment{
+		Id:		   comment.Id,
 		PostId:    comment.PostId,
 		UserId:    comment.UserId,
 		Username:  comment.Username,
@@ -121,6 +122,7 @@ func (c *Comment) ConvertFromGrpc(comment *contentpb.Comment) *Comment{
 func (c *Comment) ConvertToGrpc() *contentpb.Comment{
 	if c == nil { c = &Comment{} }
 	return &contentpb.Comment{
+		Id:		   c.Id,
 		PostId:    c.PostId,
 		UserId:    c.UserId,
 		Username:  c.Username,

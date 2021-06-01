@@ -5,6 +5,7 @@ import (
 	"github.com/lytics/confl"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"os"
 )
 
@@ -41,6 +42,7 @@ func InitDatabase(dbname string) *gorm.DB {
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		PrepareStmt: true,
+		Logger: logger.Default.LogMode(logger.Info),
 	})
 
 	if err != nil {
