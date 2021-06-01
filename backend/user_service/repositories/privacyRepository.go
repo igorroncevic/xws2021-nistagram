@@ -9,6 +9,8 @@ import (
 type PrivacyRepository interface {
 	CreatePrivacy(privacy *persistence.Privacy) (persistence.Privacy, error)
 	UpdatePrivacy(privacy *persistence.Privacy) (bool, error)
+	BlockUser(block *persistence.BlockedUsers) (bool, error)
+	UnBlockUser(block *persistence.BlockedUsers) (bool, error)
 }
 
 type privacyRepository struct {
@@ -22,6 +24,29 @@ func NewPrivacyRepo(db *gorm.DB) (PrivacyRepository, error) {
 
 	return &privacyRepository{ DB: db }, nil
 }
+
+func (repository *privacyRepository) BlockUser(b *persistence.BlockedUsers) (bool, error){
+	db := repository.DB.Create(&b)
+	if db.Error != nil {
+		return false, db.Error
+	}else if db.RowsAffected == 0 {
+		return false, errors.New("rows affected is equal to zero")
+	}
+
+	return true, nil
+}
+
+func (repository *privacyRepository) UnBlockUser(b *persistence.BlockedUsers) (bool, error){
+	db := repository.DB.Delete(&b)
+	if db.Error != nil {
+		return false, db.Error
+	}else if db.RowsAffected == 0 {
+		return false, errors.New("rows affected is equal to zero")
+	}
+
+	return true, nil
+}
+
 
 func (repository *privacyRepository) CreatePrivacy(p *persistence.Privacy) (persistence.Privacy, error) {
 

@@ -62,3 +62,11 @@ func (s *Server) UpdatePrivacy(ctx context.Context, in *userspb.CreatePrivacyReq
 	return s.privacyController.UpdatePrivacy(ctx, in)
 }
 
+func (s *Server) BlockUser(ctx context.Context, in *userspb.CreateBlockRequest) (*userspb.EmptyResponsePrivacy, error) {
+	return s.privacyController.BlockUser(ctx, in)
+}
+
+func (s *Server) UnBlockUser(ctx context.Context, in *userspb.CreateBlockRequest) (*userspb.EmptyResponsePrivacy, error) {
+	return s.privacyController.UnBlockUser(ctx, in)
+}
+

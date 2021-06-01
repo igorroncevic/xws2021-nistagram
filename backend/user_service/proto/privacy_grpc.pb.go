@@ -20,6 +20,8 @@ const _ = grpc.SupportPackageIsVersion7
 type PrivacyClient interface {
 	CreatePrivacy(ctx context.Context, in *CreatePrivacyRequest, opts ...grpc.CallOption) (*EmptyResponsePrivacy, error)
 	UpdatePrivacy(ctx context.Context, in *CreatePrivacyRequest, opts ...grpc.CallOption) (*EmptyResponsePrivacy, error)
+	BlockUser(ctx context.Context, in *CreateBlockRequest, opts ...grpc.CallOption) (*EmptyResponsePrivacy, error)
+	UnBlockUser(ctx context.Context, in *CreateBlockRequest, opts ...grpc.CallOption) (*EmptyResponsePrivacy, error)
 }
 
 type privacyClient struct {
@@ -48,12 +50,32 @@ func (c *privacyClient) UpdatePrivacy(ctx context.Context, in *CreatePrivacyRequ
 	return out, nil
 }
 
+func (c *privacyClient) BlockUser(ctx context.Context, in *CreateBlockRequest, opts ...grpc.CallOption) (*EmptyResponsePrivacy, error) {
+	out := new(EmptyResponsePrivacy)
+	err := c.cc.Invoke(ctx, "/proto.Privacy/BlockUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *privacyClient) UnBlockUser(ctx context.Context, in *CreateBlockRequest, opts ...grpc.CallOption) (*EmptyResponsePrivacy, error) {
+	out := new(EmptyResponsePrivacy)
+	err := c.cc.Invoke(ctx, "/proto.Privacy/UnBlockUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PrivacyServer is the server API for Privacy service.
 // All implementations must embed UnimplementedPrivacyServer
 // for forward compatibility
 type PrivacyServer interface {
 	CreatePrivacy(context.Context, *CreatePrivacyRequest) (*EmptyResponsePrivacy, error)
 	UpdatePrivacy(context.Context, *CreatePrivacyRequest) (*EmptyResponsePrivacy, error)
+	BlockUser(context.Context, *CreateBlockRequest) (*EmptyResponsePrivacy, error)
+	UnBlockUser(context.Context, *CreateBlockRequest) (*EmptyResponsePrivacy, error)
 	mustEmbedUnimplementedPrivacyServer()
 }
 
@@ -66,6 +88,12 @@ func (UnimplementedPrivacyServer) CreatePrivacy(context.Context, *CreatePrivacyR
 }
 func (UnimplementedPrivacyServer) UpdatePrivacy(context.Context, *CreatePrivacyRequest) (*EmptyResponsePrivacy, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdatePrivacy not implemented")
+}
+func (UnimplementedPrivacyServer) BlockUser(context.Context, *CreateBlockRequest) (*EmptyResponsePrivacy, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BlockUser not implemented")
+}
+func (UnimplementedPrivacyServer) UnBlockUser(context.Context, *CreateBlockRequest) (*EmptyResponsePrivacy, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnBlockUser not implemented")
 }
 func (UnimplementedPrivacyServer) mustEmbedUnimplementedPrivacyServer() {}
 
@@ -116,6 +144,42 @@ func _Privacy_UpdatePrivacy_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Privacy_BlockUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateBlockRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PrivacyServer).BlockUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Privacy/BlockUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PrivacyServer).BlockUser(ctx, req.(*CreateBlockRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Privacy_UnBlockUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateBlockRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PrivacyServer).UnBlockUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Privacy/UnBlockUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PrivacyServer).UnBlockUser(ctx, req.(*CreateBlockRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Privacy_ServiceDesc is the grpc.ServiceDesc for Privacy service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -130,6 +194,14 @@ var Privacy_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdatePrivacy",
 			Handler:    _Privacy_UpdatePrivacy_Handler,
+		},
+		{
+			MethodName: "BlockUser",
+			Handler:    _Privacy_BlockUser_Handler,
+		},
+		{
+			MethodName: "UnBlockUser",
+			Handler:    _Privacy_UnBlockUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

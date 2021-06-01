@@ -84,6 +84,13 @@ type BlockedUsers struct {
 	BlockedUserId string `gorm:"primaryKey"`
 }
 
+func (block *BlockedUsers) ConvertFromGrpc(b *userspb.Block) *BlockedUsers{
+	return &BlockedUsers{
+		UserId: b.UserId,
+		BlockedUserId: b.BlockedUserId,
+	}
+}
+
 type Followers struct {
 	UsedId string `gorm:"primaryKey"`
 	FollowerId string `gorm:"primaryKey"`

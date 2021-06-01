@@ -46,3 +46,27 @@ func (s *PrivacyGrpcController) UpdatePrivacy(ctx context.Context, in *userspb.C
 
 	return &userspb.EmptyResponsePrivacy{}, nil
 }
+
+func (s *PrivacyGrpcController) BlockUser(ctx context.Context, in *userspb.CreateBlockRequest) (*userspb.EmptyResponsePrivacy, error) {
+	var block *persistence.BlockedUsers
+
+	block.ConvertFromGrpc(in.Block)
+	_, err := s.service.BlockUser(block)
+	if err != nil {
+		return &userspb.EmptyResponsePrivacy{}, err
+	}
+
+	return &userspb.EmptyResponsePrivacy{}, nil
+}
+
+func (s *PrivacyGrpcController) UnBlockUser(ctx context.Context, in *userspb.CreateBlockRequest) (*userspb.EmptyResponsePrivacy, error) {
+	var block *persistence.BlockedUsers
+
+	block.ConvertFromGrpc(in.Block)
+	_, err := s.service.UnBlockUser(block)
+	if err != nil {
+		return &userspb.EmptyResponsePrivacy{}, err
+	}
+
+	return &userspb.EmptyResponsePrivacy{}, nil
+}

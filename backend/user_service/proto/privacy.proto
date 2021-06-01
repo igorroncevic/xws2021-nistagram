@@ -20,6 +20,26 @@ service Privacy {
             body: "*"
         };
     }
+
+    rpc BlockUser (CreateBlockRequest) returns (EmptyResponsePrivacy) {
+        option(google.api.http) = {
+            post: "/api/privacy/block_user",
+            body: "block"
+        };
+    }
+
+    rpc UnBlockUser (CreateBlockRequest) returns (EmptyResponsePrivacy) {
+        option(google.api.http) = {
+            post: "/api/privacy/unblock_user",
+            body: "block"
+        };
+    }
+
+}
+
+message Block {
+    string UserId = 1;
+    string BlockedUserId = 2;
 }
 
 message PrivacyMessage {
@@ -31,6 +51,10 @@ message PrivacyMessage {
 
 message CreatePrivacyRequest {
     PrivacyMessage privacy = 1;
+}
+
+message CreateBlockRequest {
+    Block block = 1;
 }
 
 message EmptyResponsePrivacy {}
