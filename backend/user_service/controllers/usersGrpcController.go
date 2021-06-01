@@ -32,7 +32,9 @@ func (s *UserGrpcController) CreateUser(ctx context.Context, in *userspb.CreateU
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var user persistence.User = persistence.User{}
+	var additionalInfo persistence.UserAdditionalInfo = persistence.UserAdditionalInfo{}
 	user = *user.ConvertFromGrpc(in.User)
+	additionalInfo = *additionalInfo.ConvertFromGrpc(in.User)
 
 	err := s.service.CreateUser(ctx, &user)
 	if err != nil {

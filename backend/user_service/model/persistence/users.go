@@ -22,7 +22,7 @@ type User struct {
 	IsActive     bool
 }
 
-func (u User) ConvertToGrpc() (*userspb.User) {
+func (u User) ConvertToGrpc() *userspb.User {
 	return &userspb.User{
 		Id:           u.Id,
 		FirstName:    u.FirstName,
@@ -63,34 +63,42 @@ type UserAdditionalInfo struct {
 	Category  model.UserCategory
 }
 
+func (u UserAdditionalInfo) ConvertFromGrpc(user *userspb.User) *UserAdditionalInfo {
+	return &UserAdditionalInfo{
+		Id:        user.Id,
+		Biography: user.Biography,
+		Website:   user.Website,
+	}
+}
+
 type Privacy struct {
-	UserId string `gorm:"primaryKey"`
+	UserId          string `gorm:"primaryKey"`
 	IsProfilePublic bool
-	IsDMPublic bool
-	IsTagEnabled bool
+	IsDMPublic      bool
+	IsTagEnabled    bool
 }
 
 type BlockedUsers struct {
-	UserId string `gorm:"primaryKey"`
+	UserId        string `gorm:"primaryKey"`
 	BlockedUserId string `gorm:"primaryKey"`
 }
 
 type Followers struct {
-	UsedId string `gorm:"primaryKey"`
-	FollowerId string `gorm:"primaryKey"`
-	IsMuted bool
-	IsCloseFriend bool
-	IsApprovedRequest bool
+	UsedId                string `gorm:"primaryKey"`
+	FollowerId            string `gorm:"primaryKey"`
+	IsMuted               bool
+	IsCloseFriend         bool
+	IsApprovedRequest     bool
 	IsNotificationEnabled bool
 }
 
 type VerificationRequest struct {
-	UserId string `gorm:"primaryKey"`
-	FirstName string
-	LastName string
+	UserId        string `gorm:"primaryKey"`
+	FirstName     string
+	LastName      string
 	DocumentPhoto string
-	IsApproved bool
-	CreatedAt time.Time
+	IsApproved    bool
+	CreatedAt     time.Time
 }
 
 type APIKeys struct {

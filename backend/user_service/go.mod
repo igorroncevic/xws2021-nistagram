@@ -10,6 +10,7 @@ require (
 	github.com/HdrHistogram/hdrhistogram-go v1.1.0 // indirect
 	github.com/david-drvar/xws2021-nistagram/common v0.0.1
 	github.com/golang/protobuf v1.5.2
+	github.com/google/uuid v1.2.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.9.5
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.4.0 // indirect
