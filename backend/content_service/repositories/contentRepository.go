@@ -21,6 +21,7 @@ type ContentRepository interface {
 type contentRepository struct {
 	DB *gorm.DB
 	mediaRepository MediaRepository
+	tagRepository   TagRepository
 }
 
 func NewContentRepo(db *gorm.DB) (*contentRepository, error) {
@@ -29,8 +30,13 @@ func NewContentRepo(db *gorm.DB) (*contentRepository, error) {
 	}
 
 	mediaRepository, _ := NewMediaRepo(db)
+	tagRepository, _ := NewTagRepo(db)
 
-	return &contentRepository{ DB: db, mediaRepository: mediaRepository }, nil
+	return &contentRepository{
+		DB: db,
+		mediaRepository: mediaRepository,
+		tagRepository: tagRepository,
+	}, nil
 }
 
 func (repository *contentRepository) GetAllPosts(ctx context.Context) ([]persistence.Post, error) {
@@ -85,7 +91,7 @@ func (repository *contentRepository) CreatePost(ctx context.Context, post *domai
 	savedMedia := []string{}
 	for _, media := range post.Media{
 		media.PostId = postToSave.Id
-		name, err := repository.mediaRepository.CreateMedia(ctx, media)
+		dbMedia, err := repository.mediaRepository.CreateMedia(ctx, media)
 
 		if err != nil{
 			images.RemoveImages(savedMedia)
@@ -93,7 +99,23 @@ func (repository *contentRepository) CreatePost(ctx context.Context, post *domai
 			return errors.New("cannot save post")
 		}
 
-		savedMedia = append(savedMedia, name)
+		savedMedia = append(savedMedia, dbMedia.Filename)
+
+		savedTags := []domain.Tag{}
+		for _, tag := range media.Tags{
+			tag.MediaId = dbMedia.Id
+			err := repository.tagRepository.CreateTag(ctx, tag)
+			if err != nil {
+				for _, dTag := range savedTags {
+					repository.tagRepository.RemoveTag(ctx, dTag)
+				}
+				images.RemoveImages(savedMedia)
+				repository.DB.Delete(&postToSave)
+				return err
+			}
+
+			savedTags = append(savedTags, tag)
+		}
 	}
 
 	return nil

@@ -10,46 +10,46 @@ option go_package = "github.com/xws2021-nistagram/content_service/proto";
 service Content {
   rpc CreatePost (Post) returns (EmptyResponse) {
     option(google.api.http) = {
-      post: "posts",
+      post: "/posts",
       body: "*"
     };
   }
 
   rpc GetAllPosts (EmptyRequest) returns (ReducedPostArray) {
     option(google.api.http) = {
-      get: "posts"
+      get: "/posts"
     };
   }
 
   rpc CreateComment (Comment) returns (EmptyResponse) {
     option(google.api.http) = {
-      post: "comments",
+      post: "/comments",
       body: "*"
     };
   }
 
   rpc GetCommentsForPost (RequestId) returns (CommentsArray) {
     option(google.api.http) = {
-      get: "comments/{id}"
+      get: "/comments/{id}"
     };
   }
 
   rpc CreateLike (Like) returns (EmptyResponse) {
     option(google.api.http) = {
-      post: "likes",
+      post: "/likes",
       body: "*"
     };
   }
 
   rpc GetLikesForPost (RequestId) returns (LikesArray) {
     option(google.api.http) = {
-      get: "likes/{id}"
+      get: "/likes/{id}"
     };
   }
 
   rpc GetDislikesForPost (RequestId) returns (LikesArray) {
     option(google.api.http) = {
-      get: "dislikes/{id}"
+      get: "/dislikes/{id}"
     };
   }
 }
@@ -63,10 +63,9 @@ message Post {
   string location = 6;
   google.protobuf.Timestamp createdAt = 7;
   repeated Media media = 8;
-  repeated Tag tags = 9;
-  repeated Comment comments = 10;
-  repeated Like likes = 11;
-  repeated Like dislikes = 12;
+  repeated Comment comments = 9;
+  repeated Like likes = 10;
+  repeated Like dislikes = 11;
 }
 
 // Used for basic preview of posts, comments and likes/dislikes will be fetched on request
@@ -79,10 +78,9 @@ message ReducedPost {
   string location = 6;
   google.protobuf.Timestamp createdAt = 7;
   repeated Media media = 8;
-  repeated Tag tags = 9;
-  int32 commentsNum = 10;
-  int32 likesNum = 11;
-  int32 dislikesNum = 12;
+  int32 commentsNum = 9;
+  int32 likesNum = 10;
+  int32 dislikesNum = 11;
 }
 
 message Story {
@@ -94,8 +92,7 @@ message Story {
   string location = 6;
   google.protobuf.Timestamp createdAt = 7;
   repeated Media media = 8;
-  repeated Tag tags = 9;
-  bool isCloseFriends = 10;
+  bool isCloseFriends = 9;
 }
 
 message Media {
@@ -104,10 +101,11 @@ message Media {
   string postId = 3;
   string content = 4;
   int32 orderNum = 5;
+  repeated Tag tags = 6;
 }
 
 message Tag {
-  string postId = 1;
+  string mediaId = 1;
   string userId = 2;
   string username = 3;
 }

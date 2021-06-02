@@ -19,7 +19,6 @@ func (p *Post) ConvertFromGrpc(post *contentpb.Post) *Post {
 			Location:    post.Location,
 			CreatedAt:   post.CreatedAt.AsTime(),
 			Media: 		 ConvertMultipleMediaFromGrpc(post.Media),
-			Tags:		 ConvertMultipleTagFromGrpc(post.Tags),
 		},
 		Comments: ConvertMultipleCommentsFromGrpc(post.Comments),
 		Likes: ConvertMultipleLikesFromGrpc(post.Likes),
@@ -37,7 +36,6 @@ func (p Post) ConvertToGrpc() *contentpb.Post {
 		Location:    p.Location,
 		CreatedAt:   timestamppb.New(p.CreatedAt),
 		Media: 		 ConvertMultipleMediaToGrpc(p.Media),
-		Tags: 		 ConvertMultipleTagsToGrpc(p.Tags),
 		Comments: 	 ConvertMultipleCommentsToGrpc(p.Comments),
 		Likes: 		 ConvertMultipleLikesToGrpc(p.Likes),
 		Dislikes: 	 ConvertMultipleLikesToGrpc(p.Dislikes),
@@ -55,7 +53,6 @@ func (p ReducedPost) ConvertToGrpc() *contentpb.ReducedPost {
 		Location:    	 p.Location,
 		CreatedAt:   	 timestamppb.New(p.CreatedAt),
 		Media: 		 	 ConvertMultipleMediaToGrpc(p.Media),
-		Tags: 		 	 ConvertMultipleTagsToGrpc(p.Tags),
 		CommentsNum: 	 p.CommentsNum,
 		LikesNum: 		 p.LikesNum,
 		DislikesNum: 	 p.DislikesNum,
@@ -71,6 +68,7 @@ func (m *Media) ConvertFromGrpc(media *contentpb.Media) *Media {
 		PostId:   media.PostId,
 		Content:  media.Content,
 		OrderNum: media.OrderNum,
+		Tags: 	  ConvertMultipleTagFromGrpc(media.Tags),
 	}
 }
 
@@ -82,6 +80,7 @@ func (m *Media) ConvertToGrpc() *contentpb.Media{
 		PostId:   m.PostId,
 		Content:  m.Content,
 		OrderNum: m.OrderNum,
+		Tags:	  ConvertMultipleTagsToGrpc(m.Tags),
 	}
 }
 
@@ -160,18 +159,18 @@ func ConvertMultipleCommentsToGrpc(c []Comment) []*contentpb.Comment{
 func (t *Tag) ConvertFromGrpc(tag *contentpb.Tag) *Tag{
 	if t == nil { t = &Tag{} }
 	return &Tag{
-		PostId:    tag.PostId,
-		UserId:    tag.UserId,
-		Username:  tag.Username,
+		MediaId:    tag.MediaId,
+		UserId:     tag.UserId,
+		Username:   tag.Username,
 	}
 }
 
 func (t *Tag) ConvertToGrpc() *contentpb.Tag{
 	if t == nil { t = &Tag{} }
 	return &contentpb.Tag{
-		PostId:    t.PostId,
-		UserId:    t.UserId,
-		Username:  t.Username,
+		MediaId:    t.MediaId,
+		UserId:     t.UserId,
+		Username:   t.Username,
 	}
 }
 

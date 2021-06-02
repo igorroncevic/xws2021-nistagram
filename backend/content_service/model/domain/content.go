@@ -12,7 +12,6 @@ type Objava struct{
 	Type        model.PostType
 	Description string
 	Location    string
-	Tags		[]Tag
 	CreatedAt   time.Time
 	Media	    []Media
 }
@@ -42,10 +41,11 @@ type Media struct{
 	PostId  	string
 	Content 	string
 	OrderNum	int32
+	Tags		[]Tag
 }
 
 type Tag struct {
-	PostId 		string
+	MediaId 	string
 	UserId 		string
 	Username	string
 }

@@ -52,7 +52,7 @@ func (s *ContentGrpcController) GetAllPosts(ctx context.Context, in *contentpb.E
 	if err != nil{
 		return &contentpb.ReducedPostArray{
 			Posts: []*contentpb.ReducedPost{},
-		}, status.Errorf(codes.Unknown, "Could not retrieve posts")
+		}, status.Errorf(codes.Unknown, err.Error())
 	}
 
 	responsePosts := []*contentpb.ReducedPost{}

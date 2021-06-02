@@ -13,7 +13,7 @@ import (
 
 type MediaRepository interface {
 	GetMediaForPost(context.Context, string) ([]persistence.Media, error)
-	CreateMedia(context.Context, domain.Media) (string, error)
+	CreateMedia(context.Context, domain.Media) (persistence.Media, error)
 }
 
 type mediaRepository struct {
@@ -43,14 +43,14 @@ func (repository *mediaRepository) GetMediaForPost(ctx context.Context, postId s
 	return medias, nil
 }
 
-func (repository *mediaRepository) CreateMedia(ctx context.Context, media domain.Media) (string, error){
+func (repository *mediaRepository) CreateMedia(ctx context.Context, media domain.Media) (persistence.Media, error){
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateMedia")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	mimeType, err := images.GetImageType(media.Content)
 	if err != nil{
-		return "", err
+		return persistence.Media{}, err
 	}
 
 	t := time.Now()
@@ -59,7 +59,7 @@ func (repository *mediaRepository) CreateMedia(ctx context.Context, media domain
 
 	err = images.SaveImage(name, media.Content)
 	if err != nil{
-		return "", err
+		return persistence.Media{}, err
 	}
 
 	var dbMedia *persistence.Media
@@ -68,8 +68,8 @@ func (repository *mediaRepository) CreateMedia(ctx context.Context, media domain
 	result := repository.DB.Create(dbMedia)
 	if result.RowsAffected != 1 || result.Error != nil {
 		_ = images.RemoveImages([]string{name})
-		return "", result.Error
+		return persistence.Media{}, result.Error
 	}
 
-	return name, nil
+	return *dbMedia, nil
 }

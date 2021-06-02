@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func (p Post) ConvertToDomain(comments []domain.Comment, likes []domain.Like, dislikes []domain.Like, tags []domain.Tag, media []domain.Media) domain.Post{
+func (p Post) ConvertToDomain(comments []domain.Comment, likes []domain.Like, dislikes []domain.Like, media []domain.Media) domain.Post{
 	return domain.Post{
 		Objava:   domain.Objava{
 			Id:          p.Id,
@@ -17,7 +17,6 @@ func (p Post) ConvertToDomain(comments []domain.Comment, likes []domain.Like, di
 			Type:        p.Type,
 			Description: p.Description,
 			Location:    p.Location,
-			Tags:        tags,
 			CreatedAt:   p.CreatedAt,
 			Media:       media,
 		},
@@ -27,7 +26,7 @@ func (p Post) ConvertToDomain(comments []domain.Comment, likes []domain.Like, di
 	}
 }
 
-func (p Post) ConvertToDomainReduced(commentsNum int, likesNum int, dislikesNum int, tags []domain.Tag, media []domain.Media) domain.ReducedPost{
+func (p Post) ConvertToDomainReduced(commentsNum int, likesNum int, dislikesNum int, media []domain.Media) domain.ReducedPost{
 	return domain.ReducedPost{
 		Objava:   domain.Objava{
 			Id:          p.Id,
@@ -36,7 +35,6 @@ func (p Post) ConvertToDomainReduced(commentsNum int, likesNum int, dislikesNum 
 			Type:        p.Type,
 			Description: p.Description,
 			Location:    p.Location,
-			Tags:        tags,
 			CreatedAt:   p.CreatedAt,
 			Media:       media,
 		},
@@ -85,18 +83,19 @@ func (l *Like) ConvertToPersistence(like domain.Like) *Like{
 	}
 }
 
-func (m *Media) ConvertToDomain() (domain.Media, error){
+func (m *Media) ConvertToDomain(tags []domain.Tag) (domain.Media, error){
 	if m == nil { m = &Media{} }
 	filename, err := images.LoadImageToBase64(util.GetContentLocation(m.Filename))
 	if err != nil {
 		return domain.Media{}, err
 	}
 	return domain.Media{
-		Id:       uuid.NewV4().String(),
+		Id:       m.Id,
 		Type:     m.Type,
 		PostId:   m.PostId,
 		Content:  filename,
 		OrderNum: int32(m.OrderNum),
+		Tags:	  tags,
 	}, nil
 }
 
@@ -111,16 +110,19 @@ func (m *Media) ConvertToPersistence(media domain.Media, filename string) *Media
 	}
 }
 
-func ConvertMultipleMediaToDomain(media []Media) ([]domain.Media, error){
-	result := []domain.Media{}
-	for _, single := range media{
-		converted, err := single.ConvertToDomain()
-		if err != nil{
-			return []domain.Media{}, err
-		}
-		result = append(result, converted)
+func (t Tag) ConvertToDomain(username string) domain.Tag {
+	return domain.Tag{
+		MediaId:   t.MediaId,
+		UserId:    t.UserId,
+		Username:  username,
 	}
+}
 
-	return result, nil
+func (t *Tag) ConvertToPersistence(tag domain.Tag) *Tag{
+	if t == nil { t = &Tag{} }
+	return &Tag{
+		MediaId:    tag.MediaId,
+		UserId:    	tag.UserId,
+	}
 }
 

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/content_service/repositories"
 	"gorm.io/gorm"
 )
@@ -15,6 +14,7 @@ type ContentService struct {
 	commentRepository repositories.CommentRepository
 	likeRepository 	  repositories.LikeRepository
 	mediaRepository   repositories.MediaRepository
+	tagRepository	  repositories.TagRepository
 }
 
 func NewContentService(db *gorm.DB) (*ContentService, error){
@@ -38,11 +38,17 @@ func NewContentService(db *gorm.DB) (*ContentService, error){
 		return nil, err
 	}
 
+	tagRepository, err := repositories.NewTagRepo(db)
+	if err != nil {
+		return nil, err
+	}
+
 	return &ContentService{
 		contentRepository,
 		commentRepository,
 		likeRepository,
 		mediaRepository,
+		tagRepository,
 	}, err
 }
 
@@ -64,24 +70,42 @@ func (service *ContentService) GetAllPosts(ctx context.Context) ([]domain.Reduce
 		if err != nil{
 			return []domain.ReducedPost{}, errors.New("unable to retrieve posts comments")
 		}
+
 		likes, err := service.likeRepository.GetLikesNumForPost(ctx, post.Id, true)
 		if err != nil {
 			return []domain.ReducedPost{}, errors.New("unable to retrieve posts likes")
 		}
+
 		dislikes, err := service.likeRepository.GetLikesNumForPost(ctx, post.Id, false)
 		if err != nil {
 			return []domain.ReducedPost{}, errors.New("unable to retrieve posts dislikes")
 		}
-		tags := []domain.Tag{}
+
 		media, err := service.mediaRepository.GetMediaForPost(ctx, post.Id)
 		if err != nil {
 			return []domain.ReducedPost{}, errors.New("unable to retrieve posts media")
 		}
-		convertedMedia, err := persistence.ConvertMultipleMediaToDomain(media)
+
+		convertedMedia := []domain.Media{}
+		for _, single := range media{
+			tags, err := service.tagRepository.GetTagsForMedia(ctx, single.Id)
+			if err != nil {
+				return []domain.ReducedPost{}, errors.New("unable to retrieve media tags")
+			}
+
+			converted, err := single.ConvertToDomain(tags)
+			if err != nil {
+				return []domain.ReducedPost{}, errors.New("unable to convert media")
+			}
+
+			convertedMedia = append(convertedMedia, converted)
+		}
+
 		if err != nil {
 			return []domain.ReducedPost{}, errors.New("unable to convert posts media")
 		}
-		posts = append(posts, post.ConvertToDomainReduced(commentsNum, likes, dislikes, tags, convertedMedia))
+
+		posts = append(posts, post.ConvertToDomainReduced(commentsNum, likes, dislikes, convertedMedia))
 	}
 
 	return posts, nil
