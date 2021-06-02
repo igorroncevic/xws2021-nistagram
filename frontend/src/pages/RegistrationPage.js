@@ -3,7 +3,7 @@ import PasswordStrengthBar from 'react-password-strength-bar';
 import {Alert, Button, FormControl} from "react-bootstrap";
 import axios from "axios";
 
-export default function RegistrationPageHooks() {
+export default function RegistrationPage() {
     // Declare a new state variable, which we'll call "count"
     const [password, setPassword] = useState("");
     const [passwordStrength, setPasswordStrength] = useState("");

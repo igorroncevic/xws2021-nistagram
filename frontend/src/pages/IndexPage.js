@@ -1,9 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {Button, Form, Modal} from "react-bootstrap";
 import ReCAPTCHA from "react-google-recaptcha";
-import RegistrationPage from "./RegistrationPage";
 import axios from "axios";
-import RegistrationPageHooks from "./RegistrationPageHooks";
+import RegistrationPage from "./RegistrationPage";
 const TEST_SITE_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
 
 
@@ -122,7 +121,7 @@ export function IndexPage(){
                     <Modal.Title>Registration</Modal.Title>
                 </Modal.Header>
                 <Modal.Body style={{ 'background': 'silver' }}>
-                    <RegistrationPageHooks/>
+                    <RegistrationPage/>
                 </Modal.Body>
             </Modal>
         </div>
