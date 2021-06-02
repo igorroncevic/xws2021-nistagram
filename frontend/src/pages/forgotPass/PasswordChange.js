@@ -23,17 +23,17 @@ export function PasswordChange(props,onChangeValue) {
             console.log("No blacklisted passwords.")
     });
 
-    const handleInputChange = (event) => {
+    function handleInputChange(event){
         setPassword(event.target.value);
         validationErrorMessage(event);
     }
 
-    const handlePasswordChange = (event) => {
+    function handlePasswordChange(event){
         setRePassword(event.target.value);
         validationErrorMessage(event);
     }
 
-    const validationErrorMessage = (event) => {
+    function validationErrorMessage(event){
         const {name, value} = event.target;
         switch (name) {
             case 'password':
@@ -55,7 +55,7 @@ export function PasswordChange(props,onChangeValue) {
         }
     }
 
-    const isValidRepeatedPassword = (value) => {
+    function isValidRepeatedPassword(value){
         if (password !== rePassword) {
             return false;
         } else {
@@ -64,7 +64,7 @@ export function PasswordChange(props,onChangeValue) {
     }
 
 
-    const checkPassword =  (password) =>{
+    function checkPassword(password){
         console.log("Checking")
         if(/^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*])[\w!@#$%^&*]{8,}$/.test(password)){
             setPasswordStrength(password);
@@ -78,7 +78,7 @@ export function PasswordChange(props,onChangeValue) {
         }
     }
 
-    const validateForm = (errors) => {
+    function validateForm(errors){
         let valid = true;
         for (const Error of errors) {
             validationErrorMessage(createTarget(Error));
@@ -89,11 +89,11 @@ export function PasswordChange(props,onChangeValue) {
         return valid;
     }
 
-    const createTarget = (error) => {
+    function createTarget(error) {
         return {target : {value : error, name : error}}
     }
 
-    const submitPassword = async (event) => {
+    async function submitPassword(event){
         setSubmitted(true);
         event.preventDefault();
         const errors = ['password','rePassword'];
@@ -105,7 +105,7 @@ export function PasswordChange(props,onChangeValue) {
         }
     }
 
-    const sendParams=()=> {
+    async function sendParams(){
         axios
             .post('http://localhost:8080/auth/changePassword', {
                 'email': email,

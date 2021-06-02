@@ -23,19 +23,19 @@ export function ResetPasswordCode(props,onChangeValue) {
     });
 
 
-    const handleInputChange = (event) => {
+    function handleInputChange(event){
         setResetCode(event.target.value);
         isValidResetCode(event.target.value);
     }
 
-    const submitResetCode = () => {
+    function submitResetCode(){
         setSubmitted(true);
         if (isValidResetCode(resetCode)) {
             onChangeValue();
         }
     }
 
-    const isValidResetCode = (value) => {
+    function isValidResetCode(value){
         if (value === user.resetCode) {
             setErrorResetCode('');
             return true;

@@ -12,11 +12,11 @@ export function ForgotPasswordPage() {
     const[submitted,setSubmitted]=useState(false);
     const[success,setSuccess]=useState(false);
 
-    const handleEmailChange = event => {
+    function handleEmailChange(event) {
         setEmail(event.target.value);
     }
 
-    const handleSubmit = () => {
+    function handleSubmit() {
         setSubmitted(true);
         if(emailError=="") {
            // this.sendMail();  SALJI MEJL
@@ -26,7 +26,7 @@ export function ForgotPasswordPage() {
 
     }
 
-    const sendMail=()=>{
+    async function sendMail(){
         axios
             .put("http://localhost:8080/api/email/send", {
                 'to': email,
@@ -44,7 +44,7 @@ export function ForgotPasswordPage() {
         })
     }
 
-    const nextStep=()=>{
+    function nextStep(){
         setSteps({
             ...steps,
             step1:false,
@@ -54,7 +54,7 @@ export function ForgotPasswordPage() {
         });
     }
 
-    const setStateFromChild=()=>{
+    function setStateFromChild(){
         setSteps({
             ...steps,
             step4:true,
@@ -62,7 +62,7 @@ export function ForgotPasswordPage() {
         });
     }
 
-    const setSuccessFromChild=()=>{
+    function setSuccessFromChild(){
         setSuccess(true);
     }
 

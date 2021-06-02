@@ -3,6 +3,7 @@ import {Button, Form, Modal} from "react-bootstrap";
 import ReCAPTCHA from "react-google-recaptcha";
 import RegistrationPage from "./RegistrationPage";
 import axios from "axios";
+import RegistrationPageHooks from "./RegistrationPageHooks";
 const TEST_SITE_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
 
 
@@ -17,7 +18,8 @@ export function IndexPage(){
     useEffect(() => {
         document.body.style.backgroundColor = "#C0C0C0"
     });
-    const sendParams=()=>{
+
+    async function sendParams(){
         axios
             .post("http://localhost:8001/users/login", {
                 email: details.email,
@@ -38,7 +40,7 @@ export function IndexPage(){
                 }
             });
     }
-    const submitHandler=e=>{
+    function submitHandler(e){
         setSubmitted(true);
         e.preventDefault();
         if(checkEmail(details.email)){
@@ -49,7 +51,7 @@ export function IndexPage(){
         }
     }
 
-    const handleChange = event => {
+    function handleChange(event) {
         setDetails({
             ...details,
             [event.target.name]: event.target.value,
@@ -61,20 +63,20 @@ export function IndexPage(){
         }
     };
 
-    const checkEmail=(value)=>{
+    function checkEmail(value){
         return !(value && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,64}$/i.test(value));
     }
 
-    const closeCaptcha = () => {
+    function closeCaptcha(){
         setCaptcha(0);
         setLogInDisabled(false);
     }
 
-    const handleModal = () => {
+    function handleModal(){
         setShowModal(!showModal)
     }
 
-    const closeModal = () => {
+    function closeModal(){
         setShowModal(!showModal)
     }
 
@@ -119,7 +121,7 @@ export function IndexPage(){
                     <Modal.Title>Registration</Modal.Title>
                 </Modal.Header>
                 <Modal.Body style={{ 'background': 'silver' }}>
-                    <RegistrationPage/>
+                    <RegistrationPageHooks/>
                 </Modal.Body>
             </Modal>
         </div>
