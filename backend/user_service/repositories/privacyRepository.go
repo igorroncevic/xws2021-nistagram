@@ -10,9 +10,9 @@ import (
 
 type PrivacyRepository interface {
 	CreatePrivacy(ctx context.Context, privacy *persistence.Privacy) (persistence.Privacy, error)
-	UpdatePrivacy(privacy *persistence.Privacy) (bool, error)
-	BlockUser(block *persistence.BlockedUsers) (bool, error)
-	UnBlockUser(block *persistence.BlockedUsers) (bool, error)
+	UpdatePrivacy(ctx context.Context, privacy *persistence.Privacy) (bool, error)
+	BlockUser(ctx context.Context, block *persistence.BlockedUsers) (bool, error)
+	UnBlockUser(ctx context.Context, block *persistence.BlockedUsers) (bool, error)
 }
 
 type privacyRepository struct {
@@ -27,7 +27,11 @@ func NewPrivacyRepo(db *gorm.DB) (PrivacyRepository, error) {
 	return &privacyRepository{DB: db}, nil
 }
 
-func (repository *privacyRepository) BlockUser(b *persistence.BlockedUsers) (bool, error) {
+func (repository *privacyRepository) BlockUser(ctx context.Context, b *persistence.BlockedUsers) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "BlockUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	db := repository.DB.Create(&b)
 	if db.Error != nil {
 		return false, db.Error
@@ -38,7 +42,11 @@ func (repository *privacyRepository) BlockUser(b *persistence.BlockedUsers) (boo
 	return true, nil
 }
 
-func (repository *privacyRepository) UnBlockUser(b *persistence.BlockedUsers) (bool, error) {
+func (repository *privacyRepository) UnBlockUser(ctx context.Context, b *persistence.BlockedUsers) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UnBlockUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	db := repository.DB.Delete(&b)
 	if db.Error != nil {
 		return false, db.Error
@@ -50,7 +58,7 @@ func (repository *privacyRepository) UnBlockUser(b *persistence.BlockedUsers) (b
 }
 
 func (repository *privacyRepository) CreatePrivacy(ctx context.Context, p *persistence.Privacy) (persistence.Privacy, error) {
-	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreatePrivacy")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
@@ -58,7 +66,11 @@ func (repository *privacyRepository) CreatePrivacy(ctx context.Context, p *persi
 	return *p, err.Error
 }
 
-func (repository *privacyRepository) UpdatePrivacy(p *persistence.Privacy) (bool, error) {
+func (repository *privacyRepository) UpdatePrivacy(ctx context.Context, p *persistence.Privacy) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdatePrivacy")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	var privacy persistence.Privacy
 
 	db := repository.DB.Model(&privacy).Where("user_id = ?", p.UserId).Updates(persistence.Privacy{IsTagEnabled: p.IsTagEnabled, IsProfilePublic: p.IsProfilePublic, IsDMPublic: p.IsDMPublic})

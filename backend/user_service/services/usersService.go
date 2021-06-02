@@ -59,20 +59,28 @@ func (service *UserService) LoginUser(ctx context.Context, data common.Credentia
 	return nil //service.repository.CheckPassword(ctx, data)
 }
 
-func (service *UserService) UpdateUserProfile(userDTO domain.User) (bool, error) {
+func (service *UserService) UpdateUserProfile(ctx context.Context, userDTO domain.User) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserProfile")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	if userDTO.Username == "" || userDTO.Email == "" {
 		return false, errors.New("username or email can not be empty string")
 	}
 
-	return service.repository.UpdateUserProfile(userDTO)
+	return service.repository.UpdateUserProfile(ctx, userDTO)
 }
 
-func (service *UserService) UpdateUserPassword(password domain.Password) (bool, error) {
+func (service *UserService) UpdateUserPassword(ctx context.Context, password domain.Password) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserPassword")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	if password.NewPassword != password.RepeatedPassword {
 		return false, errors.New("Passwords do not match!")
 	}
 
-	_, err := service.repository.UpdateUserPassword(password)
+	_, err := service.repository.UpdateUserPassword(ctx, password)
 	if err != nil {
 		return false, err
 	}

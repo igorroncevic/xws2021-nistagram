@@ -39,7 +39,7 @@ func (s *PrivacyGrpcController) UpdatePrivacy(ctx context.Context, in *userspb.C
 	var privacy *persistence.Privacy
 
 	privacy.ConvertFromGrpc(in.Privacy)
-	_, err := s.service.UpdatePrivacy(privacy)
+	_, err := s.service.UpdatePrivacy(ctx, privacy)
 	if err != nil {
 		return &userspb.EmptyResponsePrivacy{}, err
 	}
@@ -51,7 +51,7 @@ func (s *PrivacyGrpcController) BlockUser(ctx context.Context, in *userspb.Creat
 	var block *persistence.BlockedUsers
 
 	block.ConvertFromGrpc(in.Block)
-	_, err := s.service.BlockUser(block)
+	_, err := s.service.BlockUser(ctx, block)
 	if err != nil {
 		return &userspb.EmptyResponsePrivacy{}, err
 	}
@@ -63,7 +63,7 @@ func (s *PrivacyGrpcController) UnBlockUser(ctx context.Context, in *userspb.Cre
 	var block *persistence.BlockedUsers
 
 	block.ConvertFromGrpc(in.Block)
-	_, err := s.service.UnBlockUser(block)
+	_, err := s.service.UnBlockUser(ctx, block)
 	if err != nil {
 		return &userspb.EmptyResponsePrivacy{}, err
 	}
