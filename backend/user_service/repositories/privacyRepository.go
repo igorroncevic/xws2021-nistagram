@@ -1,13 +1,16 @@
 package repositories
 
 import (
+	"errors"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
 	"gorm.io/gorm"
 )
 
 type PrivacyRepository interface {
 	CreatePrivacy(privacy *persistence.Privacy) (persistence.Privacy, error)
-	UpdateUserPrivacy(privacy persistence.Privacy) (bool, error)
+	UpdatePrivacy(privacy *persistence.Privacy) (bool, error)
+	BlockUser(block *persistence.BlockedUsers) (bool, error)
+	UnBlockUser(block *persistence.BlockedUsers) (bool, error)
 }
 
 type privacyRepository struct {
@@ -22,12 +25,43 @@ func NewPrivacyRepo(db *gorm.DB) (PrivacyRepository, error) {
 	return &privacyRepository{ DB: db }, nil
 }
 
-func (repository *privacyRepository) CreatePrivacy(privacy *persistence.Privacy) (persistence.Privacy, error) {
+func (repository *privacyRepository) BlockUser(b *persistence.BlockedUsers) (bool, error){
+	db := repository.DB.Create(&b)
+	if db.Error != nil {
+		return false, db.Error
+	}else if db.RowsAffected == 0 {
+		return false, errors.New("rows affected is equal to zero")
+	}
 
-	return *privacy ,nil
+	return true, nil
 }
 
-func (repository *privacyRepository) UpdateUserPrivacy(privacy persistence.Privacy)  (bool, error){
+func (repository *privacyRepository) UnBlockUser(b *persistence.BlockedUsers) (bool, error){
+	db := repository.DB.Delete(&b)
+	if db.Error != nil {
+		return false, db.Error
+	}else if db.RowsAffected == 0 {
+		return false, errors.New("rows affected is equal to zero")
+	}
 
-	return false, nil
+	return true, nil
+}
+
+
+func (repository *privacyRepository) CreatePrivacy(p *persistence.Privacy) (persistence.Privacy, error) {
+
+	return *p ,nil
+}
+
+func (repository *privacyRepository) UpdatePrivacy(p *persistence.Privacy)  (bool, error){
+	var privacy persistence.Privacy
+
+	db := repository.DB.Model(&privacy).Where("user_id = ?", p.UserId).Updates(persistence.Privacy{IsTagEnabled: p.IsTagEnabled, IsProfilePublic: p.IsProfilePublic, IsDMPublic: p.IsDMPublic})
+	if db.Error != nil {
+		return false, db.Error
+	}else if db.RowsAffected == 0 {
+		return false, errors.New("rows affected is equal to zero")
+	}
+
+	return true, nil
 }

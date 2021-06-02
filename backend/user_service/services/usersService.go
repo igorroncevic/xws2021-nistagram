@@ -24,6 +24,11 @@ func NewUserService(db *gorm.DB) (*UserService, error) {
 	}, err
 }
 
+func (service *UserService) GetUser(id string) (domain.User, error) {
+
+	return domain.User{}, nil
+}
+
 func (service *UserService) GetAllUsers(ctx context.Context) ([]persistence.User, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
 	defer span.Finish()
@@ -60,4 +65,17 @@ func (service *UserService) UpdateUserProfile(userDTO domain.User) (bool, error)
 	}
 
 	return service.repository.UpdateUserProfile(userDTO)
+}
+
+func (service *UserService) UpdateUserPassword(password domain.Password) (bool, error) {
+	if password.NewPassword != password.RepeatedPassword {
+		return false, errors.New("Passwords do not match!")
+	}
+
+	_, err := service.repository.UpdateUserPassword(password)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }

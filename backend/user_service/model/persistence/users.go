@@ -39,7 +39,7 @@ func (u User) ConvertToGrpc() *userspb.User {
 	}
 }
 
-func (u User) ConvertFromGrpc(user *userspb.User) *User {
+func (u *User) ConvertFromGrpc(user *userspb.User) *User {
 	return &User{
 		Id:           user.Id,
 		FirstName:    user.FirstName,
@@ -78,9 +78,25 @@ type Privacy struct {
 	IsTagEnabled    bool
 }
 
+func (privacy *Privacy) ConvertFromGrpc(p *userspb.PrivacyMessage) *Privacy{
+	return &Privacy{
+		UserId: p.Id,
+		IsDMPublic: p.IsDmPublic,
+		IsProfilePublic: p.IsProfilePublic,
+		IsTagEnabled: p.IsTagEnabled,
+	}
+}
+
 type BlockedUsers struct {
 	UserId        string `gorm:"primaryKey"`
 	BlockedUserId string `gorm:"primaryKey"`
+}
+
+func (block *BlockedUsers) ConvertFromGrpc(b *userspb.Block) *BlockedUsers{
+	return &BlockedUsers{
+		UserId: b.UserId,
+		BlockedUserId: b.BlockedUserId,
+	}
 }
 
 type Followers struct {
