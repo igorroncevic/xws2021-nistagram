@@ -75,7 +75,7 @@ func (s *UserGrpcController) UpdateUserProfile(ctx context.Context, in *userspb.
 	var user domain.User
 
 	user = user.ConvertFromGrpc(in.User)
-	_, err := s.service.UpdateUserProfile(user)
+	_, err := s.service.UpdateUserProfile(ctx, user)
 	if err != nil {
 		return &userspb.EmptyResponse{}, status.Errorf(codes.Unknown, "Could not create user")
 	}
@@ -87,7 +87,7 @@ func (s *UserGrpcController) UpdateUserPassword(ctx context.Context, in *userspb
 	var password domain.Password
 
 	password = password.ConvertFromGrpc(in.Password)
-	_, err := s.service.UpdateUserPassword(password)
+	_, err := s.service.UpdateUserPassword(ctx, password)
 	if err != nil {
 		return &userspb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Could not create user")
 	}
