@@ -152,11 +152,12 @@ export default function RegistrationPageHooks() {
 
         event.preventDefault();
         const errors = ['email', 'password', 'firstName', 'rePassword', 'lastName'];
-        if (validateForm(errors)) {
+  /*      if (validateForm(errors)) {
             await sendParams()
         } else {
             console.log('Invalid Form')
-        }
+        }*/
+        await sendParams()
     }
 
     function validateForm(errors) {
@@ -177,7 +178,7 @@ export default function RegistrationPageHooks() {
 
     async function sendParams() {
         axios
-            .post('http://localhost:8001/api/users', {
+            .post('http://localhost:8080/api/users/api/users', {
                 'id':'1',
                 'firstName' : firstName,
                 'lastName' : lastName,
@@ -195,8 +196,8 @@ export default function RegistrationPageHooks() {
                 setSuccessfullyReg(true);
                 setDisabled(!disabled);
             }).catch(res => {
-                setErrorMessage(true);
-                console.log("NE RADI")
+            setErrorMessage(true);
+            console.log("NE RADI")
         })
 
     }
