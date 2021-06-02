@@ -24,15 +24,17 @@ type UserRepository interface {
 }
 
 type userRepository struct {
-	DB *gorm.DB
+	DB                *gorm.DB
+	privacyRepository PrivacyRepository
 }
 
 func NewUserRepo(db *gorm.DB) (*userRepository, error) {
 	if db == nil {
 		panic("UserRepository not created, gorm.DB is nil")
 	}
+	privacyRepository, _ := NewPrivacyRepo(db)
 
-	return &userRepository{DB: db}, nil
+	return &userRepository{DB: db, privacyRepository: privacyRepository}, nil
 }
 
 func (repository *userRepository) UpdateUserPassword(password domain.Password) (bool, error) {
@@ -202,6 +204,16 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 
 	userAdditionalInfo.Id = user.Id
 	resultUserAdditionalInfo := repository.DB.Create(&userAdditionalInfo)
+
+	var privacy = persistence.Privacy{}
+	privacy.UserId = user.Id
+	privacy.IsProfilePublic = true
+	privacy.IsDMPublic = true
+	privacy.IsTagEnabled = true
+	_, err := repository.privacyRepository.CreatePrivacy(ctx, &privacy)
+	if err != nil {
+		return err
+	}
 
 	return resultUserAdditionalInfo.Error
 }
