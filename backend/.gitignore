@@ -2,4 +2,7 @@
 !*.example.conf
 .idea
 
-backend/content_service/content/
+*.png
+*.jpg
+*.bmp
+*.mp4

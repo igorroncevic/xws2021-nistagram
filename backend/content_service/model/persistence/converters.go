@@ -82,3 +82,15 @@ func (l *Like) ConvertToPersistence(like domain.Like) *Like{
 		IsLike:		like.IsLike,
 	}
 }
+
+func (m *Media) ConvertToPersistence(media domain.Media, filename string) *Media{
+	if m == nil { m = &Media{} }
+	return &Media{
+		Id:       uuid.NewV4().String(),
+		Type:     media.Type,
+		PostId:   media.PostId,
+		Filename: filename,
+		OrderNum: int(media.OrderNum),
+	}
+}
+

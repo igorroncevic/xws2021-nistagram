@@ -47,7 +47,7 @@ func (repository *commentRepository) GetCommentsNumForPost(ctx context.Context, 
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var comments int64
-	result := repository.DB.Where("post_id = ?", postId).Count(&comments)
+	result := repository.DB.Model(&persistence.Comment{}).Where("post_id = ?", postId).Count(&comments)
 
 	if result.Error != nil {
 		return 0, result.Error

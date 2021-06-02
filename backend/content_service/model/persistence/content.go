@@ -24,7 +24,7 @@ type Media struct{
 	Id      	string `gorm:"primaryKey"`
 	Type    	model.MediaType
 	PostId  	string
-	Content 	string
+	Filename 	string
 	OrderNum 	int
 }
 

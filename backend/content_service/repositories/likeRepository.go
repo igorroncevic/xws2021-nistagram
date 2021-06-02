@@ -48,7 +48,7 @@ func (repository *likeRepository) GetLikesNumForPost(ctx context.Context, postId
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var likes int64
-	result := repository.DB.Where("post_id = ? AND is_like = ?", postId, isLike).Count(&likes)
+	result := repository.DB.Model(&persistence.Like{}).Where("post_id = ? AND is_like = ?", postId, isLike).Count(&likes)
 
 	if result.Error != nil {
 		return 0, result.Error

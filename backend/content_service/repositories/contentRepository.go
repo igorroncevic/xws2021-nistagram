@@ -3,7 +3,6 @@ package repositories
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
@@ -21,6 +20,7 @@ type ContentRepository interface {
 
 type contentRepository struct {
 	DB *gorm.DB
+	mediaRepository MediaRepository
 }
 
 func NewContentRepo(db *gorm.DB) (*contentRepository, error) {
@@ -28,7 +28,9 @@ func NewContentRepo(db *gorm.DB) (*contentRepository, error) {
 		panic("ContentRepository not created, gorm.DB is nil")
 	}
 
-	return &contentRepository{ DB: db }, nil
+	mediaRepository, _ := NewMediaRepo(db)
+
+	return &contentRepository{ DB: db, mediaRepository: mediaRepository }, nil
 }
 
 func (repository *contentRepository) GetAllPosts(ctx context.Context) ([]persistence.Post, error) {
@@ -82,26 +84,16 @@ func (repository *contentRepository) CreatePost(ctx context.Context, post *domai
 
 	savedMedia := []string{}
 	for _, media := range post.Media{
-		mimeType, err := images.GetImageType(media.Content)
-		if err != nil{
-			images.RemoveImages(savedMedia)
-			return err
-		}
+		media.PostId = postToSave.Id
+		name, err := repository.mediaRepository.CreateMedia(ctx, media)
 
-		t := time.Now()
-		formatted := fmt.Sprintf("%d%02d%02d%02d%02d%02d%02d", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond())
-		name := post.UserId + "_" + formatted + "." + mimeType
-		savedMedia = append(savedMedia, name)
-
-		err = images.SaveImage(name, media.Content)
 		if err != nil{
 			images.RemoveImages(savedMedia)
 			repository.DB.Delete(&postToSave)
 			return errors.New("cannot save post")
 		}
 
-		media.PostId = postToSave.Id
-		// TODO Save media to database
+		savedMedia = append(savedMedia, name)
 	}
 
 	return nil
