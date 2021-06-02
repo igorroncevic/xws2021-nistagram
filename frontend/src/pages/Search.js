@@ -15,7 +15,9 @@ export default function Search() {
     function searchByUser() {
         axios
             .post('http://localhost:8080/api/users/api/users/searchByUser', {
-                'Username' : searchCategory,
+                'username' : input,
+                "firstName" : firstName,
+                "lastName" : lastName
             })
             .then(res => {
             }).catch(res => {
@@ -25,7 +27,7 @@ export default function Search() {
     function searchByTag() {
         axios
             .post('http://localhost:8080/api/content/api/searchByLocation', {
-                'Username' : searchCategory,
+                'tag' : input,
             })
             .then(res => {
             }).catch(res => {
@@ -35,7 +37,7 @@ export default function Search() {
     function searchByLocation() {
         axios
             .post('http://localhost:8080/api/content/api/searchByLocation', {
-                'Username' : searchCategory,
+                'location' : input,
             })
             .then(res => {
             }).catch(res => {

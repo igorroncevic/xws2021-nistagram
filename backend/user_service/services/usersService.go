@@ -79,3 +79,11 @@ func (service *UserService) UpdateUserPassword(password domain.Password) (bool, 
 
 	return true, nil
 }
+
+func (service *UserService) SearchUsersByUsernameAndName(ctx context.Context, user *domain.User) ([]domain.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.SearchUsersByUsernameAndName(ctx, user)
+}
