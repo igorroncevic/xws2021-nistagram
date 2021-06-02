@@ -177,7 +177,7 @@ export default function RegistrationPage() {
 
     async function sendParams() {
         axios
-            .post('http://localhost:8001/api/users', {
+            .post('http://localhost:8080/api/users/api/users', {
                 'id':'1',
                 'firstName' : firstName,
                 'lastName' : lastName,

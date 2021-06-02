@@ -9,21 +9,20 @@ import (
 )
 
 type Password struct {
-	OldPassword    		string
-	NewPassword    		string
-	RepeatedPassword    string
-	Id 					string
+	OldPassword      string
+	NewPassword      string
+	RepeatedPassword string
+	Id               string
 }
 
 func (p Password) ConvertFromGrpc(pass *userspb.Password) Password {
 	return Password{
-		OldPassword: pass.OldPassword,
-		NewPassword: pass.NewPassword,
+		OldPassword:      pass.OldPassword,
+		NewPassword:      pass.NewPassword,
 		RepeatedPassword: pass.NewPassword,
-		Id : pass.Id,
+		Id:               pass.Id,
 	}
 }
-
 
 type User struct {
 	Id           string
@@ -42,7 +41,7 @@ type User struct {
 	Category     model.UserCategory
 }
 
-func (u User) ConvertToGrpc() (*userspb.UsersDTO) {
+func (u User) ConvertToGrpc() *userspb.UsersDTO {
 	return &userspb.UsersDTO{
 		Id:           u.Id,
 		FirstName:    u.FirstName,
@@ -57,7 +56,7 @@ func (u User) ConvertToGrpc() (*userspb.UsersDTO) {
 		IsActive:     u.IsActive,
 		Website:      u.Website,
 		Biography:    u.Biography,
-		Category: 	  model.GetUserCategoriesString(u.Category),
+		Category:     model.GetUserCategoriesString(u.Category),
 	}
 }
 
@@ -74,12 +73,11 @@ func (u User) ConvertFromGrpc(user *userspb.UsersDTO) User {
 		PhoneNumber:  user.PhoneNumber,
 		Sex:          user.Sex,
 		IsActive:     user.IsActive,
-		Website: user.Website,
-		Biography: user.Biography,
-		Category: model.GetUserCategories(user.Category),
+		Website:      user.Website,
+		Biography:    user.Biography,
+		Category:     model.GetUserCategories(user.Category),
 	}
 }
-
 
 func (u *User) GenerateUserDTO(user persistence.User, userAdditionalInfo persistence.UserAdditionalInfo) {
 	u.Id = user.Id
