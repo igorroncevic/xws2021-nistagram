@@ -52,7 +52,7 @@ const (
 	NoCategory                = "NoCategory"
 )
 
-func (c UserCategory) String() string{
+func  ToString(c UserCategory) string{
 	switch c {
 	case Sports:
 		return "Sports"
@@ -62,6 +62,8 @@ func (c UserCategory) String() string{
 		return "News"
 	case Business:
 		return "Business"
+	case Brand:
+		return "Brand"
 	case Organization:
 		return "Organization"
 	case Government:
@@ -71,4 +73,35 @@ func (c UserCategory) String() string{
 	default:
 		return fmt.Sprintf("%s", string(c))
 	}
+}
+
+func  GetCategory(s string) UserCategory{
+	switch s {
+	case "Sports":
+		return Sports
+	case "Influencer":
+		return Influencer
+	case "News":
+		return News
+	case "Business":
+		return Business
+	case "Brand":
+		return Brand
+	case "Organization":
+		return Organization
+	case "Government":
+		return Government
+	case "NoCategory":
+		return NoCategory
+	default:
+		return ""
+	}
+}
+
+func GetUserCategories(categories string) UserCategory {
+	return GetCategory(categories)
+}
+
+func GetUserCategoriesString(categories UserCategory) string {
+	return ToString(categories)
 }

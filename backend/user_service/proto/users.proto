@@ -20,6 +20,35 @@ service Users {
       get: "/api/users"
     };
   }
+
+  rpc UpdateUserProfile (CreateUserDTORequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/update_profile"
+      body: "*"
+    };
+  }
+
+  rpc UpdateUserPassword (CreatePasswordRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/update_password"
+      body: "*"
+    };
+  }
+
+  rpc SearchUser (SearchUserDtoRequest) returns (UsersResponse) {
+    option(google.api.http) = {
+      post: "/api/users/searchByUser"
+      body: "user"
+    };
+  }
+
+}
+
+message Password {
+  string OldPassword = 1;
+  string NewPassword = 2;
+  string RepeatedPassword = 3;
+  string Id = 4;
 }
 
 message User {
@@ -39,13 +68,47 @@ message User {
   string website = 14;
 }
 
-message UsersResponse {
-  repeated User users = 1;
+message UsersDTO {
+  string id = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string email = 4;
+  string username = 5;
+  string role = 6;
+  google.protobuf.Timestamp birthdate = 7;
+  string profilePhoto = 8;
+  string phoneNumber = 9;
+  string sex = 10;
+  bool isActive = 11;
+  string biography = 12;
+  string website = 13;
+  string category = 14;
 }
 
+//TODO ne treba da vracamo usera vec usera bez sifre i sa biografijom i website-om
+message UsersResponse {
+  repeated UsersDTO users = 1;
+}
+
+message UserResponse {
+  UsersDTO users = 1;
+}
 message CreateUserRequest {
   User user = 1;
 }
+
+message CreateUserDTORequest {
+  UsersDTO user = 1;
+}
+
+message CreatePasswordRequest {
+  Password password = 1;
+}
+
+message SearchUserDtoRequest {
+  UsersDTO user = 1;
+}
+
 
 message EmptyRequest {}
 message EmptyResponse {}

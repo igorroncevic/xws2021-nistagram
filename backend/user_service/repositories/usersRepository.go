@@ -8,6 +8,7 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
+	"github.com/david-drvar/xws2021-nistagram/user_service/util/encryption"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -18,6 +19,8 @@ type UserRepository interface {
 	CreateUserWithAdditionalInfo(context.Context, *persistence.User, *persistence.UserAdditionalInfo) error
 	CheckPassword(data common.Credentials) error
 	UpdateUserProfile(dto domain.User) (bool, error)
+	UpdateUserPassword(password domain.Password) (bool, error)
+	SearchUsersByUsernameAndName(ctx context.Context, user *domain.User) ([]domain.User, error)
 }
 
 type userRepository struct {
@@ -30,6 +33,31 @@ func NewUserRepo(db *gorm.DB) (*userRepository, error) {
 	}
 
 	return &userRepository{DB: db}, nil
+}
+
+func (repository *userRepository) UpdateUserPassword(password domain.Password) (bool, error) {
+	var user *persistence.User
+
+	db := repository.DB.Select("password").Where("id = ?", password.Id).Find(&user)
+	if db.Error != nil {
+		return false, db.Error
+	} else if db.RowsAffected == 0 {
+		return false, errors.New("rows affected is equal to zero")
+	}
+
+	err := encryption.CompareHashAndPassword([]byte(user.Password), []byte(password.OldPassword))
+	if err != nil {
+		return false, err
+	}
+
+	db = repository.DB.Model(&user).Where("id = ?", password.Id).Updates(persistence.User{Password: encryption.HashAndSalt([]byte(password.NewPassword))})
+	if db.Error != nil {
+		return false, db.Error
+	} else if db.RowsAffected == 0 {
+		return false, errors.New("rows affected is equal to zero")
+	}
+
+	return true, nil
 }
 
 func (repository *userRepository) UpdateUserProfile(userDTO domain.User) (bool, error) {
@@ -156,8 +184,9 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	_, err := repository.GetUserByUsername(user.Username)
-	if err != nil {
+	var userPersistence domain.User
+	userPersistence, _ = repository.GetUserByUsername(user.Username)
+	if userPersistence.Username == user.Username {
 		return errors.New("username already exists")
 	}
 
@@ -175,4 +204,38 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 	resultUserAdditionalInfo := repository.DB.Create(&userAdditionalInfo)
 
 	return resultUserAdditionalInfo.Error
+}
+
+func (repository *userRepository) SearchUsersByUsernameAndName(ctx context.Context, user *domain.User) ([]domain.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var users []persistence.User
+
+	if user.Username != "" && user.FirstName != "" && user.LastName != "" {
+		repository.DB.Where("username = ? AND first_name = ? AND last_name = ?", user.Username, user.FirstName, user.LastName).Find(&users)
+	} else if user.Username != "" && user.FirstName != "" && user.LastName == "" {
+		repository.DB.Where("username = ? AND first_name = ?", user.Username, user.FirstName).Find(&users)
+	} else if user.Username != "" && user.FirstName == "" && user.LastName != "" {
+		repository.DB.Where("username = ? AND last_name = ?", user.Username, user.LastName).Find(&users)
+	} else if user.Username == "" && user.FirstName != "" && user.LastName != "" {
+		repository.DB.Where("first_name = ? AND last_name = ?", user.FirstName, user.LastName).Find(&users)
+	} else if user.Username != "" && user.FirstName == "" && user.LastName == "" {
+		repository.DB.Where("username = ?", user.Username).Find(&users)
+	} else if user.Username == "" && user.FirstName != "" && user.LastName == "" {
+		repository.DB.Where("first_name = ?", user.FirstName).Find(&users)
+	} else if user.Username == "" && user.FirstName == "" && user.LastName != "" {
+		repository.DB.Where("last_name = ?", user.LastName).Find(&users)
+	}
+
+	var usersDomain []domain.User
+
+	for _, v := range users { //i - index, v - user
+		user := &domain.User{}
+		user.GenerateUserDTO(v, persistence.UserAdditionalInfo{})
+		usersDomain = append(usersDomain, *user)
+	}
+
+	return usersDomain, nil
 }
