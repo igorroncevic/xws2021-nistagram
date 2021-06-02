@@ -45,7 +45,7 @@ type Favorites struct {
 	CollectionId string
 }
 
-type PostLikes struct {
+type Like struct {
 	PostId string `gorm:"primaryKey"`
 	UserId string `gorm:"primaryKey"`
 	IsLike bool

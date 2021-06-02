@@ -33,6 +33,19 @@ service Content {
       get: "/api/content/comments/{id}"
     };
   }
+
+  rpc CreateLike (Like) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/content/likes",
+      body: "*"
+    };
+  }
+
+  rpc GetLikesForPost (LikeRequest) returns (LikesArray) {
+    option(google.api.http) = {
+      get: "/api/content/likes/{postId}/{isLike}"
+    };
+  }
 }
 
 message Post {
@@ -141,6 +154,15 @@ message StoryArray {
 
 message CommentsArray {
   repeated Comment comments = 1;
+}
+
+message LikesArray {
+  repeated Like likes = 1;
+}
+
+message LikeRequest {
+  string postId = 1;
+  bool   isLike = 2;
 }
 
 message RequestId {

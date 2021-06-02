@@ -31,7 +31,6 @@ func NewContentService(db *gorm.DB) (*ContentService, error){
 	}, err
 }
 
-// TODO Use ReducedPost to reduce amount of data being transfered
 func (service *ContentService) GetAllPosts(ctx context.Context) ([]domain.ReducedPost, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPosts")
 	defer span.Finish()

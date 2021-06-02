@@ -46,14 +46,14 @@ func (repository *commentRepository) GetCommentsNumForPost(ctx context.Context, 
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	comments := []persistence.Comment{}
-	result := repository.DB.Where("post_id = ?", postId).Find(&comments)
+	var comments int64
+	result := repository.DB.Where("post_id = ?", postId).Count(&comments)
 
 	if result.Error != nil {
-		return int(result.RowsAffected), result.Error
+		return 0, result.Error
 	}
 
-	return int(result.RowsAffected), nil
+	return int(comments), nil
 }
 
 func (repository *commentRepository) CreateComment(ctx context.Context, comment domain.Comment) error{

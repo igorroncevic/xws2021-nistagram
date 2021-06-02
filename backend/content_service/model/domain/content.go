@@ -65,7 +65,7 @@ type Favorites struct {
 
 type Like struct {
 	PostId string
-	UserId string
+	UserId string	// TODO Username?
 	IsLike bool
 }
 

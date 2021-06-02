@@ -65,3 +65,20 @@ func (c *Comment) ConvertToPersistence(comment domain.Comment) *Comment{
 		CreatedAt: time.Now(),
 	}
 }
+
+func (l Like) ConvertToDomain() domain.Like {
+	return domain.Like{
+		PostId: l.PostId,
+		UserId: l.UserId,
+		IsLike: l.IsLike,
+	}
+}
+
+func (l *Like) ConvertToPersistence(like domain.Like) *Like{
+	if l == nil { l = &Like{} }
+	return &Like{
+		PostId:    	like.PostId,
+		UserId:    	like.UserId,
+		IsLike:		like.IsLike,
+	}
+}
