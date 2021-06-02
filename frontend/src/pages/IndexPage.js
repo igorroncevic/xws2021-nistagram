@@ -15,6 +15,7 @@ export function IndexPage(){
     const[reCaptcha,setCaptcha]=useState(0);
     const[logInDisabled,setLogInDisabled]=useState(false);
     const[showModal,setShowModal]=useState(false);
+
     useEffect(() => {
         document.body.style.backgroundColor = "#C0C0C0"
     });
