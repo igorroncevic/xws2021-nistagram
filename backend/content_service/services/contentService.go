@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
+	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/content_service/repositories"
 	"gorm.io/gorm"
 )
@@ -12,6 +13,8 @@ import (
 type ContentService struct {
 	contentRepository repositories.ContentRepository
 	commentRepository repositories.CommentRepository
+	likeRepository 	  repositories.LikeRepository
+	mediaRepository   repositories.MediaRepository
 }
 
 func NewContentService(db *gorm.DB) (*ContentService, error){
@@ -25,9 +28,21 @@ func NewContentService(db *gorm.DB) (*ContentService, error){
 		return nil, err
 	}
 
+	likeRepository, err := repositories.NewLikeRepo(db)
+	if err != nil {
+		return nil, err
+	}
+
+	mediaRepository, err := repositories.NewMediaRepo(db)
+	if err != nil {
+		return nil, err
+	}
+
 	return &ContentService{
 		contentRepository,
 		commentRepository,
+		likeRepository,
+		mediaRepository,
 	}, err
 }
 
@@ -49,11 +64,24 @@ func (service *ContentService) GetAllPosts(ctx context.Context) ([]domain.Reduce
 		if err != nil{
 			return []domain.ReducedPost{}, errors.New("unable to retrieve posts comments")
 		}
-		/*likes := []domain.Like{}
-		dislikes := []domain.Like{}*/
+		likes, err := service.likeRepository.GetLikesNumForPost(ctx, post.Id, true)
+		if err != nil {
+			return []domain.ReducedPost{}, errors.New("unable to retrieve posts likes")
+		}
+		dislikes, err := service.likeRepository.GetLikesNumForPost(ctx, post.Id, false)
+		if err != nil {
+			return []domain.ReducedPost{}, errors.New("unable to retrieve posts dislikes")
+		}
 		tags := []domain.Tag{}
-		media := []domain.Media{}
-		posts = append(posts, post.ConvertToDomainReduced(commentsNum, 0, 0, tags, media))
+		media, err := service.mediaRepository.GetMediaForPost(ctx, post.Id)
+		if err != nil {
+			return []domain.ReducedPost{}, errors.New("unable to retrieve posts media")
+		}
+		convertedMedia, err := persistence.ConvertMultipleMediaToDomain(media)
+		if err != nil {
+			return []domain.ReducedPost{}, errors.New("unable to convert posts media")
+		}
+		posts = append(posts, post.ConvertToDomainReduced(commentsNum, likes, dislikes, tags, convertedMedia))
 	}
 
 	return posts, nil

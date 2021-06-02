@@ -2,6 +2,8 @@ package persistence
 
 import (
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
+	"github.com/david-drvar/xws2021-nistagram/content_service/util"
+	"github.com/david-drvar/xws2021-nistagram/content_service/util/images"
 	uuid "github.com/satori/go.uuid"
 	"time"
 )
@@ -83,6 +85,21 @@ func (l *Like) ConvertToPersistence(like domain.Like) *Like{
 	}
 }
 
+func (m *Media) ConvertToDomain() (domain.Media, error){
+	if m == nil { m = &Media{} }
+	filename, err := images.LoadImageToBase64(util.GetContentLocation(m.Filename))
+	if err != nil {
+		return domain.Media{}, err
+	}
+	return domain.Media{
+		Id:       uuid.NewV4().String(),
+		Type:     m.Type,
+		PostId:   m.PostId,
+		Content:  filename,
+		OrderNum: int32(m.OrderNum),
+	}, nil
+}
+
 func (m *Media) ConvertToPersistence(media domain.Media, filename string) *Media{
 	if m == nil { m = &Media{} }
 	return &Media{
@@ -92,5 +109,18 @@ func (m *Media) ConvertToPersistence(media domain.Media, filename string) *Media
 		Filename: filename,
 		OrderNum: int(media.OrderNum),
 	}
+}
+
+func ConvertMultipleMediaToDomain(media []Media) ([]domain.Media, error){
+	result := []domain.Media{}
+	for _, single := range media{
+		converted, err := single.ConvertToDomain()
+		if err != nil{
+			return []domain.Media{}, err
+		}
+		result = append(result, converted)
+	}
+
+	return result, nil
 }
 
