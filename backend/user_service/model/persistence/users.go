@@ -11,7 +11,7 @@ type User struct {
 	Id           string `gorm:"primaryKey"`
 	FirstName    string
 	LastName     string
-	Email        string
+	Email        string `gorm:"unique"`
 	Username     string `gorm:"unique"`
 	Password     string
 	Role         model.UserRole
@@ -22,7 +22,7 @@ type User struct {
 	IsActive     bool
 }
 
-func (u User) ConvertToGrpc() (*userspb.User) {
+func (u User) ConvertToGrpc() *userspb.User {
 	return &userspb.User{
 		Id:           u.Id,
 		FirstName:    u.FirstName,
@@ -63,11 +63,19 @@ type UserAdditionalInfo struct {
 	Category  model.UserCategory
 }
 
+func (u UserAdditionalInfo) ConvertFromGrpc(user *userspb.User) *UserAdditionalInfo {
+	return &UserAdditionalInfo{
+		Id:        user.Id,
+		Biography: user.Biography,
+		Website:   user.Website,
+	}
+}
+
 type Privacy struct {
-	UserId string `gorm:"primaryKey"`
+	UserId          string `gorm:"primaryKey"`
 	IsProfilePublic bool
-	IsDMPublic bool
-	IsTagEnabled bool
+	IsDMPublic      bool
+	IsTagEnabled    bool
 }
 
 func (privacy *Privacy) ConvertFromGrpc(p *userspb.PrivacyMessage) *Privacy{
@@ -80,7 +88,7 @@ func (privacy *Privacy) ConvertFromGrpc(p *userspb.PrivacyMessage) *Privacy{
 }
 
 type BlockedUsers struct {
-	UserId string `gorm:"primaryKey"`
+	UserId        string `gorm:"primaryKey"`
 	BlockedUserId string `gorm:"primaryKey"`
 }
 
@@ -92,21 +100,21 @@ func (block *BlockedUsers) ConvertFromGrpc(b *userspb.Block) *BlockedUsers{
 }
 
 type Followers struct {
-	UsedId string `gorm:"primaryKey"`
-	FollowerId string `gorm:"primaryKey"`
-	IsMuted bool
-	IsCloseFriend bool
-	IsApprovedRequest bool
+	UsedId                string `gorm:"primaryKey"`
+	FollowerId            string `gorm:"primaryKey"`
+	IsMuted               bool
+	IsCloseFriend         bool
+	IsApprovedRequest     bool
 	IsNotificationEnabled bool
 }
 
 type VerificationRequest struct {
-	UserId string `gorm:"primaryKey"`
-	FirstName string
-	LastName string
+	UserId        string `gorm:"primaryKey"`
+	FirstName     string
+	LastName      string
 	DocumentPhoto string
-	IsApproved bool
-	CreatedAt time.Time
+	IsApproved    bool
+	CreatedAt     time.Time
 }
 
 type APIKeys struct {

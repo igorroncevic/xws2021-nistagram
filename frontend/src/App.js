@@ -1,27 +1,20 @@
-import './App.css';
-import * as React from "react";
-import {BrowserRouter, Switch, Route} from 'react-router-dom';
-import IndexPage from "./pages/IndexPage";
+import  React from "react";
+import {LoginPage} from './pages/LoginPage.js'
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import RegistrationPage from "./pages/RegistrationPage";
+import RegistrationPageHooks from "./pages/RegistrationPageHooks";
 
-export default class App extends React.Component {
-  constructor () {
-    super();
-    this.state = {
-      userRole : "",
-      username : "",
-      Id : ""
-    }
-  };
-  render() {
-    document.title = "Nistagram"
+
+function App () {
     return (
-        <BrowserRouter>
-          <Switch>
-            <Route exact path="/"  render={(props) => <IndexPage {...props} /> } />
+        <div className="App">
+            <Router>
+                <Route path='/login' exact={true} component={LoginPage}/>
+                <Route path='/registration' exact={true} component={RegistrationPage}/>
+                <Route path='/registration-hooks' exact={true} component={RegistrationPageHooks}/>
 
-          </Switch>
-        </BrowserRouter>
+             </Router>
+        </div>
     );
-  }
 }
-
+export default App

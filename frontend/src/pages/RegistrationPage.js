@@ -16,81 +16,107 @@ export default class RegistrationPage extends React.Component{
             rePassword : '',
             emailErr: 'Enter email',
             passwordErr: 'Enter password',
+            blacklistedPassword: "Password you entered is too common",
             firstNameErr: 'Enter First name',
             lastNameErr: 'Enter Last name',
             rePasswordErr: 'Repeat password',
             validForm: false,
             submitted: false,
-            successfullyReg:false,
+            successfullyReg: false,
             disabled: false,
-            errorMessage:false
+            errorMessage: false,
+            blacklistedPasswords: [],
         }
+    }
+
+    async componentDidMount() {
+        let response = await axios.get('http://localhost:8080/security/passwords');
+        if(response && response.status && response.status === 200)
+            this.setState({blacklistedPasswords: [...response.data]});
+        else
+            console.log("No blacklisted passwords.")
     }
 
     handleInputChange = (event) => {
         const target = event.target;
-        this.setState({
-            [target.name] : target.value,
-        })
-        this.validationErrorMessage(event);
+        this.setState(
+            (state,props) => ({ [target.name]  : target.value}),
+            () => this.validationErrorMessage(event)
+        )
     }
 
     handlePassChange = (event) => {
         this.setState(
-        (state,props) => ({ rePassword : event.target.value}),
-        () => this.validationErrorMessage(event)
+            (state,props) => ({ rePassword : event.target.value}),
+            () => this.validationErrorMessage(event)
         )
     }
 
     validationErrorMessage = (event) => {
         const { name, value } = event.target;
-        let errors = this.state.errors;
 
         switch (name) {
             case 'firstName':
                 this.setState({
-                    firstNameErr : this.state.firstName.length < 1 ? 'EnterFirstName' : ''
+                    firstNameErr : this.checkNameAndSurname(this.state.firstName) ? '' : 'EnterFirstName'
                 })
                 break;
             case 'lastName':
                 this.setState({
-                    lastNameErr : this.state.lastName.length < 1 ? 'EnterLastName' : ''
+                    lastNameErr : this.checkNameAndSurname(this.state.lastName) ? '' : 'EnterLastName'
                 })
                 break;
             case 'email':
                 this.setState({
-                    emailErr : this.isValidEmail(this.state.email) && this.state.email.length > 1 ? '' : 'Email is not valid!'
+                    emailErr : this.isValidEmail(this.state.email) && this.state.email.length > 1 ? '' : 'Email is not valid!',
+                    //validForm: false,
                 })
                 break;
             case 'password':
                 this.setState({
-                    passwordErr : this.checkPassword(this.state.password) ? 'Password must contains at least lowercase letter, capital letter, number and special character' : ''
+                    passwordErr : this.checkPassword(this.state.password) ? 'Password must contains at least 8 characters (lowercase letter, capital letter, number and special character) or not be a common password!' : '',
+                    //validForm: false,
                 })
                 break;
             case 'rePassword':
                 this.setState({
-                    rePasswordErr : this.isValidRepeatedPassword(this.state.rePassword) ? '' : 'This password must match the previous'
+                    rePasswordErr : this.isValidRepeatedPassword(this.state.rePassword) ? '' : 'This password must match the previous!',
+                    //validForm: false,
                 })
                 break;
             default:
+                /*this.setState({
+                    validForm: true
+                })*/
                 break;
         }
 
     }
+    checkNameAndSurname = (value) => {
+        if(/^[a-zA-Z ,.'-]+$/.test(value)){
+            return true;
+        }
+        return false;
+    }
 
     checkPassword =  (password) =>{
-        if(/^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*])[\w!@#$%^&*]{5,}$/.test(password)){
+        console.log("Checking")
+        if(/^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*])[\w!@#$%^&*]{8,}$/.test(password)){
             this.setState({
-                    passwordStrength: this.state.password
-                })
+                passwordStrength: this.state.password
+            })
             return false;
-        }else {
-             this.setState({
+        }else if(this.state.blacklistedPasswords.includes(password)){
+            this.setState({
+                passwordStrength: this.state.password
+            })
+            return false;
+        } else {
+            this.setState({
                 passwordStrength : ""
             })
             return true;
         }
-
     }
 
     isValidEmail = (value) => {
@@ -107,9 +133,10 @@ export default class RegistrationPage extends React.Component{
 
     submitForm = async (event) => {
         this.setState({submitted: true});
+
         event.preventDefault();
-        const Errors = ['email', 'password', 'firstName', 'rePassword', 'lastName'];
-        if (this.validateForm(Errors)) {
+        const errors = ['email', 'password', 'firstName', 'rePassword', 'lastName'];
+        if (this.validateForm(errors)) {
             await this.sendParams()
         } else {
             console.log('Invalid Form')
@@ -121,6 +148,10 @@ export default class RegistrationPage extends React.Component{
         for(const Error of errors) {
             this.validationErrorMessage(this.createTarget(Error));
         }
+        //Promeniti!
+        if(this.state.emailErr !== "" || this.state.passwordErr !== "" || this.state.firstNameErr !== "" ||
+            this.state.lastNameErr !== "" || this.state.rePasswordErr !== "" )
+            return !valid;
         return valid;
     }
 
@@ -130,12 +161,13 @@ export default class RegistrationPage extends React.Component{
 
     async sendParams() {
         axios
-            .post('http://localhost:8001/users/register', {
+            .post('http://localhost:8080/auth/save', {
                 'id':'',
                 'firstName' : this.state.firstName,
                 'lastName' : this.state.lastName,
                 'email' : this.state.email,
                 'password' : this.state.password,
+                'rePassword':this.state.rePassword
             })
             .then(res => {
                 this.setState({ errorMessage:false });

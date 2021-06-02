@@ -57,6 +57,8 @@ message User {
   string phoneNumber = 10;
   string sex = 11;
   bool isActive = 12;
+  string biography = 13;
+  string website = 14;
 }
 
 
