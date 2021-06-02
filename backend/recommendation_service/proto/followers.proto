@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package proto;
+import "google/api/annotations.proto";
+
+option go_package = "github.com/xws2021-nistagram/recommendation_service/proto";
+
+service Followers {
+
+    rpc CreateUserConnection (CreateFollowerRequest) returns (EmptyResponse) {
+        option(google.api.http) = {
+            post: "/api/users",
+            body: "follower"
+        };
+    }
+}
+
+message Follower {
+    string UserId = 1;
+    string FollowerId = 2;
+    bool IsMuted = 3;
+    bool IsCloseFriends = 4;
+    bool IsApprovedRequest = 5;
+    bool IsNotificationEnabled = 6;
+}
+
+message  CreateFollowerRequest {
+    Follower follower = 1;
+}
+
+message EmptyResponse {}
