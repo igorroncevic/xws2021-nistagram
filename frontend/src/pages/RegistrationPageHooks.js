@@ -176,8 +176,10 @@ export default function RegistrationPageHooks() {
     }
 
     async function sendParams() {
+        const headers = {'Access-Control-Allow-Origin':'*'}
+
         axios
-            .post('http://localhost:8001/api/users', {
+            .post('http://localhost:8080/api/users/api/users', {
                 'id':'1',
                 'firstName' : firstName,
                 'lastName' : lastName,
@@ -189,6 +191,8 @@ export default function RegistrationPageHooks() {
                 'profilePhoto' : 'idk',
                 'sex' : 'MAN',
                 'isActive' : true
+            }, {
+                headers : headers
             })
             .then(res => {
                 setErrorMessage(false);
