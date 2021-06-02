@@ -61,8 +61,12 @@ func (s *Server) CreateLike(ctx context.Context, in *contentpb.Like) (*contentpb
 	return s.likeController.CreateLike(ctx, in)
 }
 
-func (s *Server) GetLikesForPost(ctx context.Context, in *contentpb.LikeRequest) (*contentpb.LikesArray, error) {
-	return s.likeController.GetLikesForPost(ctx, in)
+func (s *Server) GetLikesForPost(ctx context.Context, in *contentpb.RequestId) (*contentpb.LikesArray, error) {
+	return s.likeController.GetLikesForPost(ctx, in.Id, true)
+}
+
+func (s *Server) GetDislikesForPost(ctx context.Context, in *contentpb.RequestId) (*contentpb.LikesArray, error) {
+	return s.likeController.GetLikesForPost(ctx, in.Id, false)
 }
 
 

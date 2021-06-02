@@ -42,12 +42,12 @@ func (s *LikeGrpcController) CreateLike(ctx context.Context, in *contentpb.Like)
 	return &contentpb.EmptyResponse{}, nil
 }
 
-func (s *LikeGrpcController) GetLikesForPost(ctx context.Context, like *contentpb.LikeRequest) (*contentpb.LikesArray, error) {
-	span := tracer.StartSpanFromContextMetadata(ctx, "CreateLike")
+func (s *LikeGrpcController) GetLikesForPost(ctx context.Context, id string, isLike bool) (*contentpb.LikesArray, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetLikesForPost")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	likes, err := s.service.GetLikesForPost(ctx, like.PostId, like.IsLike)
+	likes, err := s.service.GetLikesForPost(ctx, id, isLike)
 
 	if err != nil{
 		return &contentpb.LikesArray{

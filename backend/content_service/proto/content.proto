@@ -10,40 +10,46 @@ option go_package = "github.com/xws2021-nistagram/content_service/proto";
 service Content {
   rpc CreatePost (Post) returns (EmptyResponse) {
     option(google.api.http) = {
-      post: "/api/content/posts",
+      post: "posts",
       body: "*"
     };
   }
 
   rpc GetAllPosts (EmptyRequest) returns (ReducedPostArray) {
     option(google.api.http) = {
-      get: "/api/content/posts"
+      get: "posts"
     };
   }
 
   rpc CreateComment (Comment) returns (EmptyResponse) {
     option(google.api.http) = {
-      post: "/api/content/comments",
+      post: "comments",
       body: "*"
     };
   }
 
   rpc GetCommentsForPost (RequestId) returns (CommentsArray) {
     option(google.api.http) = {
-      get: "/api/content/comments/{id}"
+      get: "comments/{id}"
     };
   }
 
   rpc CreateLike (Like) returns (EmptyResponse) {
     option(google.api.http) = {
-      post: "/api/content/likes",
+      post: "likes",
       body: "*"
     };
   }
 
-  rpc GetLikesForPost (LikeRequest) returns (LikesArray) {
+  rpc GetLikesForPost (RequestId) returns (LikesArray) {
     option(google.api.http) = {
-      get: "/api/content/likes/{postId}/{isLike}"
+      get: "likes/{id}"
+    };
+  }
+
+  rpc GetDislikesForPost (RequestId) returns (LikesArray) {
+    option(google.api.http) = {
+      get: "dislikes/{id}"
     };
   }
 }
@@ -158,11 +164,6 @@ message CommentsArray {
 
 message LikesArray {
   repeated Like likes = 1;
-}
-
-message LikeRequest {
-  string postId = 1;
-  bool   isLike = 2;
 }
 
 message RequestId {
