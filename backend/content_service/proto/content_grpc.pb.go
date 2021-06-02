@@ -19,7 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ContentClient interface {
 	CreatePost(ctx context.Context, in *Post, opts ...grpc.CallOption) (*EmptyResponse, error)
-	GetAllPosts(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*PostArray, error)
+	GetAllPosts(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*ReducedPostArray, error)
 	CreateComment(ctx context.Context, in *Comment, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GetCommentsForPost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*CommentsArray, error)
 }
@@ -41,8 +41,8 @@ func (c *contentClient) CreatePost(ctx context.Context, in *Post, opts ...grpc.C
 	return out, nil
 }
 
-func (c *contentClient) GetAllPosts(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*PostArray, error) {
-	out := new(PostArray)
+func (c *contentClient) GetAllPosts(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*ReducedPostArray, error) {
+	out := new(ReducedPostArray)
 	err := c.cc.Invoke(ctx, "/proto.Content/GetAllPosts", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -73,7 +73,7 @@ func (c *contentClient) GetCommentsForPost(ctx context.Context, in *RequestId, o
 // for forward compatibility
 type ContentServer interface {
 	CreatePost(context.Context, *Post) (*EmptyResponse, error)
-	GetAllPosts(context.Context, *EmptyRequest) (*PostArray, error)
+	GetAllPosts(context.Context, *EmptyRequest) (*ReducedPostArray, error)
 	CreateComment(context.Context, *Comment) (*EmptyResponse, error)
 	GetCommentsForPost(context.Context, *RequestId) (*CommentsArray, error)
 	mustEmbedUnimplementedContentServer()
@@ -86,7 +86,7 @@ type UnimplementedContentServer struct {
 func (UnimplementedContentServer) CreatePost(context.Context, *Post) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePost not implemented")
 }
-func (UnimplementedContentServer) GetAllPosts(context.Context, *EmptyRequest) (*PostArray, error) {
+func (UnimplementedContentServer) GetAllPosts(context.Context, *EmptyRequest) (*ReducedPostArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllPosts not implemented")
 }
 func (UnimplementedContentServer) CreateComment(context.Context, *Comment) (*EmptyResponse, error) {

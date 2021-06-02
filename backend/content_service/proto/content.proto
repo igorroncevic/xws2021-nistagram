@@ -15,7 +15,7 @@ service Content {
     };
   }
 
-  rpc GetAllPosts (EmptyRequest) returns (PostArray) {
+  rpc GetAllPosts (EmptyRequest) returns (ReducedPostArray) {
     option(google.api.http) = {
       get: "/api/content/posts"
     };
@@ -125,6 +125,10 @@ message Highlight {
   string id = 1;
   string name = 2;
   repeated Story stories = 3;
+}
+
+message ReducedPostArray {
+  repeated ReducedPost posts = 1;
 }
 
 message PostArray {

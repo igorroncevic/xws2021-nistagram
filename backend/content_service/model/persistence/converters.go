@@ -25,6 +25,25 @@ func (p Post) ConvertToDomain(comments []domain.Comment, likes []domain.Like, di
 	}
 }
 
+func (p Post) ConvertToDomainReduced(commentsNum int, likesNum int, dislikesNum int, tags []domain.Tag, media []domain.Media) domain.ReducedPost{
+	return domain.ReducedPost{
+		Objava:   domain.Objava{
+			Id:          p.Id,
+			UserId:      p.UserId,
+			IsAd:        p.IsAd,
+			Type:        p.Type,
+			Description: p.Description,
+			Location:    p.Location,
+			Tags:        tags,
+			CreatedAt:   p.CreatedAt,
+			Media:       media,
+		},
+		CommentsNum: 	int32(commentsNum),
+		LikesNum:    	int32(likesNum),
+		DislikesNum: 	int32(dislikesNum),
+	}
+}
+
 func (c Comment) ConvertToDomain(username string) domain.Comment {
 	return domain.Comment{
 		Id:		   c.Id,

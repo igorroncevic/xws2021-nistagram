@@ -32,12 +32,12 @@ func NewContentService(db *gorm.DB) (*ContentService, error){
 }
 
 // TODO Use ReducedPost to reduce amount of data being transfered
-func (service *ContentService) GetAllPosts(ctx context.Context) ([]domain.Post, error) {
+func (service *ContentService) GetAllPosts(ctx context.Context) ([]domain.ReducedPost, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPosts")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	posts := []domain.Post{}
+	posts := []domain.ReducedPost{}
 
 	dbPosts, err := service.contentRepository.GetAllPosts(ctx)
 	if err != nil{
@@ -46,12 +46,15 @@ func (service *ContentService) GetAllPosts(ctx context.Context) ([]domain.Post, 
 
 	// TODO Retrieve all domain data
 	for _, post := range dbPosts{
-		comments := []domain.Comment{}
-		likes := []domain.Like{}
-		dislikes := []domain.Like{}
+		commentsNum, err := service.commentRepository.GetCommentsNumForPost(ctx, post.Id)
+		if err != nil{
+			return []domain.ReducedPost{}, errors.New("unable to retrieve posts comments")
+		}
+		/*likes := []domain.Like{}
+		dislikes := []domain.Like{}*/
 		tags := []domain.Tag{}
 		media := []domain.Media{}
-		posts = append(posts, post.ConvertToDomain(comments, likes, dislikes, tags, media))
+		posts = append(posts, post.ConvertToDomainReduced(commentsNum, 0, 0, tags, media))
 	}
 
 	return posts, nil

@@ -42,7 +42,7 @@ func (s *Server) CreatePost(ctx context.Context, in *contentpb.Post) (*contentpb
 	return s.contentController.CreatePost(ctx, in)
 }
 
-func (s *Server) GetAllPosts(ctx context.Context, in *contentpb.EmptyRequest) (*contentpb.PostArray, error) {
+func (s *Server) GetAllPosts(ctx context.Context, in *contentpb.EmptyRequest) (*contentpb.ReducedPostArray, error) {
 	return s.contentController.GetAllPosts(ctx, in)
 }
 
