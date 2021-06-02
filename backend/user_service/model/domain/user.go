@@ -18,11 +18,10 @@ type User struct {
 	PhoneNumber  string
 	Sex          string
 	IsActive     bool
-	Biography  	 string
-	Website   	 string
-	Category  	 model.UserCategory
+	Biography    string
+	Website      string
+	Category     model.UserCategory
 }
-
 
 func (u *User) GenerateUserDTO(user persistence.User, userAdditionalInfo persistence.UserAdditionalInfo) {
 	u.Id = user.Id

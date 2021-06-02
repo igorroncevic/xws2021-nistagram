@@ -8,12 +8,14 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type UserRepository interface {
 	GetAllUsers(context.Context) ([]persistence.User, error)
 	CreateUser(context.Context, *persistence.User) error
+	CreateUserWithAdditionalInfo(context.Context, *persistence.User, *persistence.UserAdditionalInfo) error
 	CheckPassword(data common.Credentials) error
 	UpdateUserProfile(dto domain.User) (bool, error)
 }
@@ -27,46 +29,45 @@ func NewUserRepo(db *gorm.DB) (*userRepository, error) {
 		panic("UserRepository not created, gorm.DB is nil")
 	}
 
-	return &userRepository{ DB: db }, nil
+	return &userRepository{DB: db}, nil
 }
-
 
 func (repository *userRepository) UpdateUserProfile(userDTO domain.User) (bool, error) {
 	var user persistence.User
 	var userAdditionalInfo persistence.UserAdditionalInfo
 
-	db := repository.DB.Model(&user).Where("id = ?", userDTO.Id ).Updates(persistence.User{FirstName: userDTO.FirstName, LastName: userDTO.LastName, Email: userDTO.Email, Username: userDTO.Username, BirthDate: userDTO.BirthDate,
-	    	 PhoneNumber: userDTO.PhoneNumber, Sex: userDTO.Sex})
+	db := repository.DB.Model(&user).Where("id = ?", userDTO.Id).Updates(persistence.User{FirstName: userDTO.FirstName, LastName: userDTO.LastName, Email: userDTO.Email, Username: userDTO.Username, BirthDate: userDTO.BirthDate,
+		PhoneNumber: userDTO.PhoneNumber, Sex: userDTO.Sex})
 
 	fmt.Println(db.RowsAffected)
 
-	if db.Error != nil  {
+	if db.Error != nil {
 		return false, db.Error
-	}else if db.RowsAffected == 0 {
+	} else if db.RowsAffected == 0 {
 		return false, errors.New("rows affected is equal to zero")
 	}
-	db = repository.DB.Model(&userAdditionalInfo).Where("id = ?", userDTO.Id ).Updates(persistence.UserAdditionalInfo{Website: userDTO.Website, Category: userDTO.Category, Biography: userDTO.Biography}).Find(1)
+	db = repository.DB.Model(&userAdditionalInfo).Where("id = ?", userDTO.Id).Updates(persistence.UserAdditionalInfo{Website: userDTO.Website, Category: userDTO.Category, Biography: userDTO.Biography}).Find(1)
 
 	if db.Error != nil {
 		return false, db.Error
-	}else if db.RowsAffected == 0 {
+	} else if db.RowsAffected == 0 {
 		return false, errors.New("rows affected is equal to zero")
 	}
 
 	return true, nil
 }
 
-func(repository *userRepository) GetUserByUsername(username string) (domain.User, error) {
+func (repository *userRepository) GetUserByUsername(username string) (domain.User, error) {
 	var dbUser persistence.User
 	var dbUserAdditionalInfo persistence.UserAdditionalInfo
 
 	db := repository.DB.Where("username = ?", username).Find(&dbUser)
-	if db.Error != nil{
+	if db.Error != nil {
 		return domain.User{}, db.Error
 	}
 
 	db = repository.DB.Where("id = ?", dbUser.Id).Find(&dbUserAdditionalInfo)
-	if db.Error != nil{
+	if db.Error != nil {
 		return domain.User{}, db.Error
 	}
 	user := &domain.User{}
@@ -74,9 +75,7 @@ func(repository *userRepository) GetUserByUsername(username string) (domain.User
 	user.GenerateUserDTO(dbUser, dbUserAdditionalInfo)
 
 	return *user, nil
-
 }
-
 
 func (repository *userRepository) GetAllUsers(ctx context.Context) ([]persistence.User, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllUsers")
@@ -130,26 +129,50 @@ func (repository *userRepository) CheckPassword(data common.Credentials) error {
 	return nil
 }
 
-
 func (repository *userRepository) CreateUser(ctx context.Context, user *persistence.User) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
-	/*tx, err := repository.DB.Begin(context.Background())
+
+	user.Id = uuid.New().String()
+	result := repository.DB.Create(&user)
+
+	return result.Error
+}
+
+func (repository *userRepository) CheckEmailExists(ctx context.Context, email string) bool {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	count := int64(0)
+	repository.DB.Model(persistence.User{}).Where("email = ?", email).Count(&count)
+	return count > 0
+
+}
+
+func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Context, user *persistence.User, userAdditionalInfo *persistence.UserAdditionalInfo) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	_, err := repository.GetUserByUsername(user.Username)
 	if err != nil {
-		return err
-	}
-	defer tx.Rollback(context.Background())
-
-	user.ID = uuid.NewV4().String()
-
-	query := `insert into registered_users (id, first_name, last_name, "email", "password") values ($1, $2, $3, $4, $5)`
-	_, err = tx.Exec(context.Background(), query, user.ID, user.FirstName, user.LastName, user.Email, user.Password)
-
-	if err != nil {
-		return err
+		return errors.New("username already exists")
 	}
 
-	return tx.Commit(context.Background())*/
-	return nil
+	if repository.CheckEmailExists(ctx, user.Email) {
+		return errors.New("email already exists")
+	}
+
+	user.Id = uuid.New().String()
+	resultUser := repository.DB.Create(&user)
+	if resultUser.Error != nil {
+		return resultUser.Error
+	}
+
+	userAdditionalInfo.Id = user.Id
+	resultUserAdditionalInfo := repository.DB.Create(&userAdditionalInfo)
+
+	return resultUserAdditionalInfo.Error
 }

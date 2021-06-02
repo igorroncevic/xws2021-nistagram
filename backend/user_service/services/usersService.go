@@ -16,7 +16,7 @@ type UserService struct {
 	repository repositories.UserRepository
 }
 
-func NewUserService(db *gorm.DB) (*UserService, error){
+func NewUserService(db *gorm.DB) (*UserService, error) {
 	repository, err := repositories.NewUserRepo(db)
 
 	return &UserService{
@@ -32,13 +32,22 @@ func (service *UserService) GetAllUsers(ctx context.Context) ([]persistence.User
 	return service.repository.GetAllUsers(ctx)
 }
 
-func (service *UserService) CreateUser(ctx context.Context, user *persistence.User) (error) {
+func (service *UserService) CreateUser(ctx context.Context, user *persistence.User) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	user.Password = encryption.HashAndSalt([]byte(user.Password))
 	return service.repository.CreateUser(ctx, user)
+}
+
+func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, user *persistence.User, userAdditionalInfo *persistence.UserAdditionalInfo) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	user.Password = encryption.HashAndSalt([]byte(user.Password))
+	return service.repository.CreateUserWithAdditionalInfo(ctx, user, userAdditionalInfo)
 }
 
 func (service *UserService) LoginUser(ctx context.Context, data common.Credentials) error {
