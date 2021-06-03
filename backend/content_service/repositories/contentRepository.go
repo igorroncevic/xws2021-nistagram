@@ -14,6 +14,9 @@ type ContentRepository interface {
 	GetAllPosts(context.Context) ([]persistence.Post, error)
 	CreatePost(context.Context, *domain.Post) error
 	GetPostById(context.Context, string) (*persistence.Post, error)
+	RemovePost(context.Context, string) error
+
+	GetCollectionsPosts(context.Context, string) ([]persistence.Post, error)
 }
 
 type contentRepository struct {
@@ -71,7 +74,7 @@ func (repository *contentRepository) CreatePost(ctx context.Context, post *domai
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	repository.DB.Transaction(func (tx *gorm.DB) error {
+	err := repository.DB.Transaction(func (tx *gorm.DB) error {
 		var postToSave persistence.Post
 		postToSave = postToSave.ConvertToPersistence(*post)
 
@@ -99,6 +102,7 @@ func (repository *contentRepository) CreatePost(ctx context.Context, post *domai
 		return nil
 	})
 
+	if err != nil { return err }
 	return nil
 }
 
@@ -107,7 +111,7 @@ func (repository *contentRepository) RemovePost(ctx context.Context, postId stri
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	repository.DB.Transaction(func (tx *gorm.DB) error{
+	err := repository.DB.Transaction(func (tx *gorm.DB) error{
 		post := &persistence.Post{ Id: postId }
 		result := repository.DB.First(&post)
 
@@ -121,7 +125,7 @@ func (repository *contentRepository) RemovePost(ctx context.Context, postId stri
 		}
 
 		for _, media := range postMedia {
-			tx.Transaction(func (tx *gorm.DB) error {
+			err := tx.Transaction(func (tx *gorm.DB) error {
 				mediaTags, err := repository.tagRepository.GetTagsForMedia(ctx, media.Id)
 				if err != nil {
 					return err
@@ -149,10 +153,29 @@ func (repository *contentRepository) RemovePost(ctx context.Context, postId stri
 
 				return nil
 			})
+			if err != nil { return err }
 		}
-
 		return nil
 	})
 
+	if err != nil { return err }
 	return nil
+}
+
+func (repository *contentRepository) GetCollectionsPosts(ctx context.Context, id string) ([]persistence.Post, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "RemovePost")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	posts := []persistence.Post{}
+	result := repository.DB.Model(&persistence.Post{}).
+		Joins("left join collections ON posts.id = collections.id").
+		Where("collections.id = id").
+		Find(&posts)
+
+	if result.Error != nil {
+		return posts, result.Error
+	}
+
+	return posts, nil
 }
