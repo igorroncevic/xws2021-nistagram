@@ -2,6 +2,7 @@ package setup
 
 import (
 	"context"
+	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/controllers"
@@ -14,7 +15,7 @@ import (
 	"net/http"
 )
 
-func GRPCServer(db *gorm.DB){
+func GRPCServer(db *gorm.DB) {
 	// Create a listener on TCP port
 	lis, err := net.Listen("tcp", grpc_common.Users_service_address)
 	if err != nil {
@@ -51,12 +52,13 @@ func GRPCServer(db *gorm.DB){
 		log.Fatalln("Failed to register gateway:", err)
 	}
 
+	c := common.SetupCors()
+
 	gwServer := &http.Server{
 		Addr:    grpc_common.Users_gateway_address,
-		Handler: tracer.TracingWrapper(gatewayMux),
+		Handler: tracer.TracingWrapper(c.Handler(gatewayMux)),
 	}
 
 	log.Println("Serving gRPC-Gateway on " + grpc_common.Users_gateway_address)
 	log.Fatalln(gwServer.ListenAndServe())
 }
-

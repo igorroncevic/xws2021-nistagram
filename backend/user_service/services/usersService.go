@@ -16,12 +16,17 @@ type UserService struct {
 	repository repositories.UserRepository
 }
 
-func NewUserService(db *gorm.DB) (*UserService, error){
+func NewUserService(db *gorm.DB) (*UserService, error) {
 	repository, err := repositories.NewUserRepo(db)
 
 	return &UserService{
 		repository: repository,
 	}, err
+}
+
+func (service *UserService) GetUser(id string) (domain.User, error) {
+
+	return domain.User{}, nil
 }
 
 func (service *UserService) GetAllUsers(ctx context.Context) ([]persistence.User, error) {
@@ -32,7 +37,7 @@ func (service *UserService) GetAllUsers(ctx context.Context) ([]persistence.User
 	return service.repository.GetAllUsers(ctx)
 }
 
-func (service *UserService) CreateUser(ctx context.Context, user *persistence.User) (error) {
+func (service *UserService) CreateUser(ctx context.Context, user *persistence.User) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -41,14 +46,52 @@ func (service *UserService) CreateUser(ctx context.Context, user *persistence.Us
 	return service.repository.CreateUser(ctx, user)
 }
 
+func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, user *persistence.User, userAdditionalInfo *persistence.UserAdditionalInfo) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	user.Password = encryption.HashAndSalt([]byte(user.Password))
+	return service.repository.CreateUserWithAdditionalInfo(ctx, user, userAdditionalInfo)
+}
+
 func (service *UserService) LoginUser(ctx context.Context, data common.Credentials) error {
 	return nil //service.repository.CheckPassword(ctx, data)
 }
 
-func (service *UserService) UpdateUserProfile(userDTO domain.User) (bool, error) {
+func (service *UserService) UpdateUserProfile(ctx context.Context, userDTO domain.User) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserProfile")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	if userDTO.Username == "" || userDTO.Email == "" {
 		return false, errors.New("username or email can not be empty string")
 	}
 
-	return service.repository.UpdateUserProfile(userDTO)
+	return service.repository.UpdateUserProfile(ctx, userDTO)
+}
+
+func (service *UserService) UpdateUserPassword(ctx context.Context, password domain.Password) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserPassword")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if password.NewPassword != password.RepeatedPassword {
+		return false, errors.New("Passwords do not match!")
+	}
+
+	_, err := service.repository.UpdateUserPassword(ctx, password)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (service *UserService) SearchUsersByUsernameAndName(ctx context.Context, user *domain.User) ([]domain.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.SearchUsersByUsernameAndName(ctx, user)
 }

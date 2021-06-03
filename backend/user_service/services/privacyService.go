@@ -1,14 +1,56 @@
 package services
 
 import (
+	"context"
+	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/user_service/repositories"
+	"gorm.io/gorm"
 )
 
 type PrivacyService struct {
-	Repository repositories.PrivacyRepository
+	repository  repositories.PrivacyRepository
+	userService *UserService
 }
 
-func (service *PrivacyService) CreatePrivacy(privacy *persistence.Privacy) (persistence.Privacy, error) {
-	return service.Repository.CreatePrivacy(privacy);
+func NewPrivacyService(db *gorm.DB) (*PrivacyService, error) {
+	repository, err := repositories.NewPrivacyRepo(db)
+	service, err := NewUserService(db)
+	return &PrivacyService{
+		repository:  repository,
+		userService: service,
+	}, err
+}
+
+func (service *PrivacyService) CreatePrivacy(ctx context.Context, privacy *persistence.Privacy) (persistence.Privacy, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreatePrivacy")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.CreatePrivacy(ctx, privacy)
+}
+
+func (service *PrivacyService) UpdatePrivacy(ctx context.Context, privacy *persistence.Privacy) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdatePrivacy")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.UpdatePrivacy(ctx, privacy)
+}
+
+func (service *PrivacyService) BlockUser(ctx context.Context, block *persistence.BlockedUsers) (bool, error) {
+	//TODO Proveri da li ti useri postoje i posalji zahtev da im se obrise prijateljstvo
+	span := tracer.StartSpanFromContextMetadata(ctx, "BlockUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.BlockUser(ctx, block)
+}
+
+func (service *PrivacyService) UnBlockUser(ctx context.Context, block *persistence.BlockedUsers) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UnBlockUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.UnBlockUser(ctx, block)
 }

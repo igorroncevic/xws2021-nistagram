@@ -11,19 +11,22 @@ import (
 
 type Server struct {
 	userspb.UnimplementedUsersServer
-	userController *UserGrpcController
-	tracer otgo.Tracer
-	closer io.Closer
+	userController    *UserGrpcController
+	privacyController *PrivacyGrpcController
+	tracer            otgo.Tracer
+	closer            io.Closer
 }
 
 func NewServer(db *gorm.DB) (*Server, error) {
-	controller, _ := NewUserController(db)
+	newUserController, _ := NewUserController(db)
+	newPrivacyController, _ := NewPrivacyController(db)
 	tracer, closer := tracer.Init("userService")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
-		userController: controller,
-		tracer: tracer,
-		closer: closer,
+		userController:    newUserController,
+		privacyController: newPrivacyController,
+		tracer:            tracer,
+		closer:            closer,
 	}, nil
 }
 
@@ -43,3 +46,30 @@ func (s *Server) GetAllUsers(ctx context.Context, in *userspb.EmptyRequest) (*us
 	return s.userController.GetAllUsers(ctx, in)
 }
 
+func (s *Server) UpdateUserProfile(ctx context.Context, in *userspb.CreateUserDTORequest) (*userspb.EmptyResponse, error) {
+	return s.userController.UpdateUserProfile(ctx, in)
+}
+
+func (s *Server) UpdateUserPassword(ctx context.Context, in *userspb.CreatePasswordRequest) (*userspb.EmptyResponse, error) {
+	return s.userController.UpdateUserPassword(ctx, in)
+}
+
+func (s *Server) CreatePrivacy(ctx context.Context, in *userspb.CreatePrivacyRequest) (*userspb.EmptyResponsePrivacy, error) {
+	return s.privacyController.CreatePrivacy(ctx, in)
+}
+
+func (s *Server) UpdatePrivacy(ctx context.Context, in *userspb.CreatePrivacyRequest) (*userspb.EmptyResponsePrivacy, error) {
+	return s.privacyController.UpdatePrivacy(ctx, in)
+}
+
+func (s *Server) BlockUser(ctx context.Context, in *userspb.CreateBlockRequest) (*userspb.EmptyResponsePrivacy, error) {
+	return s.privacyController.BlockUser(ctx, in)
+}
+
+func (s *Server) UnBlockUser(ctx context.Context, in *userspb.CreateBlockRequest) (*userspb.EmptyResponsePrivacy, error) {
+	return s.privacyController.UnBlockUser(ctx, in)
+}
+
+func (s *Server) SearchUser(ctx context.Context, in *userspb.SearchUserDtoRequest) (*userspb.UsersResponse, error) {
+	return s.userController.SearchUser(ctx, in)
+}

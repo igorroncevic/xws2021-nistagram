@@ -2,12 +2,11 @@ module github.com/david-drvar/xws2021-nistagram/user_service
 
 go 1.16
 
-replace github.com/david-drvar/xws2021-nistagram/user_service => ./user_service
-
 replace github.com/david-drvar/xws2021-nistagram/common => ./../common
 
 require (
 	github.com/david-drvar/xws2021-nistagram/common v0.0.1
+	github.com/google/uuid v1.2.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.4.0
 	github.com/jackc/pgconn v1.8.1
