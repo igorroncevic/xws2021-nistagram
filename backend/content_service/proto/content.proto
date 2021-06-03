@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package proto;
+package protoe;
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
@@ -50,6 +50,13 @@ service Content {
   rpc GetDislikesForPost (RequestId) returns (LikesArray) {
     option(google.api.http) = {
       get: "/dislikes/{id}"
+    };
+  }
+
+  rpc SearchContentByLocation (SearchLocationRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/location",
+      body: "*"
     };
   }
 }
@@ -166,6 +173,10 @@ message LikesArray {
 
 message RequestId {
   string id = 1;
+}
+
+message SearchLocationRequest {
+  string location = 1;
 }
 
 message EmptyRequest {}

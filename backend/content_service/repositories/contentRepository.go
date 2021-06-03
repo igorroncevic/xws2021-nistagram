@@ -15,12 +15,12 @@ type ContentRepository interface {
 	CreatePost(context.Context, *domain.Post) error
 	GetPostById(context.Context, string) (*persistence.Post, error)
 	RemovePost(context.Context, string) error
-
+	GetPostsByLocation(ctx context.Context, location string) ([]persistence.Post, error)
 	GetCollectionsPosts(context.Context, string) ([]persistence.Post, error)
 }
 
 type contentRepository struct {
-	DB *gorm.DB
+	DB              *gorm.DB
 	mediaRepository MediaRepository
 	tagRepository   TagRepository
 }
@@ -34,9 +34,9 @@ func NewContentRepo(db *gorm.DB) (*contentRepository, error) {
 	tagRepository, _ := NewTagRepo(db)
 
 	return &contentRepository{
-		DB: db,
+		DB:              db,
 		mediaRepository: mediaRepository,
-		tagRepository: tagRepository,
+		tagRepository:   tagRepository,
 	}, nil
 }
 
@@ -54,7 +54,7 @@ func (repository *contentRepository) GetAllPosts(ctx context.Context) ([]persist
 	return posts, nil
 }
 
-func (repository *contentRepository) GetPostById(ctx context.Context, id string) (*persistence.Post, error){
+func (repository *contentRepository) GetPostById(ctx context.Context, id string) (*persistence.Post, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPosts")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -68,13 +68,12 @@ func (repository *contentRepository) GetPostById(ctx context.Context, id string)
 	return post, nil
 }
 
-
 func (repository *contentRepository) CreatePost(ctx context.Context, post *domain.Post) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreatePost")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	err := repository.DB.Transaction(func (tx *gorm.DB) error {
+	err := repository.DB.Transaction(func(tx *gorm.DB) error {
 		var postToSave persistence.Post
 		postToSave = postToSave.ConvertToPersistence(*post)
 
@@ -83,15 +82,15 @@ func (repository *contentRepository) CreatePost(ctx context.Context, post *domai
 			return errors.New("cannot save post")
 		}
 
-		for _, media := range post.Media{
+		for _, media := range post.Media {
 			media.PostId = postToSave.Id
 			dbMedia, err := repository.mediaRepository.CreateMedia(ctx, media)
 
-			if err != nil{
+			if err != nil {
 				return errors.New("cannot save post")
 			}
 
-			for _, tag := range media.Tags{
+			for _, tag := range media.Tags {
 				tag.MediaId = dbMedia.Id
 				err := repository.tagRepository.CreateTag(ctx, tag)
 				if err != nil {
@@ -102,7 +101,9 @@ func (repository *contentRepository) CreatePost(ctx context.Context, post *domai
 		return nil
 	})
 
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -111,8 +112,8 @@ func (repository *contentRepository) RemovePost(ctx context.Context, postId stri
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	err := repository.DB.Transaction(func (tx *gorm.DB) error{
-		post := &persistence.Post{ Id: postId }
+	err := repository.DB.Transaction(func(tx *gorm.DB) error {
+		post := &persistence.Post{Id: postId}
 		result := repository.DB.First(&post)
 
 		if result.Error != nil || result.RowsAffected != 1 {
@@ -125,13 +126,13 @@ func (repository *contentRepository) RemovePost(ctx context.Context, postId stri
 		}
 
 		for _, media := range postMedia {
-			err := tx.Transaction(func (tx *gorm.DB) error {
+			err := tx.Transaction(func(tx *gorm.DB) error {
 				mediaTags, err := repository.tagRepository.GetTagsForMedia(ctx, media.Id)
 				if err != nil {
 					return err
 				}
 
-				for _, tag := range mediaTags{
+				for _, tag := range mediaTags {
 					var tagPers persistence.Tag
 					tagPers.ConvertToPersistence(tag)
 
@@ -147,22 +148,26 @@ func (repository *contentRepository) RemovePost(ctx context.Context, postId stri
 				}
 
 				err = repository.mediaRepository.RemoveMedia(ctx, media.Id)
-				if err != nil{
+				if err != nil {
 					return errors.New("cannot remove post's media")
 				}
 
 				return nil
 			})
-			if err != nil { return err }
+			if err != nil {
+				return err
+			}
 		}
 		return nil
 	})
 
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func (repository *contentRepository) GetCollectionsPosts(ctx context.Context, id string) ([]persistence.Post, error){
+func (repository *contentRepository) GetCollectionsPosts(ctx context.Context, id string) ([]persistence.Post, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemovePost")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -173,6 +178,20 @@ func (repository *contentRepository) GetCollectionsPosts(ctx context.Context, id
 		Where("collections.id = id").
 		Find(&posts)
 
+	if result.Error != nil {
+		return posts, result.Error
+	}
+
+	return posts, nil
+}
+
+func (repository *contentRepository) GetPostsByLocation(ctx context.Context, location string) ([]persistence.Post, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPosts")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var posts []persistence.Post
+	result := repository.DB.Where("location = ?", location).Find(&posts)
 	if result.Error != nil {
 		return posts, result.Error
 	}

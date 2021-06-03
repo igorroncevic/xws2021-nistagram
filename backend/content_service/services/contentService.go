@@ -5,19 +5,22 @@ import (
 	"errors"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
+	userspb "github.com/david-drvar/xws2021-nistagram/content_service/proto_intercommunication"
 	"github.com/david-drvar/xws2021-nistagram/content_service/repositories"
+	"google.golang.org/grpc"
 	"gorm.io/gorm"
+	"log"
 )
 
 type ContentService struct {
 	contentRepository repositories.ContentRepository
 	commentRepository repositories.CommentRepository
-	likeRepository 	  repositories.LikeRepository
+	likeRepository    repositories.LikeRepository
 	mediaRepository   repositories.MediaRepository
-	tagRepository	  repositories.TagRepository
+	tagRepository     repositories.TagRepository
 }
 
-func NewContentService(db *gorm.DB) (*ContentService, error){
+func NewContentService(db *gorm.DB) (*ContentService, error) {
 	contentRepository, err := repositories.NewContentRepo(db)
 	if err != nil {
 		return nil, err
@@ -60,14 +63,14 @@ func (service *ContentService) GetAllPosts(ctx context.Context) ([]domain.Reduce
 	posts := []domain.ReducedPost{}
 
 	dbPosts, err := service.contentRepository.GetAllPosts(ctx)
-	if err != nil{
+	if err != nil {
 		return posts, err
 	}
 
 	// TODO Retrieve all domain data
-	for _, post := range dbPosts{
+	for _, post := range dbPosts {
 		commentsNum, err := service.commentRepository.GetCommentsNumForPost(ctx, post.Id)
-		if err != nil{
+		if err != nil {
 			return []domain.ReducedPost{}, errors.New("unable to retrieve posts comments")
 		}
 
@@ -87,7 +90,7 @@ func (service *ContentService) GetAllPosts(ctx context.Context) ([]domain.Reduce
 		}
 
 		convertedMedia := []domain.Media{}
-		for _, single := range media{
+		for _, single := range media {
 			tags, err := service.tagRepository.GetTagsForMedia(ctx, single.Id)
 			if err != nil {
 				return []domain.ReducedPost{}, errors.New("unable to retrieve media tags")
@@ -121,4 +124,94 @@ func (service *ContentService) CreatePost(ctx context.Context, post *domain.Post
 	}
 
 	return service.contentRepository.CreatePost(ctx, post)
+}
+
+func (service *ContentService) SearchContentByLocation(ctx context.Context, location string) ([]domain.ReducedPost, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreatePost")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	posts := []domain.ReducedPost{}
+
+	//TODO check is post is public - user
+	user2 := &userspb.UsersDTO{
+		Username: "david",
+	}
+	userFinal := userspb.SearchUserDtoRequest{
+		User: user2,
+	}
+
+	var conn *grpc.ClientConn
+	conn, err := grpc.Dial(":8091", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("did not connect: %s", err)
+	}
+	defer conn.Close()
+
+	c := userspb.NewUsersClient(conn)
+	response, err := c.SearchUser(context.Background(), &userFinal)
+	if err != nil {
+		log.Fatalf("Error when calling SayHello: %s", err)
+	}
+	log.Printf("Response from server: %s", response)
+
+	//conn, err := grpc.Dial("localhost:8001/api/users", grpc.WithInsecure())
+	//defer conn.Close()
+	//
+	//client := userspb.NewUsersClient(conn)
+
+	//users, err := client.SearchUser(context.Background(), &userFinal)
+	//print(users)
+
+	//**************
+
+	dbPosts, err := service.contentRepository.GetPostsByLocation(ctx, location)
+	if err != nil {
+		return posts, err
+	}
+
+	for _, post := range dbPosts {
+		commentsNum, err := service.commentRepository.GetCommentsNumForPost(ctx, post.Id)
+		if err != nil {
+			return []domain.ReducedPost{}, errors.New("unable to retrieve posts comments")
+		}
+
+		likes, err := service.likeRepository.GetLikesNumForPost(ctx, post.Id, true)
+		if err != nil {
+			return []domain.ReducedPost{}, errors.New("unable to retrieve posts likes")
+		}
+
+		dislikes, err := service.likeRepository.GetLikesNumForPost(ctx, post.Id, false)
+		if err != nil {
+			return []domain.ReducedPost{}, errors.New("unable to retrieve posts dislikes")
+		}
+
+		media, err := service.mediaRepository.GetMediaForPost(ctx, post.Id)
+		if err != nil {
+			return []domain.ReducedPost{}, errors.New("unable to retrieve posts media")
+		}
+
+		convertedMedia := []domain.Media{}
+		for _, single := range media {
+			tags, err := service.tagRepository.GetTagsForMedia(ctx, single.Id)
+			if err != nil {
+				return []domain.ReducedPost{}, errors.New("unable to retrieve media tags")
+			}
+
+			converted, err := single.ConvertToDomain(tags)
+			if err != nil {
+				return []domain.ReducedPost{}, errors.New("unable to convert media")
+			}
+
+			convertedMedia = append(convertedMedia, converted)
+		}
+
+		if err != nil {
+			return []domain.ReducedPost{}, errors.New("unable to convert posts media")
+		}
+
+		posts = append(posts, post.ConvertToDomainReduced(commentsNum, likes, dislikes, convertedMedia))
+	}
+
+	return nil, nil
 }

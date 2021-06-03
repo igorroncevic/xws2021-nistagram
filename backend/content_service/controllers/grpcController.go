@@ -13,9 +13,9 @@ type Server struct {
 	contentpb.UnimplementedContentServer
 	contentController *ContentGrpcController
 	commentController *CommentGrpcController
-	likeController	  *LikeGrpcController
-	tracer otgo.Tracer
-	closer io.Closer
+	likeController    *LikeGrpcController
+	tracer            otgo.Tracer
+	closer            io.Closer
 }
 
 func NewServer(db *gorm.DB) (*Server, error) {
@@ -27,9 +27,9 @@ func NewServer(db *gorm.DB) (*Server, error) {
 	return &Server{
 		contentController: contentController,
 		commentController: commentController,
-		likeController: likeController,
-		tracer: tracer,
-		closer: closer,
+		likeController:    likeController,
+		tracer:            tracer,
+		closer:            closer,
 	}, nil
 }
 
@@ -69,4 +69,6 @@ func (s *Server) GetDislikesForPost(ctx context.Context, in *contentpb.RequestId
 	return s.likeController.GetLikesForPost(ctx, in.Id, false)
 }
 
-
+func (s *Server) SearchContentByLocation(ctx context.Context, in *contentpb.SearchLocationRequest) (*contentpb.EmptyResponse, error) {
+	return s.contentController.SearchContentByLocation(ctx, in)
+}
