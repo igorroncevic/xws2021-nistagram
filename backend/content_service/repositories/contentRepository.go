@@ -7,9 +7,7 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/content_service/util/images"
-	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
-	"time"
 )
 
 type ContentRepository interface {
@@ -73,50 +71,88 @@ func (repository *contentRepository) CreatePost(ctx context.Context, post *domai
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	postToSave := &persistence.Post{
-		Id:          uuid.NewV4().String(),
-		UserId:      post.UserId,
-		IsAd:        post.IsAd,
-		Type:        post.Type,
-		Description: post.Description,
-		Location:    post.Location,
-		CreatedAt:   time.Now(),
-	}
+	repository.DB.Transaction(func (tx *gorm.DB) error {
+		var postToSave persistence.Post
+		postToSave = postToSave.ConvertToPersistence(*post)
 
-	result := repository.DB.Create(&postToSave)
-	if result.Error != nil || result.RowsAffected != 1 {
-		return errors.New("cannot save post")
-	}
-
-	savedMedia := []string{}
-	for _, media := range post.Media{
-		media.PostId = postToSave.Id
-		dbMedia, err := repository.mediaRepository.CreateMedia(ctx, media)
-
-		if err != nil{
-			images.RemoveImages(savedMedia)
-			repository.DB.Delete(&postToSave)
+		result := repository.DB.Create(&postToSave)
+		if result.Error != nil || result.RowsAffected != 1 {
 			return errors.New("cannot save post")
 		}
 
-		savedMedia = append(savedMedia, dbMedia.Filename)
+		for _, media := range post.Media{
+			media.PostId = postToSave.Id
+			dbMedia, err := repository.mediaRepository.CreateMedia(ctx, media)
 
-		savedTags := []domain.Tag{}
-		for _, tag := range media.Tags{
-			tag.MediaId = dbMedia.Id
-			err := repository.tagRepository.CreateTag(ctx, tag)
-			if err != nil {
-				for _, dTag := range savedTags {
-					repository.tagRepository.RemoveTag(ctx, dTag)
-				}
-				images.RemoveImages(savedMedia)
-				repository.DB.Delete(&postToSave)
-				return err
+			if err != nil{
+				return errors.New("cannot save post")
 			}
 
-			savedTags = append(savedTags, tag)
+			for _, tag := range media.Tags{
+				tag.MediaId = dbMedia.Id
+				err := repository.tagRepository.CreateTag(ctx, tag)
+				if err != nil {
+					return err
+				}
+			}
 		}
-	}
+		return nil
+	})
+
+	return nil
+}
+
+func (repository *contentRepository) RemovePost(ctx context.Context, postId string) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "RemovePost")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	repository.DB.Transaction(func (tx *gorm.DB) error{
+		post := &persistence.Post{ Id: postId }
+		result := repository.DB.First(&post)
+
+		if result.Error != nil || result.RowsAffected != 1 {
+			return errors.New("cannot remove non-existing post")
+		}
+
+		postMedia, err := repository.mediaRepository.GetMediaForPost(ctx, post.Id)
+		if err != nil {
+			return errors.New("cannot retrieve post's media")
+		}
+
+		for _, media := range postMedia {
+			tx.Transaction(func (tx *gorm.DB) error {
+				mediaTags, err := repository.tagRepository.GetTagsForMedia(ctx, media.Id)
+				if err != nil {
+					return err
+				}
+
+				for _, tag := range mediaTags{
+					var tagPers persistence.Tag
+					tagPers.ConvertToPersistence(tag)
+
+					err := repository.tagRepository.RemoveTag(ctx, tagPers)
+					if err != nil {
+						return err
+					}
+				}
+
+				err = images.RemoveImages([]string{media.Filename})
+				if err != nil {
+					return errors.New("cannot remove media's images")
+				}
+
+				err = repository.mediaRepository.RemoveMedia(ctx, media.Id)
+				if err != nil{
+					return errors.New("cannot remove post's media")
+				}
+
+				return nil
+			})
+		}
+
+		return nil
+	})
 
 	return nil
 }

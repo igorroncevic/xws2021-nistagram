@@ -44,6 +44,18 @@ func (p Post) ConvertToDomainReduced(commentsNum int, likesNum int, dislikesNum 
 	}
 }
 
+func (p Post) ConvertToPersistence(post domain.Post) Post {
+	return Post{
+		Id:          uuid.NewV4().String(),
+		UserId:      post.UserId,
+		IsAd:        post.IsAd,
+		Type:        post.Type,
+		Description: post.Description,
+		Location:    post.Location,
+		CreatedAt:   time.Now(),
+	}
+}
+
 func (c Comment) ConvertToDomain(username string) domain.Comment {
 	return domain.Comment{
 		Id:		   c.Id,
@@ -126,3 +138,37 @@ func (t *Tag) ConvertToPersistence(tag domain.Tag) *Tag{
 	}
 }
 
+func (f Favorites) ConvertToDomain(collections []domain.Collection, unclassified []domain.Post) domain.Favorites {
+	return domain.Favorites{
+		UserId:       "",
+		Collections:  collections,
+		Unclassified: unclassified,
+	}
+}
+
+func (f *Favorites) ConvertToPersistence(favorites domain.FavoritesRequest) *Favorites{
+	if f == nil { f = &Favorites{} }
+	return &Favorites{
+		PostId:       favorites.PostId,
+		UserId:       favorites.UserId,
+		CollectionId: favorites.CollectionId,
+	}
+}
+
+func (c Collection) ConvertToDomain(posts []domain.Post) domain.Collection {
+	return domain.Collection{
+		Id:     c.Id,
+		Name:   c.Name,
+		UserId: c.UserId,
+		Posts:  posts,
+	}
+}
+
+func (c *Collection) ConvertToPersistence(collection domain.Collection) *Collection{
+	if c == nil { c = &Collection{} }
+	return &Collection{
+		Id:     uuid.NewV4().String(),
+		Name:   collection.Name,
+		UserId: collection.UserId,
+	}
+}

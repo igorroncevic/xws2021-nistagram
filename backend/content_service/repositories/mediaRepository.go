@@ -14,6 +14,7 @@ import (
 type MediaRepository interface {
 	GetMediaForPost(context.Context, string) ([]persistence.Media, error)
 	CreateMedia(context.Context, domain.Media) (persistence.Media, error)
+	RemoveMedia(context.Context, string) error
 }
 
 type mediaRepository struct {
@@ -72,4 +73,19 @@ func (repository *mediaRepository) CreateMedia(ctx context.Context, media domain
 	}
 
 	return *dbMedia, nil
+}
+
+func (repository *mediaRepository) RemoveMedia(ctx context.Context, id string) error{
+	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveMedia")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	mediaPers := persistence.Media{Id: id}
+	result := repository.DB.Delete(&mediaPers)
+
+	if result.Error != nil || result.RowsAffected != 1 {
+		return result.Error
+	}
+
+	return nil
 }

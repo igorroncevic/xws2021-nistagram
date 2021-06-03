@@ -11,7 +11,7 @@ import (
 type TagRepository interface {
 	GetTagsForMedia(context.Context, string) ([]domain.Tag, error)
 	CreateTag(context.Context, domain.Tag) error
-    RemoveTag(context.Context, domain.Tag) error
+    RemoveTag(context.Context, persistence.Tag) error
 }
 
 type tagRepository struct {
@@ -68,15 +68,12 @@ func (repository *tagRepository) CreateTag(ctx context.Context, tag domain.Tag) 
 	return nil
 }
 
-func (repository *tagRepository) RemoveTag(ctx context.Context, tag domain.Tag) error{
+func (repository *tagRepository) RemoveTag(ctx context.Context, tag persistence.Tag) error{
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveTag")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	var tagPers *persistence.Tag
-	tagPers = tagPers.ConvertToPersistence(tag)
-
-	result := repository.DB.Delete(&tagPers)
+	result := repository.DB.Delete(&tag)
 
 	if result.Error != nil || result.RowsAffected != 1 {
 		return result.Error

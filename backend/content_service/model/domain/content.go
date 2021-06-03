@@ -63,6 +63,12 @@ type Favorites struct {
 	Unclassified 	[]Post
 }
 
+type FavoritesRequest struct {
+	UserId 			string
+	PostId			string
+	CollectionId	string
+}
+
 type Like struct {
 	PostId string
 	UserId string	// TODO Username?
