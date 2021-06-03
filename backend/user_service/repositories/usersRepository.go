@@ -18,24 +18,30 @@ type UserRepository interface {
 	CreateUser(context.Context, *persistence.User) error
 	CreateUserWithAdditionalInfo(context.Context, *persistence.User, *persistence.UserAdditionalInfo) error
 	CheckPassword(data common.Credentials) error
-	UpdateUserProfile(dto domain.User) (bool, error)
-	UpdateUserPassword(password domain.Password) (bool, error)
+	UpdateUserProfile(ctx context.Context, dto domain.User) (bool, error)
+	UpdateUserPassword(ctx context.Context, password domain.Password) (bool, error)
 	SearchUsersByUsernameAndName(ctx context.Context, user *domain.User) ([]domain.User, error)
 }
 
 type userRepository struct {
-	DB *gorm.DB
+	DB                *gorm.DB
+	privacyRepository PrivacyRepository
 }
 
 func NewUserRepo(db *gorm.DB) (*userRepository, error) {
 	if db == nil {
 		panic("UserRepository not created, gorm.DB is nil")
 	}
+	privacyRepository, _ := NewPrivacyRepo(db)
 
-	return &userRepository{DB: db}, nil
+	return &userRepository{DB: db, privacyRepository: privacyRepository}, nil
 }
 
-func (repository *userRepository) UpdateUserPassword(password domain.Password) (bool, error) {
+func (repository *userRepository) UpdateUserPassword(ctx context.Context, password domain.Password) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserPassword")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	var user *persistence.User
 
 	db := repository.DB.Select("password").Where("id = ?", password.Id).Find(&user)
@@ -60,7 +66,11 @@ func (repository *userRepository) UpdateUserPassword(password domain.Password) (
 	return true, nil
 }
 
-func (repository *userRepository) UpdateUserProfile(userDTO domain.User) (bool, error) {
+func (repository *userRepository) UpdateUserProfile(ctx context.Context, userDTO domain.User) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserProfile")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	var user persistence.User
 	var userAdditionalInfo persistence.UserAdditionalInfo
 
@@ -169,7 +179,7 @@ func (repository *userRepository) CreateUser(ctx context.Context, user *persiste
 }
 
 func (repository *userRepository) CheckEmailExists(ctx context.Context, email string) bool {
-	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	span := tracer.StartSpanFromContextMetadata(ctx, "CheckEmailExists")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
@@ -180,7 +190,7 @@ func (repository *userRepository) CheckEmailExists(ctx context.Context, email st
 }
 
 func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Context, user *persistence.User, userAdditionalInfo *persistence.UserAdditionalInfo) error {
-	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUserWithAdditionalInfo")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
@@ -203,11 +213,21 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 	userAdditionalInfo.Id = user.Id
 	resultUserAdditionalInfo := repository.DB.Create(&userAdditionalInfo)
 
+	var privacy = persistence.Privacy{}
+	privacy.UserId = user.Id
+	privacy.IsProfilePublic = true
+	privacy.IsDMPublic = true
+	privacy.IsTagEnabled = true
+	_, err := repository.privacyRepository.CreatePrivacy(ctx, &privacy)
+	if err != nil {
+		return err
+	}
+
 	return resultUserAdditionalInfo.Error
 }
 
 func (repository *userRepository) SearchUsersByUsernameAndName(ctx context.Context, user *domain.User) ([]domain.User, error) {
-	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	span := tracer.StartSpanFromContextMetadata(ctx, "SearchUsersByUsernameAndName")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 

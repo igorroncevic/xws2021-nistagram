@@ -46,28 +46,6 @@ func (s *UserGrpcController) CreateUser(ctx context.Context, in *userspb.CreateU
 }
 
 func (s *UserGrpcController) GetAllUsers(ctx context.Context, in *userspb.EmptyRequest) (*userspb.UsersResponse, error) {
-	/*users, err := s.service.GetAllUsers(ctx)
-
-		if err != nil {
-			return &userspb.UsersResponse{
-				Users: []*userspb.UsersDTO{},
-			}, status.Errorf(codes.Unknown, "Could retrieve users")
-		}
-
-	<<<<<<< HEAD
-		responseUsers := []*userspb.UsersDTO{}
-		for _, user := range users{
-	=======
-		responseUsers := []*userspb.User{}
-		for _, user := range users {
-	>>>>>>> master
-			responseUsers = append(responseUsers, user.ConvertToGrpc())
-		}
-
-		return &userspb.UsersResponse{
-			Users: responseUsers,
-	<<<<<<< HEAD
-		}, nil*/
 	return &userspb.UsersResponse{}, nil
 }
 
@@ -75,7 +53,7 @@ func (s *UserGrpcController) UpdateUserProfile(ctx context.Context, in *userspb.
 	var user domain.User
 
 	user = user.ConvertFromGrpc(in.User)
-	_, err := s.service.UpdateUserProfile(user)
+	_, err := s.service.UpdateUserProfile(ctx, user)
 	if err != nil {
 		return &userspb.EmptyResponse{}, status.Errorf(codes.Unknown, "Could not create user")
 	}
@@ -87,7 +65,7 @@ func (s *UserGrpcController) UpdateUserPassword(ctx context.Context, in *userspb
 	var password domain.Password
 
 	password = password.ConvertFromGrpc(in.Password)
-	_, err := s.service.UpdateUserPassword(password)
+	_, err := s.service.UpdateUserPassword(ctx, password)
 	if err != nil {
 		return &userspb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Could not create user")
 	}
