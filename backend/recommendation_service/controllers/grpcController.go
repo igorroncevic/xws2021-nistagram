@@ -42,3 +42,20 @@ func (s *Server) CreateUserConnection(ctx context.Context, in *proto.CreateFollo
 func (s *Server) GetAllFollowers(ctx context.Context, in *proto.CreateUserRequest) (*proto.CreateUserResponse, error) {
 	return s.followerController.GetAllFollowers(ctx, in)
 }
+
+func (s *Server) GetAllFollowing(ctx context.Context,  in *proto.CreateUserRequest) (*proto.CreateUserResponse, error) {
+	return s.followerController.GetAllFollowing(ctx, in)
+}
+
+func (s *Server) DeleteBiDirectedConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.EmptyResponse, error) {
+	return s.followerController.DeleteBiDirectedConnection(ctx, in)
+}
+
+func (s *Server) DeleteDirectedConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.EmptyResponse, error) {
+	return s.followerController.DeleteDirectedConnection(ctx, in)
+}
+
+func (s *Server) CreateUser(ctx context.Context, in *proto.CreateUserRequest ) (*proto.EmptyResponse, error) {
+	return s.followerController.CreateUser(ctx, in)
+}
+

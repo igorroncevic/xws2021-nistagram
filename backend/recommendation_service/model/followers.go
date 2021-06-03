@@ -25,6 +25,20 @@ func (user *User) ConvertFromGrpc(u *proto.User) *User  {
 	}
 }
 
+func (user *User) ConvertToGrpc() *proto.User {
+	return &proto.User{
+		UserId: user.UserId,
+	}
+}
+
+func (user *User) ConvertAllToGrpc(users []User) []*proto.User{
+	var protoUsers []*proto.User
+	for _, s := range users {
+		protoUsers = append(protoUsers, s.ConvertToGrpc())
+	}
+	return protoUsers
+}
+
 func (follower *Follower) ConvertFromGrpc(f *proto.Follower) *Follower {
 	return &Follower{
 		UserId: f.UserId,

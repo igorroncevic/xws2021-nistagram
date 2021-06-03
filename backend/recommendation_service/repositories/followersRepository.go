@@ -121,7 +121,7 @@ func (repository *followersRepository) CreateUser(ctx context.Context, u model.U
 
 	result , err := session.WriteTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
 		result, err := transaction.Run(
-			"MERGE (n:User {id : $UserId}) RESULT n",//MERGE -> create if not exists, else match
+			"MERGE (n:User {id : $UserId}) RETURN n",//MERGE -> create if not exists, else match
 			map[string]interface{}{
 				"UserId" : u.UserId,
 			})
@@ -147,8 +147,8 @@ func (repository *followersRepository) DeleteDirectedConnection(ctx context.Cont
 
 	session := repository.driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
 	defer session.Close()
-	result , err := session.WriteTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
-		result, err := transaction.Run(
+	_ , err := session.WriteTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
+		_, err := transaction.Run(
 			"MATCH (a:User {id : $UserId})-[r:Follows]->(b:User {id : $FollowerId}) DELETE r",
 			map[string]interface{}{
 				"UserId" : f.UserId,
@@ -156,14 +156,11 @@ func (repository *followersRepository) DeleteDirectedConnection(ctx context.Cont
 			})
 
 		if err != nil {
-			return nil, err
+			return false, err
 		}
-		if result.Next()  {
-			return true, nil
-		}
-		return false, errors.New("error: can not delete connection")
+		return true, nil
 	})
-	if err != nil || result == nil {
+	if err != nil {
 		return false, err
 	}
 	return true, nil

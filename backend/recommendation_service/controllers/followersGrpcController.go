@@ -37,6 +37,20 @@ func (controller *FollowersGrpcController) CreateUserConnection(ctx context.Cont
 	}
 	return &proto.EmptyResponse{}, nil
 }
+func (controller *FollowersGrpcController) GetAllFollowing(ctx context.Context,  in *proto.CreateUserRequest) (*proto.CreateUserResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllFollowing")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var user = model.User{}
+	user = *user.ConvertFromGrpc(in.User)
+	users, err := controller.service.GetAllFollowing(ctx, user.UserId)
+	if err != nil {
+		return nil, errors.New("Could not get all followings")
+	}
+
+	return &proto.CreateUserResponse{Users: user.ConvertAllToGrpc(users)}, err
+}
 
 func (controller *FollowersGrpcController) GetAllFollowers(ctx context.Context, in *proto.CreateUserRequest) (*proto.CreateUserResponse, error){
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllFollowers")
@@ -45,12 +59,56 @@ func (controller *FollowersGrpcController) GetAllFollowers(ctx context.Context, 
 
 	var user = model.User{}
 	user = *user.ConvertFromGrpc(in.User)
-	_, err := controller.service.GetAllFollowers(ctx, user.UserId)
+	users, err := controller.service.GetAllFollowers(ctx, user.UserId)
 	if err != nil {
-		return nil, errors.New("Could not make follow!")
+		return nil, errors.New("Could not get all followers!")
 	}
 
-
-	return nil, err
+	return &proto.CreateUserResponse{Users: user.ConvertAllToGrpc(users)}, err
 }
+func (controller *FollowersGrpcController) DeleteBiDirectedConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.EmptyResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteBiDirectedConnection")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var follower = model.Follower{}
+	follower = *follower.ConvertFromGrpc(in.Follower)
+	_, err := controller.service.DeleteBiDirectedConnection(ctx, follower)
+
+	if err != nil {
+		return &proto.EmptyResponse{}, errors.New("Could not delete bidirected connection!")
+	}
+	return  &proto.EmptyResponse{}, nil
+}
+
+func (controller *FollowersGrpcController) DeleteDirectedConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.EmptyResponse, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteDirectedConnection")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var follower = model.Follower{}
+	follower = *follower.ConvertFromGrpc(in.Follower)
+	_, err := controller.service.DeleteDirectedConnection(ctx, follower)
+
+	if err != nil {
+		return &proto.EmptyResponse{}, errors.New("Could not delete directed connection!")
+	}
+	return  &proto.EmptyResponse{}, nil
+}
+
+func (controller *FollowersGrpcController) CreateUser(ctx context.Context, in *proto.CreateUserRequest ) (*proto.EmptyResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var user = model.User{}
+	user = *user.ConvertFromGrpc(in.User)
+	_, err := controller.service.CreateUser(ctx, user)
+
+	if err != nil {
+		return &proto.EmptyResponse{}, errors.New("Could not create User!")
+	}
+	return  &proto.EmptyResponse{}, nil
+}
+
 

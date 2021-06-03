@@ -9,7 +9,7 @@ service Followers {
 
     rpc CreateUserConnection (CreateFollowerRequest) returns (EmptyResponse) {
         option(google.api.http) = {
-            post: "/api/followers",
+            post: "/api/followers/create_connection",
             body: "follower"
         };
     }
@@ -17,6 +17,34 @@ service Followers {
     rpc GetAllFollowers (CreateUserRequest) returns (CreateUserResponse) {
         option(google.api.http) = {
             post: "/api/followers/get_followers",
+            body: "user"
+        };
+    }
+
+    rpc CreateUser (CreateUserRequest) returns (EmptyResponse){
+        option(google.api.http) = {
+            post: "/api/followers",
+            body: "user"
+        };
+    }
+
+    rpc DeleteDirectedConnection (CreateFollowerRequest) returns (EmptyResponse){
+        option(google.api.http) = {
+            post: "/api/followers/delete_directed",
+            body: "follower"
+        };
+    }
+
+    rpc DeleteBiDirectedConnection (CreateFollowerRequest) returns (EmptyResponse){
+        option(google.api.http) = {
+            post: "/api/followers/delete_biDirected",
+            body: "follower"
+        };
+    }
+
+    rpc GetAllFollowing (CreateUserRequest) returns (CreateUserResponse) {
+        option(google.api.http) = {
+            post: "/api/followers/get_followings",
             body: "user"
         };
     }
