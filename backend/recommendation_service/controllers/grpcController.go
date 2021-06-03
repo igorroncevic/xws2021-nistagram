@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/recommendation_service/proto"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
@@ -15,7 +16,7 @@ type Server struct {
 	followerController *FollowersGrpcController
 }
 
-func NewServer(driver *neo4j.Driver) (*Server, error) {
+func NewServer(driver neo4j.Driver) (*Server, error) {
 	followerController, _ := NewFollowersController(driver)
 	tracer, closer := tracer.Init("recommendationService")
 	otgo.SetGlobalTracer(tracer)
@@ -32,4 +33,12 @@ func (s *Server) GetTracer() otgo.Tracer {
 
 func (s *Server) GetCloser() io.Closer {
 	return s.closer
+}
+
+func (s *Server) CreateUserConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.EmptyResponse, error) {
+	return s.followerController.CreateUserConnection(ctx, in)
+}
+
+func (s *Server) GetAllFollowers(ctx context.Context, in *proto.CreateUserRequest) (*proto.CreateUserResponse, error) {
+	return s.followerController.GetAllFollowers(ctx, in)
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/david-drvar/xws2021-nistagram/recommendation_service/util/setup"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 )
@@ -9,10 +8,9 @@ import (
 func main(){
 	driver, _ := setup.CreateConnection("bolt://localhost:7687", "neo4j", "root")
 	defer setup.CloseConnection(driver)
-	result, _ := helloWorld("bolt://localhost:7687", "neo4j", "root")
-	fmt.Println(result)
 
-	setup.GRPCServer(&driver)
+
+	setup.GRPCServer(driver)
 
 }
 

@@ -9,8 +9,15 @@ service Followers {
 
     rpc CreateUserConnection (CreateFollowerRequest) returns (EmptyResponse) {
         option(google.api.http) = {
-            post: "/api/users",
+            post: "/api/followers",
             body: "follower"
+        };
+    }
+
+    rpc GetAllFollowers (CreateUserRequest) returns (CreateUserResponse) {
+        option(google.api.http) = {
+            post: "/api/followers/get_followers",
+            body: "user"
         };
     }
 }
@@ -22,6 +29,18 @@ message Follower {
     bool IsCloseFriends = 4;
     bool IsApprovedRequest = 5;
     bool IsNotificationEnabled = 6;
+}
+
+message User {
+    string UserId = 1;
+}
+
+message CreateUserRequest {
+    User user = 1;
+}
+
+message CreateUserResponse {
+    repeated User users = 1;
 }
 
 message  CreateFollowerRequest {

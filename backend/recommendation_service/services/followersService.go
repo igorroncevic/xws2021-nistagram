@@ -12,7 +12,7 @@ type FollowersService struct {
 	repository repositories.FollowersRepository
 }
 
-func NewFollowersService(driver *neo4j.Driver) (*FollowersService, error) {
+func NewFollowersService(driver neo4j.Driver) (*FollowersService, error) {
 	repository, err := repositories.NewFollowersRepository(driver)
 
 	return &FollowersService{
@@ -27,3 +27,45 @@ func (service *FollowersService) CreateUserConnection(ctx context.Context, follo
 
 	return service.repository.CreateUserConnection(ctx, follower)
 }
+
+func (service *FollowersService) GetAllFollowers(ctx context.Context, userId string) ([]model.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllFollowers")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.GetAllFollowers(ctx, userId)
+}
+
+func (service *FollowersService) GetAllFollowing(ctx context.Context, userId string) ([]model.User, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllFollowing")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.GetAllFollowing(ctx, userId)
+}
+
+func (service *FollowersService) CreateUser(ctx context.Context, u model.User) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.CreateUser(ctx, u);
+}
+
+func (service *FollowersService) DeleteDirectedConnection(ctx context.Context, f model.Follower) (bool, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.DeleteDirectedConnection(ctx, f)
+}
+
+func (service *FollowersService) DeleteBiDirectedConnection(ctx context.Context, f model.Follower) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.DeleteBiDirectedConnection(ctx, f)
+}
+
+

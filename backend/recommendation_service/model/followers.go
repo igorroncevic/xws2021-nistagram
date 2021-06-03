@@ -19,6 +19,12 @@ type Follower struct {
 	IsNotificationEnabled bool
 }
 
+func (user *User) ConvertFromGrpc(u *proto.User) *User  {
+	return &User {
+		UserId: u.UserId,
+	}
+}
+
 func (follower *Follower) ConvertFromGrpc(f *proto.Follower) *Follower {
 	return &Follower{
 		UserId: f.UserId,

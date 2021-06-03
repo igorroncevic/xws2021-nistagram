@@ -14,7 +14,7 @@ type FollowersGrpcController struct {
 	service *services.FollowersService
 }
 
-func NewFollowersController(driver *neo4j.Driver) (*FollowersGrpcController, error){
+func NewFollowersController(driver neo4j.Driver) (*FollowersGrpcController, error){
 	service, err := services.NewFollowersService(driver)
 	if err != nil {
 		return nil, err
@@ -25,8 +25,8 @@ func NewFollowersController(driver *neo4j.Driver) (*FollowersGrpcController, err
 	}, nil
 }
 
-func (controller *FollowersGrpcController) CreateUserConnection(ctx context.Context, in proto.CreateFollowerRequest) (*proto.EmptyResponse, error){
-	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+func (controller *FollowersGrpcController) CreateUserConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.EmptyResponse, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUserConnection")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 	var follower = model.Follower{}
@@ -37,3 +37,20 @@ func (controller *FollowersGrpcController) CreateUserConnection(ctx context.Cont
 	}
 	return &proto.EmptyResponse{}, nil
 }
+
+func (controller *FollowersGrpcController) GetAllFollowers(ctx context.Context, in *proto.CreateUserRequest) (*proto.CreateUserResponse, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllFollowers")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var user = model.User{}
+	user = *user.ConvertFromGrpc(in.User)
+	_, err := controller.service.GetAllFollowers(ctx, user.UserId)
+	if err != nil {
+		return nil, errors.New("Could not make follow!")
+	}
+
+
+	return nil, err
+}
+

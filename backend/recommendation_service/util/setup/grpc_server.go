@@ -15,9 +15,9 @@ import (
 	"net/http"
 )
 
-func GRPCServer(driver *neo4j.Driver) {
+func GRPCServer(driver neo4j.Driver) {
 	// Create a listener on TCP port
-	lis, err := net.Listen("tcp", grpc_common.Users_service_address)
+	lis, err := net.Listen("tcp", grpc_common.Recommendation_service_address)
 	if err != nil {
 		log.Fatalln("Failed to listen:", err)
 	}
@@ -34,12 +34,12 @@ func GRPCServer(driver *neo4j.Driver) {
 	// Attach the Greeter service to the server
 	userspb.RegisterFollowersServer(s, server)
 	// Serve gRPC server
-	log.Println("Serving gRPC on " + grpc_common.Users_service_address)
+	log.Println("Serving gRPC on " + grpc_common.Recommendation_service_address)
 	go func() {
 		log.Fatalln(s.Serve(lis))
 	}()
 
-	conn, err := grpc_common.CreateGrpcConnection(grpc_common.Users_service_address)
+	conn, err := grpc_common.CreateGrpcConnection(grpc_common.Recommendation_service_address)
 	if err != nil {
 		log.Fatalln(err) // TODO: Graceful shutdown
 		return
@@ -55,10 +55,10 @@ func GRPCServer(driver *neo4j.Driver) {
 	c := common.SetupCors()
 
 	gwServer := &http.Server{
-		Addr:    grpc_common.Users_gateway_address,
+		Addr:    grpc_common.Recommendation_gateway_address,
 		Handler: tracer.TracingWrapper(c.Handler(gatewayMux)),
 	}
 
-	log.Println("Serving gRPC-Gateway on " + grpc_common.Users_gateway_address)
+	log.Println("Serving gRPC-Gateway on " + grpc_common.Recommendation_gateway_address)
 	log.Fatalln(gwServer.ListenAndServe())
 }
