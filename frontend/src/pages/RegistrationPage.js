@@ -187,8 +187,10 @@ export default function RegistrationPage() {
                 'role' : 'Basic',
                 'birthdate' : "2017-01-15T01:30:15.01Z",
                 'profilePhoto' : 'idk',
+                'phoneNumber' : phoneNumber,
                 'sex' : 'MAN',
-                'isActive' : true
+                'isActive' : true,
+                'biography' : biography
             })
             .then(res => {
                 setErrorMessage(false);
