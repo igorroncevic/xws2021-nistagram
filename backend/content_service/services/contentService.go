@@ -66,46 +66,12 @@ func (service *ContentService) GetAllPosts(ctx context.Context) ([]domain.Reduce
 
 	// TODO Retrieve all domain data
 	for _, post := range dbPosts{
-		commentsNum, err := service.commentRepository.GetCommentsNumForPost(ctx, post.Id)
-		if err != nil{
-			return []domain.ReducedPost{}, errors.New("unable to retrieve posts comments")
-		}
-
-		likes, err := service.likeRepository.GetLikesNumForPost(ctx, post.Id, true)
+		converted, err := service.GetReducedPostData(ctx, post.Id)
 		if err != nil {
-			return []domain.ReducedPost{}, errors.New("unable to retrieve posts likes")
+			return []domain.ReducedPost{}, err
 		}
 
-		dislikes, err := service.likeRepository.GetLikesNumForPost(ctx, post.Id, false)
-		if err != nil {
-			return []domain.ReducedPost{}, errors.New("unable to retrieve posts dislikes")
-		}
-
-		media, err := service.mediaRepository.GetMediaForPost(ctx, post.Id)
-		if err != nil {
-			return []domain.ReducedPost{}, errors.New("unable to retrieve posts media")
-		}
-
-		convertedMedia := []domain.Media{}
-		for _, single := range media{
-			tags, err := service.tagRepository.GetTagsForMedia(ctx, single.Id)
-			if err != nil {
-				return []domain.ReducedPost{}, errors.New("unable to retrieve media tags")
-			}
-
-			converted, err := single.ConvertToDomain(tags)
-			if err != nil {
-				return []domain.ReducedPost{}, errors.New("unable to convert media")
-			}
-
-			convertedMedia = append(convertedMedia, converted)
-		}
-
-		if err != nil {
-			return []domain.ReducedPost{}, errors.New("unable to convert posts media")
-		}
-
-		posts = append(posts, post.ConvertToDomainReduced(commentsNum, likes, dislikes, convertedMedia))
+		posts = append(posts, converted)
 	}
 
 	return posts, nil
@@ -121,4 +87,51 @@ func (service *ContentService) CreatePost(ctx context.Context, post *domain.Post
 	}
 
 	return service.contentRepository.CreatePost(ctx, post)
+}
+
+func (service *ContentService) GetReducedPostData(ctx context.Context, postId string) (domain.ReducedPost, error){
+	commentsNum, err := service.commentRepository.GetCommentsNumForPost(ctx, postId)
+	if err != nil{
+		return domain.ReducedPost{}, errors.New("unable to retrieve posts comments")
+	}
+
+	likes, err := service.likeRepository.GetLikesNumForPost(ctx, postId, true)
+	if err != nil {
+		return domain.ReducedPost{}, errors.New("unable to retrieve posts likes")
+	}
+
+	dislikes, err := service.likeRepository.GetLikesNumForPost(ctx, postId, false)
+	if err != nil {
+		return domain.ReducedPost{}, errors.New("unable to retrieve posts dislikes")
+	}
+
+	media, err := service.mediaRepository.GetMediaForPost(ctx, postId)
+	if err != nil {
+		return domain.ReducedPost{}, errors.New("unable to retrieve posts media")
+	}
+
+	convertedMedia := []domain.Media{}
+	for _, single := range media{
+		tags, err := service.tagRepository.GetTagsForMedia(ctx, single.Id)
+		if err != nil {
+			return domain.ReducedPost{}, errors.New("unable to retrieve media tags")
+		}
+
+		converted, err := single.ConvertToDomain(tags)
+		if err != nil {
+			return domain.ReducedPost{}, errors.New("unable to convert media")
+		}
+
+		convertedMedia = append(convertedMedia, converted)
+	}
+
+	if err != nil {
+		return domain.ReducedPost{}, errors.New("unable to convert posts media")
+	}
+
+	post, err := service.contentRepository.GetPostById(ctx, postId)
+	if err != nil { return domain.ReducedPost{}, err }
+
+	retVal := post.ConvertToDomainReduced(commentsNum, likes, dislikes, convertedMedia)
+	return retVal, nil
 }

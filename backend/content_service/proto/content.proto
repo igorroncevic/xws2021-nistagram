@@ -8,6 +8,7 @@ import "google/protobuf/timestamp.proto";
 option go_package = "github.com/xws2021-nistagram/content_service/proto";
 
 service Content {
+  /*    Posts    */
   rpc CreatePost (Post) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/posts",
@@ -20,7 +21,9 @@ service Content {
       get: "/posts"
     };
   }
+  /* * * * * * * * * * * * */
 
+  /*    Comments    */
   rpc CreateComment (Comment) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/comments",
@@ -33,7 +36,9 @@ service Content {
       get: "/comments/{id}"
     };
   }
+  /* * * * * * * * * * * * */
 
+  /* Likes & Dislikes */
   rpc CreateLike (Like) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/likes",
@@ -52,8 +57,57 @@ service Content {
       get: "/dislikes/{id}"
     };
   }
+  /* * * * * * * * * * * * */
+
+  /* Collections & Favorites */
+  rpc GetAllCollections (RequestId) returns (CollectionsArray) {
+    option(google.api.http) = {
+      get: "/collections/user/{id}"
+    };
+  }
+
+  rpc GetCollection (RequestId) returns (Collection) {
+    option(google.api.http) = {
+      get: "/collections/{id}"
+    };
+  }
+
+  rpc CreateCollection (Collection) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/collections",
+      body: "*"
+    };
+  }
+
+  rpc RemoveCollection (RequestId) returns (EmptyResponse) {
+    option(google.api.http) = {
+      delete: "/collections/{id}"
+    };
+  }
+
+  rpc GetUserFavorites (RequestId) returns (Favorites) {
+    option(google.api.http) = {
+      get: "/favorites/{id}"
+    };
+  }
+
+  rpc CreateFavorite (FavoritesRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/favorites/create",
+      body: "*"
+    };
+  }
+
+  rpc RemoveFavorite (FavoritesRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/favorites/delete",
+      body: "*"
+    };
+  }
+  /* * * * * * * * * * * * */
 }
 
+/*    Posts    */
 message Post {
   string id = 1;
   string userId = 2;
@@ -83,18 +137,6 @@ message ReducedPost {
   int32 dislikesNum = 11;
 }
 
-message Story {
-  string id = 1;
-  string userId = 2;
-  bool isAd = 3;
-  string type = 4;
-  string description = 5;
-  string location = 6;
-  google.protobuf.Timestamp createdAt = 7;
-  repeated Media media = 8;
-  bool isCloseFriends = 9;
-}
-
 message Media {
   string id = 1;
   string type = 2;
@@ -110,25 +152,77 @@ message Tag {
   string username = 3;
 }
 
+message ReducedPostArray {
+  repeated ReducedPost posts = 1;
+}
+
+message PostArray {
+  repeated Post posts = 1;
+}
+/* * * * * * * * * * * * */
+
+/*    Stories    */
+message Story {
+  string id = 1;
+  string userId = 2;
+  bool isAd = 3;
+  string type = 4;
+  string description = 5;
+  string location = 6;
+  google.protobuf.Timestamp createdAt = 7;
+  repeated Media media = 8;
+  bool isCloseFriends = 9;
+}
+
+message Highlight {
+  string id = 1;
+  string name = 2;
+  repeated Story stories = 3;
+}
+
+message StoryArray {
+  repeated Story stories = 1;
+}
+/* * * * * * * * * * * * */
+
+/* Collections & Favorites */
 message Collection {
   string id = 1;
   string name = 2;
   string userId = 3;
-  repeated Post posts = 4;
+  repeated ReducedPost posts = 4;
 }
 
 message Favorites {
   string userId = 1;
   repeated Collection collections = 2;
-  repeated Post unclassified = 3;
+  repeated ReducedPost unclassified = 3;
 }
 
+message FavoritesRequest {
+  string userId = 1;
+  string postId = 2;
+  string collectionId = 3;
+}
+
+message CollectionsArray {
+  repeated Collection collections = 1;
+}
+/* * * * * * * * * * * * */
+
+/*    Likes    */
 message Like {
   string postId = 1;
   string userId = 2;
   bool isLike = 3;
 }
 
+message LikesArray {
+  repeated Like likes = 1;
+}
+/* * * * * * * * * * * * */
+
+/*    Comments    */
 message Comment {
   string id = 1;
   string postId = 2;
@@ -138,35 +232,16 @@ message Comment {
   google.protobuf.Timestamp createdAt = 6;
 }
 
-message Highlight {
-  string id = 1;
-  string name = 2;
-  repeated Story stories = 3;
-}
-
-message ReducedPostArray {
-  repeated ReducedPost posts = 1;
-}
-
-message PostArray {
-  repeated Post posts = 1;
-}
-
-message StoryArray {
-  repeated Story stories = 1;
-}
-
 message CommentsArray {
   repeated Comment comments = 1;
 }
+/* * * * * * * * * * * * */
 
-message LikesArray {
-  repeated Like likes = 1;
-}
-
+/*    Multi-usage messages    */
 message RequestId {
   string id = 1;
 }
 
 message EmptyRequest {}
 message EmptyResponse {}
+/* * * * * * * * * * * * */

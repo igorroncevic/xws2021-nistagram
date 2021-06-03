@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"errors"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
@@ -12,7 +13,7 @@ type FavoritesRepository interface {
 	GetAllCollections(context.Context, string) 			 		 ([]persistence.Collection, error)
 	GetCollection(context.Context, string) 		 		 		 (persistence.Collection, error)
 
-	GetAllFavorites(context.Context, string) 				 	 ([]persistence.Favorites, error)
+	GetUnclassifiedFavorites(context.Context, string) 			 ([]persistence.Post, error)
 	GetFavoritesFromCollection(context.Context, string)  		 ([]persistence.Favorites, error)
 
 	CreateFavorite(context.Context, domain.FavoritesRequest) error
@@ -67,13 +68,15 @@ func (repository *favoritesRepository) GetCollection(ctx context.Context, collec
 	return collection, nil
 }
 
-func (repository *favoritesRepository) GetAllFavorites(ctx context.Context, userId string) ([]persistence.Favorites, error){
-	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllFavorites")
+func (repository *favoritesRepository) GetUnclassifiedFavorites(ctx context.Context, userId string) ([]persistence.Post, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUnclassifiedFavorites")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	favorites := []persistence.Favorites{}
-	result := repository.DB.Where("user_id = ?", userId).Find(&favorites)
+	favorites := []persistence.Post{}
+	result := repository.DB.
+		Joins("left join favorites on favorites.post_id = posts.id").
+		Where("favorites.user_id = ? AND (favorites.collection_id = null OR favorites.collection_id = '' )", userId).Find(&favorites)
 
 	if result.Error != nil {
 		return favorites, result.Error
@@ -105,8 +108,47 @@ func (repository *favoritesRepository) CreateFavorite(ctx context.Context, favor
 	var favoritesPers *persistence.Favorites
 	favoritesPers = favoritesPers.ConvertToPersistence(favorites)
 
-	// TODO Check if user can save that post
-	result := repository.DB.Create(favoritesPers)
+	if favoritesPers.CollectionId != "" {
+		// Check if user has that collection
+		var count int64
+		result := repository.DB.Model(&persistence.Collection{}).
+			Where("id = ? AND user_id = ?", favoritesPers.CollectionId, favoritesPers.UserId).Count(&count)
+
+		if result.Error != nil {
+			return result.Error
+		}else if count == 0 {
+			return errors.New("user does not own that collection")
+		}
+	}
+
+	if favoritesPers.PostId != "" {
+		// Check if post exists
+		var count int64
+		result := repository.DB.Model(&persistence.Post{}).
+			Where("id = ?", favoritesPers.PostId).Count(&count)
+
+		if result.Error != nil {
+			return result.Error
+		}else if count == 0 {
+			return errors.New("post does not exist")
+		}
+	}
+
+	var count int64
+	// Check if user already saved the post
+	result := repository.DB.Model(&persistence.Favorites{}).Where("post_id = ? AND user_id = ?",
+		favoritesPers.PostId, favoritesPers.UserId).Count(&count)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	// TODO Check if user can save the post
+	if count == 1 {
+		result = repository.DB.Model(&favoritesPers).Update("collection_id", favoritesPers.CollectionId)
+	}else{
+		result = repository.DB.Create(favoritesPers)
+	}
 
 	if result.Error != nil || result.RowsAffected != 1 {
 		return result.Error
@@ -141,6 +183,18 @@ func (repository *favoritesRepository) CreateCollection(ctx context.Context, col
 		var collectionPers *persistence.Collection
 		collectionPers = collectionPers.ConvertToPersistence(collection)
 
+		if collectionPers.Id != "" {
+			// Check if user has that collection
+			var count int64
+			result := repository.DB.Model(&persistence.Collection{}).Where("id = ?", collectionPers.Id).Count(&count)
+
+			if result.Error != nil {
+				return result.Error
+			}else if count == 0 {
+				return errors.New("user does not own that collection")
+			}
+		}
+
 		// TODO Check if user can save that post
 		result := repository.DB.Create(collectionPers)
 
@@ -151,7 +205,11 @@ func (repository *favoritesRepository) CreateCollection(ctx context.Context, col
 		// Case: New collection was created upon saving post to favorites
 		if len(collection.Posts) > 0 {
 			for _, post := range collection.Posts {
-				err := repository.contentRepository.CreatePost(ctx, &post)
+				err := repository.CreateFavorite(ctx, domain.FavoritesRequest{
+					UserId: 	  collection.UserId,
+					PostId:       post.Id,
+					CollectionId: collection.Id,
+				})
 				if err != nil {
 					return err
 				}
@@ -181,7 +239,10 @@ func (repository *favoritesRepository) RemoveCollection(ctx context.Context, col
 		if err != nil { return err }
 
 		for _, post := range collectionPosts {
-			err := repository.contentRepository.RemovePost(ctx, post.Id)
+			err := repository.RemoveFavorite(ctx, domain.FavoritesRequest{
+				PostId:       post.Id,
+				CollectionId: collectionId,
+			})
 			if err != nil { return err }
 		}
 

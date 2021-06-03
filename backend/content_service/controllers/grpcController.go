@@ -11,9 +11,10 @@ import (
 
 type Server struct {
 	contentpb.UnimplementedContentServer
-	contentController *ContentGrpcController
-	commentController *CommentGrpcController
-	likeController	  *LikeGrpcController
+	contentController 	*ContentGrpcController
+	commentController 	*CommentGrpcController
+	likeController	  	*LikeGrpcController
+	favoritesController *FavoritesGrpcController
 	tracer otgo.Tracer
 	closer io.Closer
 }
@@ -22,12 +23,14 @@ func NewServer(db *gorm.DB) (*Server, error) {
 	contentController, _ := NewContentController(db)
 	commentController, _ := NewCommentController(db)
 	likeController, _ := NewLikeController(db)
+	favoritesController, _ := NewFavoritesController(db)
 	tracer, closer := tracer.Init("global_ContentGrpcController")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
 		contentController: contentController,
 		commentController: commentController,
 		likeController: likeController,
+		favoritesController: favoritesController,
 		tracer: tracer,
 		closer: closer,
 	}, nil
@@ -41,6 +44,7 @@ func (s *Server) GetCloser() io.Closer {
 	return s.closer
 }
 
+/*   Posts   */
 func (s *Server) CreatePost(ctx context.Context, in *contentpb.Post) (*contentpb.EmptyResponse, error) {
 	return s.contentController.CreatePost(ctx, in)
 }
@@ -49,6 +53,7 @@ func (s *Server) GetAllPosts(ctx context.Context, in *contentpb.EmptyRequest) (*
 	return s.contentController.GetAllPosts(ctx, in)
 }
 
+/*   Comments   */
 func (s *Server) CreateComment(ctx context.Context, in *contentpb.Comment) (*contentpb.EmptyResponse, error) {
 	return s.commentController.CreateComment(ctx, in)
 }
@@ -57,6 +62,7 @@ func (s *Server) GetCommentsForPost(ctx context.Context, in *contentpb.RequestId
 	return s.commentController.GetCommentsForPost(ctx, in.Id)
 }
 
+/* Likes & Dislikes */
 func (s *Server) CreateLike(ctx context.Context, in *contentpb.Like) (*contentpb.EmptyResponse, error) {
 	return s.likeController.CreateLike(ctx, in)
 }
@@ -65,8 +71,34 @@ func (s *Server) GetLikesForPost(ctx context.Context, in *contentpb.RequestId) (
 	return s.likeController.GetLikesForPost(ctx, in.Id, true)
 }
 
-func (s *Server) GetDislikesForPost(ctx context.Context, in *contentpb.RequestId) (*contentpb.LikesArray, error) {
-	return s.likeController.GetLikesForPost(ctx, in.Id, false)
+/* Collections & Favorites */
+func (s *Server) GetAllCollections(ctx context.Context, in *contentpb.RequestId) (*contentpb.CollectionsArray, error) {
+	return s.favoritesController.GetAllCollections(ctx, in)
 }
+
+func (s *Server) GetCollection(ctx context.Context, in *contentpb.RequestId) (*contentpb.Collection, error) {
+	return s.favoritesController.GetCollection(ctx, in)
+}
+
+func (s *Server) CreateCollection(ctx context.Context, in *contentpb.Collection) (*contentpb.EmptyResponse, error) {
+	return s.favoritesController.CreateCollection(ctx, in)
+}
+
+func (s *Server) RemoveCollection(ctx context.Context, in *contentpb.RequestId) (*contentpb.EmptyResponse, error) {
+	return s.favoritesController.RemoveCollection(ctx, in)
+}
+
+func (s *Server) GetUserFavorites(ctx context.Context, in *contentpb.RequestId) (*contentpb.Favorites, error) {
+	return s.favoritesController.GetUserFavorites(ctx, in)
+}
+
+func (s *Server) CreateFavorite(ctx context.Context, in *contentpb.FavoritesRequest) (*contentpb.EmptyResponse, error) {
+	return s.favoritesController.CreateFavorite(ctx, in)
+}
+
+func (s *Server) RemoveFavorite(ctx context.Context, in *contentpb.FavoritesRequest) (*contentpb.EmptyResponse, error) {
+	return s.favoritesController.RemoveFavorite(ctx, in)
+}
+
 
 
