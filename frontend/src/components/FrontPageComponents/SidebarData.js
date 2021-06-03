@@ -6,7 +6,7 @@ import * as IoIcons from 'react-icons/io';
 export const SidebarData = [
     {
         title: 'Home',
-        path: '/',
+        path: '/posts',
         icon: <AiIcons.AiFillHome />,
         cName: 'nav-text'
     },
@@ -18,15 +18,21 @@ export const SidebarData = [
     },
     {
         title: 'Saved',
-        path: '/',
+        path: '/saved',
         icon: <IoIcons.IoIosSave />,
         cName: 'nav-text'
     },
     {
         title: 'Profile',
         path: '/profile',
-        icon: <IoIcons.IoMdPeople />,
+        icon: <IoIcons.IoMdPerson/>,
         cName: 'nav-text'
+    },
+    {
+        title: 'Ovde dodavati sta sve treba vezano za usera kad se uloguje',
+        //path: '/profile',
+        //icon: <IoIcons.IoMdPeople />,
+        //cName: 'nav-text'
     }
 
 
