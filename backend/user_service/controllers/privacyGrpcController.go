@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
 	userspb "github.com/david-drvar/xws2021-nistagram/user_service/proto"
 	"github.com/david-drvar/xws2021-nistagram/user_service/services"
@@ -69,4 +70,16 @@ func (s *PrivacyGrpcController) UnBlockUser(ctx context.Context, in *userspb.Cre
 	}
 
 	return &userspb.EmptyResponsePrivacy{}, nil
+}
+
+func (s *PrivacyGrpcController) CheckUserProfilePublic(ctx context.Context, in *userspb.PrivacyRequest) (*userspb.BooleanResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CheckUserProfilePublic")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	finalResponse := userspb.BooleanResponse{
+		Response: s.service.CheckUserProfilePublic(ctx, in.UserId),
+	}
+
+	return &finalResponse, nil
 }

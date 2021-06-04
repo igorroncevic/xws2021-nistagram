@@ -155,16 +155,6 @@ func (service *ContentService) SearchContentByLocation(ctx context.Context, loca
 	}
 	log.Printf("Response from server: %s", response)
 
-	//conn, err := grpc.Dial("localhost:8001/api/users", grpc.WithInsecure())
-	//defer conn.Close()
-	//
-	//client := userspb.NewUsersClient(conn)
-
-	//users, err := client.SearchUser(context.Background(), &userFinal)
-	//print(users)
-
-	//**************
-
 	dbPosts, err := service.contentRepository.GetPostsByLocation(ctx, location)
 	if err != nil {
 		return posts, err

@@ -4,7 +4,7 @@
 // 	protoc        v3.17.0
 // source: content.proto
 
-package protoe
+package proto
 
 import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
