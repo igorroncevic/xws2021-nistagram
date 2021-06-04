@@ -5,7 +5,7 @@ import "../../style/Card.css";
 class Card extends Component {
     render() {
         return(
-            
+
         <article className="Post" ref="Post">
             <header>
                 <div className="Post-user">
