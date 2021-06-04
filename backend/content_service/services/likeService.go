@@ -11,7 +11,7 @@ import (
 
 type LikeService struct {
 	likeRepository repositories.LikeRepository
-	contentRepository repositories.ContentRepository
+	contentRepository repositories.PostRepository
 }
 
 func NewLikeService(db *gorm.DB) (*LikeService, error){

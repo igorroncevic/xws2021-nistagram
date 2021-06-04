@@ -24,8 +24,8 @@ type FavoritesRepository interface {
 }
 
 type favoritesRepository struct {
-	DB *gorm.DB
-	contentRepository ContentRepository
+	DB                *gorm.DB
+	contentRepository PostRepository
 }
 
 func NewFavoritesRepo(db *gorm.DB) (*favoritesRepository, error) {

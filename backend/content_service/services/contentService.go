@@ -10,7 +10,7 @@ import (
 )
 
 type ContentService struct {
-	contentRepository repositories.ContentRepository
+	contentRepository repositories.PostRepository
 	commentRepository repositories.CommentRepository
 	likeRepository 	  repositories.LikeRepository
 	mediaRepository   repositories.MediaRepository
