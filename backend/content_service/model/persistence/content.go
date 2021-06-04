@@ -1,12 +1,15 @@
-package model
+package persistence
 
-import "time"
+import (
+	"github.com/david-drvar/xws2021-nistagram/content_service/model"
+	"time"
+)
 
 type Post struct{
 	Id          string `gorm:"primaryKey"`
 	UserId      string
 	IsAd        bool
-	Type        PostType
+	Type        model.PostType
 	Description string
 	Location    string
 	CreatedAt   time.Time
@@ -18,10 +21,11 @@ type Story struct{
 }
 
 type Media struct{
-	Id      string `gorm:"primaryKey"`
-	Type    MediaType
-	PostId  string
-	Content string
+	Id      	string `gorm:"primaryKey"`
+	Type    	model.MediaType
+	PostId  	string
+	Filename 	string
+	OrderNum 	int
 }
 
 type Tag struct {
@@ -41,17 +45,18 @@ type Favorites struct {
 	CollectionId string
 }
 
-type PostLikes struct {
+type Like struct {
 	PostId string `gorm:"primaryKey"`
 	UserId string `gorm:"primaryKey"`
 	IsLike bool
 }
 
-type PostComments struct {
-	PostId string `gorm:"primaryKey"`
-	UserId string `gorm:"primaryKey"`
+type Comment struct {
+	Id		string `gorm:"primaryKey"`
+	PostId  string
+	UserId  string
 	Content string
-	CreatedAt time.Time //TODO
+	CreatedAt time.Time
 }
 
 type HighLights struct {
@@ -64,7 +69,7 @@ type RegistrationRequest struct {
 	Id        string `gorm:"primaryKey"`
 	UserId    string
 	CreatedAt time.Time //TODO
-	Status    RequestStatus
+	Status    model.RequestStatus
 }
 
 type Ad struct {
@@ -89,14 +94,14 @@ type Campaign struct {
 type CampaignInfluencerRequest struct {
 	CampaignId   string `gorm:"primaryKey"`
 	InfluencerId string `gorm:"primaryKey"`
-	Status       RequestStatus
+	Status       model.RequestStatus
 }
 
 type ContentComplaint struct {
 	Id       string `gorm:"primaryKey"`
-	Category ComplaintCategory
+	Category model.ComplaintCategory
 	PostId   string
-	Status   RequestStatus
+	Status   model.RequestStatus
 }
 
 type AdCategory struct {

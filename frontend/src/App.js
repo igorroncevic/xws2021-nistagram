@@ -9,6 +9,7 @@ import ProfilePage from "./components/FrontPageComponents/ProfilePage";
 import Chats from "./components/FrontPageComponents/Chats";
 import Saved from "./components/FrontPageComponents/Saved";
 import HomePage from "./components/FrontPageComponents/HomePage";
+import Search from "./pages/Search";
 
 
 
@@ -24,6 +25,7 @@ function App () {
                 <Route path='/profile' exact component={ProfilePage} />
                 <Route path='/chats' exact component={Chats} />
                 <Route path='/saved' exact component={Saved} />
+                <Route path='/search' exact={true} component={Search}/>
              </Router>
         </div>
     );
