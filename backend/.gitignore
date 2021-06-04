@@ -1,3 +1,8 @@
 *.conf
-!../dbconfig.example.conf
+!*.example.conf
 .idea
+
+*.png
+*.jpg
+*.bmp
+*.mp4

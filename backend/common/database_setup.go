@@ -5,22 +5,44 @@ import (
 	"github.com/lytics/confl"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"os"
 )
 
 type dbConfig struct {
-	DatabaseURL string `json:"database_url"`
+	UserDatabaseURL string `json:"user_database_url"`
+	ContentDatabaseURL string `json:"content_database_url"`
+	AgentDatabaseURL string `json:"agent_database_url"`
+	RecommendationDatabaseURL string `json:"recommendation_database_url"`
 }
 
-func InitDatabase() *gorm.DB {
+const (
+	UserDatabase 		   = "UserDatabase"
+	ContentDatabase 	   = "ContentDatabase"
+	AgentDatabase 		   = "AgentDatabase"
+	RecommendationDatabase = "RecommendationDatabase"
+)
+
+func InitDatabase(dbname string) *gorm.DB {
 	var dbConf dbConfig
 	if _, err := confl.DecodeFile("./../dbconfig.conf", &dbConf); err != nil {
 		panic(err)
 	}
 
-	dsn := fmt.Sprintf("%s", dbConf.DatabaseURL)
+	var dsn string
+	if dbname == UserDatabase{
+		dsn = fmt.Sprintf("%s", dbConf.UserDatabaseURL)
+	}else if dbname == ContentDatabase{
+		dsn = fmt.Sprintf("%s", dbConf.ContentDatabaseURL)
+	}else if dbname == AgentDatabase{
+		dsn = fmt.Sprintf("%s", dbConf.AgentDatabaseURL)
+	}else if dbname == RecommendationDatabase{
+		dsn = fmt.Sprintf("%s", dbConf.RecommendationDatabaseURL)
+	}
+
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		PrepareStmt: true,
+		Logger: logger.Default.LogMode(logger.Info),
 	})
 
 	if err != nil {

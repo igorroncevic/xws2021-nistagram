@@ -5,7 +5,9 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/david-drvar/xws2021-nistagram/content_service/util"
 	"image"
+	"log"
 	"os"
 	"strings"
 )
@@ -36,48 +38,72 @@ func save(filename string, img image.Image, encoder Encoder) error {
 	return encoder(f, img)
 }
 
+func RemoveImages(filenames []string) error{
+	for _, filename := range filenames{
+		err := os.Remove(util.GetContentLocation(filename))
+		if err != nil{
+			log.Fatal(err)
+			return err
+		}
+	}
+
+	return nil
+}
+
 // SaveImage saves an image with appropriate extension using base64string
 func SaveImage(filename string, base64string string) error{
-	img, imageType, err := getImageFromBase64(base64string)
+	img, err := getImageFromBase64(base64string)
 	if err != nil {
 		return err
 	}
 
-	var extension string
 	var encoder Encoder
 
-	switch imageType{
-	case "image/jpeg", "image/jpg":
-		extension = ".jpg"
+	filenameParts := strings.Split(filename, ".")
+	extension := filenameParts[len(filenameParts) - 1]
+
+	switch extension {
+	case "jpeg", "jpg":
 		encoder = GetJPEGEncoder(EncoderSaving)
 		break
-	case "image/png":
-		extension = ".png"
+	case "image/png", "png":
 		encoder = GetPNGEncoder()
 		break
 	default:
 		return errors.New("save: unsupported image type")
 	}
 
-	filename += extension
-	err = save(filename, img, encoder)
+	err = save(util.GetContentLocation(filename), img, encoder)
 
 	return err
 }
 
-// GetImageFromBase64 converts base64 string, including suffix with "data:image/..." part, to an image
-func getImageFromBase64(base64string string) (image.Image, string, error){
+func GetImageType(base64string string) (string, error){
 	base64parts := strings.Split(base64string, ";base64,")
-	imageType := base64parts[0][5:]
+
+	if len(base64parts) != 2 {
+		return "", errors.New("invalid base64 format")
+	}
+
+	if len(base64parts[0]) <= 2{
+		return "", errors.New("invalid base64 format")
+	}
+
+	return base64parts[0][11:], nil
+}
+
+// GetImageFromBase64 converts base64 string, including suffix with "data:image/..." part, to an image
+func getImageFromBase64(base64string string) (image.Image, error){
+	base64parts := strings.Split(base64string, ";base64,")
 	base64string = base64parts[1]
 
 	reader := base64.NewDecoder(base64.StdEncoding, strings.NewReader(base64string))
 	img, _, err := image.Decode(reader)
 	if err != nil{
-		return nil, "", err
+		return nil, err
 	}
 
-	return img, imageType, nil
+	return img, nil
 }
 
 // LoadImageToBase64 loads an image and convert it to base64 string.

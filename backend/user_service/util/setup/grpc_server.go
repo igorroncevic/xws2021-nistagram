@@ -33,6 +33,7 @@ func GRPCServer(db *gorm.DB) {
 
 	// Attach the Greeter service to the server
 	userspb.RegisterUsersServer(s, server)
+	userspb.RegisterPrivacyServer(s, server)
 	// Serve gRPC server
 	log.Println("Serving gRPC on " + grpc_common.Users_service_address)
 	go func() {
@@ -48,6 +49,7 @@ func GRPCServer(db *gorm.DB) {
 	gatewayMux := runtime.NewServeMux()
 	// Register Greeter
 	err = userspb.RegisterUsersHandler(context.Background(), gatewayMux, conn)
+	err = userspb.RegisterPrivacyHandler(context.Background(), gatewayMux, conn)
 	if err != nil {
 		log.Fatalln("Failed to register gateway:", err)
 	}

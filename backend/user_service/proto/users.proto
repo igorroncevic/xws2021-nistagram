@@ -35,6 +35,13 @@ service Users {
     };
   }
 
+  rpc SearchUser (SearchUserDtoRequest) returns (UsersResponse) {
+    option(google.api.http) = {
+      post: "/api/users/searchByUser"
+      body: "user"
+    };
+  }
+
 }
 
 message Password {
@@ -60,8 +67,6 @@ message User {
   string biography = 13;
   string website = 14;
 }
-
-
 
 message UsersDTO {
   string id = 1;
@@ -98,6 +103,10 @@ message CreateUserDTORequest {
 
 message CreatePasswordRequest {
   Password password = 1;
+}
+
+message SearchUserDtoRequest {
+  UsersDTO user = 1;
 }
 
 

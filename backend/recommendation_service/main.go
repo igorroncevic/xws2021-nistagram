@@ -10,6 +10,7 @@ func main(){
 	defer setup.CloseConnection(driver)
 
 	err := CreateUniqueConstraint(driver)
+
 	if err != nil {
 		panic("Could not create unique constraint!")
 	}

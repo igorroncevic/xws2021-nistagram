@@ -11,10 +11,11 @@ import (
 
 type Server struct {
 	userspb.UnimplementedUsersServer
-	userController *UserGrpcController
+	userspb.UnimplementedPrivacyServer
+	userController    *UserGrpcController
 	privacyController *PrivacyGrpcController
-	tracer otgo.Tracer
-	closer io.Closer
+	tracer            otgo.Tracer
+	closer            io.Closer
 }
 
 func NewServer(db *gorm.DB) (*Server, error) {
@@ -23,10 +24,10 @@ func NewServer(db *gorm.DB) (*Server, error) {
 	tracer, closer := tracer.Init("userService")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
-		userController: newUserController,
+		userController:    newUserController,
 		privacyController: newPrivacyController,
-		tracer: tracer,
-		closer: closer,
+		tracer:            tracer,
+		closer:            closer,
 	}, nil
 }
 
@@ -46,11 +47,11 @@ func (s *Server) GetAllUsers(ctx context.Context, in *userspb.EmptyRequest) (*us
 	return s.userController.GetAllUsers(ctx, in)
 }
 
-func (s *Server) UpdateUserProfile(ctx context.Context, in *userspb.CreateUserDTORequest)(*userspb.EmptyResponse, error) {
+func (s *Server) UpdateUserProfile(ctx context.Context, in *userspb.CreateUserDTORequest) (*userspb.EmptyResponse, error) {
 	return s.userController.UpdateUserProfile(ctx, in)
 }
 
-func (s *Server) UpdateUserPassword(ctx context.Context, in *userspb.CreatePasswordRequest)(*userspb.EmptyResponse, error) {
+func (s *Server) UpdateUserPassword(ctx context.Context, in *userspb.CreatePasswordRequest) (*userspb.EmptyResponse, error) {
 	return s.userController.UpdateUserPassword(ctx, in)
 }
 
@@ -70,3 +71,10 @@ func (s *Server) UnBlockUser(ctx context.Context, in *userspb.CreateBlockRequest
 	return s.privacyController.UnBlockUser(ctx, in)
 }
 
+func (s *Server) SearchUser(ctx context.Context, in *userspb.SearchUserDtoRequest) (*userspb.UsersResponse, error) {
+	return s.userController.SearchUser(ctx, in)
+}
+
+func (s *Server) CheckUserProfilePublic(ctx context.Context, in *userspb.PrivacyRequest) (*userspb.BooleanResponse, error) {
+	return s.privacyController.CheckUserProfilePublic(ctx, in)
+}

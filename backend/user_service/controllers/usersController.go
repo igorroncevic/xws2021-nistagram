@@ -71,11 +71,11 @@ func (controller *UserController) UpdateUserProfile(w http.ResponseWriter, r *ht
 	var user domain.User
 
 	json.NewDecoder(r.Body).Decode(&user)
-	_, err := controller.Service.UpdateUserProfile(user)
-	if err != nil {
-		customerr.WriteErrToClient(w, err)
-		return
-	}
+	//_, err := controller.Service.UpdateUserProfile(user)
+	//if err != nil {
+	//	customerr.WriteErrToClient(w, err)
+	//	return
+	//}
 
 	w.WriteHeader(http.StatusOK)
 }

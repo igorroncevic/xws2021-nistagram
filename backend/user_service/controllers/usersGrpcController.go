@@ -46,36 +46,14 @@ func (s *UserGrpcController) CreateUser(ctx context.Context, in *userspb.CreateU
 }
 
 func (s *UserGrpcController) GetAllUsers(ctx context.Context, in *userspb.EmptyRequest) (*userspb.UsersResponse, error) {
-	/*users, err := s.service.GetAllUsers(ctx)
-
-	if err != nil {
-		return &userspb.UsersResponse{
-			Users: []*userspb.UsersDTO{},
-		}, status.Errorf(codes.Unknown, "Could retrieve users")
-	}
-
-<<<<<<< HEAD
-	responseUsers := []*userspb.UsersDTO{}
-	for _, user := range users{
-=======
-	responseUsers := []*userspb.User{}
-	for _, user := range users {
->>>>>>> master
-		responseUsers = append(responseUsers, user.ConvertToGrpc())
-	}
-
-	return &userspb.UsersResponse{
-		Users: responseUsers,
-<<<<<<< HEAD
-	}, nil*/
-return  &userspb.UsersResponse{}, nil
+	return &userspb.UsersResponse{}, nil
 }
 
-func (s *UserGrpcController) UpdateUserProfile(ctx context.Context, in *userspb.CreateUserDTORequest)(*userspb.EmptyResponse, error) {
+func (s *UserGrpcController) UpdateUserProfile(ctx context.Context, in *userspb.CreateUserDTORequest) (*userspb.EmptyResponse, error) {
 	var user domain.User
 
 	user = user.ConvertFromGrpc(in.User)
-	_, err := s.service.UpdateUserProfile(user)
+	_, err := s.service.UpdateUserProfile(ctx, user)
 	if err != nil {
 		return &userspb.EmptyResponse{}, status.Errorf(codes.Unknown, "Could not create user")
 	}
@@ -83,14 +61,39 @@ func (s *UserGrpcController) UpdateUserProfile(ctx context.Context, in *userspb.
 	return &userspb.EmptyResponse{}, nil
 }
 
-func (s *UserGrpcController) UpdateUserPassword(ctx context.Context, in *userspb.CreatePasswordRequest)(*userspb.EmptyResponse, error) {
+func (s *UserGrpcController) UpdateUserPassword(ctx context.Context, in *userspb.CreatePasswordRequest) (*userspb.EmptyResponse, error) {
 	var password domain.Password
 
 	password = password.ConvertFromGrpc(in.Password)
-	_, err := s.service.UpdateUserPassword(password)
+	_, err := s.service.UpdateUserPassword(ctx, password)
 	if err != nil {
 		return &userspb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Could not create user")
 	}
 
 	return &userspb.EmptyResponse{}, nil
+}
+
+func (s *UserGrpcController) SearchUser(ctx context.Context, in *userspb.SearchUserDtoRequest) (*userspb.UsersResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "SearchUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var user = domain.User{}
+
+	user = user.ConvertFromGrpc(in.User)
+	users, err := s.service.SearchUsersByUsernameAndName(ctx, &user)
+	if err != nil {
+		return nil, err
+	}
+
+	var usersList []*userspb.UsersDTO
+	for _, user := range users {
+		usersList = append(usersList, user.ConvertToGrpc())
+	}
+
+	finalResponse := userspb.UsersResponse{
+		Users: usersList,
+	}
+
+	return &finalResponse, nil
 }
