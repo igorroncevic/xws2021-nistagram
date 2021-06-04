@@ -2,13 +2,12 @@ import {Button, FormControl, Table} from "react-bootstrap";
 import React, {useEffect, useState} from "react";
 import axios from "axios";
 
-function UsersInfo() {
+function EditProfile(props) {
     const[edit,setEdit]=useState(false)
+
+    //mokovano,     const{user}= props
     const[user,setUserInfo]=useState({username:"joksi3333",firstName:"Marko", lastName:"Markovic",email:"joksi323@gmail.com", birthDate: Date(), phoneNumber:"06589526262626", sex:"MAN", biography:"bla",website:"truc"})
 
-    useEffect(() => {
-        //getovanje usera na osnovu username
-    })
     function editProfile(){ //501
         axios
             .post('http://localhost:8080/api/users/api/users/update_profile', {
@@ -45,24 +44,21 @@ function UsersInfo() {
                 <tr>
                     <td>Username</td>
                     {edit
-                        ? <FormControl name="username" className="mt-2 mb-1" value={user.username}
-                                       onChange={handleInputChange}/>
+                        ? <FormControl name="username" className="mt-2 mb-1" value={user.username} onChange={handleInputChange}/>
                         : <td>{user.username}</td>
                     }
                 </tr>
                 <tr>
                     <td>First Name</td>
                     {edit
-                        ? <FormControl name="firstName" className="mt-2 mb-1" value={user.firstName}
-                                       onChange={handleInputChange}/>
+                        ? <FormControl name="firstName" className="mt-2 mb-1" value={user.firstName} onChange={handleInputChange}/>
                         : <td>{user.firstName}</td>
                     }
                 </tr>
                 <tr>
                     <td>Last Name</td>
                     {edit
-                        ? <FormControl name="lastName" className="mt-2 mb-2" value={user.lastName}
-                                       onChange={handleInputChange}/>
+                        ? <FormControl name="lastName" className="mt-2 mb-2" value={user.lastName} onChange={handleInputChange}/>
                         : <td>{user.lastName}</td>
                     }
                 </tr>
@@ -73,40 +69,35 @@ function UsersInfo() {
                 <tr>
                     <td>Birth date</td>
                     {edit
-                        ? <FormControl name="birthDate" className="mt-2 mb-2" value={user.birthDate}
-                                       onChange={handleInputChange}/>
+                        ? <FormControl name="birthDate" className="mt-2 mb-2" value={user.birthDate} onChange={handleInputChange}/>
                         : <td>{user.birthDate}</td>
                     }
                 </tr>
                 <tr>
                     <td>Phone Number</td>
                     {edit
-                        ? <FormControl name="phoneNumber" className="mt-2 mb-2" value={user.phoneNumber}
-                                       onChange={handleInputChange}/>
+                        ? <FormControl name="phoneNumber" className="mt-2 mb-2" value={user.phoneNumber} onChange={handleInputChange}/>
                         : <td>{user.phoneNumber}</td>
                     }
                 </tr>
                 <tr>
                     <td>Sex</td>
                     {edit
-                        ? <FormControl name="sex" className="mt-2 mb-2" value={user.sex}
-                                       onChange={handleInputChange}/>
+                        ? <FormControl name="sex" className="mt-2 mb-2" value={user.sex} onChange={handleInputChange}/>
                         : <td>{user.sex}</td>
                     }
                 </tr>
                 <tr>
                     <td>Biography</td>
                     {edit
-                        ? <FormControl name="biography" className="mt-2 mb-2" value={user.biography}
-                                       onChange={handleInputChange}/>
+                        ? <FormControl name="biography" className="mt-2 mb-2" value={user.biography} onChange={handleInputChange}/>
                         : <td>{user.biography}</td>
                     }
                 </tr>
                 <tr>
                     <td>Web site</td>
                     {edit
-                        ? <FormControl name="website" className="mt-2 mb-2" value={user.website}
-                                       onChange={handleInputChange}/>
+                        ? <FormControl name="website" className="mt-2 mb-2" value={user.website} onChange={handleInputChange}/>
                         : <td>{user.website}</td>
                     }
                 </tr>
@@ -124,4 +115,4 @@ function UsersInfo() {
                 }
             </div>
         );
-}export default UsersInfo;
+}export default EditProfile;

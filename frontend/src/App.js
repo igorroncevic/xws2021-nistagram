@@ -10,6 +10,7 @@ import Chats from "./components/FrontPageComponents/Chats";
 import Saved from "./components/FrontPageComponents/Saved";
 import HomePage from "./components/FrontPageComponents/HomePage";
 import Search from "./pages/Search";
+import Profile from "./components/FrontPageComponents/Profile";
 
 
 
@@ -22,7 +23,7 @@ function App () {
                 <Route path='/registration' exact={true} component={RegistrationPage}/>
                 <Route path='/home' exact={true} component={HomePage}/>
                 <Route path='/posts' exact component={PostsAndStories} />
-                <Route path='/profile' exact component={ProfilePage} />
+                <Route path='/profile' exact component={Profile} />
                 <Route path='/chats' exact component={Chats} />
                 <Route path='/saved' exact component={Saved} />
                 <Route path='/search' exact={true} component={Search}/>
