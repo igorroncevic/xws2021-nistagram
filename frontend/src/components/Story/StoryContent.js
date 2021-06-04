@@ -8,12 +8,7 @@ function StoryContent() {
 
     return (
         <div style={{marginLeft:'40%'}}>
-        <Stories
-            stories={stories}
-            defaultInterval={1500}
-            width={432}
-            height={768}
-        />
+        <Stories stories={stories} defaultInterval={1500} width={432} height={768}/>
         </div>
     );
 

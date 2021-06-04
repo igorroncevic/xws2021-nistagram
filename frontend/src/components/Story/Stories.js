@@ -1,20 +1,24 @@
 import HorizontalScroll from "react-scroll-horizontal";
 import Story from "./Story";
+import '../../style/Stories.css';
 
+//iz baze iscupaj sve objavljene storije
+//Svakkom Story-u proslediti usera koji ga je objavio i media
 function Stories() {
-    const stories={
-        display: 'flex',
-        alignContent: 'center',
-        backgroundColor: '#ffffff',
-        border: '1px solid #dbdbdb',
-        borderRadius: '3px',
-        margin: '2em 0 1.5em 0',
-        height: '7.4em',
-        overflow: 'hidden',
-    }
     return (
-        <div style={stories}>
-            <HorizontalScroll className="scroll" reverseScroll={true}>
+        <div className="stories">
+            <HorizontalScroll className="scroll" reverseScroll={false}>
+                <Story />
+                <Story />
+                <Story />
+                <Story />
+                <Story />
+                <Story />
+                <Story />
+                <Story />
+                <Story />
+                <Story />
+                <Story />
                 <Story />
                 <Story />
                 <Story />

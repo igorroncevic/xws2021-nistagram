@@ -11,17 +11,11 @@ function ProfileIcon(props) {
 
     let randomId = getRandomInt(1, 70);
 
-    let profileImage = image
-        ? image
-        : `https://i.pravatar.cc/150?img=${randomId}`;
+    let profileImage = image? image: `https://i.pravatar.cc/150?img=${randomId}`;
 
     return (
         <div className={storyBorder ? "storyBorder" : ""}>
-            <img
-                className={`profileIcon ${iconSize}`}
-                src={profileImage}
-                alt="profile"
-            />
+            <img className={`profileIcon ${iconSize}`} src={profileImage}  alt="profile"/>
         </div>
     );
 }export default  ProfileIcon;
