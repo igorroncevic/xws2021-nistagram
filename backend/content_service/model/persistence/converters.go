@@ -71,6 +71,22 @@ func (s Story) ConvertToPersistence(story domain.Story) Story {
 	}
 }
 
+func (s Story) ConvertToDomain(media []domain.Media) domain.Story {
+	return domain.Story{
+		Objava: domain.Objava {
+			Id:          uuid.NewV4().String(),
+			UserId:      s.UserId,
+			IsAd:        s.IsAd,
+			Type:        s.Type,
+			Description: s.Description,
+			Location:    s.Location,
+			CreatedAt:   time.Now(),
+			Media: media,
+		},
+		IsCloseFriends: s.IsCloseFriends,
+	}
+}
+
 func (c Comment) ConvertToDomain(username string) domain.Comment {
 	return domain.Comment{
 		Id:		   c.Id,

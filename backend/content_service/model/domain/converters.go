@@ -51,6 +51,38 @@ func ConvertMultiplePostsToGrpc(posts []Post) []*contentpb.Post{
 	return grpcPosts
 }
 
+// Story Converters
+func (s Story) ConvertToGrpc() *contentpb.Story {
+	return &contentpb.Story{
+		Id:          s.Id,
+		UserId:      s.UserId,
+		IsAd:        s.IsAd,
+		Type:        s.Type.String(),
+		Description: s.Description,
+		Location:    s.Location,
+		CreatedAt:   timestamppb.New(s.CreatedAt),
+		Media: 		 ConvertMultipleMediaToGrpc(s.Media),
+		IsCloseFriends: s.IsCloseFriends,
+	}
+}
+
+func (s *Story) ConvertFromGrpc(story *contentpb.Story) *Story {
+	if story == nil { story = &contentpb.Story{} }
+	return &Story{
+		Objava: Objava{
+			Id: 		 story.Id,
+			UserId:      story.UserId,
+			IsAd:        story.IsAd,
+			Type:        model.GetPostType(story.Type),
+			Description: story.Description,
+			Location:    story.Location,
+			CreatedAt:   story.CreatedAt.AsTime(),
+			Media: 		 ConvertMultipleMediaFromGrpc(story.Media),
+		},
+		IsCloseFriends: story.IsCloseFriends,
+	}
+}
+
 // ReducedPost Converters
 func (p ReducedPost) ConvertToGrpc() *contentpb.ReducedPost {
 	return &contentpb.ReducedPost{

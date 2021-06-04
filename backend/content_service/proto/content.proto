@@ -35,6 +35,33 @@ service Content {
   }
   /* * * * * * * * * * * * */
 
+  /*    Stories    */
+  rpc CreateStory (Story) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/stories",
+      body: "*"
+    };
+  }
+
+  rpc GetAllStories (EmptyRequest) returns (StoriesArray) {
+    option(google.api.http) = {
+      get: "/stories"
+    };
+  }
+
+  rpc RemoveStory (RequestId) returns (EmptyResponse) {
+    option(google.api.http) = {
+      delete: "/stories/{id}"
+    };
+  }
+
+  rpc GetStoryById (RequestId) returns (Story) {
+    option(google.api.http) = {
+      get: "/stories/{id}"
+    };
+  }
+  /* * * * * * * * * * * * */
+
   /*    Comments    */
   rpc CreateComment (Comment) returns (EmptyResponse) {
     option(google.api.http) = {
@@ -192,7 +219,7 @@ message Highlight {
   repeated Story stories = 3;
 }
 
-message StoryArray {
+message StoriesArray {
   repeated Story stories = 1;
 }
 /* * * * * * * * * * * * */

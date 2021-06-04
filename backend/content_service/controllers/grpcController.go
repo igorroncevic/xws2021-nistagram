@@ -11,16 +11,18 @@ import (
 
 type Server struct {
 	contentpb.UnimplementedContentServer
-	postController 	*PostGrpcController
+	postController 		*PostGrpcController
 	commentController 	*CommentGrpcController
 	likeController	  	*LikeGrpcController
 	favoritesController *FavoritesGrpcController
+	storyController		*StoryGrpcController
 	tracer otgo.Tracer
 	closer io.Closer
 }
 
 func NewServer(db *gorm.DB) (*Server, error) {
 	postController, _ := NewPostController(db)
+	storyController, _ := NewStoryController(db)
 	commentController, _ := NewCommentController(db)
 	likeController, _ := NewLikeController(db)
 	favoritesController, _ := NewFavoritesController(db)
@@ -31,6 +33,7 @@ func NewServer(db *gorm.DB) (*Server, error) {
 		commentController: commentController,
 		likeController: likeController,
 		favoritesController: favoritesController,
+		storyController: storyController,
 		tracer: tracer,
 		closer: closer,
 	}, nil
@@ -59,6 +62,23 @@ func (s *Server) GetPostById(ctx context.Context, in *contentpb.RequestId) (*con
 
 func (s *Server) RemovePost(ctx context.Context, in *contentpb.RequestId) (*contentpb.EmptyResponse, error) {
 	return s.postController.RemovePost(ctx, in.Id)
+}
+
+/*   Stories   */
+func (s *Server) CreateStory(ctx context.Context, in *contentpb.Story) (*contentpb.EmptyResponse, error) {
+	return s.storyController.CreateStory(ctx, in)
+}
+
+func (s *Server) GetAllStories(ctx context.Context, in *contentpb.EmptyRequest) (*contentpb.StoriesArray, error) {
+	return s.storyController.GetAllHomeStories(ctx, in)
+}
+
+func (s *Server) GetStoryById(ctx context.Context, in *contentpb.RequestId) (*contentpb.Story, error) {
+	return s.storyController.GetStoryById(ctx, in)
+}
+
+func (s *Server) RemoveStory(ctx context.Context, in *contentpb.RequestId) (*contentpb.EmptyResponse, error) {
+	return s.storyController.RemoveStory(ctx, in)
 }
 
 /*   Comments   */
