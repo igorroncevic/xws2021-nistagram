@@ -31,7 +31,7 @@ function HomePage() {
                     <Link to='#' className='menu-bars'>
                         <FaIcons.FaBars onClick={showSidebar}/>
                     </Link>
-                    <p className='text'>Nistagram</p>
+                    <p className='text'>Ništagram</p>
                     <Button style={{background: '#ffeecc', borderColor: '#ffeecc', color: '#ff4d4d'}} onClick={logOut} >Log out</Button>
 
                 </div>

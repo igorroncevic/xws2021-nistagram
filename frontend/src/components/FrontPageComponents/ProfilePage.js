@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import {Container, Row, Col, Table, FormControl} from "react-bootstrap";
 import HomePage from "./HomePage";
 import UsersInfo from "./UsersInfo";
-import Card from "../CardComponent/Card";
 
 
 function ProfilePage() {

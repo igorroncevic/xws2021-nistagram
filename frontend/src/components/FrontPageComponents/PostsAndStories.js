@@ -1,8 +1,7 @@
 import React from 'react';
 import HomePage from "./HomePage";
-import Card from "../CardComponent/Card";
-import StoryContent from "../Story/StoryContent";
 import Stories from "../Story/Stories";
+import Posts from "../CardComponent/Posts";
 
 
 function PostsAndStories() {
@@ -11,8 +10,7 @@ function PostsAndStories() {
         <div className='home'>
             <HomePage />
             <Stories />
-            <Card/>
-
+            <Posts/>
         </div>
 
     );
