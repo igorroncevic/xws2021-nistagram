@@ -209,7 +209,7 @@ func (repository *followersRepository) CreateUser(ctx context.Context, u model.U
 
 	result , err := session.WriteTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
 		result, err := transaction.Run(
-			"MERGE (n:User {id : $UserId}) RETURN n",//MERGE -> create if not exists, else match
+			"CREATE (n:User {id : $UserId}) RETURN n",
 			map[string]interface{}{
 				"UserId" : u.UserId,
 			})
@@ -256,7 +256,31 @@ func (repository *followersRepository) DeleteDirectedConnection(ctx context.Cont
 
 }
 
-//Kada se useri blokiraju - pozivao sam dva puta
+//Kada se useri blokiraju - u ovom slucaju ne posmatramo rezultat operacija, jer ukoliko konekcije izmedju usera ne postoje,
+//svakako treba dozvoliti useru da blokira
 func (repository *followersRepository) DeleteBiDirectedConnection(ctx context.Context, f model.Follower) (bool, error) {
-	return false, nil
+	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteBiDirectedConnection")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	session := repository.driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
+	defer session.Close()
+	session.WriteTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
+		transaction.Run(
+			"MATCH (a:User {id : $UserId})-[r:Follows]->(b:User {id : $FollowerId}) DELETE r",
+			map[string]interface{}{
+				"UserId" : f.UserId,
+				"FollowerId" : f.FollowerId,
+			})
+
+		transaction.Run(
+			"MATCH (b:User {id : $FollowerId})-[r:Follows]->(a:User {id : $UserId}) DELETE r",
+			map[string]interface{}{
+				"UserId" : f.UserId,
+				"FollowerId" : f.FollowerId,
+			})
+
+		return true, nil
+	})
+	return true, nil
 }
