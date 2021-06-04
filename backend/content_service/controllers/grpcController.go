@@ -69,6 +69,6 @@ func (s *Server) GetDislikesForPost(ctx context.Context, in *contentpb.RequestId
 	return s.likeController.GetLikesForPost(ctx, in.Id, false)
 }
 
-func (s *Server) SearchContentByLocation(ctx context.Context, in *contentpb.SearchLocationRequest) (*contentpb.EmptyResponse, error) {
+func (s *Server) SearchContentByLocation(ctx context.Context, in *contentpb.SearchLocationRequest) (*contentpb.ReducedPostArray, error) {
 	return s.contentController.SearchContentByLocation(ctx, in)
 }

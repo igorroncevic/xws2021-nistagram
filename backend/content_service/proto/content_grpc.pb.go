@@ -24,7 +24,7 @@ type ContentClient interface {
 	CreateLike(ctx context.Context, in *Like, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GetLikesForPost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*LikesArray, error)
 	GetDislikesForPost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*LikesArray, error)
-	SearchContentByLocation(ctx context.Context, in *SearchLocationRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	SearchContentByLocation(ctx context.Context, in *SearchLocationRequest, opts ...grpc.CallOption) (*ReducedPostArray, error)
 }
 
 type contentClient struct {
@@ -98,8 +98,8 @@ func (c *contentClient) GetDislikesForPost(ctx context.Context, in *RequestId, o
 	return out, nil
 }
 
-func (c *contentClient) SearchContentByLocation(ctx context.Context, in *SearchLocationRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
-	out := new(EmptyResponse)
+func (c *contentClient) SearchContentByLocation(ctx context.Context, in *SearchLocationRequest, opts ...grpc.CallOption) (*ReducedPostArray, error) {
+	out := new(ReducedPostArray)
 	err := c.cc.Invoke(ctx, "/protoe.Content/SearchContentByLocation", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -118,7 +118,7 @@ type ContentServer interface {
 	CreateLike(context.Context, *Like) (*EmptyResponse, error)
 	GetLikesForPost(context.Context, *RequestId) (*LikesArray, error)
 	GetDislikesForPost(context.Context, *RequestId) (*LikesArray, error)
-	SearchContentByLocation(context.Context, *SearchLocationRequest) (*EmptyResponse, error)
+	SearchContentByLocation(context.Context, *SearchLocationRequest) (*ReducedPostArray, error)
 	mustEmbedUnimplementedContentServer()
 }
 
@@ -147,7 +147,7 @@ func (UnimplementedContentServer) GetLikesForPost(context.Context, *RequestId) (
 func (UnimplementedContentServer) GetDislikesForPost(context.Context, *RequestId) (*LikesArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDislikesForPost not implemented")
 }
-func (UnimplementedContentServer) SearchContentByLocation(context.Context, *SearchLocationRequest) (*EmptyResponse, error) {
+func (UnimplementedContentServer) SearchContentByLocation(context.Context, *SearchLocationRequest) (*ReducedPostArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchContentByLocation not implemented")
 }
 func (UnimplementedContentServer) mustEmbedUnimplementedContentServer() {}

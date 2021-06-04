@@ -133,14 +133,6 @@ func (service *ContentService) SearchContentByLocation(ctx context.Context, loca
 
 	posts := []domain.ReducedPost{}
 
-	//TODO check is post is public - user
-	user2 := &userspb.UsersDTO{
-		Username: "david",
-	}
-	userFinal := userspb.SearchUserDtoRequest{
-		User: user2,
-	}
-
 	var conn *grpc.ClientConn
 	conn, err := grpc.Dial(":8091", grpc.WithInsecure())
 	if err != nil {
@@ -148,12 +140,7 @@ func (service *ContentService) SearchContentByLocation(ctx context.Context, loca
 	}
 	defer conn.Close()
 
-	c := userspb.NewUsersClient(conn)
-	response, err := c.SearchUser(context.Background(), &userFinal)
-	if err != nil {
-		log.Fatalf("Error when calling SayHello: %s", err)
-	}
-	log.Printf("Response from server: %s", response)
+	c := userspb.NewPrivacyClient(conn)
 
 	dbPosts, err := service.contentRepository.GetPostsByLocation(ctx, location)
 	if err != nil {
@@ -203,5 +190,21 @@ func (service *ContentService) SearchContentByLocation(ctx context.Context, loca
 		posts = append(posts, post.ConvertToDomainReduced(commentsNum, likes, dislikes, convertedMedia))
 	}
 
-	return nil, nil
+	finalPosts := []domain.ReducedPost{}
+
+	//call user service to check if users profile is public
+	for _, post := range posts {
+		privacyRequest := userspb.PrivacyRequest{
+			UserId: post.UserId,
+		}
+		response, err := c.CheckUserProfilePublic(context.Background(), &privacyRequest)
+		if err != nil {
+			log.Fatalf("Error when calling CheckUserProfilePublic: %s", err)
+		}
+		if response.Response {
+			finalPosts = append(finalPosts, post)
+		}
+	}
+
+	return finalPosts, nil
 }
