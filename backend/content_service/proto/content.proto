@@ -33,6 +33,13 @@ service Content {
       get: "/posts/{id}"
     };
   }
+
+  rpc SearchContentByLocation (SearchLocationRequest) returns (ReducedPostArray) {
+    option(google.api.http) = {
+      post: "/location",
+      body: "*"
+    };
+  }
   /* * * * * * * * * * * * */
 
   /*    Comments    */
@@ -110,13 +117,6 @@ service Content {
     };
   }
 
-  rpc SearchContentByLocation (SearchLocationRequest) returns (ReducedPostArray) {
-    option(google.api.http) = {
-      post: "/location",
-      body: "*"
-    };
-  }
-
   rpc RemoveFavorite (FavoritesRequest) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/favorites/delete",
@@ -124,6 +124,14 @@ service Content {
     };
   }
   /* * * * * * * * * * * * */
+
+  /* Hashtags */
+  rpc CreateHashtag (Hashtag) returns (Hashtag) {
+    option(google.api.http) = {
+      post: "/hashtag/create",
+      body: "*"
+    };
+  }
 }
 
 /*    Posts    */
@@ -169,6 +177,11 @@ message Tag {
   string mediaId = 1;
   string userId = 2;
   string username = 3;
+}
+
+message Hashtag {
+  string id = 1;
+  string text = 2;
 }
 
 message ReducedPostArray {

@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type Post struct{
+type Post struct {
 	Id          string `gorm:"primaryKey"`
 	UserId      string
 	IsAd        bool
@@ -15,33 +15,43 @@ type Post struct{
 	CreatedAt   time.Time
 }
 
-type Story struct{
+type Story struct {
 	Post
 	IsCloseFriends bool
 }
 
-type Media struct{
-	Id      	string `gorm:"primaryKey"`
-	Type    	model.MediaType
-	PostId  	string
-	Filename 	string
-	OrderNum 	int
+type Media struct {
+	Id       string `gorm:"primaryKey"`
+	Type     model.MediaType
+	PostId   string
+	Filename string
+	OrderNum int
 }
 
 type Tag struct {
-	UserId string `gorm:"primaryKey"`
+	UserId  string `gorm:"primaryKey"`
 	MediaId string `gorm:"primaryKey"`
 }
 
+type Hashtag struct {
+	Id   string `gorm:"primaryKey"`
+	Text string `gorm:"unique"`
+}
+
+type HashtagObjava struct {
+	HashtagId string `gorm:"primaryKey"`
+	ObjavaId  string `gorm:"primaryKey"`
+}
+
 type Collection struct {
-	Id string `gorm:"primaryKey"`
-	Name string
+	Id     string `gorm:"primaryKey"`
+	Name   string
 	UserId string
 }
 
 type Favorites struct {
-	PostId 		 string `gorm:"primaryKey"`
-	UserId 		 string `gorm:"primaryKey"`
+	PostId       string `gorm:"primaryKey"`
+	UserId       string `gorm:"primaryKey"`
 	CollectionId string
 }
 
@@ -52,17 +62,17 @@ type Like struct {
 }
 
 type Comment struct {
-	Id		string `gorm:"primaryKey"`
-	PostId  string
-	UserId  string
-	Content string
+	Id        string `gorm:"primaryKey"`
+	PostId    string
+	UserId    string
+	Content   string
 	CreatedAt time.Time
 }
 
 type HighLights struct {
-	Id string `gorm:"primaryKey"`
+	Id     string `gorm:"primaryKey"`
 	UserId string
-	Name string
+	Name   string
 }
 
 type RegistrationRequest struct {
@@ -73,22 +83,22 @@ type RegistrationRequest struct {
 }
 
 type Ad struct {
-	Id string `gorm:"primaryKey"`
-	Link string
-	CampaignId string
-	PostId string
+	Id           string `gorm:"primaryKey"`
+	Link         string
+	CampaignId   string
+	PostId       string
 	LinkClickNum int
 }
 
 type Campaign struct {
-	Id string `gorm:"primaryKey"`
-	IsOneTime bool
-	StartDate time.Time //TODO
-	EndDate time.Time //TODO
+	Id           string `gorm:"primaryKey"`
+	IsOneTime    bool
+	StartDate    time.Time //TODO
+	EndDate      time.Time //TODO
 	PlacementNum int
-	AgentId string
+	AgentId      string
 	IdAdCategory string
-	LastUpdated time.Time //TODO
+	LastUpdated  time.Time //TODO
 }
 
 type CampaignInfluencerRequest struct {
@@ -105,22 +115,19 @@ type ContentComplaint struct {
 }
 
 type AdCategory struct {
-	Id string `gorm:"primaryKey"`
+	Id   string `gorm:"primaryKey"`
 	Name string
 }
 
 type UserAdCategories struct {
-	UserId string `gorm:"primaryKey"`
+	UserId       string `gorm:"primaryKey"`
 	IdAdCategory string `gorm:"primaryKey"`
 }
 
 type CampaignChanges struct {
-	CampaignId string `gorm:"primaryKey"`
+	CampaignId   string `gorm:"primaryKey"`
 	AdCategoryId string
-	StartDate time.Time
-	EndDate time.Time
+	StartDate    time.Time
+	EndDate      time.Time
 	PlacementNum int
 }
-
-
-
