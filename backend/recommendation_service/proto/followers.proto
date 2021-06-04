@@ -48,6 +48,20 @@ service Followers {
             body: "user"
         };
     }
+
+    rpc UpdateUserConnection (CreateFollowerRequest) returns (CreateFollowerResponse) {
+        option(google.api.http) = {
+            post: "/api/followers/update_follower",
+            body: "follower"
+        };
+    }
+
+    rpc GetFollowersConnection (CreateFollowerRequest) returns (CreateFollowerResponse) {
+        option(google.api.http) = {
+            post: "/api/followers/get_follower",
+            body: "follower"
+        };
+    }
 }
 
 message Follower {
@@ -69,6 +83,10 @@ message CreateUserRequest {
 
 message CreateUserResponse {
     repeated User users = 1;
+}
+
+message CreateFollowerResponse {
+    Follower follower = 1;
 }
 
 message  CreateFollowerRequest {

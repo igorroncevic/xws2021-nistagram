@@ -31,6 +31,18 @@ func (user *User) ConvertToGrpc() *proto.User {
 	}
 }
 
+func (follower *Follower) ConvertToGrpc() *proto.Follower {
+	return &proto.Follower{
+		UserId: follower.UserId,
+		FollowerId: follower.FollowerId,
+		IsMuted: follower.IsMuted,
+		IsNotificationEnabled: follower.IsNotificationEnabled,
+		IsApprovedRequest: follower.IsApprovedRequest,
+		IsCloseFriends: follower.IsCloseFriends,
+	}
+}
+
+
 func (user *User) ConvertAllToGrpc(users []User) []*proto.User{
 	var protoUsers []*proto.User
 	for _, s := range users {

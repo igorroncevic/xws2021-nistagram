@@ -59,3 +59,11 @@ func (s *Server) CreateUser(ctx context.Context, in *proto.CreateUserRequest ) (
 	return s.followerController.CreateUser(ctx, in)
 }
 
+func (s *Server)  UpdateUserConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.CreateFollowerResponse,error){
+	return s.followerController.UpdateUserConnection(ctx, in)
+}
+func (s *Server) GetFollowersConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.CreateFollowerResponse, error) {
+	return s.followerController.GetFollowersConnection(ctx, in)
+}
+
+

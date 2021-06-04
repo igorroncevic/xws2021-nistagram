@@ -24,6 +24,8 @@ type FollowersClient interface {
 	DeleteDirectedConnection(ctx context.Context, in *CreateFollowerRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	DeleteBiDirectedConnection(ctx context.Context, in *CreateFollowerRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GetAllFollowing(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
+	UpdateUserConnection(ctx context.Context, in *CreateFollowerRequest, opts ...grpc.CallOption) (*CreateFollowerResponse, error)
+	GetFollowersConnection(ctx context.Context, in *CreateFollowerRequest, opts ...grpc.CallOption) (*CreateFollowerResponse, error)
 }
 
 type followersClient struct {
@@ -88,6 +90,24 @@ func (c *followersClient) GetAllFollowing(ctx context.Context, in *CreateUserReq
 	return out, nil
 }
 
+func (c *followersClient) UpdateUserConnection(ctx context.Context, in *CreateFollowerRequest, opts ...grpc.CallOption) (*CreateFollowerResponse, error) {
+	out := new(CreateFollowerResponse)
+	err := c.cc.Invoke(ctx, "/proto.Followers/UpdateUserConnection", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *followersClient) GetFollowersConnection(ctx context.Context, in *CreateFollowerRequest, opts ...grpc.CallOption) (*CreateFollowerResponse, error) {
+	out := new(CreateFollowerResponse)
+	err := c.cc.Invoke(ctx, "/proto.Followers/GetFollowersConnection", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FollowersServer is the server API for Followers service.
 // All implementations must embed UnimplementedFollowersServer
 // for forward compatibility
@@ -98,6 +118,8 @@ type FollowersServer interface {
 	DeleteDirectedConnection(context.Context, *CreateFollowerRequest) (*EmptyResponse, error)
 	DeleteBiDirectedConnection(context.Context, *CreateFollowerRequest) (*EmptyResponse, error)
 	GetAllFollowing(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
+	UpdateUserConnection(context.Context, *CreateFollowerRequest) (*CreateFollowerResponse, error)
+	GetFollowersConnection(context.Context, *CreateFollowerRequest) (*CreateFollowerResponse, error)
 	mustEmbedUnimplementedFollowersServer()
 }
 
@@ -122,6 +144,12 @@ func (UnimplementedFollowersServer) DeleteBiDirectedConnection(context.Context, 
 }
 func (UnimplementedFollowersServer) GetAllFollowing(context.Context, *CreateUserRequest) (*CreateUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllFollowing not implemented")
+}
+func (UnimplementedFollowersServer) UpdateUserConnection(context.Context, *CreateFollowerRequest) (*CreateFollowerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserConnection not implemented")
+}
+func (UnimplementedFollowersServer) GetFollowersConnection(context.Context, *CreateFollowerRequest) (*CreateFollowerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFollowersConnection not implemented")
 }
 func (UnimplementedFollowersServer) mustEmbedUnimplementedFollowersServer() {}
 
@@ -244,6 +272,42 @@ func _Followers_GetAllFollowing_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Followers_UpdateUserConnection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateFollowerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FollowersServer).UpdateUserConnection(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Followers/UpdateUserConnection",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FollowersServer).UpdateUserConnection(ctx, req.(*CreateFollowerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Followers_GetFollowersConnection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateFollowerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FollowersServer).GetFollowersConnection(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Followers/GetFollowersConnection",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FollowersServer).GetFollowersConnection(ctx, req.(*CreateFollowerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Followers_ServiceDesc is the grpc.ServiceDesc for Followers service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -274,6 +338,14 @@ var Followers_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllFollowing",
 			Handler:    _Followers_GetAllFollowing_Handler,
+		},
+		{
+			MethodName: "UpdateUserConnection",
+			Handler:    _Followers_UpdateUserConnection_Handler,
+		},
+		{
+			MethodName: "GetFollowersConnection",
+			Handler:    _Followers_GetFollowersConnection_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

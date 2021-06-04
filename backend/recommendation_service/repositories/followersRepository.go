@@ -15,6 +15,8 @@ type FollowersRepository interface {
 	CreateUser(context.Context, model.User) (bool, error)
 	DeleteDirectedConnection(context.Context, model.Follower) (bool, error)
 	DeleteBiDirectedConnection (context.Context, model.Follower) (bool, error)
+	UpdateUserConnection(context.Context, model.Follower) (*model.Follower,error)
+	GetFollowersConnection(context.Context, model.Follower) (*model.Follower, error)
 }
 
 type followersRepository struct {
@@ -109,6 +111,92 @@ func (repository *followersRepository) CreateUserConnection(ctx context.Context,
 		return false, err
 	}
 	return true, nil
+}
+
+func (repository *followersRepository) UpdateUserConnection(ctx context.Context, f model.Follower) (*model.Follower,error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserConnection")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	session := repository.driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
+	defer session.Close()
+
+	var follower = model.Follower{}
+	_ , err := session.WriteTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
+		result, err := transaction.Run(
+			"MATCH (a:User {id : $UserId})-[r:Follows]->(b:User {id : $FollowerId})" +
+				" SET r.IsMuted = $IsMuted, r.IsCloseFriend = $IsCloseFriend, r.IsApprovedRequest = $IsApprovedRequest, r.IsNotificationEnabled =  $IsNotificationEnabled" +
+				" RETURN r.UserId, r.FollowerId, r.IsMuted, r.IsCloseFriend, r.IsApprovedRequest, r.IsNotificationEnabled",
+			map[string]interface{}{
+				"UserId" : f.UserId,
+				"FollowerId" : f.FollowerId,
+				"IsMuted" : f.IsMuted,
+				"IsCloseFriend" : f.IsCloseFriends,
+				"IsApprovedRequest" : f.IsApprovedRequest,
+				"IsNotificationEnabled" : f.IsNotificationEnabled,
+			})
+
+		if err != nil {
+			return nil, err
+		}
+		if result.Next()  {
+			follower = model.Follower{
+				UserId: result.Record().Values[0].(string),
+				FollowerId: result.Record().Values[1].(string),
+				IsMuted: result.Record().Values[2].(bool),
+				IsCloseFriends: result.Record().Values[3].(bool),
+				IsApprovedRequest: result.Record().Values[4].(bool),
+				IsNotificationEnabled: result.Record().Values[5].(bool),
+			}
+			return nil, nil
+		}
+		return nil, errors.New("error: can not update users connection")
+	})
+	if err != nil{
+		return nil, err
+	}
+	return &follower, nil
+}
+
+func (repository *followersRepository) GetFollowersConnection(ctx context.Context, f model.Follower) (*model.Follower, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetFollowersConnection")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	session := repository.driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead})
+	defer session.Close()
+
+	var follower = model.Follower{}
+	_ , err := session.WriteTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
+		result, err := transaction.Run(
+			"MATCH (a:User {id : $UserId})-[r:Follows]->(b:User {id : $FollowerId})" +
+				" RETURN r.UserId, r.FollowerId, r.IsMuted, r.IsCloseFriend, r.IsApprovedRequest, r.IsNotificationEnabled",
+			map[string]interface{}{
+				"UserId" : f.UserId,
+				"FollowerId" : f.FollowerId,
+			})
+
+		if err != nil {
+			return nil, err
+		}
+		if result.Next()  {
+			follower = model.Follower{
+				UserId: result.Record().Values[0].(string),
+				FollowerId: result.Record().Values[1].(string),
+				IsMuted: result.Record().Values[2].(bool),
+				IsCloseFriends: result.Record().Values[3].(bool),
+				IsApprovedRequest: result.Record().Values[4].(bool),
+				IsNotificationEnabled: result.Record().Values[5].(bool),
+			}
+			return nil, nil
+		}
+		return nil, errors.New("error: can not get users connection ")
+	})
+	if err != nil{
+		return nil, err
+	}
+	return &follower, nil
+
 }
 
 func (repository *followersRepository) CreateUser(ctx context.Context, u model.User) (bool, error) {

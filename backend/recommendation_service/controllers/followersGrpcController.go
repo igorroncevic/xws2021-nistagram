@@ -111,4 +111,36 @@ func (controller *FollowersGrpcController) CreateUser(ctx context.Context, in *p
 	return  &proto.EmptyResponse{}, nil
 }
 
+func (controller *FollowersGrpcController)  UpdateUserConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.CreateFollowerResponse,error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserConnection")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var follower = model.Follower{}
+	follower = *follower.ConvertFromGrpc(in.Follower)
+	result, err := controller.service.UpdateUserConnection(ctx, follower)
+
+	if err != nil {
+		return nil, errors.New("Could not update follower info!")
+	}
+
+	return &proto.CreateFollowerResponse{Follower: result.ConvertToGrpc()}, nil
+}
+
+func (controller *FollowersGrpcController) GetFollowersConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.CreateFollowerResponse, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetFollowersConnection")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var follower = model.Follower{}
+	follower = *follower.ConvertFromGrpc(in.Follower)
+	result, err := controller.service.GetFollowersConnection(ctx, follower)
+
+	if err != nil {
+		return nil, errors.New("Could not update follower info!")
+	}
+
+	return &proto.CreateFollowerResponse{Follower: result.ConvertToGrpc()}, nil
+}
+
 

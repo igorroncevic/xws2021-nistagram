@@ -68,4 +68,20 @@ func (service *FollowersService) DeleteBiDirectedConnection(ctx context.Context,
 	return service.repository.DeleteBiDirectedConnection(ctx, f)
 }
 
+func (service *FollowersService)  UpdateUserConnection(ctx context.Context, f model.Follower) (*model.Follower,error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.UpdateUserConnection(ctx, f)
+}
+
+func (service *FollowersService) GetFollowersConnection(ctx context.Context, f model.Follower) (*model.Follower, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetFollowersConnection")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.GetFollowersConnection(ctx, f)
+}
+
 
