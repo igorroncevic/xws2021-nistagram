@@ -20,7 +20,7 @@ func NewLikeService(db *gorm.DB) (*LikeService, error){
 		return nil, err
 	}
 
-	contentRepository, err := repositories.NewContentRepo(db)
+	contentRepository, err := repositories.NewPostRepo(db)
 	if err != nil {
 		return nil, err
 	}

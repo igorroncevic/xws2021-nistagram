@@ -20,7 +20,7 @@ func NewCommentService(db *gorm.DB) (*CommentService, error){
 		return nil, err
 	}
 
-	contentRepository, err := repositories.NewContentRepo(db)
+	contentRepository, err := repositories.NewPostRepo(db)
 	if err != nil {
 		return nil, err
 	}

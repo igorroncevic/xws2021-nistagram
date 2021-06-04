@@ -33,7 +33,7 @@ func NewFavoritesRepo(db *gorm.DB) (*favoritesRepository, error) {
 		panic("FavoritesRepository not created, gorm.DB is nil")
 	}
 
-	contentRepository, _ := NewContentRepo(db)
+	contentRepository, _ := NewPostRepo(db)
 
 	return &favoritesRepository{ DB: db, contentRepository: contentRepository }, nil
 }

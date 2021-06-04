@@ -21,6 +21,18 @@ service Content {
       get: "/posts"
     };
   }
+
+  rpc RemovePost (RequestId) returns (EmptyResponse) {
+    option(google.api.http) = {
+      delete: "/posts/{id}"
+    };
+  }
+
+  rpc GetPostById (RequestId) returns (Post) {
+    option(google.api.http) = {
+      get: "/posts/{id}"
+    };
+  }
   /* * * * * * * * * * * * */
 
   /*    Comments    */

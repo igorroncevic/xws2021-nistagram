@@ -11,7 +11,7 @@ import (
 
 type Server struct {
 	contentpb.UnimplementedContentServer
-	contentController 	*ContentGrpcController
+	postController 	*PostGrpcController
 	commentController 	*CommentGrpcController
 	likeController	  	*LikeGrpcController
 	favoritesController *FavoritesGrpcController
@@ -20,14 +20,14 @@ type Server struct {
 }
 
 func NewServer(db *gorm.DB) (*Server, error) {
-	contentController, _ := NewContentController(db)
+	postController, _ := NewPostController(db)
 	commentController, _ := NewCommentController(db)
 	likeController, _ := NewLikeController(db)
 	favoritesController, _ := NewFavoritesController(db)
 	tracer, closer := tracer.Init("global_ContentGrpcController")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
-		contentController: contentController,
+		postController: postController,
 		commentController: commentController,
 		likeController: likeController,
 		favoritesController: favoritesController,
@@ -46,11 +46,19 @@ func (s *Server) GetCloser() io.Closer {
 
 /*   Posts   */
 func (s *Server) CreatePost(ctx context.Context, in *contentpb.Post) (*contentpb.EmptyResponse, error) {
-	return s.contentController.CreatePost(ctx, in)
+	return s.postController.CreatePost(ctx, in)
 }
 
 func (s *Server) GetAllPosts(ctx context.Context, in *contentpb.EmptyRequest) (*contentpb.ReducedPostArray, error) {
-	return s.contentController.GetAllPosts(ctx, in)
+	return s.postController.GetAllPosts(ctx, in)
+}
+
+func (s *Server) GetPostById(ctx context.Context, in *contentpb.RequestId) (*contentpb.Post, error) {
+	return s.postController.GetPostById(ctx, in.Id)
+}
+
+func (s *Server) RemovePost(ctx context.Context, in *contentpb.RequestId) (*contentpb.EmptyResponse, error) {
+	return s.postController.RemovePost(ctx, in.Id)
 }
 
 /*   Comments   */

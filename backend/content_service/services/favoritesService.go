@@ -10,7 +10,7 @@ import (
 
 type FavoritesService struct {
 	favoritesRepository repositories.FavoritesRepository
-	contentService      *ContentService
+	contentService      *PostService
 }
 
 func NewFavoritesService(db *gorm.DB) (*FavoritesService, error){
@@ -19,7 +19,7 @@ func NewFavoritesService(db *gorm.DB) (*FavoritesService, error){
 		return nil, err
 	}
 
-	contentService, err := NewContentService(db)
+	contentService, err := NewPostService(db)
 	if err != nil {
 		return nil, err
 	}

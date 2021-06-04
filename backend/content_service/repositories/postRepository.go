@@ -25,7 +25,7 @@ type postRepository struct {
 	tagRepository   TagRepository
 }
 
-func NewContentRepo(db *gorm.DB) (*postRepository, error) {
+func NewPostRepo(db *gorm.DB) (*postRepository, error) {
 	if db == nil {
 		panic("PostRepository not created, gorm.DB is nil")
 	}
@@ -119,6 +119,11 @@ func (repository *postRepository) RemovePost(ctx context.Context, postId string)
 			return errors.New("cannot remove non-existing post")
 		}
 
+		result = repository.DB.Delete(&post)
+		if result.Error != nil || result.RowsAffected != 1 {
+			return errors.New("cannot remove post")
+		}
+
 		postMedia, err := repository.mediaRepository.GetMediaForPost(ctx, post.Id)
 		if err != nil {
 			return errors.New("cannot retrieve post's media")
@@ -132,10 +137,10 @@ func (repository *postRepository) RemovePost(ctx context.Context, postId string)
 				}
 
 				for _, tag := range mediaTags{
-					var tagPers persistence.Tag
-					tagPers.ConvertToPersistence(tag)
+					var tagPers *persistence.Tag
+					tagPers = tagPers.ConvertToPersistence(tag)
 
-					err := repository.tagRepository.RemoveTag(ctx, tagPers)
+					err := repository.tagRepository.RemoveTag(ctx, *tagPers)
 					if err != nil {
 						return err
 					}
