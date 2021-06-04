@@ -1,7 +1,8 @@
 import React from 'react';
 import HomePage from "./HomePage";
 import Card from "../CardComponent/Card";
-import Story from "../FrontPageComponents/Story";
+import StoryContent from "./StoryContent";
+import Stories from "../Story/Stories";
 
 
 function PostsAndStories() {
@@ -9,7 +10,7 @@ function PostsAndStories() {
 
         <div className='home'>
             <HomePage />
-            {/*<Story />*/}
+            <Stories />
             <h1>Search, Postovi i storiji</h1>
             <Card/>
 
