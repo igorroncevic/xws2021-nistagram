@@ -16,6 +16,7 @@ type Server struct {
 	likeController	  	*LikeGrpcController
 	favoritesController *FavoritesGrpcController
 	storyController		*StoryGrpcController
+	highlightController *HighlightGrpcController
 	tracer otgo.Tracer
 	closer io.Closer
 }
@@ -26,6 +27,7 @@ func NewServer(db *gorm.DB) (*Server, error) {
 	commentController, _ := NewCommentController(db)
 	likeController, _ := NewLikeController(db)
 	favoritesController, _ := NewFavoritesController(db)
+	highlightController, _ := NewHighlightController(db)
 	tracer, closer := tracer.Init("global_ContentGrpcController")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
@@ -34,6 +36,7 @@ func NewServer(db *gorm.DB) (*Server, error) {
 		likeController: likeController,
 		favoritesController: favoritesController,
 		storyController: storyController,
+		highlightController: highlightController,
 		tracer: tracer,
 		closer: closer,
 	}, nil
@@ -128,5 +131,28 @@ func (s *Server) RemoveFavorite(ctx context.Context, in *contentpb.FavoritesRequ
 	return s.favoritesController.RemoveFavorite(ctx, in)
 }
 
+/*   Highlights   */
+func (s *Server) GetAllHighlights(ctx context.Context, in *contentpb.RequestId) (*contentpb.HighlightsArray, error) {
+	return s.highlightController.GetAllHighlights(ctx, in)
+}
 
+func (s *Server) GetHighlight(ctx context.Context, in *contentpb.RequestId) (*contentpb.Highlight, error) {
+	return s.highlightController.GetHighlight(ctx, in)
+}
+
+func (s *Server) CreateHighlight(ctx context.Context, in *contentpb.Highlight) (*contentpb.EmptyResponse, error) {
+	return s.highlightController.CreateHighlight(ctx, in)
+}
+
+func (s *Server) RemoveHighlight(ctx context.Context, in *contentpb.RequestId) (*contentpb.EmptyResponse, error) {
+	return s.highlightController.RemoveHighlight(ctx, in)
+}
+
+func (s *Server) CreateHighlightStory(ctx context.Context, in *contentpb.HighlightRequest) (*contentpb.EmptyResponse, error) {
+	return s.highlightController.CreateHighlightStory(ctx, in)
+}
+
+func (s *Server) RemoveHighlightStory(ctx context.Context, in *contentpb.HighlightRequest) (*contentpb.EmptyResponse, error) {
+	return s.highlightController.RemoveHighlightStory(ctx, in)
+}
 

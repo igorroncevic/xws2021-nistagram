@@ -83,6 +83,65 @@ func (s *Story) ConvertFromGrpc(story *contentpb.Story) *Story {
 	}
 }
 
+// HighlightRequest Converters
+func (hr HighlightRequest) ConvertToGrpc() *contentpb.HighlightRequest {
+	return &contentpb.HighlightRequest{
+		UserId:      hr.UserId,
+		HighlightId: hr.HighlightId,
+		StoryId:     hr.StoryId,
+	}
+}
+
+func (hr *HighlightRequest) ConvertFromGrpc(request *contentpb.HighlightRequest) *HighlightRequest {
+	if request == nil { request = &contentpb.HighlightRequest{} }
+	return &HighlightRequest{
+		UserId:      request.UserId,
+		HighlightId: request.HighlightId,
+		StoryId:     request.StoryId,
+	}
+}
+
+// HighlightRequest Converters
+func (h Highlight) ConvertToGrpc() *contentpb.Highlight {
+	return &contentpb.Highlight{
+		Id:      h.Id,
+		Name:    h.Name,
+		UserId:  h.UserId,
+		Stories: ConvertMultipleStoriesToGrpc(h.Stories),
+	}
+}
+
+func (h *Highlight) ConvertFromGrpc(request *contentpb.Highlight) *Highlight {
+	if request == nil { request = &contentpb.Highlight{} }
+	return &Highlight{
+		Id:      request.Id,
+		Name:    request.Name,
+		UserId:  request.UserId,
+		Stories: ConvertMultipleStoriesFromGrpc(request.Stories),
+	}
+}
+
+func ConvertMultipleStoriesFromGrpc(stories []*contentpb.Story) []Story {
+	convertedStories := []Story{}
+	for _, story := range stories {
+		var converted *Story
+		converted = converted.ConvertFromGrpc(story)
+
+		convertedStories = append(convertedStories, *converted)
+	}
+
+	return convertedStories
+}
+
+func ConvertMultipleStoriesToGrpc(stories []Story) []*contentpb.Story{
+	grpcStories := []*contentpb.Story{}
+	for _, story := range stories {
+		grpcStories = append(grpcStories, story.ConvertToGrpc())
+	}
+
+	return grpcStories
+}
+
 // ReducedPost Converters
 func (p ReducedPost) ConvertToGrpc() *contentpb.ReducedPost {
 	return &contentpb.ReducedPost{

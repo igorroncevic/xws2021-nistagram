@@ -43,6 +43,13 @@ type ContentClient interface {
 	GetUserFavorites(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Favorites, error)
 	CreateFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	RemoveFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	//   Highlights
+	GetAllHighlights(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*HighlightsArray, error)
+	GetHighlight(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Highlight, error)
+	CreateHighlight(ctx context.Context, in *Highlight, opts ...grpc.CallOption) (*EmptyResponse, error)
+	RemoveHighlight(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponse, error)
+	CreateHighlightStory(ctx context.Context, in *HighlightRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	RemoveHighlightStory(ctx context.Context, in *HighlightRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 }
 
 type contentClient struct {
@@ -233,6 +240,60 @@ func (c *contentClient) RemoveFavorite(ctx context.Context, in *FavoritesRequest
 	return out, nil
 }
 
+func (c *contentClient) GetAllHighlights(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*HighlightsArray, error) {
+	out := new(HighlightsArray)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetAllHighlights", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) GetHighlight(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Highlight, error) {
+	out := new(Highlight)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetHighlight", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) CreateHighlight(ctx context.Context, in *Highlight, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Content/CreateHighlight", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) RemoveHighlight(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Content/RemoveHighlight", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) CreateHighlightStory(ctx context.Context, in *HighlightRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Content/CreateHighlightStory", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) RemoveHighlightStory(ctx context.Context, in *HighlightRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Content/RemoveHighlightStory", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ContentServer is the server API for Content service.
 // All implementations must embed UnimplementedContentServer
 // for forward compatibility
@@ -262,6 +323,13 @@ type ContentServer interface {
 	GetUserFavorites(context.Context, *RequestId) (*Favorites, error)
 	CreateFavorite(context.Context, *FavoritesRequest) (*EmptyResponse, error)
 	RemoveFavorite(context.Context, *FavoritesRequest) (*EmptyResponse, error)
+	//   Highlights
+	GetAllHighlights(context.Context, *RequestId) (*HighlightsArray, error)
+	GetHighlight(context.Context, *RequestId) (*Highlight, error)
+	CreateHighlight(context.Context, *Highlight) (*EmptyResponse, error)
+	RemoveHighlight(context.Context, *RequestId) (*EmptyResponse, error)
+	CreateHighlightStory(context.Context, *HighlightRequest) (*EmptyResponse, error)
+	RemoveHighlightStory(context.Context, *HighlightRequest) (*EmptyResponse, error)
 	mustEmbedUnimplementedContentServer()
 }
 
@@ -328,6 +396,24 @@ func (UnimplementedContentServer) CreateFavorite(context.Context, *FavoritesRequ
 }
 func (UnimplementedContentServer) RemoveFavorite(context.Context, *FavoritesRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveFavorite not implemented")
+}
+func (UnimplementedContentServer) GetAllHighlights(context.Context, *RequestId) (*HighlightsArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllHighlights not implemented")
+}
+func (UnimplementedContentServer) GetHighlight(context.Context, *RequestId) (*Highlight, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHighlight not implemented")
+}
+func (UnimplementedContentServer) CreateHighlight(context.Context, *Highlight) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateHighlight not implemented")
+}
+func (UnimplementedContentServer) RemoveHighlight(context.Context, *RequestId) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveHighlight not implemented")
+}
+func (UnimplementedContentServer) CreateHighlightStory(context.Context, *HighlightRequest) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateHighlightStory not implemented")
+}
+func (UnimplementedContentServer) RemoveHighlightStory(context.Context, *HighlightRequest) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveHighlightStory not implemented")
 }
 func (UnimplementedContentServer) mustEmbedUnimplementedContentServer() {}
 
@@ -702,6 +788,114 @@ func _Content_RemoveFavorite_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Content_GetAllHighlights_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetAllHighlights(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetAllHighlights",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetAllHighlights(ctx, req.(*RequestId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_GetHighlight_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetHighlight(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetHighlight",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetHighlight(ctx, req.(*RequestId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_CreateHighlight_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Highlight)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).CreateHighlight(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/CreateHighlight",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).CreateHighlight(ctx, req.(*Highlight))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_RemoveHighlight_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).RemoveHighlight(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/RemoveHighlight",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).RemoveHighlight(ctx, req.(*RequestId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_CreateHighlightStory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HighlightRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).CreateHighlightStory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/CreateHighlightStory",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).CreateHighlightStory(ctx, req.(*HighlightRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_RemoveHighlightStory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HighlightRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).RemoveHighlightStory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/RemoveHighlightStory",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).RemoveHighlightStory(ctx, req.(*HighlightRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Content_ServiceDesc is the grpc.ServiceDesc for Content service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -788,6 +982,30 @@ var Content_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveFavorite",
 			Handler:    _Content_RemoveFavorite_Handler,
+		},
+		{
+			MethodName: "GetAllHighlights",
+			Handler:    _Content_GetAllHighlights_Handler,
+		},
+		{
+			MethodName: "GetHighlight",
+			Handler:    _Content_GetHighlight_Handler,
+		},
+		{
+			MethodName: "CreateHighlight",
+			Handler:    _Content_CreateHighlight_Handler,
+		},
+		{
+			MethodName: "RemoveHighlight",
+			Handler:    _Content_RemoveHighlight_Handler,
+		},
+		{
+			MethodName: "CreateHighlightStory",
+			Handler:    _Content_CreateHighlightStory_Handler,
+		},
+		{
+			MethodName: "RemoveHighlightStory",
+			Handler:    _Content_RemoveHighlightStory_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

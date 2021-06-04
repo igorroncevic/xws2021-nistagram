@@ -174,8 +174,9 @@ func (repository *postRepository) GetCollectionsPosts(ctx context.Context, id st
 
 	posts := []persistence.Post{}
 	result := repository.DB.Model(&persistence.Post{}).
-		Joins("left join collections ON posts.id = collections.id").
-		Where("collections.id = id").
+		Joins("left join favorites   ON posts.id = favorites.post_id").
+		Joins("left join collections ON favorites.collection_id = collections.id").
+		Where("collections.id = ?", id).
 		Find(&posts)
 
 	if result.Error != nil {

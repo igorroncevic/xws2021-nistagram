@@ -117,3 +117,21 @@ func (service *StoryService) retrieveStoryAdditionalData(ctx context.Context, st
 
 	return converted, nil
 }
+
+func (service *StoryService) GetStoriesFromHighlight(ctx context.Context, highlightId string) ([]domain.Story, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetStoriesFromHighlight")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	dbStories, err := service.storyRepository.GetHighlightsStories(ctx, highlightId)
+	if err != nil { return []domain.Story{}, err }
+
+	stories := []domain.Story{}
+	for _, dbStory := range dbStories {
+		story, err := service.retrieveStoryAdditionalData(ctx, dbStory)
+		if err != nil { return []domain.Story{}, err }
+		stories = append(stories, story)
+	}
+
+	return stories, nil
+}

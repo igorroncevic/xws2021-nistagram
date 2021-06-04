@@ -59,10 +59,15 @@ type Comment struct {
 	CreatedAt time.Time
 }
 
-type HighLights struct {
+type Highlight struct {
 	Id string `gorm:"primaryKey"`
 	UserId string
 	Name string
+}
+
+type HighlightStory struct {
+	HighlightId string `gorm:"primaryKey"`
+	StoryId     string `gorm:"primaryKey"`
 }
 
 type RegistrationRequest struct {

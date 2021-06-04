@@ -74,13 +74,13 @@ func (s Story) ConvertToPersistence(story domain.Story) Story {
 func (s Story) ConvertToDomain(media []domain.Media) domain.Story {
 	return domain.Story{
 		Objava: domain.Objava {
-			Id:          uuid.NewV4().String(),
+			Id:          s.Id,
 			UserId:      s.UserId,
 			IsAd:        s.IsAd,
 			Type:        s.Type,
 			Description: s.Description,
 			Location:    s.Location,
-			CreatedAt:   time.Now(),
+			CreatedAt:   s.CreatedAt,
 			Media: media,
 		},
 		IsCloseFriends: s.IsCloseFriends,
@@ -201,5 +201,32 @@ func (c *Collection) ConvertToPersistence(collection domain.Collection) *Collect
 		Id:     uuid.NewV4().String(),
 		Name:   collection.Name,
 		UserId: collection.UserId,
+	}
+}
+
+/* Highlights */
+func (h Highlight) ConvertToDomain(stories []domain.Story) domain.Highlight {
+	return domain.Highlight{
+		Id:      h.Id,
+		Name:    h.Name,
+		UserId:  h.UserId,
+		Stories: stories,
+	}
+}
+
+func (h *Highlight) ConvertToPersistence(highlight domain.Highlight) *Highlight{
+	if h == nil { h = &Highlight{} }
+	return &Highlight{
+		Id:     uuid.NewV4().String(),
+		UserId: highlight.UserId,
+		Name:   highlight.Name,
+	}
+}
+
+func (c *HighlightStory) ConvertToPersistence(request domain.HighlightRequest) *HighlightStory{
+	if c == nil { c = &HighlightStory{} }
+	return &HighlightStory{
+		HighlightId: request.HighlightId,
+		StoryId:     request.StoryId,
 	}
 }
