@@ -1,4 +1,3 @@
-import ProfileIcon from "./ProfileIcon";
 import '../../style/Story.css';
 import '../../style/ProfileIcon.css';
 import Stories from "react-insta-stories";

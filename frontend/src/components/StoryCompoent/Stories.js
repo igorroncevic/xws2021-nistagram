@@ -3,7 +3,7 @@ import Story from "./Story";
 import '../../style/Stories.css';
 
 //iz baze iscupaj sve objavljene storije
-//Svakkom Story-u proslediti usera koji ga je objavio i media
+//Svakkom StoryCompoent-u proslediti usera koji ga je objavio i media
 function Stories() {
     return (
         <div className="stories">

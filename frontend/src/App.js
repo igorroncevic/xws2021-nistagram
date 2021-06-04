@@ -4,13 +4,12 @@ import {ForgotPasswordPage} from './pages/forgotPass/ForgotPasswordPage.js'
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import RegistrationPage from "./pages/RegistrationPage";
-import PostsAndStories from "./components/FrontPageComponents/PostsAndStories";
-import ProfilePage from "./components/FrontPageComponents/ProfilePage";
-import Chats from "./components/FrontPageComponents/Chats";
-import Saved from "./components/FrontPageComponents/Saved";
-import HomePage from "./components/FrontPageComponents/HomePage";
+import PostsAndStories from "./components/HomePageComponents/PostsAndStories";
+import Chats from "./components/HomePageComponents/Chats";
+import Saved from "./components/HomePageComponents/Saved";
+import HomePage from "./components/HomePageComponents/HomePage";
 import Search from "./pages/Search";
-import Profile from "./components/FrontPageComponents/Profile";
+import Profile from "./components/ProfileComponent/Profile";
 
 
 

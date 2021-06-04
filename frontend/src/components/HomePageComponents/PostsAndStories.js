@@ -1,7 +1,7 @@
 import React from 'react';
 import HomePage from "./HomePage";
-import Stories from "../Story/Stories";
-import Posts from "../CardComponent/Posts";
+import Stories from "../StoryCompoent/Stories";
+import Posts from "../PostComponent/Posts";
 
 
 function PostsAndStories() {

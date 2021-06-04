@@ -1,5 +1,5 @@
 import React, {Component, useEffect, useState} from "react";
-import "../../style/Card.css";
+import "../../style/Post.css";
 import axios from "axios";
 import {Button} from "react-bootstrap";
 import {LikeButton, UpdownButton} from '@lyket/react';
