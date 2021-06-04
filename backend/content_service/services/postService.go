@@ -5,19 +5,22 @@ import (
 	"errors"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
+	userspb "github.com/david-drvar/xws2021-nistagram/content_service/proto_intercommunication"
 	"github.com/david-drvar/xws2021-nistagram/content_service/repositories"
+	"google.golang.org/grpc"
 	"gorm.io/gorm"
+	"log"
 )
 
 type PostService struct {
-	postRepository repositories.PostRepository
+	postRepository    repositories.PostRepository
 	commentRepository repositories.CommentRepository
-	likeRepository 	  repositories.LikeRepository
+	likeRepository    repositories.LikeRepository
 	mediaRepository   repositories.MediaRepository
-	tagRepository	  repositories.TagRepository
+	tagRepository     repositories.TagRepository
 }
 
-func NewPostService(db *gorm.DB) (*PostService, error){
+func NewPostService(db *gorm.DB) (*PostService, error) {
 	postRepository, err := repositories.NewPostRepo(db)
 	if err != nil {
 		return nil, err
@@ -60,12 +63,12 @@ func (service *PostService) GetAllPosts(ctx context.Context) ([]domain.ReducedPo
 	posts := []domain.ReducedPost{}
 
 	dbPosts, err := service.postRepository.GetAllPosts(ctx)
-	if err != nil{
+	if err != nil {
 		return posts, err
 	}
 
 	// TODO Retrieve all domain data
-	for _, post := range dbPosts{
+	for _, post := range dbPosts {
 		converted, err := service.GetReducedPostData(ctx, post.Id)
 		if err != nil {
 			return []domain.ReducedPost{}, err
@@ -106,41 +109,57 @@ func (service *PostService) GetPostById(ctx context.Context, id string) (domain.
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	if id == "" { return domain.Post{}, errors.New("cannot retrieve post") }
+	if id == "" {
+		return domain.Post{}, errors.New("cannot retrieve post")
+	}
 
 	dbPost, err := service.postRepository.GetPostById(ctx, id)
-	if err != nil { return domain.Post{}, err }
+	if err != nil {
+		return domain.Post{}, err
+	}
 
 	dbComments, err := service.commentRepository.GetCommentsForPost(ctx, dbPost.Id)
-	if err != nil { return domain.Post{}, err }
+	if err != nil {
+		return domain.Post{}, err
+	}
 	comments := []domain.Comment{}
-	for _, comment := range dbComments{
+	for _, comment := range dbComments {
 		comments = append(comments, comment.ConvertToDomain("someusername")) // TODO Retrieve usernames from other service
 	}
 
 	dbLikes, err := service.likeRepository.GetLikesForPost(ctx, dbPost.Id, true)
-	if err != nil { return domain.Post{}, err }
+	if err != nil {
+		return domain.Post{}, err
+	}
 	likes := []domain.Like{}
-	for _, like := range dbLikes{
+	for _, like := range dbLikes {
 		likes = append(likes, like.ConvertToDomain()) // TODO Retrieve usernames from other service
 	}
 
 	dbDislikes, err := service.likeRepository.GetLikesForPost(ctx, dbPost.Id, false)
-	if err != nil { return domain.Post{}, err }
+	if err != nil {
+		return domain.Post{}, err
+	}
 	dislikes := []domain.Like{}
-	for _, dislike := range dbDislikes{
+	for _, dislike := range dbDislikes {
 		dislikes = append(dislikes, dislike.ConvertToDomain()) // TODO Retrieve usernames from other service
 	}
 
 	dbMedia, err := service.mediaRepository.GetMediaForPost(ctx, dbPost.Id)
-	if err != nil { return domain.Post{}, err }
+	if err != nil {
+		return domain.Post{}, err
+	}
 	media := []domain.Media{}
-	for _, single := range dbMedia{
+	for _, single := range dbMedia {
 		tags, err := service.tagRepository.GetTagsForMedia(ctx, single.Id)
-		if err != nil { return domain.Post{}, err }
+		if err != nil {
+			return domain.Post{}, err
+		}
 
 		converted, err := single.ConvertToDomain(tags)
-		if err != nil { return domain.Post{}, err }
+		if err != nil {
+			return domain.Post{}, err
+		}
 
 		media = append(media, converted)
 	}
@@ -150,13 +169,13 @@ func (service *PostService) GetPostById(ctx context.Context, id string) (domain.
 	return post, nil
 }
 
-func (service *PostService) GetReducedPostData(ctx context.Context, postId string) (domain.ReducedPost, error){
+func (service *PostService) GetReducedPostData(ctx context.Context, postId string) (domain.ReducedPost, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetReducedPostData")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	commentsNum, err := service.commentRepository.GetCommentsNumForPost(ctx, postId)
-	if err != nil{
+	if err != nil {
 		return domain.ReducedPost{}, errors.New("unable to retrieve posts comments")
 	}
 
@@ -176,7 +195,7 @@ func (service *PostService) GetReducedPostData(ctx context.Context, postId strin
 	}
 
 	convertedMedia := []domain.Media{}
-	for _, single := range media{
+	for _, single := range media {
 		tags, err := service.tagRepository.GetTagsForMedia(ctx, single.Id)
 		if err != nil {
 			return domain.ReducedPost{}, errors.New("unable to retrieve media tags")
@@ -195,8 +214,93 @@ func (service *PostService) GetReducedPostData(ctx context.Context, postId strin
 	}
 
 	post, err := service.postRepository.GetPostById(ctx, postId)
-	if err != nil { return domain.ReducedPost{}, err }
+	if err != nil {
+		return domain.ReducedPost{}, err
+	}
 
 	retVal := post.ConvertToDomainReduced(commentsNum, likes, dislikes, convertedMedia)
 	return retVal, nil
+}
+
+func (service *PostService) SearchContentByLocation(ctx context.Context, location string) ([]domain.ReducedPost, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreatePost")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	posts := []domain.ReducedPost{}
+
+	var conn *grpc.ClientConn
+	conn, err := grpc.Dial(":8091", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("did not connect: %s", err)
+	}
+	defer conn.Close()
+
+	c := userspb.NewPrivacyClient(conn)
+
+	dbPosts, err := service.postRepository.GetPostsByLocation(ctx, location)
+	if err != nil {
+		return posts, err
+	}
+
+	for _, post := range dbPosts {
+		commentsNum, err := service.commentRepository.GetCommentsNumForPost(ctx, post.Id)
+		if err != nil {
+			return []domain.ReducedPost{}, errors.New("unable to retrieve posts comments")
+		}
+
+		likes, err := service.likeRepository.GetLikesNumForPost(ctx, post.Id, true)
+		if err != nil {
+			return []domain.ReducedPost{}, errors.New("unable to retrieve posts likes")
+		}
+
+		dislikes, err := service.likeRepository.GetLikesNumForPost(ctx, post.Id, false)
+		if err != nil {
+			return []domain.ReducedPost{}, errors.New("unable to retrieve posts dislikes")
+		}
+
+		media, err := service.mediaRepository.GetMediaForPost(ctx, post.Id)
+		if err != nil {
+			return []domain.ReducedPost{}, errors.New("unable to retrieve posts media")
+		}
+
+		convertedMedia := []domain.Media{}
+		for _, single := range media {
+			tags, err := service.tagRepository.GetTagsForMedia(ctx, single.Id)
+			if err != nil {
+				return []domain.ReducedPost{}, errors.New("unable to retrieve media tags")
+			}
+
+			converted, err := single.ConvertToDomain(tags)
+			if err != nil {
+				return []domain.ReducedPost{}, errors.New("unable to convert media")
+			}
+
+			convertedMedia = append(convertedMedia, converted)
+		}
+
+		if err != nil {
+			return []domain.ReducedPost{}, errors.New("unable to convert posts media")
+		}
+
+		posts = append(posts, post.ConvertToDomainReduced(commentsNum, likes, dislikes, convertedMedia))
+	}
+
+	finalPosts := []domain.ReducedPost{}
+
+	//call user service to check if users profile is public
+	for _, post := range posts {
+		privacyRequest := userspb.PrivacyRequest{
+			UserId: post.UserId,
+		}
+		response, err := c.CheckUserProfilePublic(context.Background(), &privacyRequest)
+		if err != nil {
+			log.Fatalf("Error when calling CheckUserProfilePublic: %s", err)
+		}
+		if response.Response {
+			finalPosts = append(finalPosts, post)
+		}
+	}
+
+	return finalPosts, nil
 }

@@ -116,7 +116,6 @@ service Content {
       body: "*"
     };
   }
-}
 
   rpc RemoveFavorite (FavoritesRequest) returns (EmptyResponse) {
     option(google.api.http) = {
