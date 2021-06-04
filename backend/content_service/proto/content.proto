@@ -33,6 +33,20 @@ service Content {
       get: "/posts/{id}"
     };
   }
+
+  rpc SearchContentByLocation (SearchLocationRequest) returns (ReducedPostArray) {
+    option(google.api.http) = {
+      post: "/location",
+      body: "*"
+    };
+  }
+
+  rpc GetPostsByHashtag (Hashtag) returns (ReducedPostArray) {
+    option(google.api.http) = {
+      post: "/posts-by-hashtag",
+      body: "*"
+    };
+  }
   /* * * * * * * * * * * * */
 
   /*    Comments    */
@@ -117,6 +131,15 @@ service Content {
     };
   }
   /* * * * * * * * * * * * */
+
+  /* Hashtags */
+  rpc CreateHashtag (Hashtag) returns (Hashtag) {
+    option(google.api.http) = {
+      post: "/hashtag/create",
+      body: "*"
+    };
+  }
+
 }
 
 /*    Posts    */
@@ -164,6 +187,11 @@ message Tag {
   string username = 3;
 }
 
+message Hashtag {
+  string id = 1;
+  string text = 2;
+}
+
 message ReducedPostArray {
   repeated ReducedPost posts = 1;
 }
@@ -195,6 +223,7 @@ message Highlight {
 message StoryArray {
   repeated Story stories = 1;
 }
+
 /* * * * * * * * * * * * */
 
 /* Collections & Favorites */
@@ -252,6 +281,10 @@ message CommentsArray {
 /*    Multi-usage messages    */
 message RequestId {
   string id = 1;
+}
+
+message SearchLocationRequest {
+  string location = 1;
 }
 
 message EmptyRequest {}

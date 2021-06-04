@@ -11,6 +11,7 @@ import (
 
 type Server struct {
 	userspb.UnimplementedUsersServer
+	userspb.UnimplementedPrivacyServer
 	userController    *UserGrpcController
 	privacyController *PrivacyGrpcController
 	tracer            otgo.Tracer
@@ -72,4 +73,8 @@ func (s *Server) UnBlockUser(ctx context.Context, in *userspb.CreateBlockRequest
 
 func (s *Server) SearchUser(ctx context.Context, in *userspb.SearchUserDtoRequest) (*userspb.UsersResponse, error) {
 	return s.userController.SearchUser(ctx, in)
+}
+
+func (s *Server) CheckUserProfilePublic(ctx context.Context, in *userspb.PrivacyRequest) (*userspb.BooleanResponse, error) {
+	return s.privacyController.CheckUserProfilePublic(ctx, in)
 }

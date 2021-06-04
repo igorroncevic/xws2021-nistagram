@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Alert, Button, Dropdown, DropdownButton, FormControl, InputGroup} from "react-bootstrap";
+import {Alert, Button, Dropdown, DropdownButton, FormControl, InputGroup, Card} from "react-bootstrap";
 import axios from "axios";
 
 export default function Search() {
@@ -9,7 +9,7 @@ export default function Search() {
     const [inputErr, setInputErr] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
-
+    const [searchResult, setSearchResult] = useState([]);
 
 
     function searchByUser() {
@@ -20,6 +20,8 @@ export default function Search() {
                 "lastName" : lastName
             })
             .then(res => {
+                setSearchResult(res.data.users);
+                console.log(res.data.users);
             }).catch(res => {
         })
     }
@@ -69,6 +71,22 @@ export default function Search() {
         }
     }
 
+    if (searchCategory === 'User' && searchResult.length > 0) {
+        var userResults = searchResult.map((user, i) =>
+            <Card style={{ width: '18rem' }}>
+                <Card.Img variant="top" src="holder.js/100px180" alt="user pic"/>
+                <Card.Body>
+                    <Card.Title>@{user.username} ({user.firstName} {user.lastName})</Card.Title>
+                    <Card.Text>
+                        {user.biography}
+                    </Card.Text>
+                    <Button variant="primary">Visit profile</Button>
+                </Card.Body>
+            </Card>
+        );
+    }
+
+
     return (
         <div  className="App">
             <h1 style={{marginLeft : "30px"}}>Search</h1>
@@ -103,6 +121,13 @@ export default function Search() {
                     <Button variant="primary" onClick={search}>Search</Button>{' '}
                 </div>
             </div>
+            <br/><br/>
+            <h2 style={{marginLeft : "30px"}}>Results:</h2>
+            {searchResult.length > 0 && searchCategory === 'User' &&
+                <ul style={{marginLeft : "30px"}}>
+                    {userResults}
+                </ul>
+            }
         </div>
     );
 }

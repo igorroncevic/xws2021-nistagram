@@ -6,7 +6,7 @@ import (
 )
 
 func FillDatabase(db *gorm.DB) error {
-	if db.Migrator().HasTable(&persistence.Post{}){
+	if db.Migrator().HasTable(&persistence.Post{}) {
 		db.Migrator().DropTable(&persistence.Post{},
 			&persistence.Story{},
 			&persistence.Media{},
@@ -24,6 +24,8 @@ func FillDatabase(db *gorm.DB) error {
 			&persistence.AdCategory{},
 			&persistence.UserAdCategories{},
 			&persistence.CampaignChanges{},
+			&persistence.Hashtag{},
+			&persistence.HashtagObjava{},
 		)
 	}
 
@@ -44,6 +46,8 @@ func FillDatabase(db *gorm.DB) error {
 		&persistence.AdCategory{},
 		&persistence.UserAdCategories{},
 		&persistence.CampaignChanges{},
+		&persistence.Hashtag{},
+		&persistence.HashtagObjava{},
 	)
 
 	return err

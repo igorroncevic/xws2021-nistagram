@@ -11,7 +11,6 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-// Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
 // ContentClient is the client API for Content service.
@@ -23,6 +22,8 @@ type ContentClient interface {
 	GetAllPosts(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*ReducedPostArray, error)
 	RemovePost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GetPostById(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Post, error)
+	SearchContentByLocation(ctx context.Context, in *SearchLocationRequest, opts ...grpc.CallOption) (*ReducedPostArray, error)
+	GetPostsByHashtag(ctx context.Context, in *Hashtag, opts ...grpc.CallOption) (*ReducedPostArray, error)
 	//    Comments
 	CreateComment(ctx context.Context, in *Comment, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GetCommentsForPost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*CommentsArray, error)
@@ -38,6 +39,8 @@ type ContentClient interface {
 	GetUserFavorites(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Favorites, error)
 	CreateFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	RemoveFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	// Hashtags
+	CreateHashtag(ctx context.Context, in *Hashtag, opts ...grpc.CallOption) (*Hashtag, error)
 }
 
 type contentClient struct {
@@ -78,6 +81,24 @@ func (c *contentClient) RemovePost(ctx context.Context, in *RequestId, opts ...g
 func (c *contentClient) GetPostById(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Post, error) {
 	out := new(Post)
 	err := c.cc.Invoke(ctx, "/proto.Content/GetPostById", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) SearchContentByLocation(ctx context.Context, in *SearchLocationRequest, opts ...grpc.CallOption) (*ReducedPostArray, error) {
+	out := new(ReducedPostArray)
+	err := c.cc.Invoke(ctx, "/proto.Content/SearchContentByLocation", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) GetPostsByHashtag(ctx context.Context, in *Hashtag, opts ...grpc.CallOption) (*ReducedPostArray, error) {
+	out := new(ReducedPostArray)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetPostsByHashtag", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -192,6 +213,15 @@ func (c *contentClient) RemoveFavorite(ctx context.Context, in *FavoritesRequest
 	return out, nil
 }
 
+func (c *contentClient) CreateHashtag(ctx context.Context, in *Hashtag, opts ...grpc.CallOption) (*Hashtag, error) {
+	out := new(Hashtag)
+	err := c.cc.Invoke(ctx, "/proto.Content/CreateHashtag", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ContentServer is the server API for Content service.
 // All implementations must embed UnimplementedContentServer
 // for forward compatibility
@@ -201,6 +231,8 @@ type ContentServer interface {
 	GetAllPosts(context.Context, *EmptyRequest) (*ReducedPostArray, error)
 	RemovePost(context.Context, *RequestId) (*EmptyResponse, error)
 	GetPostById(context.Context, *RequestId) (*Post, error)
+	SearchContentByLocation(context.Context, *SearchLocationRequest) (*ReducedPostArray, error)
+	GetPostsByHashtag(context.Context, *Hashtag) (*ReducedPostArray, error)
 	//    Comments
 	CreateComment(context.Context, *Comment) (*EmptyResponse, error)
 	GetCommentsForPost(context.Context, *RequestId) (*CommentsArray, error)
@@ -216,6 +248,8 @@ type ContentServer interface {
 	GetUserFavorites(context.Context, *RequestId) (*Favorites, error)
 	CreateFavorite(context.Context, *FavoritesRequest) (*EmptyResponse, error)
 	RemoveFavorite(context.Context, *FavoritesRequest) (*EmptyResponse, error)
+	// Hashtags
+	CreateHashtag(context.Context, *Hashtag) (*Hashtag, error)
 	mustEmbedUnimplementedContentServer()
 }
 
@@ -234,6 +268,12 @@ func (UnimplementedContentServer) RemovePost(context.Context, *RequestId) (*Empt
 }
 func (UnimplementedContentServer) GetPostById(context.Context, *RequestId) (*Post, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPostById not implemented")
+}
+func (UnimplementedContentServer) SearchContentByLocation(context.Context, *SearchLocationRequest) (*ReducedPostArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SearchContentByLocation not implemented")
+}
+func (UnimplementedContentServer) GetPostsByHashtag(context.Context, *Hashtag) (*ReducedPostArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPostsByHashtag not implemented")
 }
 func (UnimplementedContentServer) CreateComment(context.Context, *Comment) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateComment not implemented")
@@ -271,6 +311,9 @@ func (UnimplementedContentServer) CreateFavorite(context.Context, *FavoritesRequ
 func (UnimplementedContentServer) RemoveFavorite(context.Context, *FavoritesRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveFavorite not implemented")
 }
+func (UnimplementedContentServer) CreateHashtag(context.Context, *Hashtag) (*Hashtag, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateHashtag not implemented")
+}
 func (UnimplementedContentServer) mustEmbedUnimplementedContentServer() {}
 
 // UnsafeContentServer may be embedded to opt out of forward compatibility for this service.
@@ -280,8 +323,8 @@ type UnsafeContentServer interface {
 	mustEmbedUnimplementedContentServer()
 }
 
-func RegisterContentServer(s grpc.ServiceRegistrar, srv ContentServer) {
-	s.RegisterService(&Content_ServiceDesc, srv)
+func RegisterContentServer(s *grpc.Server, srv ContentServer) {
+	s.RegisterService(&_Content_serviceDesc, srv)
 }
 
 func _Content_CreatePost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -352,6 +395,42 @@ func _Content_GetPostById_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).GetPostById(ctx, req.(*RequestId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_SearchContentByLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchLocationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).SearchContentByLocation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/SearchContentByLocation",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).SearchContentByLocation(ctx, req.(*SearchLocationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_GetPostsByHashtag_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Hashtag)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetPostsByHashtag(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetPostsByHashtag",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetPostsByHashtag(ctx, req.(*Hashtag))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -572,10 +651,25 @@ func _Content_RemoveFavorite_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-// Content_ServiceDesc is the grpc.ServiceDesc for Content service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var Content_ServiceDesc = grpc.ServiceDesc{
+func _Content_CreateHashtag_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Hashtag)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).CreateHashtag(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/CreateHashtag",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).CreateHashtag(ctx, req.(*Hashtag))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _Content_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.Content",
 	HandlerType: (*ContentServer)(nil),
 	Methods: []grpc.MethodDesc{
@@ -594,6 +688,14 @@ var Content_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPostById",
 			Handler:    _Content_GetPostById_Handler,
+		},
+		{
+			MethodName: "SearchContentByLocation",
+			Handler:    _Content_SearchContentByLocation_Handler,
+		},
+		{
+			MethodName: "GetPostsByHashtag",
+			Handler:    _Content_GetPostsByHashtag_Handler,
 		},
 		{
 			MethodName: "CreateComment",
@@ -642,6 +744,10 @@ var Content_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveFavorite",
 			Handler:    _Content_RemoveFavorite_Handler,
+		},
+		{
+			MethodName: "CreateHashtag",
+			Handler:    _Content_CreateHashtag_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -11,12 +11,13 @@ import (
 
 type Server struct {
 	contentpb.UnimplementedContentServer
-	postController 	*PostGrpcController
-	commentController 	*CommentGrpcController
-	likeController	  	*LikeGrpcController
+	postController      *PostGrpcController
+	commentController   *CommentGrpcController
+	likeController      *LikeGrpcController
 	favoritesController *FavoritesGrpcController
-	tracer otgo.Tracer
-	closer io.Closer
+	hashtagController   *HashtagGrpcController
+	tracer              otgo.Tracer
+	closer              io.Closer
 }
 
 func NewServer(db *gorm.DB) (*Server, error) {
@@ -24,15 +25,17 @@ func NewServer(db *gorm.DB) (*Server, error) {
 	commentController, _ := NewCommentController(db)
 	likeController, _ := NewLikeController(db)
 	favoritesController, _ := NewFavoritesController(db)
+	hashtagController, _ := NewHashtagController(db)
 	tracer, closer := tracer.Init("global_ContentGrpcController")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
-		postController: postController,
-		commentController: commentController,
-		likeController: likeController,
+		postController:      postController,
+		commentController:   commentController,
+		likeController:      likeController,
 		favoritesController: favoritesController,
-		tracer: tracer,
-		closer: closer,
+		hashtagController:   hashtagController,
+		tracer:              tracer,
+		closer:              closer,
 	}, nil
 }
 
@@ -59,6 +62,10 @@ func (s *Server) GetPostById(ctx context.Context, in *contentpb.RequestId) (*con
 
 func (s *Server) RemovePost(ctx context.Context, in *contentpb.RequestId) (*contentpb.EmptyResponse, error) {
 	return s.postController.RemovePost(ctx, in.Id)
+}
+
+func (s *Server) GetPostsByHashtag(ctx context.Context, in *contentpb.Hashtag) (*contentpb.ReducedPostArray, error) {
+	return s.postController.GetPostsByHashtag(ctx, in)
 }
 
 /*   Comments   */
@@ -108,5 +115,11 @@ func (s *Server) RemoveFavorite(ctx context.Context, in *contentpb.FavoritesRequ
 	return s.favoritesController.RemoveFavorite(ctx, in)
 }
 
+func (s *Server) SearchContentByLocation(ctx context.Context, in *contentpb.SearchLocationRequest) (*contentpb.ReducedPostArray, error) {
+	return s.postController.SearchContentByLocation(ctx, in)
+}
 
-
+/*   Hashtags   */
+func (s *Server) CreateHashtag(ctx context.Context, in *contentpb.Hashtag) (*contentpb.Hashtag, error) {
+	return s.hashtagController.CreateHashtag(ctx, in)
+}
