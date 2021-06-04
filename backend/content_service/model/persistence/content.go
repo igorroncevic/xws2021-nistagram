@@ -40,8 +40,8 @@ type Collection struct {
 }
 
 type Favorites struct {
-	PostId string `gorm:"primaryKey"`
-	UserId string `gorm:"primaryKey"`
+	PostId 		 string `gorm:"primaryKey"`
+	UserId 		 string `gorm:"primaryKey"`
 	CollectionId string
 }
 

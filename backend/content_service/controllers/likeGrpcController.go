@@ -26,7 +26,7 @@ func NewLikeController(db *gorm.DB) (*LikeGrpcController, error) {
 	}, nil
 }
 
-func (s *LikeGrpcController) CreateLike(ctx context.Context, in *contentpb.Like) (*contentpb.EmptyResponse, error) {
+func (c *LikeGrpcController) CreateLike(ctx context.Context, in *contentpb.Like) (*contentpb.EmptyResponse, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateLike")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -34,7 +34,7 @@ func (s *LikeGrpcController) CreateLike(ctx context.Context, in *contentpb.Like)
 	var like *domain.Like
 	like = like.ConvertFromGrpc(in)
 
-	err := s.service.CreateLike(ctx, *like)
+	err := c.service.CreateLike(ctx, *like)
 	if err != nil {
 		return &contentpb.EmptyResponse{}, status.Errorf(codes.Unknown, "could not create like")
 	}
@@ -42,12 +42,12 @@ func (s *LikeGrpcController) CreateLike(ctx context.Context, in *contentpb.Like)
 	return &contentpb.EmptyResponse{}, nil
 }
 
-func (s *LikeGrpcController) GetLikesForPost(ctx context.Context, id string, isLike bool) (*contentpb.LikesArray, error) {
+func (c *LikeGrpcController) GetLikesForPost(ctx context.Context, id string, isLike bool) (*contentpb.LikesArray, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetLikesForPost")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	likes, err := s.service.GetLikesForPost(ctx, id, isLike)
+	likes, err := c.service.GetLikesForPost(ctx, id, isLike)
 
 	if err != nil{
 		return &contentpb.LikesArray{

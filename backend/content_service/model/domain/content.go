@@ -54,17 +54,17 @@ type Collection struct {
 	Id 			string
 	Name 		string
 	UserId 		string
-	Posts 		[]Post
+	Posts 		[]ReducedPost
 }
 
 type Favorites struct {
 	UserId 			string
 	Collections 	[]Collection
-	Unclassified 	[]Post
+	Unclassified 	[]ReducedPost
 }
 
 type FavoritesRequest struct {
-	UserId 			string
+	UserId		 	string
 	PostId			string
 	CollectionId	string
 }

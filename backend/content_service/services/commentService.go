@@ -11,7 +11,7 @@ import (
 
 type CommentService struct {
 	commentRepository repositories.CommentRepository
-	contentRepository repositories.ContentRepository
+	contentRepository repositories.PostRepository
 }
 
 func NewCommentService(db *gorm.DB) (*CommentService, error){
@@ -20,7 +20,7 @@ func NewCommentService(db *gorm.DB) (*CommentService, error){
 		return nil, err
 	}
 
-	contentRepository, err := repositories.NewContentRepo(db)
+	contentRepository, err := repositories.NewPostRepo(db)
 	if err != nil {
 		return nil, err
 	}

@@ -18,13 +18,26 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ContentClient interface {
+	//    Posts
 	CreatePost(ctx context.Context, in *Post, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GetAllPosts(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*ReducedPostArray, error)
+	RemovePost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponse, error)
+	GetPostById(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Post, error)
+	//    Comments
 	CreateComment(ctx context.Context, in *Comment, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GetCommentsForPost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*CommentsArray, error)
+	// Likes & Dislikes
 	CreateLike(ctx context.Context, in *Like, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GetLikesForPost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*LikesArray, error)
 	GetDislikesForPost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*LikesArray, error)
+	// Collections & Favorites
+	GetAllCollections(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*CollectionsArray, error)
+	GetCollection(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Collection, error)
+	CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*EmptyResponse, error)
+	RemoveCollection(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponse, error)
+	GetUserFavorites(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Favorites, error)
+	CreateFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	RemoveFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 }
 
 type contentClient struct {
@@ -47,6 +60,24 @@ func (c *contentClient) CreatePost(ctx context.Context, in *Post, opts ...grpc.C
 func (c *contentClient) GetAllPosts(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*ReducedPostArray, error) {
 	out := new(ReducedPostArray)
 	err := c.cc.Invoke(ctx, "/proto.Content/GetAllPosts", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) RemovePost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Content/RemovePost", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) GetPostById(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Post, error) {
+	out := new(Post)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetPostById", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -98,17 +129,93 @@ func (c *contentClient) GetDislikesForPost(ctx context.Context, in *RequestId, o
 	return out, nil
 }
 
+func (c *contentClient) GetAllCollections(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*CollectionsArray, error) {
+	out := new(CollectionsArray)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetAllCollections", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) GetCollection(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Collection, error) {
+	out := new(Collection)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetCollection", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Content/CreateCollection", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) RemoveCollection(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Content/RemoveCollection", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) GetUserFavorites(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Favorites, error) {
+	out := new(Favorites)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetUserFavorites", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) CreateFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Content/CreateFavorite", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) RemoveFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Content/RemoveFavorite", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ContentServer is the server API for Content service.
 // All implementations must embed UnimplementedContentServer
 // for forward compatibility
 type ContentServer interface {
+	//    Posts
 	CreatePost(context.Context, *Post) (*EmptyResponse, error)
 	GetAllPosts(context.Context, *EmptyRequest) (*ReducedPostArray, error)
+	RemovePost(context.Context, *RequestId) (*EmptyResponse, error)
+	GetPostById(context.Context, *RequestId) (*Post, error)
+	//    Comments
 	CreateComment(context.Context, *Comment) (*EmptyResponse, error)
 	GetCommentsForPost(context.Context, *RequestId) (*CommentsArray, error)
+	// Likes & Dislikes
 	CreateLike(context.Context, *Like) (*EmptyResponse, error)
 	GetLikesForPost(context.Context, *RequestId) (*LikesArray, error)
 	GetDislikesForPost(context.Context, *RequestId) (*LikesArray, error)
+	// Collections & Favorites
+	GetAllCollections(context.Context, *RequestId) (*CollectionsArray, error)
+	GetCollection(context.Context, *RequestId) (*Collection, error)
+	CreateCollection(context.Context, *Collection) (*EmptyResponse, error)
+	RemoveCollection(context.Context, *RequestId) (*EmptyResponse, error)
+	GetUserFavorites(context.Context, *RequestId) (*Favorites, error)
+	CreateFavorite(context.Context, *FavoritesRequest) (*EmptyResponse, error)
+	RemoveFavorite(context.Context, *FavoritesRequest) (*EmptyResponse, error)
 	mustEmbedUnimplementedContentServer()
 }
 
@@ -121,6 +228,12 @@ func (UnimplementedContentServer) CreatePost(context.Context, *Post) (*EmptyResp
 }
 func (UnimplementedContentServer) GetAllPosts(context.Context, *EmptyRequest) (*ReducedPostArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllPosts not implemented")
+}
+func (UnimplementedContentServer) RemovePost(context.Context, *RequestId) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemovePost not implemented")
+}
+func (UnimplementedContentServer) GetPostById(context.Context, *RequestId) (*Post, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPostById not implemented")
 }
 func (UnimplementedContentServer) CreateComment(context.Context, *Comment) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateComment not implemented")
@@ -136,6 +249,27 @@ func (UnimplementedContentServer) GetLikesForPost(context.Context, *RequestId) (
 }
 func (UnimplementedContentServer) GetDislikesForPost(context.Context, *RequestId) (*LikesArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDislikesForPost not implemented")
+}
+func (UnimplementedContentServer) GetAllCollections(context.Context, *RequestId) (*CollectionsArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllCollections not implemented")
+}
+func (UnimplementedContentServer) GetCollection(context.Context, *RequestId) (*Collection, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCollection not implemented")
+}
+func (UnimplementedContentServer) CreateCollection(context.Context, *Collection) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateCollection not implemented")
+}
+func (UnimplementedContentServer) RemoveCollection(context.Context, *RequestId) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveCollection not implemented")
+}
+func (UnimplementedContentServer) GetUserFavorites(context.Context, *RequestId) (*Favorites, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserFavorites not implemented")
+}
+func (UnimplementedContentServer) CreateFavorite(context.Context, *FavoritesRequest) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateFavorite not implemented")
+}
+func (UnimplementedContentServer) RemoveFavorite(context.Context, *FavoritesRequest) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveFavorite not implemented")
 }
 func (UnimplementedContentServer) mustEmbedUnimplementedContentServer() {}
 
@@ -182,6 +316,42 @@ func _Content_GetAllPosts_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).GetAllPosts(ctx, req.(*EmptyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_RemovePost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).RemovePost(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/RemovePost",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).RemovePost(ctx, req.(*RequestId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_GetPostById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetPostById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetPostById",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetPostById(ctx, req.(*RequestId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -276,6 +446,132 @@ func _Content_GetDislikesForPost_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Content_GetAllCollections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetAllCollections(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetAllCollections",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetAllCollections(ctx, req.(*RequestId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_GetCollection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetCollection(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetCollection",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetCollection(ctx, req.(*RequestId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_CreateCollection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Collection)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).CreateCollection(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/CreateCollection",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).CreateCollection(ctx, req.(*Collection))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_RemoveCollection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).RemoveCollection(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/RemoveCollection",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).RemoveCollection(ctx, req.(*RequestId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_GetUserFavorites_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetUserFavorites(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetUserFavorites",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetUserFavorites(ctx, req.(*RequestId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_CreateFavorite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FavoritesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).CreateFavorite(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/CreateFavorite",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).CreateFavorite(ctx, req.(*FavoritesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_RemoveFavorite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FavoritesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).RemoveFavorite(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/RemoveFavorite",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).RemoveFavorite(ctx, req.(*FavoritesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Content_ServiceDesc is the grpc.ServiceDesc for Content service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -290,6 +586,14 @@ var Content_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllPosts",
 			Handler:    _Content_GetAllPosts_Handler,
+		},
+		{
+			MethodName: "RemovePost",
+			Handler:    _Content_RemovePost_Handler,
+		},
+		{
+			MethodName: "GetPostById",
+			Handler:    _Content_GetPostById_Handler,
 		},
 		{
 			MethodName: "CreateComment",
@@ -310,6 +614,34 @@ var Content_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetDislikesForPost",
 			Handler:    _Content_GetDislikesForPost_Handler,
+		},
+		{
+			MethodName: "GetAllCollections",
+			Handler:    _Content_GetAllCollections_Handler,
+		},
+		{
+			MethodName: "GetCollection",
+			Handler:    _Content_GetCollection_Handler,
+		},
+		{
+			MethodName: "CreateCollection",
+			Handler:    _Content_CreateCollection_Handler,
+		},
+		{
+			MethodName: "RemoveCollection",
+			Handler:    _Content_RemoveCollection_Handler,
+		},
+		{
+			MethodName: "GetUserFavorites",
+			Handler:    _Content_GetUserFavorites_Handler,
+		},
+		{
+			MethodName: "CreateFavorite",
+			Handler:    _Content_CreateFavorite_Handler,
+		},
+		{
+			MethodName: "RemoveFavorite",
+			Handler:    _Content_RemoveFavorite_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
