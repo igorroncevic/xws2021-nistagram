@@ -42,6 +42,15 @@ func (p Post) ConvertToGrpc() *contentpb.Post {
 	}
 }
 
+func ConvertMultiplePostsToGrpc(posts []Post) []*contentpb.Post{
+	grpcPosts := []*contentpb.Post{}
+	for _, post := range posts {
+		grpcPosts = append(grpcPosts, post.ConvertToGrpc())
+	}
+
+	return grpcPosts
+}
+
 // ReducedPost Converters
 func (p ReducedPost) ConvertToGrpc() *contentpb.ReducedPost {
 	return &contentpb.ReducedPost{
@@ -58,6 +67,46 @@ func (p ReducedPost) ConvertToGrpc() *contentpb.ReducedPost {
 		DislikesNum: 	 p.DislikesNum,
 	}
 }
+
+func (p ReducedPost) ConvertFromGrpc(post *contentpb.ReducedPost) ReducedPost {
+	return ReducedPost{
+		Objava: Objava{
+			Id:          	 post.Id,
+			UserId:      	 post.UserId,
+			IsAd:        	 post.IsAd,
+			Type:        	 model.GetPostType(post.Type),
+			Description: 	 post.Description,
+			Location:    	 post.Location,
+			CreatedAt:   	 post.CreatedAt.AsTime(),
+			Media: 		 	 ConvertMultipleMediaFromGrpc(post.Media),
+		},
+		CommentsNum: 	 post.CommentsNum,
+		LikesNum: 		 post.LikesNum,
+		DislikesNum: 	 post.DislikesNum,
+	}
+}
+
+func ConvertMultipleReducedPostsToGrpc(posts []ReducedPost) []*contentpb.ReducedPost{
+	grpcPosts := []*contentpb.ReducedPost{}
+	for _, post := range posts {
+		grpcPosts = append(grpcPosts, post.ConvertToGrpc())
+	}
+
+	return grpcPosts
+}
+
+func ConvertMultipleReducedPostsFromGrpc(posts []*contentpb.ReducedPost) []ReducedPost {
+	convertedPosts := []ReducedPost{}
+	for _, post := range posts {
+		var converted ReducedPost
+		converted = converted.ConvertFromGrpc(post)
+
+		convertedPosts = append(convertedPosts, converted)
+	}
+
+	return convertedPosts
+}
+
 
 // Media converters
 func (m *Media) ConvertFromGrpc(media *contentpb.Media) *Media {
@@ -191,8 +240,7 @@ func ConvertMultipleTagsToGrpc(t []Tag) []*contentpb.Tag{
 	tags := []*contentpb.Tag{}
 	if t != nil{
 		for _, domainTag := range t {
-			protoTag := domainTag.ConvertToGrpc()
-			tags = append(tags, protoTag)
+			tags = append(tags, domainTag.ConvertToGrpc())
 		}
 	}
 	return tags
@@ -234,9 +282,51 @@ func ConvertMultipleLikesToGrpc(l []Like) []*contentpb.Like{
 	likes := []*contentpb.Like{}
 	if l != nil{
 		for _, domainLike := range l {
-			protoLike := domainLike.ConvertToGrpc()
-			likes = append(likes, protoLike)
+			likes = append(likes,  domainLike.ConvertToGrpc())
 		}
 	}
 	return likes
+}
+
+func (c Collection) ConvertFromGrpc(collection *contentpb.Collection) Collection {
+	return Collection{
+		Id:     collection.Id,
+		Name:   collection.Name,
+		UserId: collection.UserId,
+		Posts:  ConvertMultipleReducedPostsFromGrpc(collection.Posts),
+	}
+}
+
+func (c Collection) ConvertToGrpc() *contentpb.Collection{
+	return &contentpb.Collection{
+		Id:     c.Id,
+		Name:   c.Name,
+		UserId: c.UserId,
+		Posts:  ConvertMultipleReducedPostsToGrpc(c.Posts),
+	}
+}
+
+func ConvertMultipleCollectionsToGrpc(collections []Collection) []*contentpb.Collection{
+	converted := []*contentpb.Collection{}
+	for _, collection := range collections {
+		converted = append(converted, collection.ConvertToGrpc())
+	}
+
+	return converted
+}
+
+func (f Favorites) ConvertToGrpc() *contentpb.Favorites{
+	return &contentpb.Favorites{
+		UserId:       f.UserId,
+		Collections:  ConvertMultipleCollectionsToGrpc(f.Collections),
+		Unclassified: ConvertMultipleReducedPostsToGrpc(f.Unclassified),
+	}
+}
+
+func (fr *FavoritesRequest) ConvertFromGrpc(request *contentpb.FavoritesRequest) FavoritesRequest{
+	return FavoritesRequest{
+		PostId:       request.PostId,
+		CollectionId: request.CollectionId,
+		UserId:		  request.UserId,
+	}
 }
