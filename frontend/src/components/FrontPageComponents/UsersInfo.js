@@ -4,22 +4,22 @@ import axios from "axios";
 
 function UsersInfo() {
     const[edit,setEdit]=useState(false)
-    const[user,setUserInfo]=useState({username:"",firstName:"Marko", lastName:"Markovic",email:"", birthDate: Date(), phoneNumber:"", sex:"", biography:"",website:""})
+    const[user,setUserInfo]=useState({username:"joksi3333",firstName:"Marko", lastName:"Markovic",email:"joksi323@gmail.com", birthDate: Date(), phoneNumber:"06589526262626", sex:"MAN", biography:"bla",website:"truc"})
 
     useEffect(() => {
-        //dobavi usera na osnovu log in-a
+        //getovanje usera na osnovu username
     })
     function editProfile(){ //501
         axios
-            .get('http://localhost:8001/api/users/update_profile', {
-                'Id':'1',
+            .post('http://localhost:8080/api/users/api/users/update_profile', {
+                'Id':'11e215ef-a6ce-40c6-ad0b-e602e298f0a4',
                 'FirstName' : user.firstName,
                 'LastName' : user.lastName,
                 'Username' : user.username,
+                'email' : 'blaaaaaaa@gmail.com',
                 'BirthDate' : user.birthDate,
                 'PhoneNumber' : user.phoneNumber,
-                'Biography' : user.biography,
-                'Website' : user.website
+                'Sex' : 'WOMAN',
             })
             .then(res => {
                 console.log("RADI")
