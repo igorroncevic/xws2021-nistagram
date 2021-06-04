@@ -22,7 +22,7 @@ func NewPostController(db *gorm.DB) (*PostGrpcController, error) {
 	}
 
 	return &PostGrpcController{
-		service:  service,
+		service: service,
 	}, nil
 }
 
@@ -49,14 +49,14 @@ func (s *PostGrpcController) GetAllPosts(ctx context.Context, in *contentpb.Empt
 
 	posts, err := s.service.GetAllPosts(ctx)
 
-	if err != nil{
+	if err != nil {
 		return &contentpb.ReducedPostArray{
 			Posts: []*contentpb.ReducedPost{},
 		}, status.Errorf(codes.Unknown, err.Error())
 	}
 
 	responsePosts := []*contentpb.ReducedPost{}
-	for _, post := range posts{
+	for _, post := range posts {
 		responsePosts = append(responsePosts, post.ConvertToGrpc())
 	}
 
@@ -72,7 +72,7 @@ func (s *PostGrpcController) GetPostById(ctx context.Context, id string) (*conte
 
 	post, err := s.service.GetPostById(ctx, id)
 
-	if err != nil{
+	if err != nil {
 		return &contentpb.Post{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
@@ -88,7 +88,7 @@ func (s *PostGrpcController) RemovePost(ctx context.Context, id string) (*conten
 
 	err := s.service.RemovePost(ctx, id)
 
-	if err != nil{
+	if err != nil {
 		return &contentpb.EmptyResponse{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
@@ -103,6 +103,28 @@ func (s *PostGrpcController) SearchContentByLocation(ctx context.Context, in *co
 	var location string = in.Location
 
 	posts, err := s.service.SearchContentByLocation(ctx, location)
+	if err != nil {
+		return &contentpb.ReducedPostArray{
+			Posts: []*contentpb.ReducedPost{},
+		}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	responsePosts := []*contentpb.ReducedPost{}
+	for _, post := range posts {
+		responsePosts = append(responsePosts, post.ConvertToGrpc())
+	}
+
+	return &contentpb.ReducedPostArray{
+		Posts: responsePosts,
+	}, nil
+}
+
+func (s *PostGrpcController) GetPostsByHashtag(ctx context.Context, in *contentpb.Hashtag) (*contentpb.ReducedPostArray, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostsByHashtag")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	posts, err := s.service.GetPostsByHashtag(ctx, in.Text)
 	if err != nil {
 		return &contentpb.ReducedPostArray{
 			Posts: []*contentpb.ReducedPost{},

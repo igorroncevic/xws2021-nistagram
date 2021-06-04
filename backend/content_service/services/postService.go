@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
+	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
 	userspb "github.com/david-drvar/xws2021-nistagram/content_service/proto_intercommunication"
 	"github.com/david-drvar/xws2021-nistagram/content_service/repositories"
 	"google.golang.org/grpc"
@@ -18,6 +19,7 @@ type PostService struct {
 	likeRepository    repositories.LikeRepository
 	mediaRepository   repositories.MediaRepository
 	tagRepository     repositories.TagRepository
+	hashtagRepository repositories.HashtagRepository
 }
 
 func NewPostService(db *gorm.DB) (*PostService, error) {
@@ -46,12 +48,18 @@ func NewPostService(db *gorm.DB) (*PostService, error) {
 		return nil, err
 	}
 
+	hashtagRepository, err := repositories.NewHashtagRepo(db)
+	if err != nil {
+		return nil, err
+	}
+
 	return &PostService{
 		postRepository,
 		commentRepository,
 		likeRepository,
 		mediaRepository,
 		tagRepository,
+		hashtagRepository,
 	}, err
 }
 
@@ -223,7 +231,7 @@ func (service *PostService) GetReducedPostData(ctx context.Context, postId strin
 }
 
 func (service *PostService) SearchContentByLocation(ctx context.Context, location string) ([]domain.ReducedPost, error) {
-	span := tracer.StartSpanFromContextMetadata(ctx, "CreatePost")
+	span := tracer.StartSpanFromContextMetadata(ctx, "SearchContentByLocation")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
@@ -303,4 +311,53 @@ func (service *PostService) SearchContentByLocation(ctx context.Context, locatio
 	}
 
 	return finalPosts, nil
+}
+
+func (service *PostService) GetPostsByHashtag(ctx context.Context, text string) ([]domain.ReducedPost, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostsByHashtag")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	hashtag, err := service.hashtagRepository.GetHashtagByText(ctx, text)
+	if err != nil {
+		log.Fatalf("Error when calling GetPostsByHashtag: %s", err)
+	}
+
+	var posts []domain.ReducedPost
+
+	postIds, _ := service.hashtagRepository.GetPostIdsByHashtag(ctx, persistence.Hashtag{Id: hashtag.Id, Text: hashtag.Text})
+	for _, postId := range postIds {
+		post, err := service.GetReducedPostData(ctx, postId)
+		if err != nil {
+			log.Fatalf("Error when calling GetPostById: %s", err)
+		}
+		posts = append(posts, post)
+	}
+
+	var postsWithPublicAccess []domain.ReducedPost
+
+	var conn *grpc.ClientConn
+	conn, err = grpc.Dial(":8091", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("did not connect: %s", err)
+	}
+	defer conn.Close()
+
+	c := userspb.NewPrivacyClient(conn)
+
+	//check if user account is public
+	for _, post := range posts {
+		privacyRequest := userspb.PrivacyRequest{
+			UserId: post.UserId,
+		}
+		response, err := c.CheckUserProfilePublic(context.Background(), &privacyRequest)
+		if err != nil {
+			log.Fatalf("Error when calling CheckUserProfilePublic: %s", err)
+		}
+		if response.Response {
+			postsWithPublicAccess = append(postsWithPublicAccess, post)
+		}
+	}
+
+	return postsWithPublicAccess, nil
 }

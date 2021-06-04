@@ -64,6 +64,10 @@ func (s *Server) RemovePost(ctx context.Context, in *contentpb.RequestId) (*cont
 	return s.postController.RemovePost(ctx, in.Id)
 }
 
+func (s *Server) GetPostsByHashtag(ctx context.Context, in *contentpb.Hashtag) (*contentpb.ReducedPostArray, error) {
+	return s.postController.GetPostsByHashtag(ctx, in)
+}
+
 /*   Comments   */
 func (s *Server) CreateComment(ctx context.Context, in *contentpb.Comment) (*contentpb.EmptyResponse, error) {
 	return s.commentController.CreateComment(ctx, in)

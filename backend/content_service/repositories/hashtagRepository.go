@@ -11,8 +11,8 @@ import (
 
 type HashtagRepository interface {
 	CreateHashtag(ctx context.Context, text string) (*domain.Hashtag, error)
-	//GetPostsByHashtag(context.Context, persistence.Tag) error
-	//GetHashtagsForMedia(context.Context, string) ([]domain.Tag, error)
+	GetHashtagByText(ctx context.Context, text string) (*domain.Hashtag, error)
+	GetPostIdsByHashtag(ctx context.Context, hashtag persistence.Hashtag) ([]string, error)
 }
 
 type hashtagRepository struct {
@@ -42,4 +42,40 @@ func (repository *hashtagRepository) CreateHashtag(ctx context.Context, text str
 	}
 
 	return &domain.Hashtag{Id: hashtag.Id, Text: hashtag.Text}, nil
+}
+
+func (repository *hashtagRepository) GetHashtagByText(ctx context.Context, text string) (*domain.Hashtag, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetHashtagByText")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var hashtag persistence.Hashtag
+
+	resultHashtag := repository.DB.Where("text = ?", text).Find(&hashtag)
+	if resultHashtag.Error != nil {
+		return nil, resultHashtag.Error
+	}
+
+	return &domain.Hashtag{Id: hashtag.Id, Text: hashtag.Text}, nil
+}
+
+func (repository *hashtagRepository) GetPostIdsByHashtag(ctx context.Context, hashtag persistence.Hashtag) ([]string, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostIdsByHashtag")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var hashtagObjavas []persistence.HashtagObjava
+
+	resultHashtagObjava := repository.DB.Where("hashtag_id = ?", hashtag.Id).Find(&hashtagObjavas)
+	if resultHashtagObjava.Error != nil {
+		return nil, resultHashtagObjava.Error
+	}
+
+	var postIds []string
+
+	for _, hashtagObjava := range hashtagObjavas {
+		postIds = append(postIds, hashtagObjava.ObjavaId)
+	}
+
+	return postIds, nil
 }

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package protoe;
+package proto;
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
@@ -37,6 +37,13 @@ service Content {
   rpc SearchContentByLocation (SearchLocationRequest) returns (ReducedPostArray) {
     option(google.api.http) = {
       post: "/location",
+      body: "*"
+    };
+  }
+
+  rpc GetPostsByHashtag (Hashtag) returns (ReducedPostArray) {
+    option(google.api.http) = {
+      post: "/posts-by-hashtag",
       body: "*"
     };
   }
@@ -132,6 +139,7 @@ service Content {
       body: "*"
     };
   }
+
 }
 
 /*    Posts    */
@@ -215,6 +223,7 @@ message Highlight {
 message StoryArray {
   repeated Story stories = 1;
 }
+
 /* * * * * * * * * * * * */
 
 /* Collections & Favorites */

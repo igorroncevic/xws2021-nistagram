@@ -23,6 +23,7 @@ type ContentClient interface {
 	RemovePost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GetPostById(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Post, error)
 	SearchContentByLocation(ctx context.Context, in *SearchLocationRequest, opts ...grpc.CallOption) (*ReducedPostArray, error)
+	GetPostsByHashtag(ctx context.Context, in *Hashtag, opts ...grpc.CallOption) (*ReducedPostArray, error)
 	//    Comments
 	CreateComment(ctx context.Context, in *Comment, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GetCommentsForPost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*CommentsArray, error)
@@ -52,7 +53,7 @@ func NewContentClient(cc grpc.ClientConnInterface) ContentClient {
 
 func (c *contentClient) CreatePost(ctx context.Context, in *Post, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	out := new(EmptyResponse)
-	err := c.cc.Invoke(ctx, "/protoe.Content/CreatePost", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Content/CreatePost", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +62,7 @@ func (c *contentClient) CreatePost(ctx context.Context, in *Post, opts ...grpc.C
 
 func (c *contentClient) GetAllPosts(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*ReducedPostArray, error) {
 	out := new(ReducedPostArray)
-	err := c.cc.Invoke(ctx, "/protoe.Content/GetAllPosts", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetAllPosts", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +71,7 @@ func (c *contentClient) GetAllPosts(ctx context.Context, in *EmptyRequest, opts 
 
 func (c *contentClient) RemovePost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	out := new(EmptyResponse)
-	err := c.cc.Invoke(ctx, "/protoe.Content/RemovePost", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Content/RemovePost", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +80,7 @@ func (c *contentClient) RemovePost(ctx context.Context, in *RequestId, opts ...g
 
 func (c *contentClient) GetPostById(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Post, error) {
 	out := new(Post)
-	err := c.cc.Invoke(ctx, "/protoe.Content/GetPostById", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetPostById", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +89,16 @@ func (c *contentClient) GetPostById(ctx context.Context, in *RequestId, opts ...
 
 func (c *contentClient) SearchContentByLocation(ctx context.Context, in *SearchLocationRequest, opts ...grpc.CallOption) (*ReducedPostArray, error) {
 	out := new(ReducedPostArray)
-	err := c.cc.Invoke(ctx, "/protoe.Content/SearchContentByLocation", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Content/SearchContentByLocation", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) GetPostsByHashtag(ctx context.Context, in *Hashtag, opts ...grpc.CallOption) (*ReducedPostArray, error) {
+	out := new(ReducedPostArray)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetPostsByHashtag", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +107,7 @@ func (c *contentClient) SearchContentByLocation(ctx context.Context, in *SearchL
 
 func (c *contentClient) CreateComment(ctx context.Context, in *Comment, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	out := new(EmptyResponse)
-	err := c.cc.Invoke(ctx, "/protoe.Content/CreateComment", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Content/CreateComment", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +116,7 @@ func (c *contentClient) CreateComment(ctx context.Context, in *Comment, opts ...
 
 func (c *contentClient) GetCommentsForPost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*CommentsArray, error) {
 	out := new(CommentsArray)
-	err := c.cc.Invoke(ctx, "/protoe.Content/GetCommentsForPost", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetCommentsForPost", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +125,7 @@ func (c *contentClient) GetCommentsForPost(ctx context.Context, in *RequestId, o
 
 func (c *contentClient) CreateLike(ctx context.Context, in *Like, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	out := new(EmptyResponse)
-	err := c.cc.Invoke(ctx, "/protoe.Content/CreateLike", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Content/CreateLike", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +134,7 @@ func (c *contentClient) CreateLike(ctx context.Context, in *Like, opts ...grpc.C
 
 func (c *contentClient) GetLikesForPost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*LikesArray, error) {
 	out := new(LikesArray)
-	err := c.cc.Invoke(ctx, "/protoe.Content/GetLikesForPost", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetLikesForPost", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +143,7 @@ func (c *contentClient) GetLikesForPost(ctx context.Context, in *RequestId, opts
 
 func (c *contentClient) GetDislikesForPost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*LikesArray, error) {
 	out := new(LikesArray)
-	err := c.cc.Invoke(ctx, "/protoe.Content/GetDislikesForPost", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetDislikesForPost", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +152,7 @@ func (c *contentClient) GetDislikesForPost(ctx context.Context, in *RequestId, o
 
 func (c *contentClient) GetAllCollections(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*CollectionsArray, error) {
 	out := new(CollectionsArray)
-	err := c.cc.Invoke(ctx, "/protoe.Content/GetAllCollections", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetAllCollections", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +161,7 @@ func (c *contentClient) GetAllCollections(ctx context.Context, in *RequestId, op
 
 func (c *contentClient) GetCollection(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Collection, error) {
 	out := new(Collection)
-	err := c.cc.Invoke(ctx, "/protoe.Content/GetCollection", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetCollection", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +170,7 @@ func (c *contentClient) GetCollection(ctx context.Context, in *RequestId, opts .
 
 func (c *contentClient) CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	out := new(EmptyResponse)
-	err := c.cc.Invoke(ctx, "/protoe.Content/CreateCollection", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Content/CreateCollection", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -169,7 +179,7 @@ func (c *contentClient) CreateCollection(ctx context.Context, in *Collection, op
 
 func (c *contentClient) RemoveCollection(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	out := new(EmptyResponse)
-	err := c.cc.Invoke(ctx, "/protoe.Content/RemoveCollection", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Content/RemoveCollection", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +188,7 @@ func (c *contentClient) RemoveCollection(ctx context.Context, in *RequestId, opt
 
 func (c *contentClient) GetUserFavorites(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Favorites, error) {
 	out := new(Favorites)
-	err := c.cc.Invoke(ctx, "/protoe.Content/GetUserFavorites", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetUserFavorites", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +197,7 @@ func (c *contentClient) GetUserFavorites(ctx context.Context, in *RequestId, opt
 
 func (c *contentClient) CreateFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	out := new(EmptyResponse)
-	err := c.cc.Invoke(ctx, "/protoe.Content/CreateFavorite", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Content/CreateFavorite", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +206,7 @@ func (c *contentClient) CreateFavorite(ctx context.Context, in *FavoritesRequest
 
 func (c *contentClient) RemoveFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	out := new(EmptyResponse)
-	err := c.cc.Invoke(ctx, "/protoe.Content/RemoveFavorite", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Content/RemoveFavorite", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -205,7 +215,7 @@ func (c *contentClient) RemoveFavorite(ctx context.Context, in *FavoritesRequest
 
 func (c *contentClient) CreateHashtag(ctx context.Context, in *Hashtag, opts ...grpc.CallOption) (*Hashtag, error) {
 	out := new(Hashtag)
-	err := c.cc.Invoke(ctx, "/protoe.Content/CreateHashtag", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Content/CreateHashtag", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -222,6 +232,7 @@ type ContentServer interface {
 	RemovePost(context.Context, *RequestId) (*EmptyResponse, error)
 	GetPostById(context.Context, *RequestId) (*Post, error)
 	SearchContentByLocation(context.Context, *SearchLocationRequest) (*ReducedPostArray, error)
+	GetPostsByHashtag(context.Context, *Hashtag) (*ReducedPostArray, error)
 	//    Comments
 	CreateComment(context.Context, *Comment) (*EmptyResponse, error)
 	GetCommentsForPost(context.Context, *RequestId) (*CommentsArray, error)
@@ -260,6 +271,9 @@ func (UnimplementedContentServer) GetPostById(context.Context, *RequestId) (*Pos
 }
 func (UnimplementedContentServer) SearchContentByLocation(context.Context, *SearchLocationRequest) (*ReducedPostArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchContentByLocation not implemented")
+}
+func (UnimplementedContentServer) GetPostsByHashtag(context.Context, *Hashtag) (*ReducedPostArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPostsByHashtag not implemented")
 }
 func (UnimplementedContentServer) CreateComment(context.Context, *Comment) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateComment not implemented")
@@ -323,7 +337,7 @@ func _Content_CreatePost_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protoe.Content/CreatePost",
+		FullMethod: "/proto.Content/CreatePost",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).CreatePost(ctx, req.(*Post))
@@ -341,7 +355,7 @@ func _Content_GetAllPosts_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protoe.Content/GetAllPosts",
+		FullMethod: "/proto.Content/GetAllPosts",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).GetAllPosts(ctx, req.(*EmptyRequest))
@@ -359,7 +373,7 @@ func _Content_RemovePost_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protoe.Content/RemovePost",
+		FullMethod: "/proto.Content/RemovePost",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).RemovePost(ctx, req.(*RequestId))
@@ -377,7 +391,7 @@ func _Content_GetPostById_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protoe.Content/GetPostById",
+		FullMethod: "/proto.Content/GetPostById",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).GetPostById(ctx, req.(*RequestId))
@@ -395,10 +409,28 @@ func _Content_SearchContentByLocation_Handler(srv interface{}, ctx context.Conte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protoe.Content/SearchContentByLocation",
+		FullMethod: "/proto.Content/SearchContentByLocation",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).SearchContentByLocation(ctx, req.(*SearchLocationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_GetPostsByHashtag_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Hashtag)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetPostsByHashtag(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetPostsByHashtag",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetPostsByHashtag(ctx, req.(*Hashtag))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -413,7 +445,7 @@ func _Content_CreateComment_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protoe.Content/CreateComment",
+		FullMethod: "/proto.Content/CreateComment",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).CreateComment(ctx, req.(*Comment))
@@ -431,7 +463,7 @@ func _Content_GetCommentsForPost_Handler(srv interface{}, ctx context.Context, d
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protoe.Content/GetCommentsForPost",
+		FullMethod: "/proto.Content/GetCommentsForPost",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).GetCommentsForPost(ctx, req.(*RequestId))
@@ -449,7 +481,7 @@ func _Content_CreateLike_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protoe.Content/CreateLike",
+		FullMethod: "/proto.Content/CreateLike",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).CreateLike(ctx, req.(*Like))
@@ -467,7 +499,7 @@ func _Content_GetLikesForPost_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protoe.Content/GetLikesForPost",
+		FullMethod: "/proto.Content/GetLikesForPost",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).GetLikesForPost(ctx, req.(*RequestId))
@@ -485,7 +517,7 @@ func _Content_GetDislikesForPost_Handler(srv interface{}, ctx context.Context, d
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protoe.Content/GetDislikesForPost",
+		FullMethod: "/proto.Content/GetDislikesForPost",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).GetDislikesForPost(ctx, req.(*RequestId))
@@ -503,7 +535,7 @@ func _Content_GetAllCollections_Handler(srv interface{}, ctx context.Context, de
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protoe.Content/GetAllCollections",
+		FullMethod: "/proto.Content/GetAllCollections",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).GetAllCollections(ctx, req.(*RequestId))
@@ -521,7 +553,7 @@ func _Content_GetCollection_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protoe.Content/GetCollection",
+		FullMethod: "/proto.Content/GetCollection",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).GetCollection(ctx, req.(*RequestId))
@@ -539,7 +571,7 @@ func _Content_CreateCollection_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protoe.Content/CreateCollection",
+		FullMethod: "/proto.Content/CreateCollection",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).CreateCollection(ctx, req.(*Collection))
@@ -557,7 +589,7 @@ func _Content_RemoveCollection_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protoe.Content/RemoveCollection",
+		FullMethod: "/proto.Content/RemoveCollection",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).RemoveCollection(ctx, req.(*RequestId))
@@ -575,7 +607,7 @@ func _Content_GetUserFavorites_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protoe.Content/GetUserFavorites",
+		FullMethod: "/proto.Content/GetUserFavorites",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).GetUserFavorites(ctx, req.(*RequestId))
@@ -593,7 +625,7 @@ func _Content_CreateFavorite_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protoe.Content/CreateFavorite",
+		FullMethod: "/proto.Content/CreateFavorite",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).CreateFavorite(ctx, req.(*FavoritesRequest))
@@ -611,7 +643,7 @@ func _Content_RemoveFavorite_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protoe.Content/RemoveFavorite",
+		FullMethod: "/proto.Content/RemoveFavorite",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).RemoveFavorite(ctx, req.(*FavoritesRequest))
@@ -629,7 +661,7 @@ func _Content_CreateHashtag_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protoe.Content/CreateHashtag",
+		FullMethod: "/proto.Content/CreateHashtag",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).CreateHashtag(ctx, req.(*Hashtag))
@@ -638,7 +670,7 @@ func _Content_CreateHashtag_Handler(srv interface{}, ctx context.Context, dec fu
 }
 
 var _Content_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "protoe.Content",
+	ServiceName: "proto.Content",
 	HandlerType: (*ContentServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -660,6 +692,10 @@ var _Content_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SearchContentByLocation",
 			Handler:    _Content_SearchContentByLocation_Handler,
+		},
+		{
+			MethodName: "GetPostsByHashtag",
+			Handler:    _Content_GetPostsByHashtag_Handler,
 		},
 		{
 			MethodName: "CreateComment",

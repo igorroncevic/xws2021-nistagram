@@ -40,3 +40,20 @@ func (service HashtagService) CreateHashtag(ctx context.Context, text string) (*
 
 	return &domain.Hashtag{Id: hashtag.Id, Text: hashtag.Text}, nil
 }
+
+func (service HashtagService) GetHashtagByText(ctx context.Context, text string) (*domain.Hashtag, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetHashtagByText")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if text == "" {
+		return nil, errors.New("cannot get empty hashtag")
+	}
+
+	hashtag, err := service.hashtagRepository.GetHashtagByText(ctx, text)
+	if err != nil {
+		return nil, errors.New("hashtag does not exist")
+	}
+
+	return &domain.Hashtag{Id: hashtag.Id, Text: hashtag.Text}, nil
+}
