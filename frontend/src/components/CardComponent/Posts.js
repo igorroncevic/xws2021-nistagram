@@ -5,9 +5,9 @@ import Post from "./Post";
 
 function Posts () {
     //prvo cemo dobavljati postove iz baze sve
-    const content=[
-        {   id:'1',
-            userId:'2',
+    const posts=[
+        {id:'1',
+            userId:'2dsdsd',
             isAd:false,
             type:'Post',
             description:'a cool new post',
@@ -15,22 +15,22 @@ function Posts () {
             createdAt: '2021-06-02T17:33:17.541716Z',
             mediaContent:'https://picsum.photos/800/1000'
         },{id:'2',
-            userId:'3',
+            userId:'3dsdss',
             isAd:false,
             type:'Post',
             description:'Vidite kako je lepo',
             location:'Zlatibor, Serbia',
             createdAt: '2021-06-02T17:33:17.541716Z',
-            mediaContent:'https://picsum.photos/700/1000'
+            mediaContent:'https://picsum.photos/600/1000'
         }
 
     ];
 
     return(
         <div>
-            {content.map((content) => {
+            {posts.map((post) => {
                 return (
-                    <Post content={content} userId={content.userId}/>);
+                    <Post post={post} userId={post.userId}/>);
             })}
 
         </div>
