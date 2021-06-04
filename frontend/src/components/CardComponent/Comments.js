@@ -7,6 +7,11 @@ function Comments(props) {
     const[comments,setComments]=useState([]);
     const[newComment, setNewComment]=useState('');
 
+    /*treba da dobavimo komentare posta na osnovu id-a
+        useEffect(() => {
+                getComments();
+        });
+*/
     function getComments(){
         axios
             .get('http://localhost:8080/api/comments/'+post.id)
@@ -24,7 +29,7 @@ function Comments(props) {
             console.log("NE RADI")
         })
     }
-
+    //mokovani podaci za proveru
     const commentsOne = [
         {
             userId: "raffagrassetti",
@@ -65,7 +70,8 @@ function Comments(props) {
 
 
     return (
-        <div className="comments">
+        <div className="comments" >
+            <div style={{backgroundColor:'#f5f1f2'}}>
             {commentsOne.map((comment) => {
                 return (
                     <div className="commentContainer">
@@ -75,6 +81,8 @@ function Comments(props) {
 
                 );
             })}
+            </div>
+
             <div className="row">
                 <div style={{ marginLeft: '3em'}}className="accountName"><strong>IDUSERA</strong></div>
                 <input  style={{marginLeft:'2em', height:'1.4em'}} aria-label="Add a comment" autoComplete="off"  type="text"

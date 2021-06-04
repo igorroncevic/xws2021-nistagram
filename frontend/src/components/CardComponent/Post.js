@@ -10,8 +10,6 @@ import LikesAndDislikes from "./LikesAndDislikes";
 function Post (props) {
     const{post,userId}=props;
     const[user,setUser]=useState({username:'majanokti123'});
-    const[likes,setLikes]=useState([]);
-    const[numOfLikes,setNumOfLikes]=useState(0);
 
     /*treba da dobavimo usera na osnovu id-a
     useEffect(() => {
@@ -32,16 +30,7 @@ function Post (props) {
         })
     }
 
-    function getLikes(){
-        axios
-            .get('http://localhost:8080/api/likes/'+post.id)
-            .then(res => {
-                console.log("RADI")
-                //treba da nam vrati username od ussera koji su lajkovali
-            }).catch(res => {
-            console.log("NE RADI")
-        })
-    }
+
 
 
     return(
@@ -62,7 +51,7 @@ function Post (props) {
                         <img alt="Icon Living" src={post.mediaContent} />
                     </div>
                 </div>
-                <LikesAndDislikes/>
+                <LikesAndDislikes post={post}/>
 
                 <div className="Post-caption">
                     <strong>{user.username} </strong>{post.description}

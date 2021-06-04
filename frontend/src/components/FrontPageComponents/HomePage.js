@@ -14,11 +14,6 @@ function HomePage() {
     const showSidebar = () => setSidebar(!sidebar);
 
     const history = useHistory()
-
-    useEffect(() => {
-        document.body.style.backgroundColor = "#ffeecc"
-    });
-
     function  logOut(){
         console.log("BLA")
         history.push('/');
@@ -26,15 +21,16 @@ function HomePage() {
 
     return (
         <>
-            <IconContext.Provider value={{color: '#fff'}}>
+            <IconContext.Provider value={{color: 'white'}}>
                 <div className='navbar'>
                     <Link to='#' className='menu-bars'>
                         <FaIcons.FaBars onClick={showSidebar}/>
                     </Link>
                     <p className='text'>Ništagram</p>
-                    <Button style={{background: '#ffeecc', borderColor: '#ffeecc', color: '#ff4d4d'}} onClick={logOut} >Log out</Button>
+                    <Button style={{background: 'white', borderColor: '#ffeecc', color: '#ff4d4d'}} onClick={logOut} >Log out</Button>
 
                 </div>
+
                 <nav className={sidebar ? 'nav-menu active' : 'nav-menu'}>
                     <ul className='nav-menu-items' onClick={showSidebar}>
                         <li className='navbar-toggle'>
