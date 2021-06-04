@@ -55,7 +55,7 @@ func (repository *postRepository) GetAllPosts(ctx context.Context) ([]persistenc
 }
 
 func (repository *postRepository) GetPostById(ctx context.Context, id string) (*persistence.Post, error){
-	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPosts")
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostById")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
@@ -168,7 +168,7 @@ func (repository *postRepository) RemovePost(ctx context.Context, postId string)
 }
 
 func (repository *postRepository) GetCollectionsPosts(ctx context.Context, id string) ([]persistence.Post, error){
-	span := tracer.StartSpanFromContextMetadata(ctx, "RemovePost")
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetCollectionsPosts")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 

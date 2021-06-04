@@ -44,18 +44,6 @@ func (p Post) ConvertToDomainReduced(commentsNum int, likesNum int, dislikesNum 
 	}
 }
 
-func (p Post) ConvertReducedToPersistence(post domain.ReducedPost) Post {
-	return Post{
-		Id:          post.Id,
-		UserId:      post.UserId,
-		IsAd:        false,
-		Type:        "",
-		Description: "",
-		Location:    "",
-		CreatedAt:   time.Time{},
-	}
-}
-
 func (p Post) ConvertToPersistence(post domain.Post) Post {
 	return Post{
 		Id:          uuid.NewV4().String(),
@@ -65,6 +53,21 @@ func (p Post) ConvertToPersistence(post domain.Post) Post {
 		Description: post.Description,
 		Location:    post.Location,
 		CreatedAt:   time.Now(),
+	}
+}
+
+func (s Story) ConvertToPersistence(story domain.Story) Story {
+	return Story{
+		Post: Post {
+			Id:          uuid.NewV4().String(),
+			UserId:      story.UserId,
+			IsAd:        story.IsAd,
+			Type:        story.Type,
+			Description: story.Description,
+			Location:    story.Location,
+			CreatedAt:   time.Now(),
+		},
+		IsCloseFriends: story.IsCloseFriends,
 	}
 }
 
