@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package proto;
+package protoe;
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/xws2021-nistagram/user_service/proto";
+option go_package = "github.com/xws2021-nistagram/user_service/protoe";
 
 service Users {
   rpc CreateUser (CreateUserRequest) returns (EmptyResponse) {

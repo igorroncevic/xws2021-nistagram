@@ -21,8 +21,8 @@ func NewServer(driver neo4j.Driver) (*Server, error) {
 	tracer, closer := tracer.Init("recommendationService")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
-		tracer: tracer,
-		closer: closer,
+		tracer:             tracer,
+		closer:             closer,
 		followerController: followerController,
 	}, nil
 }
@@ -35,35 +35,33 @@ func (s *Server) GetCloser() io.Closer {
 	return s.closer
 }
 
-func (s *Server) CreateUserConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.EmptyResponse, error) {
+func (s *Server) CreateUserConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.EmptyResponseFollowers, error) {
 	return s.followerController.CreateUserConnection(ctx, in)
 }
 
-func (s *Server) GetAllFollowers(ctx context.Context, in *proto.CreateUserRequest) (*proto.CreateUserResponse, error) {
+func (s *Server) GetAllFollowers(ctx context.Context, in *proto.CreateUserRequestFollowers) (*proto.CreateUserResponse, error) {
 	return s.followerController.GetAllFollowers(ctx, in)
 }
 
-func (s *Server) GetAllFollowing(ctx context.Context,  in *proto.CreateUserRequest) (*proto.CreateUserResponse, error) {
+func (s *Server) GetAllFollowing(ctx context.Context, in *proto.CreateUserRequestFollowers) (*proto.CreateUserResponse, error) {
 	return s.followerController.GetAllFollowing(ctx, in)
 }
 
-func (s *Server) DeleteBiDirectedConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.EmptyResponse, error) {
+func (s *Server) DeleteBiDirectedConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.EmptyResponseFollowers, error) {
 	return s.followerController.DeleteBiDirectedConnection(ctx, in)
 }
 
-func (s *Server) DeleteDirectedConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.EmptyResponse, error) {
+func (s *Server) DeleteDirectedConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.EmptyResponseFollowers, error) {
 	return s.followerController.DeleteDirectedConnection(ctx, in)
 }
 
-func (s *Server) CreateUser(ctx context.Context, in *proto.CreateUserRequest ) (*proto.EmptyResponse, error) {
+func (s *Server) CreateUser(ctx context.Context, in *proto.CreateUserRequestFollowers) (*proto.EmptyResponseFollowers, error) {
 	return s.followerController.CreateUser(ctx, in)
 }
 
-func (s *Server)  UpdateUserConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.CreateFollowerResponse,error){
+func (s *Server) UpdateUserConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.CreateFollowerResponse, error) {
 	return s.followerController.UpdateUserConnection(ctx, in)
 }
 func (s *Server) GetFollowersConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.CreateFollowerResponse, error) {
 	return s.followerController.GetFollowersConnection(ctx, in)
 }
-
-

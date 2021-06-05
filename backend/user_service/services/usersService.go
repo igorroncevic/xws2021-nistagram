@@ -70,8 +70,8 @@ func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, us
 
 	c := recommendationpb.NewFollowersClient(conn)
 
-	createUserRequest := recommendationpb.CreateUserRequest{
-		User: &recommendationpb.User{
+	createUserRequest := recommendationpb.CreateUserRequestFollowers{
+		User: &recommendationpb.UserFollowers{
 			UserId: user.Id,
 		},
 	}

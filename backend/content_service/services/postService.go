@@ -344,6 +344,14 @@ func (service *PostService) GetPostsByHashtag(ctx context.Context, text string) 
 	defer conn.Close()
 
 	c := userspb.NewPrivacyClient(conn)
+	privacyRequest := userspb.PrivacyRequest{
+		UserId: "0",
+	}
+	response, err := c.CheckUserProfilePublic(context.Background(), &privacyRequest)
+	if err != nil {
+		log.Fatalf("Error when calling CheckUserProfilePublic: %s", err)
+	}
+	print(response.Response)
 
 	//check if user account is public
 	for _, post := range posts {

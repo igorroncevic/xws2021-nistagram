@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package proto;
+package protoe;
 
 import "google/api/annotations.proto";
 
-option go_package = "github.com/xws2021-nistagram/user_service/proto";
+option go_package = "github.com/xws2021-nistagram/user_service/protoe";
 
 service Privacy {
     rpc CreatePrivacy (CreatePrivacyRequest) returns (EmptyResponsePrivacy) {
