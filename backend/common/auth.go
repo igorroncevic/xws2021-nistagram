@@ -8,22 +8,27 @@ import (
 	"time"
 )
 
+type JWTManager struct {
+	secretKey     string
+	tokenDuration time.Duration
+}
+
 type Credentials struct{
 	Email string `json:"email"`
 	Password string `json:"password"`
 }
 
 type Claims struct {
-	Email string `json:"email"`
+	UserId string `json:"userId"`
+	Role   string `json:"role"`
 	jwt.StandardClaims
 }
 
-var (
-	expirationMinutes = 5
-	jwtKey = []byte("some-jwt-key")
-)
+func NewJWTManager(secretKey string, tokenDuration time.Duration) *JWTManager {
+	return &JWTManager{ secretKey: secretKey, tokenDuration: tokenDuration }
+}
 
-func AuthMiddleware(next http.Handler) http.Handler{
+func (manager *JWTManager) AuthMiddleware(next http.Handler) http.Handler{
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasSuffix(r.URL.String(), "favicon.ico") {
 			// Allow favicon.ico to load
@@ -38,10 +43,10 @@ func AuthMiddleware(next http.Handler) http.Handler{
 		}
 
 		jwtString := splitHeader[1]
-		status, err := ValidateJWT(jwtString)
+		_, err := manager.ValidateJWT(jwtString)
 
 		if err != nil{
-			w.WriteHeader(status)
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}else{
 			next.ServeHTTP(w, r)
@@ -49,74 +54,66 @@ func AuthMiddleware(next http.Handler) http.Handler{
 	})
 }
 
-func GenerateJwt(email string) (string, time.Time, error){
-	expirationTime := time.Now().Add(time.Duration(expirationMinutes) * time.Minute)
+func (manager *JWTManager) GenerateJwt(id string, role string) (string, error){
 	claims := &Claims{
-		Email: email,
+		UserId: id,
+		Role: role,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
+			ExpiresAt: time.Now().Add(manager.tokenDuration).Unix(),
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString(jwtKey)
+	//log.Println(manager.secretKey, []byte(manager.secretKey))
+	tokenString, err := token.SignedString([]byte(manager.secretKey))
 	if err != nil {
 		// If there is an error in creating the JWT return an internal server error
-		return "", time.Now(), errors.New("unable to sign JWT token")
+		return "", errors.New("unable to sign JWT token")
 	}
 
-	return tokenString, expirationTime, nil
+	return tokenString, nil
 }
 
-func ValidateJWT(jwtString string) (int, error){
-	// If working with cookies, first extract jwt value from it
-	//c, err := r.Cookie("token")
-	//	if err != nil {
-	//		if err == http.ErrNoCookie {
-	//			w.WriteHeader(http.StatusUnauthorized)
-	//			return
-	//		}
-	//		w.WriteHeader(http.StatusBadRequest)
-	//		return
-	//	}
-	//	tknStr := c.Value
-
-	if jwtString == ""{
-		return http.StatusUnauthorized, errors.New("unauthorized")
+func (manager *JWTManager) ValidateJWT(jwtString string) (*Claims, error){
+	if jwtString == "" {
+		return nil, errors.New("unauthorized")
 	}
-
-	claims := &Claims{}
 
 	// This method will return an error if the token is invalid (if it has expired according to the expiry time
 	// we set on sign in), or if the signature does not match
-	tkn, err := jwt.ParseWithClaims(jwtString, claims, func(token *jwt.Token)(interface{}, error){
-		return jwtKey, nil
+	token, err := jwt.ParseWithClaims(jwtString, &Claims{}, func(token *jwt.Token)(interface{}, error){
+		return []byte(manager.secretKey), nil
 	})
 
 	if err != nil {
 		if err == jwt.ErrSignatureInvalid {
-			return http.StatusUnauthorized, errors.New("unauthorized")
+			return nil, errors.New("unauthorized")
 		}
 		// If string that is sent is not even a JWT
-		return http.StatusBadRequest, errors.New("bad request")
+		return nil, errors.New("bad request")
 	}
 
-	if !tkn.Valid{
-		return http.StatusUnauthorized, errors.New("unauthorized")
+	if !token.Valid{
+		return nil, errors.New("unauthorized")
 	}
 
-	return http.StatusOK, nil
+	claims, ok := token.Claims.(*Claims)
+	if !ok {
+		return nil, errors.New("invalid token claims")
+	}
+
+	return claims, nil
 }
 
 // Create a refresh route?
-func RefreshJWT(jwtString string) (string, time.Time, int, error){
+func (manager *JWTManager) RefreshJWT(jwtString string) (string, time.Time, int, error){
 	claims := &Claims{}
 
 	// This method will return an error if the token is invalid (if it has expired according to the expiry time
 	// we set on sign in), or if the signature does not match
 	tkn, err := jwt.ParseWithClaims(jwtString, claims, func(token *jwt.Token)(interface{}, error){
-		return jwtKey, nil
+		return jwtString, nil
 	})
 
 	if err != nil {
@@ -141,7 +138,7 @@ func RefreshJWT(jwtString string) (string, time.Time, int, error){
 	expirationTime := time.Now().Add(5 * time.Minute)
 	claims.ExpiresAt = expirationTime.Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtKey)
+	tokenString, err := token.SignedString(manager.secretKey)
 	if err != nil {
 		return "", time.Now(), http.StatusInternalServerError, errors.New("unable to sign JWT token")
 	}

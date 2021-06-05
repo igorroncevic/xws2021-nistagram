@@ -2,11 +2,13 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
 	contentpb "github.com/david-drvar/xws2021-nistagram/content_service/proto"
 	"github.com/david-drvar/xws2021-nistagram/content_service/services"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
@@ -96,6 +98,8 @@ func (c *HighlightGrpcController) RemoveHighlightStory(ctx context.Context, in *
 func (c *HighlightGrpcController) CreateHighlight (ctx context.Context, in *contentpb.Highlight) (*contentpb.EmptyResponse, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateHighlight")
 	defer span.Finish()
+	contextMetadata, _ := metadata.FromIncomingContext(ctx)
+	fmt.Println(contextMetadata)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var collection *domain.Highlight
