@@ -9,7 +9,7 @@ import Post from "../PostComponent/Post";
 
 function Profile() {
     const [image, setImage] = useState('');
-    const [user, setUser] = useState({name: 'Jovana', email: 'Petrovic', followers: 4, following: 5});
+    const[user,setUser]=useState({username:"joksi3333",firstName:"Marko", lastName:"Markovic",email:"joksi323@gmail.com", birthDate: Date(), phoneNumber:"06589526262626", sex:"MAN", biography:"bla",website:"truc"})
     const [showModal, setModal] = useState(false);
 
     const updatePhoto = (file) => {
@@ -59,12 +59,12 @@ function Profile() {
                                  src='https://images.unsplash.com/photo-1522228115018-d838bcce5c3a?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
                         </div>
                         <div>
-                            <h4>{user.name}</h4>
-                            <h5>{user.email}</h5>
+                            <h4>{user.firstName} {user.lastName}</h4>
+                            <h4>{user.username}</h4>
                             <div style={{display: "flex", justifyContent: "space-between", width: "108%"}}>
                                 <h6>15 posts</h6>
-                                <h6>{user.followers} followers</h6>
-                                <h6>{user.following} following</h6>
+                                <h6>5 followers</h6>
+                                <h6>4 following</h6>
                             </div>
                             <Button variant="link" style={{
                                 borderTop: '1px solid red',

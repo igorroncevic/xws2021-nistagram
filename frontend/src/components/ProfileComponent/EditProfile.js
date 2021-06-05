@@ -2,11 +2,10 @@ import {Button, FormControl, Table} from "react-bootstrap";
 import React, {useEffect, useState} from "react";
 import axios from "axios";
 
-function EditProfile(props) {
+const EditProfile = props => {
+    const [user, setUser] = useState(props.user);  //  PAZI NA KUPLJENJE PROPS-A DOLAZI MU user{username:''}
     const[edit,setEdit]=useState(false)
 
-    //mokovano,     const{user}= props
-    const[user,setUserInfo]=useState({username:"joksi3333",firstName:"Marko", lastName:"Markovic",email:"joksi323@gmail.com", birthDate: Date(), phoneNumber:"06589526262626", sex:"MAN", biography:"bla",website:"truc"})
 
     function editProfile(){ //501
         axios
@@ -28,7 +27,7 @@ function EditProfile(props) {
         })
     }
     function handleInputChange(event) {
-        setUserInfo({
+        setUser({
             ...user,
             [event.target.name]: event.target.value,
         });
@@ -115,4 +114,4 @@ function EditProfile(props) {
                 }
             </div>
         );
-}export default EditProfile;
+};export default EditProfile;
