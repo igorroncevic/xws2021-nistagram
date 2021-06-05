@@ -212,10 +212,8 @@ export default function RegistrationPage() {
                 <label className="col-sm-2 col-form-label">Name</label>
                 <div className="col-sm-5 mb-2">
                     <input  disabled = {(disabled)? "disabled" : ""} type="text" value={firstName} name="firstName" onChange={(e) =>
-                        handleInputChange(e)
-                    } className="form-control" placeholder="First Name"/>
-                    {submitted && firstNameErr.length > 0 &&
-                    <span className="text-danger">{firstNameErr}</span>}
+                        handleInputChange(e) } className="form-control" placeholder="First Name"/>
+                    {submitted && firstNameErr.length > 0 && <span className="text-danger">{firstNameErr}</span>}
 
                 </div>
                 <div className="col-sm-5 mb-2">

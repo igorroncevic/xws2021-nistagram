@@ -213,7 +213,6 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 
 
 	userAdditionalInfo.Id = user.Id
-	userAdditionalInfo.Category=user
 	resultUserAdditionalInfo := repository.DB.Create(&userAdditionalInfo)
 
 	var privacy = persistence.Privacy{}
