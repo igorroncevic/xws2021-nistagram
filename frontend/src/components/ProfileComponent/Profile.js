@@ -6,11 +6,13 @@ import Stories from "react-insta-stories";
 import EditProfile from "./EditProfile";
 import Posts from "../PostComponent/Posts";
 import Post from "../PostComponent/Post";
+import ChangePassword from "./ChangePassword";
 
 function Profile() {
     const [image, setImage] = useState('');
-    const[user,setUser]=useState({username:"joksi3333",firstName:"Marko", lastName:"Markovic",email:"joksi323@gmail.com", birthDate: Date(), phoneNumber:"06589526262626", sex:"MAN", biography:"bla",website:"truc"})
+    const[user,setUser]=useState({username:"joksi3333",firstName:"Marko", lastName:"Markovic",email:"joksi323@gmail.com", birthDate: Date(), phoneNumber:"06589526262626", sex:"MAN", biography:"bla",website:"truc", password:'bla'})
     const [showModal, setModal] = useState(false);
+    const [showModalPass, setModalPass] = useState(false);
 
     const updatePhoto = (file) => {
         setImage(file)
@@ -23,6 +25,9 @@ function Profile() {
 
     function handleModal() {
         setModal(!showModal)
+    }
+    function handleModalPass() {
+        setModalPass(!showModalPass)
     }
 
     const posts = [
@@ -66,14 +71,8 @@ function Profile() {
                                 <h6>5 followers</h6>
                                 <h6>4 following</h6>
                             </div>
-                            <Button variant="link" style={{
-                                borderTop: '1px solid red',
-                                display: "flex",
-                                justifyContent: "space-between",
-                                width: "108%",
-                                color: 'red',
-                                float: "right"
-                            }} onClick={handleModal}>Update profile info?</Button>
+                            <Button variant="link" style={{borderTop: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModal}>Update profile info?</Button>
+                            <Button variant="link" style={{borderTop: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModalPass}>Change password?</Button>
 
                         </div>
                     </div>
@@ -116,6 +115,17 @@ function Profile() {
                         </Modal.Header>
                         <Modal.Body>
                             <EditProfile user={user}/>
+                        </Modal.Body>
+                        <Modal.Footer>
+
+                        </Modal.Footer>
+                    </Modal>
+
+                    <Modal show={showModalPass} onHide={handleModalPass}>
+                        <Modal.Header closeButton>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <ChangePassword user={user}/>
                         </Modal.Body>
                         <Modal.Footer>
 
