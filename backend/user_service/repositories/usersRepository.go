@@ -84,7 +84,7 @@ func (repository *userRepository) UpdateUserProfile(ctx context.Context, userDTO
 	} else if db.RowsAffected == 0 {
 		return false, errors.New("rows affected is equal to zero")
 	}
-	db = repository.DB.Model(&userAdditionalInfo).Where("id = ?", userDTO.Id).Updates(persistence.UserAdditionalInfo{Website: userDTO.Website, Category: userDTO.Category, Biography: userDTO.Biography}).Find(1)
+	db = repository.DB.Model(&userAdditionalInfo).Where("id = ?", userDTO.Id).Updates(persistence.UserAdditionalInfo{Website: userDTO.Website, Category: userDTO.Category, Biography: userDTO.Biography})
 
 	if db.Error != nil {
 		return false, db.Error
@@ -210,7 +210,10 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 		return resultUser.Error
 	}
 
+
+
 	userAdditionalInfo.Id = user.Id
+	userAdditionalInfo.Category=user
 	resultUserAdditionalInfo := repository.DB.Create(&userAdditionalInfo)
 
 	var privacy = persistence.Privacy{}

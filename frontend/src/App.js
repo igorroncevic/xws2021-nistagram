@@ -10,6 +10,7 @@ import Saved from "./components/HomePageComponents/Saved";
 import HomePage from "./components/HomePageComponents/HomePage";
 import Search from "./pages/Search";
 import Profile from "./components/ProfileComponent/Profile";
+import NewPost from "./components/PostComponent/NewPost";
 
 
 
@@ -22,6 +23,7 @@ function App () {
                 <Route path='/registration' exact={true} component={RegistrationPage}/>
                 <Route path='/home' exact={true} component={HomePage}/>
                 <Route path='/posts' exact component={PostsAndStories} />
+                <Route path='/newpost' exact component={NewPost} />
                 <Route path='/profile' exact component={Profile} />
                 <Route path='/chats' exact component={Chats} />
                 <Route path='/saved' exact component={Saved} />

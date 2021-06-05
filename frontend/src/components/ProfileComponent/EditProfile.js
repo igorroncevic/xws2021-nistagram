@@ -10,20 +10,24 @@ const EditProfile = props => {
     function editProfile(){ //501
         axios
             .post('http://localhost:8080/api/users/api/users/update_profile', {
-                'Id':'893b1f54-7b74-4476-85b6-b5d4f798fb29',
-                'FirstName' : user.firstName,
-                'LastName' : user.lastName,
-                'Username' : user.username,
-                'email' : 'blaaaaaaa@gmail.com',
-                'BirthDate' : user.birthDate,
-                'PhoneNumber' : user.phoneNumber,
-                'Sex' : 'WOMAN',
+        user:{
+            id: '11e215ef-a6ce-40c6-ad0b-e602e298f0a4',
+            firstName: 'Ana',
+            lastName: 'Zoric',
+            email: 'kkosta98@gmail.com',
+            phoneNumber: '0658456152',
+            username: 'kole998',
+            profilePhoto: 'idk',
+            sex: 'MAN',
+            website:'igorijovanzauvekzajednojej',
+            isActive: true
+        }
             })
             .then(res => {
                 console.log("RADI")
 
             }).catch(res => {
-            console.log("NE RADI")
+            console.log("NE RADIs")
         })
     }
     function handleInputChange(event) {

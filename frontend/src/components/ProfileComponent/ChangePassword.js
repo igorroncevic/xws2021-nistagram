@@ -9,7 +9,7 @@ function ChangePassword(props) {
     const[oldErr,setOldErr]=useState('Please enter valid old password!');
     const[newErr,setNewErr]=useState('Please enter new password!');
     const[repErr,setRepErr]=useState('Please repeat new password!');
-    
+
     function changePass(){
         axios
             .post('http://localhost:8080/api/users/api/users/update_password', {
