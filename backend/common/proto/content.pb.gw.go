@@ -66,7 +66,7 @@ func local_request_Content_CreatePost_0(ctx context.Context, marshaler runtime.M
 }
 
 func request_Content_GetAllPosts_0(ctx context.Context, marshaler runtime.Marshaler, client ContentClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq EmptyRequest
+	var protoReq EmptyRequestContent
 	var metadata runtime.ServerMetadata
 
 	msg, err := client.GetAllPosts(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -75,7 +75,7 @@ func request_Content_GetAllPosts_0(ctx context.Context, marshaler runtime.Marsha
 }
 
 func local_request_Content_GetAllPosts_0(ctx context.Context, marshaler runtime.Marshaler, server ContentServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq EmptyRequest
+	var protoReq EmptyRequestContent
 	var metadata runtime.ServerMetadata
 
 	msg, err := server.GetAllPosts(ctx, &protoReq)

@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"context"
+	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	contentpb "github.com/david-drvar/xws2021-nistagram/content_service/proto"
 	"github.com/david-drvar/xws2021-nistagram/content_service/services"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -26,7 +26,7 @@ func NewCommentController(db *gorm.DB) (*CommentGrpcController, error) {
 	}, nil
 }
 
-func (s *CommentGrpcController) CreateComment(ctx context.Context, in *contentpb.Comment) (*contentpb.EmptyResponse, error) {
+func (s *CommentGrpcController) CreateComment(ctx context.Context, in *protopb.Comment) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateComment")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -36,31 +36,31 @@ func (s *CommentGrpcController) CreateComment(ctx context.Context, in *contentpb
 
 	err := s.service.CreateComment(ctx, comment)
 	if err != nil {
-		return &contentpb.EmptyResponse{}, status.Errorf(codes.Unknown, "could not create comment")
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create comment")
 	}
 
-	return &contentpb.EmptyResponse{}, nil
+	return &protopb.EmptyResponseContent{}, nil
 }
 
-func (s *CommentGrpcController) GetCommentsForPost(ctx context.Context, id string) (*contentpb.CommentsArray, error) {
+func (s *CommentGrpcController) GetCommentsForPost(ctx context.Context, id string) (*protopb.CommentsArray, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateComment")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	comments, err := s.service.GetCommentsForPost(ctx, id)
 
-	if err != nil{
-		return &contentpb.CommentsArray{
-			Comments: []*contentpb.Comment{},
+	if err != nil {
+		return &protopb.CommentsArray{
+			Comments: []*protopb.Comment{},
 		}, status.Errorf(codes.Unknown, "Could not retrieve comments")
 	}
 
-	responseComments := []*contentpb.Comment{}
-	for _, comment := range comments{
+	responseComments := []*protopb.Comment{}
+	for _, comment := range comments {
 		responseComments = append(responseComments, comment.ConvertToGrpc())
 	}
 
-	return &contentpb.CommentsArray{
+	return &protopb.CommentsArray{
 		Comments: responseComments,
 	}, nil
 }

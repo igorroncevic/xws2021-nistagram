@@ -5,24 +5,24 @@ package proto;
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/xws2021-nistagram/content_service/proto";
+option go_package = "github.com/xws2021-nistagram/common/proto";
 
 service Content {
   /*    Posts    */
-  rpc CreatePost (Post) returns (EmptyResponse) {
+  rpc CreatePost (Post) returns (EmptyResponseContent) {
     option(google.api.http) = {
       post: "/posts",
       body: "*"
     };
   }
 
-  rpc GetAllPosts (EmptyRequest) returns (ReducedPostArray) {
+  rpc GetAllPosts (EmptyRequestContent) returns (ReducedPostArray) {
     option(google.api.http) = {
       get: "/posts"
     };
   }
 
-  rpc RemovePost (RequestId) returns (EmptyResponse) {
+  rpc RemovePost (RequestId) returns (EmptyResponseContent) {
     option(google.api.http) = {
       delete: "/posts/{id}"
     };
@@ -50,7 +50,7 @@ service Content {
   /* * * * * * * * * * * * */
 
   /*    Comments    */
-  rpc CreateComment (Comment) returns (EmptyResponse) {
+  rpc CreateComment (Comment) returns (EmptyResponseContent) {
     option(google.api.http) = {
       post: "/comments",
       body: "*"
@@ -65,7 +65,7 @@ service Content {
   /* * * * * * * * * * * * */
 
   /* Likes & Dislikes */
-  rpc CreateLike (Like) returns (EmptyResponse) {
+  rpc CreateLike (Like) returns (EmptyResponseContent) {
     option(google.api.http) = {
       post: "/likes",
       body: "*"
@@ -98,14 +98,14 @@ service Content {
     };
   }
 
-  rpc CreateCollection (Collection) returns (EmptyResponse) {
+  rpc CreateCollection (Collection) returns (EmptyResponseContent) {
     option(google.api.http) = {
       post: "/collections",
       body: "*"
     };
   }
 
-  rpc RemoveCollection (RequestId) returns (EmptyResponse) {
+  rpc RemoveCollection (RequestId) returns (EmptyResponseContent) {
     option(google.api.http) = {
       delete: "/collections/{id}"
     };
@@ -117,14 +117,14 @@ service Content {
     };
   }
 
-  rpc CreateFavorite (FavoritesRequest) returns (EmptyResponse) {
+  rpc CreateFavorite (FavoritesRequest) returns (EmptyResponseContent) {
     option(google.api.http) = {
       post: "/favorites/create",
       body: "*"
     };
   }
 
-  rpc RemoveFavorite (FavoritesRequest) returns (EmptyResponse) {
+  rpc RemoveFavorite (FavoritesRequest) returns (EmptyResponseContent) {
     option(google.api.http) = {
       post: "/favorites/delete",
       body: "*"
@@ -287,6 +287,6 @@ message SearchLocationRequest {
   string location = 1;
 }
 
-message EmptyRequest {}
-message EmptyResponse {}
+message EmptyRequestContent {}
+message EmptyResponseContent {}
 /* * * * * * * * * * * * */

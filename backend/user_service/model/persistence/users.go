@@ -1,8 +1,8 @@
 package persistence
 
 import (
+	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model"
-	userspb "github.com/david-drvar/xws2021-nistagram/user_service/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 )
@@ -22,8 +22,8 @@ type User struct {
 	IsActive     bool
 }
 
-func (u User) ConvertToGrpc() *userspb.User {
-	return &userspb.User{
+func (u User) ConvertToGrpc() *protopb.User {
+	return &protopb.User{
 		Id:           u.Id,
 		FirstName:    u.FirstName,
 		LastName:     u.LastName,
@@ -39,7 +39,7 @@ func (u User) ConvertToGrpc() *userspb.User {
 	}
 }
 
-func (u *User) ConvertFromGrpc(user *userspb.User) *User {
+func (u *User) ConvertFromGrpc(user *protopb.User) *User {
 	return &User{
 		Id:           user.Id,
 		FirstName:    user.FirstName,
@@ -63,7 +63,7 @@ type UserAdditionalInfo struct {
 	Category  model.UserCategory
 }
 
-func (u UserAdditionalInfo) ConvertFromGrpc(user *userspb.User) *UserAdditionalInfo {
+func (u UserAdditionalInfo) ConvertFromGrpc(user *protopb.User) *UserAdditionalInfo {
 	return &UserAdditionalInfo{
 		Id:        user.Id,
 		Biography: user.Biography,
@@ -78,12 +78,12 @@ type Privacy struct {
 	IsTagEnabled    bool
 }
 
-func (privacy *Privacy) ConvertFromGrpc(p *userspb.PrivacyMessage) *Privacy{
+func (privacy *Privacy) ConvertFromGrpc(p *protopb.PrivacyMessage) *Privacy {
 	return &Privacy{
-		UserId: p.Id,
-		IsDMPublic: p.IsDmPublic,
+		UserId:          p.Id,
+		IsDMPublic:      p.IsDmPublic,
 		IsProfilePublic: p.IsProfilePublic,
-		IsTagEnabled: p.IsTagEnabled,
+		IsTagEnabled:    p.IsTagEnabled,
 	}
 }
 
@@ -92,9 +92,9 @@ type BlockedUsers struct {
 	BlockedUserId string `gorm:"primaryKey"`
 }
 
-func (block *BlockedUsers) ConvertFromGrpc(b *userspb.Block) *BlockedUsers{
+func (block *BlockedUsers) ConvertFromGrpc(b *protopb.Block) *BlockedUsers {
 	return &BlockedUsers{
-		UserId: b.UserId,
+		UserId:        b.UserId,
 		BlockedUserId: b.BlockedUserId,
 	}
 }

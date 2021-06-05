@@ -1,9 +1,9 @@
 package domain
 
 import (
+	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
-	userspb "github.com/david-drvar/xws2021-nistagram/user_service/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 )
@@ -15,7 +15,7 @@ type Password struct {
 	Id               string
 }
 
-func (p Password) ConvertFromGrpc(pass *userspb.Password) Password {
+func (p Password) ConvertFromGrpc(pass *protopb.Password) Password {
 	return Password{
 		OldPassword:      pass.OldPassword,
 		NewPassword:      pass.NewPassword,
@@ -41,8 +41,8 @@ type User struct {
 	Category     model.UserCategory
 }
 
-func (u User) ConvertToGrpc() *userspb.UsersDTO {
-	return &userspb.UsersDTO{
+func (u User) ConvertToGrpc() *protopb.UsersDTO {
+	return &protopb.UsersDTO{
 		Id:           u.Id,
 		FirstName:    u.FirstName,
 		LastName:     u.LastName,
@@ -60,7 +60,7 @@ func (u User) ConvertToGrpc() *userspb.UsersDTO {
 	}
 }
 
-func (u User) ConvertFromGrpc(user *userspb.UsersDTO) User {
+func (u User) ConvertFromGrpc(user *protopb.UsersDTO) User {
 	return User{
 		Id:           user.Id,
 		FirstName:    user.FirstName,

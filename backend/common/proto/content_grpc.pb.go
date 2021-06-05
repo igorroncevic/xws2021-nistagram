@@ -18,27 +18,27 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ContentClient interface {
 	//    Posts
-	CreatePost(ctx context.Context, in *Post, opts ...grpc.CallOption) (*EmptyResponse, error)
-	GetAllPosts(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*ReducedPostArray, error)
-	RemovePost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponse, error)
+	CreatePost(ctx context.Context, in *Post, opts ...grpc.CallOption) (*EmptyResponseContent, error)
+	GetAllPosts(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*ReducedPostArray, error)
+	RemovePost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetPostById(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Post, error)
 	SearchContentByLocation(ctx context.Context, in *SearchLocationRequest, opts ...grpc.CallOption) (*ReducedPostArray, error)
 	GetPostsByHashtag(ctx context.Context, in *Hashtag, opts ...grpc.CallOption) (*ReducedPostArray, error)
 	//    Comments
-	CreateComment(ctx context.Context, in *Comment, opts ...grpc.CallOption) (*EmptyResponse, error)
+	CreateComment(ctx context.Context, in *Comment, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetCommentsForPost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*CommentsArray, error)
 	// Likes & Dislikes
-	CreateLike(ctx context.Context, in *Like, opts ...grpc.CallOption) (*EmptyResponse, error)
+	CreateLike(ctx context.Context, in *Like, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetLikesForPost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*LikesArray, error)
 	GetDislikesForPost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*LikesArray, error)
 	// Collections & Favorites
 	GetAllCollections(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*CollectionsArray, error)
 	GetCollection(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Collection, error)
-	CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*EmptyResponse, error)
-	RemoveCollection(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponse, error)
+	CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*EmptyResponseContent, error)
+	RemoveCollection(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetUserFavorites(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Favorites, error)
-	CreateFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
-	RemoveFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	CreateFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error)
+	RemoveFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	// Hashtags
 	CreateHashtag(ctx context.Context, in *Hashtag, opts ...grpc.CallOption) (*Hashtag, error)
 }
@@ -51,8 +51,8 @@ func NewContentClient(cc grpc.ClientConnInterface) ContentClient {
 	return &contentClient{cc}
 }
 
-func (c *contentClient) CreatePost(ctx context.Context, in *Post, opts ...grpc.CallOption) (*EmptyResponse, error) {
-	out := new(EmptyResponse)
+func (c *contentClient) CreatePost(ctx context.Context, in *Post, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
+	out := new(EmptyResponseContent)
 	err := c.cc.Invoke(ctx, "/proto.Content/CreatePost", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -60,7 +60,7 @@ func (c *contentClient) CreatePost(ctx context.Context, in *Post, opts ...grpc.C
 	return out, nil
 }
 
-func (c *contentClient) GetAllPosts(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*ReducedPostArray, error) {
+func (c *contentClient) GetAllPosts(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*ReducedPostArray, error) {
 	out := new(ReducedPostArray)
 	err := c.cc.Invoke(ctx, "/proto.Content/GetAllPosts", in, out, opts...)
 	if err != nil {
@@ -69,8 +69,8 @@ func (c *contentClient) GetAllPosts(ctx context.Context, in *EmptyRequest, opts 
 	return out, nil
 }
 
-func (c *contentClient) RemovePost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponse, error) {
-	out := new(EmptyResponse)
+func (c *contentClient) RemovePost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
+	out := new(EmptyResponseContent)
 	err := c.cc.Invoke(ctx, "/proto.Content/RemovePost", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -105,8 +105,8 @@ func (c *contentClient) GetPostsByHashtag(ctx context.Context, in *Hashtag, opts
 	return out, nil
 }
 
-func (c *contentClient) CreateComment(ctx context.Context, in *Comment, opts ...grpc.CallOption) (*EmptyResponse, error) {
-	out := new(EmptyResponse)
+func (c *contentClient) CreateComment(ctx context.Context, in *Comment, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
+	out := new(EmptyResponseContent)
 	err := c.cc.Invoke(ctx, "/proto.Content/CreateComment", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -123,8 +123,8 @@ func (c *contentClient) GetCommentsForPost(ctx context.Context, in *RequestId, o
 	return out, nil
 }
 
-func (c *contentClient) CreateLike(ctx context.Context, in *Like, opts ...grpc.CallOption) (*EmptyResponse, error) {
-	out := new(EmptyResponse)
+func (c *contentClient) CreateLike(ctx context.Context, in *Like, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
+	out := new(EmptyResponseContent)
 	err := c.cc.Invoke(ctx, "/proto.Content/CreateLike", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -168,8 +168,8 @@ func (c *contentClient) GetCollection(ctx context.Context, in *RequestId, opts .
 	return out, nil
 }
 
-func (c *contentClient) CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*EmptyResponse, error) {
-	out := new(EmptyResponse)
+func (c *contentClient) CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
+	out := new(EmptyResponseContent)
 	err := c.cc.Invoke(ctx, "/proto.Content/CreateCollection", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -177,8 +177,8 @@ func (c *contentClient) CreateCollection(ctx context.Context, in *Collection, op
 	return out, nil
 }
 
-func (c *contentClient) RemoveCollection(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponse, error) {
-	out := new(EmptyResponse)
+func (c *contentClient) RemoveCollection(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
+	out := new(EmptyResponseContent)
 	err := c.cc.Invoke(ctx, "/proto.Content/RemoveCollection", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -195,8 +195,8 @@ func (c *contentClient) GetUserFavorites(ctx context.Context, in *RequestId, opt
 	return out, nil
 }
 
-func (c *contentClient) CreateFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
-	out := new(EmptyResponse)
+func (c *contentClient) CreateFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
+	out := new(EmptyResponseContent)
 	err := c.cc.Invoke(ctx, "/proto.Content/CreateFavorite", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -204,8 +204,8 @@ func (c *contentClient) CreateFavorite(ctx context.Context, in *FavoritesRequest
 	return out, nil
 }
 
-func (c *contentClient) RemoveFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
-	out := new(EmptyResponse)
+func (c *contentClient) RemoveFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
+	out := new(EmptyResponseContent)
 	err := c.cc.Invoke(ctx, "/proto.Content/RemoveFavorite", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -227,27 +227,27 @@ func (c *contentClient) CreateHashtag(ctx context.Context, in *Hashtag, opts ...
 // for forward compatibility
 type ContentServer interface {
 	//    Posts
-	CreatePost(context.Context, *Post) (*EmptyResponse, error)
-	GetAllPosts(context.Context, *EmptyRequest) (*ReducedPostArray, error)
-	RemovePost(context.Context, *RequestId) (*EmptyResponse, error)
+	CreatePost(context.Context, *Post) (*EmptyResponseContent, error)
+	GetAllPosts(context.Context, *EmptyRequestContent) (*ReducedPostArray, error)
+	RemovePost(context.Context, *RequestId) (*EmptyResponseContent, error)
 	GetPostById(context.Context, *RequestId) (*Post, error)
 	SearchContentByLocation(context.Context, *SearchLocationRequest) (*ReducedPostArray, error)
 	GetPostsByHashtag(context.Context, *Hashtag) (*ReducedPostArray, error)
 	//    Comments
-	CreateComment(context.Context, *Comment) (*EmptyResponse, error)
+	CreateComment(context.Context, *Comment) (*EmptyResponseContent, error)
 	GetCommentsForPost(context.Context, *RequestId) (*CommentsArray, error)
 	// Likes & Dislikes
-	CreateLike(context.Context, *Like) (*EmptyResponse, error)
+	CreateLike(context.Context, *Like) (*EmptyResponseContent, error)
 	GetLikesForPost(context.Context, *RequestId) (*LikesArray, error)
 	GetDislikesForPost(context.Context, *RequestId) (*LikesArray, error)
 	// Collections & Favorites
 	GetAllCollections(context.Context, *RequestId) (*CollectionsArray, error)
 	GetCollection(context.Context, *RequestId) (*Collection, error)
-	CreateCollection(context.Context, *Collection) (*EmptyResponse, error)
-	RemoveCollection(context.Context, *RequestId) (*EmptyResponse, error)
+	CreateCollection(context.Context, *Collection) (*EmptyResponseContent, error)
+	RemoveCollection(context.Context, *RequestId) (*EmptyResponseContent, error)
 	GetUserFavorites(context.Context, *RequestId) (*Favorites, error)
-	CreateFavorite(context.Context, *FavoritesRequest) (*EmptyResponse, error)
-	RemoveFavorite(context.Context, *FavoritesRequest) (*EmptyResponse, error)
+	CreateFavorite(context.Context, *FavoritesRequest) (*EmptyResponseContent, error)
+	RemoveFavorite(context.Context, *FavoritesRequest) (*EmptyResponseContent, error)
 	// Hashtags
 	CreateHashtag(context.Context, *Hashtag) (*Hashtag, error)
 	mustEmbedUnimplementedContentServer()
@@ -257,13 +257,13 @@ type ContentServer interface {
 type UnimplementedContentServer struct {
 }
 
-func (UnimplementedContentServer) CreatePost(context.Context, *Post) (*EmptyResponse, error) {
+func (UnimplementedContentServer) CreatePost(context.Context, *Post) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePost not implemented")
 }
-func (UnimplementedContentServer) GetAllPosts(context.Context, *EmptyRequest) (*ReducedPostArray, error) {
+func (UnimplementedContentServer) GetAllPosts(context.Context, *EmptyRequestContent) (*ReducedPostArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllPosts not implemented")
 }
-func (UnimplementedContentServer) RemovePost(context.Context, *RequestId) (*EmptyResponse, error) {
+func (UnimplementedContentServer) RemovePost(context.Context, *RequestId) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemovePost not implemented")
 }
 func (UnimplementedContentServer) GetPostById(context.Context, *RequestId) (*Post, error) {
@@ -275,13 +275,13 @@ func (UnimplementedContentServer) SearchContentByLocation(context.Context, *Sear
 func (UnimplementedContentServer) GetPostsByHashtag(context.Context, *Hashtag) (*ReducedPostArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPostsByHashtag not implemented")
 }
-func (UnimplementedContentServer) CreateComment(context.Context, *Comment) (*EmptyResponse, error) {
+func (UnimplementedContentServer) CreateComment(context.Context, *Comment) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateComment not implemented")
 }
 func (UnimplementedContentServer) GetCommentsForPost(context.Context, *RequestId) (*CommentsArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCommentsForPost not implemented")
 }
-func (UnimplementedContentServer) CreateLike(context.Context, *Like) (*EmptyResponse, error) {
+func (UnimplementedContentServer) CreateLike(context.Context, *Like) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateLike not implemented")
 }
 func (UnimplementedContentServer) GetLikesForPost(context.Context, *RequestId) (*LikesArray, error) {
@@ -296,19 +296,19 @@ func (UnimplementedContentServer) GetAllCollections(context.Context, *RequestId)
 func (UnimplementedContentServer) GetCollection(context.Context, *RequestId) (*Collection, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollection not implemented")
 }
-func (UnimplementedContentServer) CreateCollection(context.Context, *Collection) (*EmptyResponse, error) {
+func (UnimplementedContentServer) CreateCollection(context.Context, *Collection) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCollection not implemented")
 }
-func (UnimplementedContentServer) RemoveCollection(context.Context, *RequestId) (*EmptyResponse, error) {
+func (UnimplementedContentServer) RemoveCollection(context.Context, *RequestId) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveCollection not implemented")
 }
 func (UnimplementedContentServer) GetUserFavorites(context.Context, *RequestId) (*Favorites, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserFavorites not implemented")
 }
-func (UnimplementedContentServer) CreateFavorite(context.Context, *FavoritesRequest) (*EmptyResponse, error) {
+func (UnimplementedContentServer) CreateFavorite(context.Context, *FavoritesRequest) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateFavorite not implemented")
 }
-func (UnimplementedContentServer) RemoveFavorite(context.Context, *FavoritesRequest) (*EmptyResponse, error) {
+func (UnimplementedContentServer) RemoveFavorite(context.Context, *FavoritesRequest) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveFavorite not implemented")
 }
 func (UnimplementedContentServer) CreateHashtag(context.Context, *Hashtag) (*Hashtag, error) {
@@ -346,7 +346,7 @@ func _Content_CreatePost_Handler(srv interface{}, ctx context.Context, dec func(
 }
 
 func _Content_GetAllPosts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EmptyRequest)
+	in := new(EmptyRequestContent)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -358,7 +358,7 @@ func _Content_GetAllPosts_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/proto.Content/GetAllPosts",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ContentServer).GetAllPosts(ctx, req.(*EmptyRequest))
+		return srv.(ContentServer).GetAllPosts(ctx, req.(*EmptyRequestContent))
 	}
 	return interceptor(ctx, in, info, handler)
 }

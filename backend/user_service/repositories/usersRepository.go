@@ -16,7 +16,7 @@ import (
 type UserRepository interface {
 	GetAllUsers(context.Context) ([]persistence.User, error)
 	CreateUser(context.Context, *persistence.User) error
-	CreateUserWithAdditionalInfo(context.Context, *persistence.User, *persistence.UserAdditionalInfo) error
+	CreateUserWithAdditionalInfo(context.Context, *persistence.User, *persistence.UserAdditionalInfo) (*persistence.User, error)
 	CheckPassword(data common.Credentials) error
 	UpdateUserProfile(ctx context.Context, dto domain.User) (bool, error)
 	UpdateUserPassword(ctx context.Context, password domain.Password) (bool, error)
@@ -189,7 +189,7 @@ func (repository *userRepository) CheckEmailExists(ctx context.Context, email st
 
 }
 
-func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Context, user *persistence.User, userAdditionalInfo *persistence.UserAdditionalInfo) error {
+func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Context, user *persistence.User, userAdditionalInfo *persistence.UserAdditionalInfo) (*persistence.User, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUserWithAdditionalInfo")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -197,17 +197,17 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 	var userPersistence domain.User
 	userPersistence, _ = repository.GetUserByUsername(user.Username)
 	if userPersistence.Username == user.Username {
-		return errors.New("username already exists")
+		return nil, errors.New("username already exists")
 	}
 
 	if repository.CheckEmailExists(ctx, user.Email) {
-		return errors.New("email already exists")
+		return nil, errors.New("email already exists")
 	}
 
 	user.Id = uuid.New().String()
 	resultUser := repository.DB.Create(&user)
 	if resultUser.Error != nil {
-		return resultUser.Error
+		return nil, resultUser.Error
 	}
 
 	userAdditionalInfo.Id = user.Id
@@ -220,10 +220,10 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 	privacy.IsTagEnabled = true
 	_, err := repository.privacyRepository.CreatePrivacy(ctx, &privacy)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return resultUserAdditionalInfo.Error
+	return user, resultUserAdditionalInfo.Error
 }
 
 func (repository *userRepository) SearchUsersByUsernameAndName(ctx context.Context, user *domain.User) ([]domain.User, error) {
