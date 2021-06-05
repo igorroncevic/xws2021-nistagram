@@ -69,16 +69,21 @@ type Comment struct {
 	CreatedAt time.Time
 }
 
-type HighLights struct {
-	Id     string `gorm:"primaryKey"`
+type Highlight struct {
+	Id string `gorm:"primaryKey"`
 	UserId string
 	Name   string
+}
+
+type HighlightStory struct {
+	HighlightId string `gorm:"primaryKey"`
+	StoryId     string `gorm:"primaryKey"`
 }
 
 type RegistrationRequest struct {
 	Id        string `gorm:"primaryKey"`
 	UserId    string
-	CreatedAt time.Time //TODO
+	CreatedAt time.Time
 	Status    model.RequestStatus
 }
 
@@ -93,12 +98,12 @@ type Ad struct {
 type Campaign struct {
 	Id           string `gorm:"primaryKey"`
 	IsOneTime    bool
-	StartDate    time.Time //TODO
-	EndDate      time.Time //TODO
+	StartDate    time.Time
+	EndDate      time.Time
 	PlacementNum int
 	AgentId      string
 	IdAdCategory string
-	LastUpdated  time.Time //TODO
+	LastUpdated  time.Time
 }
 
 type CampaignInfluencerRequest struct {

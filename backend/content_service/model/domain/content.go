@@ -89,10 +89,17 @@ type Comment struct {
 	CreatedAt time.Time
 }
 
-type HighLight struct {
-	Id      string
-	Name    string
+type Highlight struct {
+	Id 		string
+	Name 	string
+	UserId  string
 	Stories []Story
+}
+
+type HighlightRequest struct {
+	UserId      string
+	HighlightId	string
+	StoryId	    string
 }
 
 /*

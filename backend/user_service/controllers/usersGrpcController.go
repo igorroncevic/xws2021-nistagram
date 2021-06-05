@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
@@ -13,17 +14,19 @@ import (
 )
 
 type UserGrpcController struct {
-	service *services.UserService
+	service   *services.UserService
+	jwtManager *common.JWTManager
 }
 
-func NewUserController(db *gorm.DB) (*UserGrpcController, error) {
+func NewUserController(db *gorm.DB, jwtManager *common.JWTManager) (*UserGrpcController, error) {
 	service, err := services.NewUserService(db)
 	if err != nil {
 		return nil, err
 	}
 
 	return &UserGrpcController{
-		service: service,
+		service,
+		jwtManager,
 	}, nil
 }
 
@@ -96,4 +99,17 @@ func (s *UserGrpcController) SearchUser(ctx context.Context, in *userspb.SearchU
 	}
 
 	return &finalResponse, nil
+}
+
+func (s *UserGrpcController) LoginUser(ctx context.Context, in *userspb.LoginRequest) (*userspb.LoginResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "LoginUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	token, err := s.jwtManager.GenerateJwt("someuserid", "ADMIN")
+	if err != nil {
+		return &userspb.LoginResponse{AccessToken: ""}, err
+	}
+
+	return &userspb.LoginResponse{AccessToken: token}, nil
 }

@@ -11,21 +11,25 @@ import (
 
 type Server struct {
 	contentpb.UnimplementedContentServer
-	postController      *PostGrpcController
-	commentController   *CommentGrpcController
-	likeController      *LikeGrpcController
-	favoritesController *FavoritesGrpcController
 	hashtagController   *HashtagGrpcController
-	tracer              otgo.Tracer
-	closer              io.Closer
+	postController 		*PostGrpcController
+	commentController 	*CommentGrpcController
+	likeController	  	*LikeGrpcController
+	favoritesController *FavoritesGrpcController
+	storyController		*StoryGrpcController
+	highlightController *HighlightGrpcController
+	tracer otgo.Tracer
+	closer io.Closer
 }
 
 func NewServer(db *gorm.DB) (*Server, error) {
 	postController, _ := NewPostController(db)
+	storyController, _ := NewStoryController(db)
 	commentController, _ := NewCommentController(db)
 	likeController, _ := NewLikeController(db)
 	favoritesController, _ := NewFavoritesController(db)
 	hashtagController, _ := NewHashtagController(db)
+	highlightController, _ := NewHighlightController(db)
 	tracer, closer := tracer.Init("global_ContentGrpcController")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
@@ -34,8 +38,10 @@ func NewServer(db *gorm.DB) (*Server, error) {
 		likeController:      likeController,
 		favoritesController: favoritesController,
 		hashtagController:   hashtagController,
-		tracer:              tracer,
-		closer:              closer,
+		storyController: storyController,
+		highlightController: highlightController,
+		tracer: tracer,
+		closer: closer,
 	}, nil
 }
 
@@ -66,6 +72,23 @@ func (s *Server) RemovePost(ctx context.Context, in *contentpb.RequestId) (*cont
 
 func (s *Server) GetPostsByHashtag(ctx context.Context, in *contentpb.Hashtag) (*contentpb.ReducedPostArray, error) {
 	return s.postController.GetPostsByHashtag(ctx, in)
+}
+
+/*   Stories   */
+func (s *Server) CreateStory(ctx context.Context, in *contentpb.Story) (*contentpb.EmptyResponse, error) {
+	return s.storyController.CreateStory(ctx, in)
+}
+
+func (s *Server) GetAllStories(ctx context.Context, in *contentpb.EmptyRequest) (*contentpb.StoriesArray, error) {
+	return s.storyController.GetAllHomeStories(ctx, in)
+}
+
+func (s *Server) GetStoryById(ctx context.Context, in *contentpb.RequestId) (*contentpb.Story, error) {
+	return s.storyController.GetStoryById(ctx, in)
+}
+
+func (s *Server) RemoveStory(ctx context.Context, in *contentpb.RequestId) (*contentpb.EmptyResponse, error) {
+	return s.storyController.RemoveStory(ctx, in)
 }
 
 /*   Comments   */
@@ -115,6 +138,7 @@ func (s *Server) RemoveFavorite(ctx context.Context, in *contentpb.FavoritesRequ
 	return s.favoritesController.RemoveFavorite(ctx, in)
 }
 
+
 func (s *Server) SearchContentByLocation(ctx context.Context, in *contentpb.SearchLocationRequest) (*contentpb.ReducedPostArray, error) {
 	return s.postController.SearchContentByLocation(ctx, in)
 }
@@ -122,4 +146,29 @@ func (s *Server) SearchContentByLocation(ctx context.Context, in *contentpb.Sear
 /*   Hashtags   */
 func (s *Server) CreateHashtag(ctx context.Context, in *contentpb.Hashtag) (*contentpb.Hashtag, error) {
 	return s.hashtagController.CreateHashtag(ctx, in)
+}
+
+/*   Highlights   */
+func (s *Server) GetAllHighlights(ctx context.Context, in *contentpb.RequestId) (*contentpb.HighlightsArray, error) {
+	return s.highlightController.GetAllHighlights(ctx, in)
+}
+
+func (s *Server) GetHighlight(ctx context.Context, in *contentpb.RequestId) (*contentpb.Highlight, error) {
+	return s.highlightController.GetHighlight(ctx, in)
+}
+
+func (s *Server) CreateHighlight(ctx context.Context, in *contentpb.Highlight) (*contentpb.EmptyResponse, error) {
+	return s.highlightController.CreateHighlight(ctx, in)
+}
+
+func (s *Server) RemoveHighlight(ctx context.Context, in *contentpb.RequestId) (*contentpb.EmptyResponse, error) {
+	return s.highlightController.RemoveHighlight(ctx, in)
+}
+
+func (s *Server) CreateHighlightStory(ctx context.Context, in *contentpb.HighlightRequest) (*contentpb.EmptyResponse, error) {
+	return s.highlightController.CreateHighlightStory(ctx, in)
+}
+
+func (s *Server) RemoveHighlightStory(ctx context.Context, in *contentpb.HighlightRequest) (*contentpb.EmptyResponse, error) {
+	return s.highlightController.RemoveHighlightStory(ctx, in)
 }
