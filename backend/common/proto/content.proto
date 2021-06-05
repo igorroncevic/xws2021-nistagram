@@ -5,24 +5,24 @@ package proto;
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/xws2021-nistagram/content_service/proto";
+option go_package = "github.com/xws2021-nistagram/common/proto";
 
 service Content {
   /*    Posts    */
-  rpc CreatePost (Post) returns (EmptyResponse) {
+  rpc CreatePost (Post) returns (EmptyResponseContent) {
     option(google.api.http) = {
       post: "/posts",
       body: "*"
     };
   }
 
-  rpc GetAllPosts (EmptyRequest) returns (ReducedPostArray) {
+  rpc GetAllPosts (EmptyRequestContent) returns (ReducedPostArray) {
     option(google.api.http) = {
       get: "/posts"
     };
   }
 
-  rpc RemovePost (RequestId) returns (EmptyResponse) {
+  rpc RemovePost (RequestId) returns (EmptyResponseContent) {
     option(google.api.http) = {
       delete: "/posts/{id}"
     };
@@ -33,10 +33,51 @@ service Content {
       get: "/posts/{id}"
     };
   }
+
+  rpc SearchContentByLocation (SearchLocationRequest) returns (ReducedPostArray) {
+    option(google.api.http) = {
+      post: "/location",
+      body: "*"
+    };
+  }
+
+  rpc GetPostsByHashtag (Hashtag) returns (ReducedPostArray) {
+    option(google.api.http) = {
+      post: "/posts-by-hashtag",
+      body: "*"
+    };
+  }
+  /* * * * * * * * * * * * */
+
+  /*    Stories    */
+  rpc CreateStory (Story) returns (EmptyResponseContent) {
+    option(google.api.http) = {
+      post: "/stories",
+      body: "*"
+    };
+  }
+
+  rpc GetAllStories (EmptyRequestContent) returns (StoriesArray) {
+    option(google.api.http) = {
+      get: "/stories"
+    };
+  }
+
+  rpc RemoveStory (RequestId) returns (EmptyResponseContent) {
+    option(google.api.http) = {
+      delete: "/stories/{id}"
+    };
+  }
+
+  rpc GetStoryById (RequestId) returns (Story) {
+    option(google.api.http) = {
+      get: "/stories/{id}"
+    };
+  }
   /* * * * * * * * * * * * */
 
   /*    Comments    */
-  rpc CreateComment (Comment) returns (EmptyResponse) {
+  rpc CreateComment (Comment) returns (EmptyResponseContent) {
     option(google.api.http) = {
       post: "/comments",
       body: "*"
@@ -51,7 +92,7 @@ service Content {
   /* * * * * * * * * * * * */
 
   /* Likes & Dislikes */
-  rpc CreateLike (Like) returns (EmptyResponse) {
+  rpc CreateLike (Like) returns (EmptyResponseContent) {
     option(google.api.http) = {
       post: "/likes",
       body: "*"
@@ -84,14 +125,14 @@ service Content {
     };
   }
 
-  rpc CreateCollection (Collection) returns (EmptyResponse) {
+  rpc CreateCollection (Collection) returns (EmptyResponseContent) {
     option(google.api.http) = {
       post: "/collections",
       body: "*"
     };
   }
 
-  rpc RemoveCollection (RequestId) returns (EmptyResponse) {
+  rpc RemoveCollection (RequestId) returns (EmptyResponseContent) {
     option(google.api.http) = {
       delete: "/collections/{id}"
     };
@@ -103,16 +144,64 @@ service Content {
     };
   }
 
-  rpc CreateFavorite (FavoritesRequest) returns (EmptyResponse) {
+  rpc CreateFavorite (FavoritesRequest) returns (EmptyResponseContent) {
     option(google.api.http) = {
       post: "/favorites/create",
       body: "*"
     };
   }
 
-  rpc RemoveFavorite (FavoritesRequest) returns (EmptyResponse) {
+  rpc RemoveFavorite (FavoritesRequest) returns (EmptyResponseContent) {
     option(google.api.http) = {
       post: "/favorites/delete",
+      body: "*"
+    };
+  }
+  /* * * * * * * * * * * * */
+
+  /* Hashtags */
+  rpc CreateHashtag (Hashtag) returns (Hashtag) {
+    option(google.api.http) = {
+      post: "/hashtag/create",
+    };
+  }
+
+  /*   Highlights   */
+  rpc GetAllHighlights (RequestId) returns (HighlightsArray) {
+    option(google.api.http) = {
+      get: "/highlights/user/{id}"
+    };
+  }
+
+  rpc GetHighlight (RequestId) returns (Highlight) {
+    option(google.api.http) = {
+      get: "/highlights/{id}"
+    };
+  }
+
+  rpc CreateHighlight (Highlight) returns (EmptyResponseContent) {
+    option(google.api.http) = {
+      post: "/highlights",
+      body: "*"
+    };
+  }
+
+  rpc RemoveHighlight (RequestId) returns (EmptyResponseContent) {
+    option(google.api.http) = {
+      delete: "/highlights/{id}"
+    };
+  }
+
+  rpc CreateHighlightStory (HighlightRequest) returns (EmptyResponseContent) {
+    option(google.api.http) = {
+      post: "/highlights/create",
+      body: "*"
+    };
+  }
+
+  rpc RemoveHighlightStory (HighlightRequest) returns (EmptyResponseContent) {
+    option(google.api.http) = {
+      post: "/highlights/delete",
       body: "*"
     };
   }
@@ -164,6 +253,11 @@ message Tag {
   string username = 3;
 }
 
+message Hashtag {
+  string id = 1;
+  string text = 2;
+}
+
 message ReducedPostArray {
   repeated ReducedPost posts = 1;
 }
@@ -186,15 +280,10 @@ message Story {
   bool isCloseFriends = 9;
 }
 
-message Highlight {
-  string id = 1;
-  string name = 2;
-  repeated Story stories = 3;
-}
-
-message StoryArray {
+message StoriesArray {
   repeated Story stories = 1;
 }
+
 /* * * * * * * * * * * * */
 
 /* Collections & Favorites */
@@ -249,11 +338,34 @@ message CommentsArray {
 }
 /* * * * * * * * * * * * */
 
+/*    Highlights   */
+message Highlight {
+  string id = 1;
+  string name = 2;
+  string userId = 3;
+  repeated Story stories = 4;
+}
+
+message HighlightsArray {
+  repeated Highlight highlights = 1;
+}
+
+message HighlightRequest{
+  string userId = 1;
+  string highlightId = 2;
+  string storyId = 3;
+}
+/* * * * * * * * * * * * */
+
 /*    Multi-usage messages    */
 message RequestId {
   string id = 1;
 }
 
-message EmptyRequest {}
-message EmptyResponse {}
+message SearchLocationRequest {
+  string location = 1;
+}
+
+message EmptyRequestContent {}
+message EmptyResponseContent {}
 /* * * * * * * * * * * * */

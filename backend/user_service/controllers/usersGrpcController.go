@@ -2,10 +2,11 @@ package controllers
 
 import (
 	"context"
+	"github.com/david-drvar/xws2021-nistagram/common"
+	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
-	userspb "github.com/david-drvar/xws2021-nistagram/user_service/proto"
 	"github.com/david-drvar/xws2021-nistagram/user_service/services"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -13,21 +14,23 @@ import (
 )
 
 type UserGrpcController struct {
-	service *services.UserService
+	service   *services.UserService
+	jwtManager *common.JWTManager
 }
 
-func NewUserController(db *gorm.DB) (*UserGrpcController, error) {
+func NewUserController(db *gorm.DB, jwtManager *common.JWTManager) (*UserGrpcController, error) {
 	service, err := services.NewUserService(db)
 	if err != nil {
 		return nil, err
 	}
 
 	return &UserGrpcController{
-		service: service,
+		service,
+		jwtManager,
 	}, nil
 }
 
-func (s *UserGrpcController) CreateUser(ctx context.Context, in *userspb.CreateUserRequest) (*userspb.EmptyResponse, error) {
+func (s *UserGrpcController) CreateUser(ctx context.Context, in *protopb.CreateUserRequest) (*protopb.EmptyResponse, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -39,41 +42,41 @@ func (s *UserGrpcController) CreateUser(ctx context.Context, in *userspb.CreateU
 
 	err := s.service.CreateUserWithAdditionalInfo(ctx, &user, &userAdditionalInfo)
 	if err != nil {
-		return &userspb.EmptyResponse{}, status.Errorf(codes.Unknown, err.Error())
+		return &protopb.EmptyResponse{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
-	return &userspb.EmptyResponse{}, nil
+	return &protopb.EmptyResponse{}, nil
 }
 
-func (s *UserGrpcController) GetAllUsers(ctx context.Context, in *userspb.EmptyRequest) (*userspb.UsersResponse, error) {
-	return &userspb.UsersResponse{}, nil
+func (s *UserGrpcController) GetAllUsers(ctx context.Context, in *protopb.EmptyRequest) (*protopb.UsersResponse, error) {
+	return &protopb.UsersResponse{}, nil
 }
 
-func (s *UserGrpcController) UpdateUserProfile(ctx context.Context, in *userspb.CreateUserDTORequest) (*userspb.EmptyResponse, error) {
+func (s *UserGrpcController) UpdateUserProfile(ctx context.Context, in *protopb.CreateUserDTORequest) (*protopb.EmptyResponse, error) {
 	var user domain.User
 
 	user = user.ConvertFromGrpc(in.User)
 	_, err := s.service.UpdateUserProfile(ctx, user)
 	if err != nil {
-		return &userspb.EmptyResponse{}, status.Errorf(codes.Unknown, "Could not create user")
+		return &protopb.EmptyResponse{}, status.Errorf(codes.Unknown, "Could not create user")
 	}
 
-	return &userspb.EmptyResponse{}, nil
+	return &protopb.EmptyResponse{}, nil
 }
 
-func (s *UserGrpcController) UpdateUserPassword(ctx context.Context, in *userspb.CreatePasswordRequest) (*userspb.EmptyResponse, error) {
+func (s *UserGrpcController) UpdateUserPassword(ctx context.Context, in *protopb.CreatePasswordRequest) (*protopb.EmptyResponse, error) {
 	var password domain.Password
 
 	password = password.ConvertFromGrpc(in.Password)
 	_, err := s.service.UpdateUserPassword(ctx, password)
 	if err != nil {
-		return &userspb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Could not create user")
+		return &protopb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Could not create user")
 	}
 
-	return &userspb.EmptyResponse{}, nil
+	return &protopb.EmptyResponse{}, nil
 }
 
-func (s *UserGrpcController) SearchUser(ctx context.Context, in *userspb.SearchUserDtoRequest) (*userspb.UsersResponse, error) {
+func (s *UserGrpcController) SearchUser(ctx context.Context, in *protopb.SearchUserDtoRequest) (*protopb.UsersResponse, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "SearchUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -86,14 +89,27 @@ func (s *UserGrpcController) SearchUser(ctx context.Context, in *userspb.SearchU
 		return nil, err
 	}
 
-	var usersList []*userspb.UsersDTO
+	var usersList []*protopb.UsersDTO
 	for _, user := range users {
 		usersList = append(usersList, user.ConvertToGrpc())
 	}
 
-	finalResponse := userspb.UsersResponse{
+	finalResponse := protopb.UsersResponse{
 		Users: usersList,
 	}
 
 	return &finalResponse, nil
+}
+
+func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginRequest) (*protopb.LoginResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "LoginUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	token, err := s.jwtManager.GenerateJwt("someuserid", "ADMIN")
+	if err != nil {
+		return &protopb.LoginResponse{AccessToken: ""}, err
+	}
+
+	return &protopb.LoginResponse{AccessToken: token}, nil
 }

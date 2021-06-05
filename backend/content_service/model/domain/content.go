@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type Objava struct{
+type Objava struct {
 	Id          string
 	UserId      string
 	IsAd        bool
@@ -13,81 +13,93 @@ type Objava struct{
 	Description string
 	Location    string
 	CreatedAt   time.Time
-	Media	    []Media
+	Media       []Media
 }
 
-type Post struct{
+type Post struct {
 	Objava
-	Comments 	[]Comment
-	Likes 		[]Like
-	Dislikes 	[]Like
+	Comments []Comment
+	Likes    []Like
+	Dislikes []Like
 }
 
-type ReducedPost struct{
+type ReducedPost struct {
 	Objava
-	CommentsNum 	int32
-	LikesNum 		int32
-	DislikesNum 	int32
+	CommentsNum int32
+	LikesNum    int32
+	DislikesNum int32
 }
 
-type Story struct{
+type Story struct {
 	Objava
 	IsCloseFriends bool
 }
 
-type Media struct{
-	Id      	string
-	Type    	model.MediaType
-	PostId  	string
-	Content 	string
-	OrderNum	int32
-	Tags		[]Tag
+type Media struct {
+	Id       string
+	Type     model.MediaType
+	PostId   string
+	Content  string
+	OrderNum int32
+	Tags     []Tag
 }
 
 type Tag struct {
-	MediaId 	string
-	UserId 		string
-	Username	string
+	MediaId  string
+	UserId   string
+	Username string
+}
+
+type Hashtag struct {
+	Id   string
+	Text string
 }
 
 type Collection struct {
-	Id 			string
-	Name 		string
-	UserId 		string
-	Posts 		[]ReducedPost
+	Id     string
+	Name   string
+	UserId string
+	Posts  []ReducedPost
 }
 
 type Favorites struct {
-	UserId 			string
-	Collections 	[]Collection
-	Unclassified 	[]ReducedPost
+	UserId       string
+	Collections  []Collection
+	Unclassified []ReducedPost
 }
 
 type FavoritesRequest struct {
-	UserId		 	string
-	PostId			string
-	CollectionId	string
+	UserId       string
+	PostId       string
+	CollectionId string
 }
 
 type Like struct {
 	PostId string
-	UserId string	// TODO Username?
+	UserId string // TODO Username?
 	IsLike bool
 }
 
 type Comment struct {
-	Id			string
-	PostId 		string
-	UserId 		string
-	Username 	string
-	Content 	string
-	CreatedAt 	time.Time
+	Id        string
+	PostId    string
+	UserId    string
+	Username  string
+	Content   string
+	CreatedAt time.Time
 }
 
-type HighLight struct {
+type Highlight struct {
 	Id 		string
 	Name 	string
+	UserId  string
 	Stories []Story
+}
+
+type HighlightRequest struct {
+	UserId      string
+	HighlightId	string
+	StoryId	    string
 }
 
 /*
@@ -149,7 +161,3 @@ type CampaignChanges struct {
 	PlacementNum int
 }
 */
-
-
-
-

@@ -4,7 +4,7 @@ package proto;
 
 import "google/api/annotations.proto";
 
-option go_package = "github.com/xws2021-nistagram/user_service/proto";
+option go_package = "github.com/xws2021-nistagram/common/proto";
 
 service Privacy {
     rpc CreatePrivacy (CreatePrivacyRequest) returns (EmptyResponsePrivacy) {
@@ -35,6 +35,12 @@ service Privacy {
         };
     }
 
+    rpc CheckUserProfilePublic (PrivacyRequest) returns (BooleanResponse) {
+        option(google.api.http) = {
+            post: "/api/privacy/isProfilePublic"
+            body: "*"
+        };
+    }
 }
 
 message Block {
@@ -55,6 +61,14 @@ message CreatePrivacyRequest {
 
 message CreateBlockRequest {
     Block block = 1;
+}
+
+message BooleanResponse {
+    bool response = 1;
+}
+
+message PrivacyRequest {
+    string userId = 1;
 }
 
 message EmptyResponsePrivacy {}

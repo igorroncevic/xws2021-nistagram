@@ -4,15 +4,16 @@ import (
 	"context"
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
+	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/controllers"
-	userspb "github.com/david-drvar/xws2021-nistagram/user_service/proto"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
 	"log"
 	"net"
 	"net/http"
+	"time"
 )
 
 func GRPCServer(db *gorm.DB) {
@@ -25,14 +26,17 @@ func GRPCServer(db *gorm.DB) {
 	// Create a gRPC server object
 	s := grpc.NewServer()
 
-	server, err := controllers.NewServer(db)
+	jwtManager := common.NewJWTManager("somesecretkey", 15 * time.Minute)
+
+	server, err := controllers.NewServer(db, jwtManager)
 	if err != nil {
 		log.Fatal(err.Error())
 		return
 	}
 
 	// Attach the Greeter service to the server
-	userspb.RegisterUsersServer(s, server)
+	protopb.RegisterUsersServer(s, server)
+	protopb.RegisterPrivacyServer(s, server)
 	// Serve gRPC server
 	log.Println("Serving gRPC on " + grpc_common.Users_service_address)
 	go func() {
@@ -47,7 +51,8 @@ func GRPCServer(db *gorm.DB) {
 
 	gatewayMux := runtime.NewServeMux()
 	// Register Greeter
-	err = userspb.RegisterUsersHandler(context.Background(), gatewayMux, conn)
+	err = protopb.RegisterUsersHandler(context.Background(), gatewayMux, conn)
+	err = protopb.RegisterPrivacyHandler(context.Background(), gatewayMux, conn)
 	if err != nil {
 		log.Fatalln("Failed to register gateway:", err)
 	}

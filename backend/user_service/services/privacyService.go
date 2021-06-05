@@ -54,3 +54,12 @@ func (service *PrivacyService) UnBlockUser(ctx context.Context, block *persisten
 
 	return service.repository.UnBlockUser(ctx, block)
 }
+
+func (service *PrivacyService) CheckUserProfilePublic(ctx context.Context, userId string) bool {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CheckUserProfilePublic")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var privacy, _ = service.repository.GetUserPrivacy(ctx, userId)
+	return privacy.IsProfilePublic == true
+}

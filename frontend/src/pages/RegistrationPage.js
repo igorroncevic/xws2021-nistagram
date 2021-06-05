@@ -176,6 +176,8 @@ export default function RegistrationPage() {
     }
 
     async function sendParams() {
+        //setBirthDate(new Date(birthDate));
+        const jsonDate = birthDate + 'T' + '01:30:15.01Z';
         axios
             .post('http://localhost:8080/api/users/api/users', {
                 'id':'1',
@@ -185,10 +187,12 @@ export default function RegistrationPage() {
                 'username' : username,
                 'password' : password,
                 'role' : 'Basic',
-                'birthdate' : "2017-01-15T01:30:15.01Z",
+                'birthdate' : jsonDate,
                 'profilePhoto' : 'idk',
+                'phoneNumber' : phoneNumber,
                 'sex' : 'MAN',
-                'isActive' : true
+                'isActive' : true,
+                'biography' : biography
             })
             .then(res => {
                 setErrorMessage(false);
@@ -224,7 +228,7 @@ export default function RegistrationPage() {
             <div className="row" style={{marginTop: '1rem'}}>
                 <label  className="col-sm-2 col-form-label">Birth date</label>
                 <div className="col-sm-6 mb-2">
-                    <input  disabled = {(disabled)? "disabled" : ""}   type="date" value={birthDate} name="birthDate" onChange={(e) => handleInputChange(e) } className="form-control" id="birthDate" />
+                    <input  disabled = {(disabled)? "disabled" : ""} min="1900-01-02" max="2009-01-01"  type="date" value={birthDate} name="birthDate" onChange={(e) => handleInputChange(e) } className="form-control" id="birthDate" />
                 </div>
                 <div className="col-sm-4">
                 </div>

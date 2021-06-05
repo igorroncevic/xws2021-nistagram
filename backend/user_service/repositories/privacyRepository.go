@@ -13,6 +13,7 @@ type PrivacyRepository interface {
 	UpdatePrivacy(ctx context.Context, privacy *persistence.Privacy) (bool, error)
 	BlockUser(ctx context.Context, block *persistence.BlockedUsers) (bool, error)
 	UnBlockUser(ctx context.Context, block *persistence.BlockedUsers) (bool, error)
+	GetUserPrivacy(ctx context.Context, userId string) (*persistence.Privacy, error)
 }
 
 type privacyRepository struct {
@@ -81,4 +82,19 @@ func (repository *privacyRepository) UpdatePrivacy(ctx context.Context, p *persi
 	}
 
 	return true, nil
+}
+
+func (repository *privacyRepository) GetUserPrivacy(ctx context.Context, userId string) (*persistence.Privacy, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserPrivacy")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var privacy persistence.Privacy
+
+	db := repository.DB.Where("user_id = ?", userId).Find(&privacy)
+	if db.Error != nil {
+		return nil, nil
+	}
+
+	return &privacy, nil
 }

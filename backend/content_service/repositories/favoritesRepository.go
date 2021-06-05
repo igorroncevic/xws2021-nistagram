@@ -25,7 +25,7 @@ type FavoritesRepository interface {
 
 type favoritesRepository struct {
 	DB                *gorm.DB
-	contentRepository PostRepository
+	postRepository PostRepository
 }
 
 func NewFavoritesRepo(db *gorm.DB) (*favoritesRepository, error) {
@@ -35,7 +35,7 @@ func NewFavoritesRepo(db *gorm.DB) (*favoritesRepository, error) {
 
 	contentRepository, _ := NewPostRepo(db)
 
-	return &favoritesRepository{ DB: db, contentRepository: contentRepository }, nil
+	return &favoritesRepository{ DB: db, postRepository: contentRepository }, nil
 }
 
 func (repository *favoritesRepository) GetAllCollections(ctx context.Context, userId string) ([]persistence.Collection, error){
@@ -235,7 +235,7 @@ func (repository *favoritesRepository) RemoveCollection(ctx context.Context, col
 			return result.Error
 		}
 
-		collectionPosts, err := repository.contentRepository.GetCollectionsPosts(ctx, collectionId)
+		collectionPosts, err := repository.postRepository.GetCollectionsPosts(ctx, collectionId)
 		if err != nil { return err }
 
 		for _, post := range collectionPosts {

@@ -1,27 +1,42 @@
 package main
 
 import (
-	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/recommendation_service/util/setup"
-	"github.com/gorilla/mux"
-	"net/http"
+	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 )
 
 func main(){
-	db := common.InitDatabase(common.RecommendationDatabase)
-	err := setup.FillDatabase(db)
+	driver, _ := setup.CreateConnection("bolt://localhost:7687", "neo4j", "root")
+	defer setup.CloseConnection(driver)
+
+	err := CreateUniqueConstraint(driver)
+
 	if err != nil {
-		panic("Cannot setup database tables. Error message: " + err.Error())
+		panic("Could not create unique constraint!")
 	}
 
-	r := mux.NewRouter()
+	setup.GRPCServer(driver)
 
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello from recommendation service!"))
-	}).Methods("GET")
+}
 
-	c := common.SetupCors()
 
-	http.Handle("/", c.Handler(r))
-	http.ListenAndServe(":8005", c.Handler(r))
+func CreateUniqueConstraint(driver neo4j.Driver) error {
+
+	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
+	defer session.Close()
+	_, err := session.WriteTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
+		_, err := transaction.Run(
+			"CREATE CONSTRAINT constraint_id IF NOT EXISTS ON (u:User) ASSERT u.id IS UNIQUE",
+			map[string]interface{}{
+
+			})
+		if err != nil {
+			return nil, err
+		}
+		return nil, nil
+	})
+	if err != nil {
+		return  err
+	}
+	return  nil
 }

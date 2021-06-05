@@ -16,6 +16,7 @@ type StoryRepository interface {
 	CreateStory(context.Context, *domain.Story) error
 	GetStoryById(context.Context, string) (*persistence.Story, error)
 	RemoveStory(context.Context, string) error
+	GetHighlightsStories(context.Context, string) ([]persistence.Story, error)
 }
 
 type storyRepository struct {
@@ -169,4 +170,23 @@ func (repository *storyRepository) RemoveStory(ctx context.Context, storyId stri
 
 	if err != nil { return err }
 	return nil
+}
+
+func (repository *storyRepository) GetHighlightsStories (ctx context.Context, highlightId string) ([]persistence.Story, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveStory")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	stories := []persistence.Story{}
+	result := repository.DB.Model(&persistence.Story{}).
+		Joins("left join highlight_stories ON stories.id = highlight_stories.story_id").
+		Joins("left join highlights 		 ON highlight_stories.highlight_id = highlights.id").
+		Where("highlights.id = ?", highlightId).
+		Find(&stories)
+
+	if result.Error != nil {
+		return stories, result.Error
+	}
+
+	return stories, nil
 }

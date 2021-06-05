@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+package proto;
+import "google/api/annotations.proto";
+
+option go_package = "github.com/xws2021-nistagram/common/proto";
+
+service Followers {
+
+    rpc CreateUserConnection (CreateFollowerRequest) returns (EmptyResponseFollowers) {
+        option(google.api.http) = {
+            post: "/api/followers/create_connection",
+            body: "follower"
+        };
+    }
+
+    rpc GetAllFollowers (CreateUserRequestFollowers) returns (CreateUserResponse) {
+        option(google.api.http) = {
+            post: "/api/followers/get_followers",
+            body: "user"
+        };
+    }
+
+    rpc CreateUser (CreateUserRequestFollowers) returns (EmptyResponseFollowers){
+        option(google.api.http) = {
+            post: "/api/followers",
+            body: "user"
+        };
+    }
+
+    rpc DeleteDirectedConnection (CreateFollowerRequest) returns (EmptyResponseFollowers){
+        option(google.api.http) = {
+            post: "/api/followers/delete_directed",
+            body: "follower"
+        };
+    }
+
+    rpc DeleteBiDirectedConnection (CreateFollowerRequest) returns (EmptyResponseFollowers){
+        option(google.api.http) = {
+            post: "/api/followers/delete_biDirected",
+            body: "follower"
+        };
+    }
+
+    rpc GetAllFollowing (CreateUserRequestFollowers) returns (CreateUserResponse) {
+        option(google.api.http) = {
+            post: "/api/followers/get_followings",
+            body: "user"
+        };
+    }
+
+    rpc UpdateUserConnection (CreateFollowerRequest) returns (CreateFollowerResponse) {
+        option(google.api.http) = {
+            post: "/api/followers/update_follower",
+            body: "follower"
+        };
+    }
+
+    rpc GetFollowersConnection (CreateFollowerRequest) returns (CreateFollowerResponse) {
+        option(google.api.http) = {
+            post: "/api/followers/get_follower",
+            body: "follower"
+        };
+    }
+}
+
+message Follower {
+    string UserId = 1;
+    string FollowerId = 2;
+    bool IsMuted = 3;
+    bool IsCloseFriends = 4;
+    bool IsApprovedRequest = 5;
+    bool IsNotificationEnabled = 6;
+}
+
+message UserFollowers {
+    string UserId = 1;
+}
+
+message CreateUserRequestFollowers {
+    UserFollowers user = 1;
+}
+
+message CreateUserResponse {
+    repeated UserFollowers users = 1;
+}
+
+message CreateFollowerResponse {
+    Follower follower = 1;
+}
+
+message  CreateFollowerRequest {
+    Follower follower = 1;
+}
+
+message EmptyResponseFollowers {}
