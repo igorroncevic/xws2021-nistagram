@@ -3,9 +3,9 @@ package controllers
 import (
 	"context"
 	"fmt"
+	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	contentpb "github.com/david-drvar/xws2021-nistagram/content_service/proto"
 	"github.com/david-drvar/xws2021-nistagram/content_service/services"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -28,34 +28,34 @@ func NewHighlightController(db *gorm.DB) (*HighlightGrpcController, error) {
 	}, nil
 }
 
-func (c *HighlightGrpcController) GetAllHighlights (ctx context.Context, in *contentpb.RequestId) (*contentpb.HighlightsArray, error) {
+func (c *HighlightGrpcController) GetAllHighlights (ctx context.Context, in *protopb.RequestId) (*protopb.HighlightsArray, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllHighlights")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	highlights, err := c.service.GetAllHighlights(ctx, in.Id)
 	if err != nil {
-		return &contentpb.HighlightsArray{}, status.Errorf(codes.Unknown, "could not retrieve highlights")
+		return &protopb.HighlightsArray{}, status.Errorf(codes.Unknown, "could not retrieve highlights")
 	}
 
-	grpcHighlights := []*contentpb.Highlight{}
+	grpcHighlights := []*protopb.Highlight{}
 	for _, highlight := range highlights{
 		grpcHighlights = append(grpcHighlights, highlight.ConvertToGrpc())
 	}
 
-	return &contentpb.HighlightsArray{
+	return &protopb.HighlightsArray{
 		Highlights: grpcHighlights,
 	}, nil
 }
 
-func (c *HighlightGrpcController) GetHighlight (ctx context.Context, in *contentpb.RequestId) (*contentpb.Highlight, error) {
+func (c *HighlightGrpcController) GetHighlight (ctx context.Context, in *protopb.RequestId) (*protopb.Highlight, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetHighlight")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	highlight, err := c.service.GetHighlight(ctx, in.Id)
 	if err != nil || highlight.Id == "" {
-		return &contentpb.Highlight{}, status.Errorf(codes.Unknown, "could not retrieve highlight")
+		return &protopb.Highlight{}, status.Errorf(codes.Unknown, "could not retrieve highlight")
 	}
 
 	grpcHighlight := highlight.ConvertToGrpc()
@@ -63,7 +63,7 @@ func (c *HighlightGrpcController) GetHighlight (ctx context.Context, in *content
 	return grpcHighlight, nil
 }
 
-func (c *HighlightGrpcController) CreateHighlightStory(ctx context.Context, in *contentpb.HighlightRequest) (*contentpb.EmptyResponse, error) {
+func (c *HighlightGrpcController) CreateHighlightStory(ctx context.Context, in *protopb.HighlightRequest) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateHighlightStory")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -73,13 +73,13 @@ func (c *HighlightGrpcController) CreateHighlightStory(ctx context.Context, in *
 
 	err := c.service.CreateHighlightStory(ctx, *highlightRequest)
 	if err != nil {
-		return &contentpb.EmptyResponse{}, status.Errorf(codes.Unknown, "could not create story from highlight")
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create story from highlight")
 	}
 
-	return &contentpb.EmptyResponse{}, nil
+	return &protopb.EmptyResponseContent{}, nil
 }
 
-func (c *HighlightGrpcController) RemoveHighlightStory(ctx context.Context, in *contentpb.HighlightRequest) (*contentpb.EmptyResponse, error) {
+func (c *HighlightGrpcController) RemoveHighlightStory(ctx context.Context, in *protopb.HighlightRequest) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveHighlightStory")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -89,13 +89,13 @@ func (c *HighlightGrpcController) RemoveHighlightStory(ctx context.Context, in *
 
 	err := c.service.RemoveHighlightStory(ctx, *highlightRequest)
 	if err != nil {
-		return &contentpb.EmptyResponse{}, status.Errorf(codes.Unknown, "could not remove story from highlight")
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not remove story from highlight")
 	}
 
-	return &contentpb.EmptyResponse{}, nil
+	return &protopb.EmptyResponseContent{}, nil
 }
 
-func (c *HighlightGrpcController) CreateHighlight (ctx context.Context, in *contentpb.Highlight) (*contentpb.EmptyResponse, error) {
+func (c *HighlightGrpcController) CreateHighlight (ctx context.Context, in *protopb.Highlight) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateHighlight")
 	defer span.Finish()
 	contextMetadata, _ := metadata.FromIncomingContext(ctx)
@@ -107,21 +107,21 @@ func (c *HighlightGrpcController) CreateHighlight (ctx context.Context, in *cont
 
 	err := c.service.CreateHighlight(ctx, *collection)
 	if err != nil {
-		return &contentpb.EmptyResponse{}, status.Errorf(codes.Unknown, "could not create highlight")
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create highlight")
 	}
 
-	return &contentpb.EmptyResponse{}, nil
+	return &protopb.EmptyResponseContent{}, nil
 }
 
-func (c *HighlightGrpcController) RemoveHighlight (ctx context.Context, in *contentpb.RequestId) (*contentpb.EmptyResponse, error) {
+func (c *HighlightGrpcController) RemoveHighlight (ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveHighlight")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	err := c.service.RemoveHighlight(ctx, in.Id)
 	if err != nil {
-		return &contentpb.EmptyResponse{}, status.Errorf(codes.Unknown, "could not remove highlight")
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not remove highlight")
 	}
 
-	return &contentpb.EmptyResponse{}, nil
+	return &protopb.EmptyResponseContent{}, nil
 }

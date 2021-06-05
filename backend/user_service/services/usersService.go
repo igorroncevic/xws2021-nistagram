@@ -4,12 +4,15 @@ import (
 	"context"
 	"errors"
 	"github.com/david-drvar/xws2021-nistagram/common"
+	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/user_service/repositories"
 	"github.com/david-drvar/xws2021-nistagram/user_service/util/encryption"
+	"google.golang.org/grpc"
 	"gorm.io/gorm"
+	"log"
 )
 
 type UserService struct {
@@ -52,7 +55,33 @@ func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, us
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	user.Password = encryption.HashAndSalt([]byte(user.Password))
-	return service.repository.CreateUserWithAdditionalInfo(ctx, user, userAdditionalInfo)
+	user, err := service.repository.CreateUserWithAdditionalInfo(ctx, user, userAdditionalInfo)
+	if err != nil {
+		return errors.New("Cannot create user!")
+	}
+
+	//todo create user node in graph database
+	var conn *grpc.ClientConn
+	conn, err = grpc.Dial(":8095", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("did not connect: %s", err)
+	}
+	defer conn.Close()
+
+	c := protopb.NewFollowersClient(conn)
+
+	createUserRequest := protopb.CreateUserRequestFollowers{
+		User: &protopb.UserFollowers{
+			UserId: user.Id,
+		},
+	}
+
+	_, err = c.CreateUser(context.Background(), &createUserRequest)
+	if err != nil {
+		log.Fatalf("could not create node user: %s", err)
+	}
+
+	return nil
 }
 
 func (service *UserService) LoginUser(ctx context.Context, data common.Credentials) error {

@@ -66,7 +66,7 @@ func local_request_Followers_CreateUserConnection_0(ctx context.Context, marshal
 }
 
 func request_Followers_GetAllFollowers_0(ctx context.Context, marshaler runtime.Marshaler, client FollowersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateUserRequest
+	var protoReq CreateUserRequestFollowers
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -83,7 +83,7 @@ func request_Followers_GetAllFollowers_0(ctx context.Context, marshaler runtime.
 }
 
 func local_request_Followers_GetAllFollowers_0(ctx context.Context, marshaler runtime.Marshaler, server FollowersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateUserRequest
+	var protoReq CreateUserRequestFollowers
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -100,7 +100,7 @@ func local_request_Followers_GetAllFollowers_0(ctx context.Context, marshaler ru
 }
 
 func request_Followers_CreateUser_0(ctx context.Context, marshaler runtime.Marshaler, client FollowersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateUserRequest
+	var protoReq CreateUserRequestFollowers
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -117,7 +117,7 @@ func request_Followers_CreateUser_0(ctx context.Context, marshaler runtime.Marsh
 }
 
 func local_request_Followers_CreateUser_0(ctx context.Context, marshaler runtime.Marshaler, server FollowersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateUserRequest
+	var protoReq CreateUserRequestFollowers
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -202,7 +202,7 @@ func local_request_Followers_DeleteBiDirectedConnection_0(ctx context.Context, m
 }
 
 func request_Followers_GetAllFollowing_0(ctx context.Context, marshaler runtime.Marshaler, client FollowersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateUserRequest
+	var protoReq CreateUserRequestFollowers
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -219,7 +219,7 @@ func request_Followers_GetAllFollowing_0(ctx context.Context, marshaler runtime.
 }
 
 func local_request_Followers_GetAllFollowing_0(ctx context.Context, marshaler runtime.Marshaler, server FollowersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateUserRequest
+	var protoReq CreateUserRequestFollowers
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)

@@ -1,15 +1,15 @@
 package domain
 
 import (
+	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model"
-	contentpb "github.com/david-drvar/xws2021-nistagram/content_service/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Post Converters
-func (p *Post) ConvertFromGrpc(post *contentpb.Post) *Post {
+func (p *Post) ConvertFromGrpc(post *protopb.Post) *Post {
 	if post == nil {
-		post = &contentpb.Post{}
+		post = &protopb.Post{}
 	}
 	return &Post{
 		Objava: Objava{
@@ -28,8 +28,8 @@ func (p *Post) ConvertFromGrpc(post *contentpb.Post) *Post {
 	}
 }
 
-func (p Post) ConvertToGrpc() *contentpb.Post {
-	return &contentpb.Post{
+func (p Post) ConvertToGrpc() *protopb.Post {
+	return &protopb.Post{
 		Id:          p.Id,
 		UserId:      p.UserId,
 		IsAd:        p.IsAd,
@@ -44,8 +44,8 @@ func (p Post) ConvertToGrpc() *contentpb.Post {
 	}
 }
 
-func ConvertMultiplePostsToGrpc(posts []Post) []*contentpb.Post {
-	grpcPosts := []*contentpb.Post{}
+func ConvertMultiplePostsToGrpc(posts []Post) []*protopb.Post {
+	grpcPosts := []*protopb.Post{}
 	for _, post := range posts {
 		grpcPosts = append(grpcPosts, post.ConvertToGrpc())
 	}
@@ -54,8 +54,8 @@ func ConvertMultiplePostsToGrpc(posts []Post) []*contentpb.Post {
 }
 
 // Story Converters
-func (s Story) ConvertToGrpc() *contentpb.Story {
-	return &contentpb.Story{
+func (s Story) ConvertToGrpc() *protopb.Story {
+	return &protopb.Story{
 		Id:          s.Id,
 		UserId:      s.UserId,
 		IsAd:        s.IsAd,
@@ -68,8 +68,8 @@ func (s Story) ConvertToGrpc() *contentpb.Story {
 	}
 }
 
-func (s *Story) ConvertFromGrpc(story *contentpb.Story) *Story {
-	if story == nil { story = &contentpb.Story{} }
+func (s *Story) ConvertFromGrpc(story *protopb.Story) *Story {
+	if story == nil { story = &protopb.Story{} }
 	return &Story{
 		Objava: Objava{
 			Id: 		 story.Id,
@@ -86,16 +86,16 @@ func (s *Story) ConvertFromGrpc(story *contentpb.Story) *Story {
 }
 
 // HighlightRequest Converters
-func (hr HighlightRequest) ConvertToGrpc() *contentpb.HighlightRequest {
-	return &contentpb.HighlightRequest{
+func (hr HighlightRequest) ConvertToGrpc() *protopb.HighlightRequest {
+	return &protopb.HighlightRequest{
 		UserId:      hr.UserId,
 		HighlightId: hr.HighlightId,
 		StoryId:     hr.StoryId,
 	}
 }
 
-func (hr *HighlightRequest) ConvertFromGrpc(request *contentpb.HighlightRequest) *HighlightRequest {
-	if request == nil { request = &contentpb.HighlightRequest{} }
+func (hr *HighlightRequest) ConvertFromGrpc(request *protopb.HighlightRequest) *HighlightRequest {
+	if request == nil { request = &protopb.HighlightRequest{} }
 	return &HighlightRequest{
 		UserId:      request.UserId,
 		HighlightId: request.HighlightId,
@@ -104,8 +104,8 @@ func (hr *HighlightRequest) ConvertFromGrpc(request *contentpb.HighlightRequest)
 }
 
 // HighlightRequest Converters
-func (h Highlight) ConvertToGrpc() *contentpb.Highlight {
-	return &contentpb.Highlight{
+func (h Highlight) ConvertToGrpc() *protopb.Highlight {
+	return &protopb.Highlight{
 		Id:      h.Id,
 		Name:    h.Name,
 		UserId:  h.UserId,
@@ -113,8 +113,8 @@ func (h Highlight) ConvertToGrpc() *contentpb.Highlight {
 	}
 }
 
-func (h *Highlight) ConvertFromGrpc(request *contentpb.Highlight) *Highlight {
-	if request == nil { request = &contentpb.Highlight{} }
+func (h *Highlight) ConvertFromGrpc(request *protopb.Highlight) *Highlight {
+	if request == nil { request = &protopb.Highlight{} }
 	return &Highlight{
 		Id:      request.Id,
 		Name:    request.Name,
@@ -123,7 +123,7 @@ func (h *Highlight) ConvertFromGrpc(request *contentpb.Highlight) *Highlight {
 	}
 }
 
-func ConvertMultipleStoriesFromGrpc(stories []*contentpb.Story) []Story {
+func ConvertMultipleStoriesFromGrpc(stories []*protopb.Story) []Story {
 	convertedStories := []Story{}
 	for _, story := range stories {
 		var converted *Story
@@ -135,8 +135,8 @@ func ConvertMultipleStoriesFromGrpc(stories []*contentpb.Story) []Story {
 	return convertedStories
 }
 
-func ConvertMultipleStoriesToGrpc(stories []Story) []*contentpb.Story{
-	grpcStories := []*contentpb.Story{}
+func ConvertMultipleStoriesToGrpc(stories []Story) []*protopb.Story{
+	grpcStories := []*protopb.Story{}
 	for _, story := range stories {
 		grpcStories = append(grpcStories, story.ConvertToGrpc())
 	}
@@ -145,8 +145,8 @@ func ConvertMultipleStoriesToGrpc(stories []Story) []*contentpb.Story{
 }
 
 // ReducedPost Converters
-func (p ReducedPost) ConvertToGrpc() *contentpb.ReducedPost {
-	return &contentpb.ReducedPost{
+func (p ReducedPost) ConvertToGrpc() *protopb.ReducedPost {
+	return &protopb.ReducedPost{
 		Id:          p.Id,
 		UserId:      p.UserId,
 		IsAd:        p.IsAd,
@@ -161,7 +161,7 @@ func (p ReducedPost) ConvertToGrpc() *contentpb.ReducedPost {
 	}
 }
 
-func (p ReducedPost) ConvertFromGrpc(post *contentpb.ReducedPost) ReducedPost {
+func (p ReducedPost) ConvertFromGrpc(post *protopb.ReducedPost) ReducedPost {
 	return ReducedPost{
 		Objava: Objava{
 			Id:          post.Id,
@@ -179,8 +179,8 @@ func (p ReducedPost) ConvertFromGrpc(post *contentpb.ReducedPost) ReducedPost {
 	}
 }
 
-func ConvertMultipleReducedPostsToGrpc(posts []ReducedPost) []*contentpb.ReducedPost {
-	grpcPosts := []*contentpb.ReducedPost{}
+func ConvertMultipleReducedPostsToGrpc(posts []ReducedPost) []*protopb.ReducedPost {
+	grpcPosts := []*protopb.ReducedPost{}
 	for _, post := range posts {
 		grpcPosts = append(grpcPosts, post.ConvertToGrpc())
 	}
@@ -188,7 +188,7 @@ func ConvertMultipleReducedPostsToGrpc(posts []ReducedPost) []*contentpb.Reduced
 	return grpcPosts
 }
 
-func ConvertMultipleReducedPostsFromGrpc(posts []*contentpb.ReducedPost) []ReducedPost {
+func ConvertMultipleReducedPostsFromGrpc(posts []*protopb.ReducedPost) []ReducedPost {
 	convertedPosts := []ReducedPost{}
 	for _, post := range posts {
 		var converted ReducedPost
@@ -201,7 +201,7 @@ func ConvertMultipleReducedPostsFromGrpc(posts []*contentpb.ReducedPost) []Reduc
 }
 
 // Media converters
-func (m *Media) ConvertFromGrpc(media *contentpb.Media) *Media {
+func (m *Media) ConvertFromGrpc(media *protopb.Media) *Media {
 	if m == nil {
 		m = &Media{}
 	}
@@ -215,11 +215,11 @@ func (m *Media) ConvertFromGrpc(media *contentpb.Media) *Media {
 	}
 }
 
-func (m *Media) ConvertToGrpc() *contentpb.Media {
+func (m *Media) ConvertToGrpc() *protopb.Media {
 	if m == nil {
 		m = &Media{}
 	}
-	return &contentpb.Media{
+	return &protopb.Media{
 		Id:       m.Id,
 		Type:     m.Type.String(),
 		PostId:   m.PostId,
@@ -229,7 +229,7 @@ func (m *Media) ConvertToGrpc() *contentpb.Media {
 	}
 }
 
-func ConvertMultipleMediaFromGrpc(m []*contentpb.Media) []Media {
+func ConvertMultipleMediaFromGrpc(m []*protopb.Media) []Media {
 	media := []Media{}
 	if m != nil {
 		for _, protoMedia := range m {
@@ -241,8 +241,8 @@ func ConvertMultipleMediaFromGrpc(m []*contentpb.Media) []Media {
 	return media
 }
 
-func ConvertMultipleMediaToGrpc(m []Media) []*contentpb.Media {
-	media := []*contentpb.Media{}
+func ConvertMultipleMediaToGrpc(m []Media) []*protopb.Media {
+	media := []*protopb.Media{}
 	if m != nil {
 		for _, domainMedia := range m {
 			protoMedia := domainMedia.ConvertToGrpc()
@@ -253,7 +253,7 @@ func ConvertMultipleMediaToGrpc(m []Media) []*contentpb.Media {
 }
 
 // Comment converters
-func (c *Comment) ConvertFromGrpc(comment *contentpb.Comment) *Comment {
+func (c *Comment) ConvertFromGrpc(comment *protopb.Comment) *Comment {
 	if c == nil {
 		c = &Comment{}
 	}
@@ -267,11 +267,11 @@ func (c *Comment) ConvertFromGrpc(comment *contentpb.Comment) *Comment {
 	}
 }
 
-func (c *Comment) ConvertToGrpc() *contentpb.Comment {
+func (c *Comment) ConvertToGrpc() *protopb.Comment {
 	if c == nil {
 		c = &Comment{}
 	}
-	return &contentpb.Comment{
+	return &protopb.Comment{
 		Id:        c.Id,
 		PostId:    c.PostId,
 		UserId:    c.UserId,
@@ -281,7 +281,7 @@ func (c *Comment) ConvertToGrpc() *contentpb.Comment {
 	}
 }
 
-func ConvertMultipleCommentsFromGrpc(c []*contentpb.Comment) []Comment {
+func ConvertMultipleCommentsFromGrpc(c []*protopb.Comment) []Comment {
 	comments := []Comment{}
 	if c != nil {
 		for _, protoComment := range c {
@@ -293,8 +293,8 @@ func ConvertMultipleCommentsFromGrpc(c []*contentpb.Comment) []Comment {
 	return comments
 }
 
-func ConvertMultipleCommentsToGrpc(c []Comment) []*contentpb.Comment {
-	comments := []*contentpb.Comment{}
+func ConvertMultipleCommentsToGrpc(c []Comment) []*protopb.Comment {
+	comments := []*protopb.Comment{}
 	if c != nil {
 		for _, domainComment := range c {
 			protoComment := domainComment.ConvertToGrpc()
@@ -305,7 +305,7 @@ func ConvertMultipleCommentsToGrpc(c []Comment) []*contentpb.Comment {
 }
 
 // Tag converters
-func (t *Tag) ConvertFromGrpc(tag *contentpb.Tag) *Tag {
+func (t *Tag) ConvertFromGrpc(tag *protopb.Tag) *Tag {
 	if t == nil {
 		t = &Tag{}
 	}
@@ -316,18 +316,18 @@ func (t *Tag) ConvertFromGrpc(tag *contentpb.Tag) *Tag {
 	}
 }
 
-func (t *Tag) ConvertToGrpc() *contentpb.Tag {
+func (t *Tag) ConvertToGrpc() *protopb.Tag {
 	if t == nil {
 		t = &Tag{}
 	}
-	return &contentpb.Tag{
+	return &protopb.Tag{
 		MediaId:  t.MediaId,
 		UserId:   t.UserId,
 		Username: t.Username,
 	}
 }
 
-func ConvertMultipleTagFromGrpc(t []*contentpb.Tag) []Tag {
+func ConvertMultipleTagFromGrpc(t []*protopb.Tag) []Tag {
 	tags := []Tag{}
 	if t != nil {
 		for _, protoTag := range t {
@@ -340,8 +340,8 @@ func ConvertMultipleTagFromGrpc(t []*contentpb.Tag) []Tag {
 	return tags
 }
 
-func ConvertMultipleTagsToGrpc(t []Tag) []*contentpb.Tag {
-	tags := []*contentpb.Tag{}
+func ConvertMultipleTagsToGrpc(t []Tag) []*protopb.Tag {
+	tags := []*protopb.Tag{}
 	if t != nil {
 		for _, domainTag := range t {
 			tags = append(tags, domainTag.ConvertToGrpc())
@@ -351,7 +351,7 @@ func ConvertMultipleTagsToGrpc(t []Tag) []*contentpb.Tag {
 }
 
 // Like converters
-func (l *Like) ConvertFromGrpc(like *contentpb.Like) *Like {
+func (l *Like) ConvertFromGrpc(like *protopb.Like) *Like {
 	if l == nil {
 		l = &Like{}
 	}
@@ -362,18 +362,18 @@ func (l *Like) ConvertFromGrpc(like *contentpb.Like) *Like {
 	}
 }
 
-func (l *Like) ConvertToGrpc() *contentpb.Like {
+func (l *Like) ConvertToGrpc() *protopb.Like {
 	if l == nil {
 		l = &Like{}
 	}
-	return &contentpb.Like{
+	return &protopb.Like{
 		PostId: l.PostId,
 		UserId: l.UserId,
 		IsLike: l.IsLike,
 	}
 }
 
-func ConvertMultipleLikesFromGrpc(l []*contentpb.Like) []Like {
+func ConvertMultipleLikesFromGrpc(l []*protopb.Like) []Like {
 	likes := []Like{}
 	if l != nil {
 		for _, protoLike := range l {
@@ -386,8 +386,8 @@ func ConvertMultipleLikesFromGrpc(l []*contentpb.Like) []Like {
 	return likes
 }
 
-func ConvertMultipleLikesToGrpc(l []Like) []*contentpb.Like {
-	likes := []*contentpb.Like{}
+func ConvertMultipleLikesToGrpc(l []Like) []*protopb.Like {
+	likes := []*protopb.Like{}
 	if l != nil {
 		for _, domainLike := range l {
 			likes = append(likes, domainLike.ConvertToGrpc())
@@ -396,7 +396,7 @@ func ConvertMultipleLikesToGrpc(l []Like) []*contentpb.Like {
 	return likes
 }
 
-func (c Collection) ConvertFromGrpc(collection *contentpb.Collection) Collection {
+func (c Collection) ConvertFromGrpc(collection *protopb.Collection) Collection {
 	return Collection{
 		Id:     collection.Id,
 		Name:   collection.Name,
@@ -405,8 +405,8 @@ func (c Collection) ConvertFromGrpc(collection *contentpb.Collection) Collection
 	}
 }
 
-func (c Collection) ConvertToGrpc() *contentpb.Collection {
-	return &contentpb.Collection{
+func (c Collection) ConvertToGrpc() *protopb.Collection {
+	return &protopb.Collection{
 		Id:     c.Id,
 		Name:   c.Name,
 		UserId: c.UserId,
@@ -414,8 +414,8 @@ func (c Collection) ConvertToGrpc() *contentpb.Collection {
 	}
 }
 
-func ConvertMultipleCollectionsToGrpc(collections []Collection) []*contentpb.Collection {
-	converted := []*contentpb.Collection{}
+func ConvertMultipleCollectionsToGrpc(collections []Collection) []*protopb.Collection {
+	converted := []*protopb.Collection{}
 	for _, collection := range collections {
 		converted = append(converted, collection.ConvertToGrpc())
 	}
@@ -423,15 +423,15 @@ func ConvertMultipleCollectionsToGrpc(collections []Collection) []*contentpb.Col
 	return converted
 }
 
-func (f Favorites) ConvertToGrpc() *contentpb.Favorites {
-	return &contentpb.Favorites{
+func (f Favorites) ConvertToGrpc() *protopb.Favorites {
+	return &protopb.Favorites{
 		UserId:       f.UserId,
 		Collections:  ConvertMultipleCollectionsToGrpc(f.Collections),
 		Unclassified: ConvertMultipleReducedPostsToGrpc(f.Unclassified),
 	}
 }
 
-func (fr *FavoritesRequest) ConvertFromGrpc(request *contentpb.FavoritesRequest) FavoritesRequest {
+func (fr *FavoritesRequest) ConvertFromGrpc(request *protopb.FavoritesRequest) FavoritesRequest {
 	return FavoritesRequest{
 		PostId:       request.PostId,
 		CollectionId: request.CollectionId,
@@ -440,7 +440,7 @@ func (fr *FavoritesRequest) ConvertFromGrpc(request *contentpb.FavoritesRequest)
 }
 
 // Hashtag converters
-func (h *Hashtag) ConvertFromGrpc(hashtag *contentpb.Hashtag) *Hashtag {
+func (h *Hashtag) ConvertFromGrpc(hashtag *protopb.Hashtag) *Hashtag {
 	if h == nil {
 		h = &Hashtag{}
 	}

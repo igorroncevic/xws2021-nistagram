@@ -5,7 +5,7 @@ package proto;
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/xws2021-nistagram/user_service/proto";
+option go_package = "github.com/xws2021-nistagram/common/proto";
 
 service Users {
   rpc LoginUser (LoginRequest) returns (LoginResponse) {

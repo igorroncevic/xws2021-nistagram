@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"context"
+	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	contentpb "github.com/david-drvar/xws2021-nistagram/content_service/proto"
 	"github.com/david-drvar/xws2021-nistagram/content_service/services"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -26,7 +26,7 @@ func NewLikeController(db *gorm.DB) (*LikeGrpcController, error) {
 	}, nil
 }
 
-func (c *LikeGrpcController) CreateLike(ctx context.Context, in *contentpb.Like) (*contentpb.EmptyResponse, error) {
+func (c *LikeGrpcController) CreateLike(ctx context.Context, in *protopb.Like) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateLike")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -36,31 +36,31 @@ func (c *LikeGrpcController) CreateLike(ctx context.Context, in *contentpb.Like)
 
 	err := c.service.CreateLike(ctx, *like)
 	if err != nil {
-		return &contentpb.EmptyResponse{}, status.Errorf(codes.Unknown, "could not create like")
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create like")
 	}
 
-	return &contentpb.EmptyResponse{}, nil
+	return &protopb.EmptyResponseContent{}, nil
 }
 
-func (c *LikeGrpcController) GetLikesForPost(ctx context.Context, id string, isLike bool) (*contentpb.LikesArray, error) {
+func (c *LikeGrpcController) GetLikesForPost(ctx context.Context, id string, isLike bool) (*protopb.LikesArray, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetLikesForPost")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	likes, err := c.service.GetLikesForPost(ctx, id, isLike)
 
-	if err != nil{
-		return &contentpb.LikesArray{
-			Likes: []*contentpb.Like{},
+	if err != nil {
+		return &protopb.LikesArray{
+			Likes: []*protopb.Like{},
 		}, status.Errorf(codes.Unknown, "Could not retrieve likes")
 	}
 
-	responseLikes := []*contentpb.Like{}
-	for _, like := range likes{
+	responseLikes := []*protopb.Like{}
+	for _, like := range likes {
 		responseLikes = append(responseLikes, like.ConvertToGrpc())
 	}
 
-	return &contentpb.LikesArray{
+	return &protopb.LikesArray{
 		Likes: responseLikes,
 	}, nil
 }

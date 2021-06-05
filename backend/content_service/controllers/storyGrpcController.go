@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"context"
+	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	contentpb "github.com/david-drvar/xws2021-nistagram/content_service/proto"
 	"github.com/david-drvar/xws2021-nistagram/content_service/services"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -26,7 +26,7 @@ func NewStoryController(db *gorm.DB) (*StoryGrpcController, error) {
 	}, nil
 }
 
-func (c *StoryGrpcController) GetAllHomeStories(ctx context.Context, in *contentpb.EmptyRequest) (*contentpb.StoriesArray, error) {
+func (c *StoryGrpcController) GetAllHomeStories(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.StoriesArray, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllHomeStories")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -34,22 +34,22 @@ func (c *StoryGrpcController) GetAllHomeStories(ctx context.Context, in *content
 	stories, err := c.service.GetAllHomeStories(ctx)
 
 	if err != nil{
-		return &contentpb.StoriesArray{
-			Stories: []*contentpb.Story{},
+		return &protopb.StoriesArray{
+			Stories: []*protopb.Story{},
 		}, status.Errorf(codes.Unknown, err.Error())
 	}
 
-	responseStories := []*contentpb.Story{}
+	responseStories := []*protopb.Story{}
 	for _, story := range stories {
 		responseStories = append(responseStories, story.ConvertToGrpc())
 	}
 
-	return &contentpb.StoriesArray{
+	return &protopb.StoriesArray{
 		Stories: responseStories,
 	}, nil
 }
 
-func (c *StoryGrpcController) CreateStory(ctx context.Context, in *contentpb.Story) (*contentpb.EmptyResponse, error) {
+func (c *StoryGrpcController) CreateStory(ctx context.Context, in *protopb.Story) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateStory")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -59,27 +59,27 @@ func (c *StoryGrpcController) CreateStory(ctx context.Context, in *contentpb.Sto
 
 	err := c.service.CreateStory(ctx, story)
 	if err != nil {
-		return &contentpb.EmptyResponse{}, status.Errorf(codes.Unknown, "could not create story")
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create story")
 	}
 
-	return &contentpb.EmptyResponse{}, nil
+	return &protopb.EmptyResponseContent{}, nil
 }
 
-func (c *StoryGrpcController) GetStoryById(ctx context.Context, in *contentpb.RequestId) (*contentpb.Story, error) {
+func (c *StoryGrpcController) GetStoryById(ctx context.Context, in *protopb.RequestId) (*protopb.Story, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetStoryById")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	story, err := c.service.GetStoryById(ctx, in.Id)
 
-	if err != nil { return &contentpb.Story{}, status.Errorf(codes.Unknown, err.Error()) }
+	if err != nil { return &protopb.Story{}, status.Errorf(codes.Unknown, err.Error()) }
 
 	grpcStory := story.ConvertToGrpc()
 
 	return grpcStory, nil
 }
 
-func (c *StoryGrpcController) RemoveStory(ctx context.Context, in *contentpb.RequestId) (*contentpb.EmptyResponse, error) {
+func (c *StoryGrpcController) RemoveStory(ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveStory")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -87,8 +87,8 @@ func (c *StoryGrpcController) RemoveStory(ctx context.Context, in *contentpb.Req
 	err := c.service.RemoveStory(ctx, in.Id)
 
 	if err != nil{
-		return &contentpb.EmptyResponse{}, status.Errorf(codes.Unknown, err.Error())
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
-	return &contentpb.EmptyResponse{}, nil
+	return &protopb.EmptyResponseContent{}, nil
 }

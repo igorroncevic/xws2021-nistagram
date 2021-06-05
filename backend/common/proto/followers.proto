@@ -3,46 +3,46 @@ syntax = "proto3";
 package proto;
 import "google/api/annotations.proto";
 
-option go_package = "github.com/xws2021-nistagram/recommendation_service/proto";
+option go_package = "github.com/xws2021-nistagram/common/proto";
 
 service Followers {
 
-    rpc CreateUserConnection (CreateFollowerRequest) returns (EmptyResponse) {
+    rpc CreateUserConnection (CreateFollowerRequest) returns (EmptyResponseFollowers) {
         option(google.api.http) = {
             post: "/api/followers/create_connection",
             body: "follower"
         };
     }
 
-    rpc GetAllFollowers (CreateUserRequest) returns (CreateUserResponse) {
+    rpc GetAllFollowers (CreateUserRequestFollowers) returns (CreateUserResponse) {
         option(google.api.http) = {
             post: "/api/followers/get_followers",
             body: "user"
         };
     }
 
-    rpc CreateUser (CreateUserRequest) returns (EmptyResponse){
+    rpc CreateUser (CreateUserRequestFollowers) returns (EmptyResponseFollowers){
         option(google.api.http) = {
             post: "/api/followers",
             body: "user"
         };
     }
 
-    rpc DeleteDirectedConnection (CreateFollowerRequest) returns (EmptyResponse){
+    rpc DeleteDirectedConnection (CreateFollowerRequest) returns (EmptyResponseFollowers){
         option(google.api.http) = {
             post: "/api/followers/delete_directed",
             body: "follower"
         };
     }
 
-    rpc DeleteBiDirectedConnection (CreateFollowerRequest) returns (EmptyResponse){
+    rpc DeleteBiDirectedConnection (CreateFollowerRequest) returns (EmptyResponseFollowers){
         option(google.api.http) = {
             post: "/api/followers/delete_biDirected",
             body: "follower"
         };
     }
 
-    rpc GetAllFollowing (CreateUserRequest) returns (CreateUserResponse) {
+    rpc GetAllFollowing (CreateUserRequestFollowers) returns (CreateUserResponse) {
         option(google.api.http) = {
             post: "/api/followers/get_followings",
             body: "user"
@@ -73,16 +73,16 @@ message Follower {
     bool IsNotificationEnabled = 6;
 }
 
-message User {
+message UserFollowers {
     string UserId = 1;
 }
 
-message CreateUserRequest {
-    User user = 1;
+message CreateUserRequestFollowers {
+    UserFollowers user = 1;
 }
 
 message CreateUserResponse {
-    repeated User users = 1;
+    repeated UserFollowers users = 1;
 }
 
 message CreateFollowerResponse {
@@ -93,4 +93,4 @@ message  CreateFollowerRequest {
     Follower follower = 1;
 }
 
-message EmptyResponse {}
+message EmptyResponseFollowers {}

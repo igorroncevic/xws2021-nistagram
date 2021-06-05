@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"context"
+	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	contentpb "github.com/david-drvar/xws2021-nistagram/content_service/proto"
 	"github.com/david-drvar/xws2021-nistagram/content_service/services"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -26,7 +26,7 @@ func NewHashtagController(db *gorm.DB) (*HashtagGrpcController, error) {
 	}, nil
 }
 
-func (s *HashtagGrpcController) CreateHashtag(ctx context.Context, in *contentpb.Hashtag) (*contentpb.Hashtag, error) {
+func (s *HashtagGrpcController) CreateHashtag(ctx context.Context, in *protopb.Hashtag) (*protopb.Hashtag, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateHashtag")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -36,8 +36,8 @@ func (s *HashtagGrpcController) CreateHashtag(ctx context.Context, in *contentpb
 
 	hashtag, err := s.service.CreateHashtag(ctx, hashtag.Text)
 	if err != nil {
-		return &contentpb.Hashtag{}, status.Errorf(codes.Unknown, "could not create hashtag")
+		return &protopb.Hashtag{}, status.Errorf(codes.Unknown, "could not create hashtag")
 	}
 
-	return &contentpb.Hashtag{Id: hashtag.Id, Text: hashtag.Text}, nil
+	return &protopb.Hashtag{Id: hashtag.Id, Text: hashtag.Text}, nil
 }

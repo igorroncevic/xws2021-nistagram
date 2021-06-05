@@ -5,9 +5,9 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
 	"github.com/david-drvar/xws2021-nistagram/common/interceptors"
+	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/controllers"
-	contentpb "github.com/david-drvar/xws2021-nistagram/content_service/proto"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-func GRPCServer(db *gorm.DB){
+func GRPCServer(db *gorm.DB) {
 	// Create a listener on TCP port
 	lis, err := net.Listen("tcp", grpc_common.Content_service_address)
 	if err != nil {
@@ -39,7 +39,7 @@ func GRPCServer(db *gorm.DB){
 	}
 
 	// Attach the Greeter service to the server
-	contentpb.RegisterContentServer(s, server)
+	protopb.RegisterContentServer(s, server)
 	// Serve gRPC server
 	log.Println("Serving gRPC on " + grpc_common.Content_service_address)
 	go func() {
@@ -54,7 +54,7 @@ func GRPCServer(db *gorm.DB){
 
 	gatewayMux := runtime.NewServeMux()
 	// Register Greeter
-	err = contentpb.RegisterContentHandler(context.Background(), gatewayMux, conn)
+	err = protopb.RegisterContentHandler(context.Background(), gatewayMux, conn)
 	if err != nil {
 		log.Fatalln("Failed to register gateway:", err)
 	}
@@ -67,4 +67,3 @@ func GRPCServer(db *gorm.DB){
 	log.Println("Serving gRPC-Gateway on " + grpc_common.Content_gateway_address)
 	log.Fatalln(gwServer.ListenAndServe())
 }
-
