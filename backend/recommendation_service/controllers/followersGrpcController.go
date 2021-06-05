@@ -3,9 +3,9 @@ package controllers
 import (
 	"context"
 	"errors"
+	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/recommendation_service/model"
-	"github.com/david-drvar/xws2021-nistagram/recommendation_service/proto"
 	"github.com/david-drvar/xws2021-nistagram/recommendation_service/services"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 )
@@ -25,7 +25,7 @@ func NewFollowersController(driver neo4j.Driver) (*FollowersGrpcController, erro
 	}, nil
 }
 
-func (controller *FollowersGrpcController) CreateUserConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.EmptyResponseFollowers, error) {
+func (controller *FollowersGrpcController) CreateUserConnection(ctx context.Context, in *protopb.CreateFollowerRequest) (*protopb.EmptyResponseFollowers, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUserConnection")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -33,11 +33,11 @@ func (controller *FollowersGrpcController) CreateUserConnection(ctx context.Cont
 	follower = *follower.ConvertFromGrpc(in.Follower)
 	result, err := controller.service.CreateUserConnection(ctx, follower)
 	if !result || err != nil {
-		return &proto.EmptyResponseFollowers{}, errors.New("Could not make follow!")
+		return &protopb.EmptyResponseFollowers{}, errors.New("Could not make follow!")
 	}
-	return &proto.EmptyResponseFollowers{}, nil
+	return &protopb.EmptyResponseFollowers{}, nil
 }
-func (controller *FollowersGrpcController) GetAllFollowing(ctx context.Context, in *proto.CreateUserRequestFollowers) (*proto.CreateUserResponse, error) {
+func (controller *FollowersGrpcController) GetAllFollowing(ctx context.Context, in *protopb.CreateUserRequestFollowers) (*protopb.CreateUserResponse, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllFollowing")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -49,10 +49,10 @@ func (controller *FollowersGrpcController) GetAllFollowing(ctx context.Context, 
 		return nil, errors.New("Could not get all followings")
 	}
 
-	return &proto.CreateUserResponse{Users: user.ConvertAllToGrpc(users)}, err
+	return &protopb.CreateUserResponse{Users: user.ConvertAllToGrpc(users)}, err
 }
 
-func (controller *FollowersGrpcController) GetAllFollowers(ctx context.Context, in *proto.CreateUserRequestFollowers) (*proto.CreateUserResponse, error) {
+func (controller *FollowersGrpcController) GetAllFollowers(ctx context.Context, in *protopb.CreateUserRequestFollowers) (*protopb.CreateUserResponse, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllFollowers")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -64,9 +64,9 @@ func (controller *FollowersGrpcController) GetAllFollowers(ctx context.Context, 
 		return nil, errors.New("Could not get all followers!")
 	}
 
-	return &proto.CreateUserResponse{Users: user.ConvertAllToGrpc(users)}, err
+	return &protopb.CreateUserResponse{Users: user.ConvertAllToGrpc(users)}, err
 }
-func (controller *FollowersGrpcController) DeleteBiDirectedConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.EmptyResponseFollowers, error) {
+func (controller *FollowersGrpcController) DeleteBiDirectedConnection(ctx context.Context, in *protopb.CreateFollowerRequest) (*protopb.EmptyResponseFollowers, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteBiDirectedConnection")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -76,12 +76,12 @@ func (controller *FollowersGrpcController) DeleteBiDirectedConnection(ctx contex
 	_, err := controller.service.DeleteBiDirectedConnection(ctx, follower)
 
 	if err != nil {
-		return &proto.EmptyResponseFollowers{}, errors.New("Could not delete bidirected connection!")
+		return &protopb.EmptyResponseFollowers{}, errors.New("Could not delete bidirected connection!")
 	}
-	return &proto.EmptyResponseFollowers{}, nil
+	return &protopb.EmptyResponseFollowers{}, nil
 }
 
-func (controller *FollowersGrpcController) DeleteDirectedConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.EmptyResponseFollowers, error) {
+func (controller *FollowersGrpcController) DeleteDirectedConnection(ctx context.Context, in *protopb.CreateFollowerRequest) (*protopb.EmptyResponseFollowers, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteDirectedConnection")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -91,12 +91,12 @@ func (controller *FollowersGrpcController) DeleteDirectedConnection(ctx context.
 	_, err := controller.service.DeleteDirectedConnection(ctx, follower)
 
 	if err != nil {
-		return &proto.EmptyResponseFollowers{}, errors.New("Could not delete directed connection!")
+		return &protopb.EmptyResponseFollowers{}, errors.New("Could not delete directed connection!")
 	}
-	return &proto.EmptyResponseFollowers{}, nil
+	return &protopb.EmptyResponseFollowers{}, nil
 }
 
-func (controller *FollowersGrpcController) CreateUser(ctx context.Context, in *proto.CreateUserRequestFollowers) (*proto.EmptyResponseFollowers, error) {
+func (controller *FollowersGrpcController) CreateUser(ctx context.Context, in *protopb.CreateUserRequestFollowers) (*protopb.EmptyResponseFollowers, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -106,12 +106,12 @@ func (controller *FollowersGrpcController) CreateUser(ctx context.Context, in *p
 	_, err := controller.service.CreateUser(ctx, user)
 
 	if err != nil {
-		return &proto.EmptyResponseFollowers{}, errors.New("Could not create User!")
+		return &protopb.EmptyResponseFollowers{}, errors.New("Could not create User!")
 	}
-	return &proto.EmptyResponseFollowers{}, nil
+	return &protopb.EmptyResponseFollowers{}, nil
 }
 
-func (controller *FollowersGrpcController) UpdateUserConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.CreateFollowerResponse, error) {
+func (controller *FollowersGrpcController) UpdateUserConnection(ctx context.Context, in *protopb.CreateFollowerRequest) (*protopb.CreateFollowerResponse, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserConnection")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -124,10 +124,10 @@ func (controller *FollowersGrpcController) UpdateUserConnection(ctx context.Cont
 		return nil, errors.New("Could not update follower info!")
 	}
 
-	return &proto.CreateFollowerResponse{Follower: result.ConvertToGrpc()}, nil
+	return &protopb.CreateFollowerResponse{Follower: result.ConvertToGrpc()}, nil
 }
 
-func (controller *FollowersGrpcController) GetFollowersConnection(ctx context.Context, in *proto.CreateFollowerRequest) (*proto.CreateFollowerResponse, error) {
+func (controller *FollowersGrpcController) GetFollowersConnection(ctx context.Context, in *protopb.CreateFollowerRequest) (*protopb.CreateFollowerResponse, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetFollowersConnection")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -140,5 +140,5 @@ func (controller *FollowersGrpcController) GetFollowersConnection(ctx context.Co
 		return nil, errors.New("Could not update follower info!")
 	}
 
-	return &proto.CreateFollowerResponse{Follower: result.ConvertToGrpc()}, nil
+	return &protopb.CreateFollowerResponse{Follower: result.ConvertToGrpc()}, nil
 }

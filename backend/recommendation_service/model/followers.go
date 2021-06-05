@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/david-drvar/xws2021-nistagram/recommendation_service/proto"
+	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 )
 
 type User struct {
@@ -17,20 +17,20 @@ type Follower struct {
 	IsNotificationEnabled bool
 }
 
-func (user *User) ConvertFromGrpc(u *proto.UserFollowers) *User {
+func (user *User) ConvertFromGrpc(u *protopb.UserFollowers) *User {
 	return &User{
 		UserId: u.UserId,
 	}
 }
 
-func (user *User) ConvertToGrpc() *proto.UserFollowers {
-	return &proto.UserFollowers{
+func (user *User) ConvertToGrpc() *protopb.UserFollowers {
+	return &protopb.UserFollowers{
 		UserId: user.UserId,
 	}
 }
 
-func (follower *Follower) ConvertToGrpc() *proto.Follower {
-	return &proto.Follower{
+func (follower *Follower) ConvertToGrpc() *protopb.Follower {
+	return &protopb.Follower{
 		UserId:                follower.UserId,
 		FollowerId:            follower.FollowerId,
 		IsMuted:               follower.IsMuted,
@@ -40,15 +40,15 @@ func (follower *Follower) ConvertToGrpc() *proto.Follower {
 	}
 }
 
-func (user *User) ConvertAllToGrpc(users []User) []*proto.UserFollowers {
-	var protoUsers []*proto.UserFollowers
+func (user *User) ConvertAllToGrpc(users []User) []*protopb.UserFollowers {
+	var protoUsers []*protopb.UserFollowers
 	for _, s := range users {
 		protoUsers = append(protoUsers, s.ConvertToGrpc())
 	}
 	return protoUsers
 }
 
-func (follower *Follower) ConvertFromGrpc(f *proto.Follower) *Follower {
+func (follower *Follower) ConvertFromGrpc(f *protopb.Follower) *Follower {
 	return &Follower{
 		UserId:                f.UserId,
 		FollowerId:            f.FollowerId,

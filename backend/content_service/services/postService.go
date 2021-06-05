@@ -3,10 +3,10 @@ package services
 import (
 	"context"
 	"errors"
+	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
-	userspb "github.com/david-drvar/xws2021-nistagram/content_service/proto_intercommunication"
 	"github.com/david-drvar/xws2021-nistagram/content_service/repositories"
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
@@ -244,7 +244,7 @@ func (service *PostService) SearchContentByLocation(ctx context.Context, locatio
 	}
 	defer conn.Close()
 
-	c := userspb.NewPrivacyClient(conn)
+	c := protopb.NewPrivacyClient(conn)
 
 	dbPosts, err := service.postRepository.GetPostsByLocation(ctx, location)
 	if err != nil {
@@ -298,7 +298,7 @@ func (service *PostService) SearchContentByLocation(ctx context.Context, locatio
 
 	//call user service to check if users profile is public
 	for _, post := range posts {
-		privacyRequest := userspb.PrivacyRequest{
+		privacyRequest := protopb.PrivacyRequest{
 			UserId: post.UserId,
 		}
 		response, err := c.CheckUserProfilePublic(context.Background(), &privacyRequest)
@@ -343,19 +343,21 @@ func (service *PostService) GetPostsByHashtag(ctx context.Context, text string) 
 	}
 	defer conn.Close()
 
-	c := userspb.NewPrivacyClient(conn)
-	privacyRequest := userspb.PrivacyRequest{
-		UserId: "0",
-	}
-	response, err := c.CheckUserProfilePublic(context.Background(), &privacyRequest)
-	if err != nil {
-		log.Fatalf("Error when calling CheckUserProfilePublic: %s", err)
-	}
-	print(response.Response)
+	c := protopb.NewPrivacyClient(conn)
+
+	// for debugging microservice communication
+	//privacyRequest := protopb.PrivacyRequest{
+	//	UserId: "0",
+	//}
+	//response, err := c.CheckUserProfilePublic(context.Background(), &privacyRequest)
+	//if err != nil {
+	//	log.Fatalf("Error when calling CheckUserProfilePublic: %s", err)
+	//}
+	//print(response.Response)
 
 	//check if user account is public
 	for _, post := range posts {
-		privacyRequest := userspb.PrivacyRequest{
+		privacyRequest := protopb.PrivacyRequest{
 			UserId: post.UserId,
 		}
 		response, err := c.CheckUserProfilePublic(context.Background(), &privacyRequest)

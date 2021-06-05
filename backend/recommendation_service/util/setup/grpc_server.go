@@ -4,9 +4,9 @@ import (
 	"context"
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
+	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/recommendation_service/controllers"
-	userspb "github.com/david-drvar/xws2021-nistagram/recommendation_service/proto"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"google.golang.org/grpc"
@@ -32,7 +32,7 @@ func GRPCServer(driver neo4j.Driver) {
 	}
 
 	// Attach the Greeter service to the server
-	userspb.RegisterFollowersServer(s, server)
+	protopb.RegisterFollowersServer(s, server)
 	// Serve gRPC server
 	log.Println("Serving gRPC on " + grpc_common.Recommendation_service_address)
 	go func() {
@@ -47,7 +47,7 @@ func GRPCServer(driver neo4j.Driver) {
 
 	gatewayMux := runtime.NewServeMux()
 	// Register Greeter
-	err = userspb.RegisterFollowersHandler(context.Background(), gatewayMux, conn)
+	err = protopb.RegisterFollowersHandler(context.Background(), gatewayMux, conn)
 	if err != nil {
 		log.Fatalln("Failed to register gateway:", err)
 	}

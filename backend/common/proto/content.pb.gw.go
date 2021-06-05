@@ -6,7 +6,7 @@ Package proto is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package protoe
+package proto
 
 import (
 	"context"
@@ -66,7 +66,7 @@ func local_request_Content_CreatePost_0(ctx context.Context, marshaler runtime.M
 }
 
 func request_Content_GetAllPosts_0(ctx context.Context, marshaler runtime.Marshaler, client ContentClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq EmptyRequest
+	var protoReq EmptyRequestContent
 	var metadata runtime.ServerMetadata
 
 	msg, err := client.GetAllPosts(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -75,7 +75,7 @@ func request_Content_GetAllPosts_0(ctx context.Context, marshaler runtime.Marsha
 }
 
 func local_request_Content_GetAllPosts_0(ctx context.Context, marshaler runtime.Marshaler, server ContentServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq EmptyRequest
+	var protoReq EmptyRequestContent
 	var metadata runtime.ServerMetadata
 
 	msg, err := server.GetAllPosts(ctx, &protoReq)
@@ -835,7 +835,7 @@ func RegisterContentHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/protoe.Content/CreatePost")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/proto.Content/CreatePost")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -858,7 +858,7 @@ func RegisterContentHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/protoe.Content/GetAllPosts")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/proto.Content/GetAllPosts")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -881,7 +881,7 @@ func RegisterContentHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/protoe.Content/RemovePost")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/proto.Content/RemovePost")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -904,7 +904,7 @@ func RegisterContentHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/protoe.Content/GetPostById")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/proto.Content/GetPostById")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -927,7 +927,7 @@ func RegisterContentHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/protoe.Content/SearchContentByLocation")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/proto.Content/SearchContentByLocation")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -950,7 +950,7 @@ func RegisterContentHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/protoe.Content/GetPostsByHashtag")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/proto.Content/GetPostsByHashtag")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -973,7 +973,7 @@ func RegisterContentHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/protoe.Content/CreateComment")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/proto.Content/CreateComment")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -996,7 +996,7 @@ func RegisterContentHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/protoe.Content/GetCommentsForPost")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/proto.Content/GetCommentsForPost")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1019,7 +1019,7 @@ func RegisterContentHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/protoe.Content/CreateLike")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/proto.Content/CreateLike")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1042,7 +1042,7 @@ func RegisterContentHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/protoe.Content/GetLikesForPost")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/proto.Content/GetLikesForPost")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1065,7 +1065,7 @@ func RegisterContentHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/protoe.Content/GetDislikesForPost")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/proto.Content/GetDislikesForPost")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1088,7 +1088,7 @@ func RegisterContentHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/protoe.Content/GetAllCollections")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/proto.Content/GetAllCollections")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1111,7 +1111,7 @@ func RegisterContentHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/protoe.Content/GetCollection")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/proto.Content/GetCollection")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1134,7 +1134,7 @@ func RegisterContentHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/protoe.Content/CreateCollection")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/proto.Content/CreateCollection")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1157,7 +1157,7 @@ func RegisterContentHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/protoe.Content/RemoveCollection")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/proto.Content/RemoveCollection")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1180,7 +1180,7 @@ func RegisterContentHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/protoe.Content/GetUserFavorites")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/proto.Content/GetUserFavorites")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1203,7 +1203,7 @@ func RegisterContentHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/protoe.Content/CreateFavorite")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/proto.Content/CreateFavorite")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1226,7 +1226,7 @@ func RegisterContentHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/protoe.Content/RemoveFavorite")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/proto.Content/RemoveFavorite")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1249,7 +1249,7 @@ func RegisterContentHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/protoe.Content/CreateHashtag")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/proto.Content/CreateHashtag")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1311,7 +1311,7 @@ func RegisterContentHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/protoe.Content/CreatePost")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/proto.Content/CreatePost")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1331,7 +1331,7 @@ func RegisterContentHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/protoe.Content/GetAllPosts")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/proto.Content/GetAllPosts")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1351,7 +1351,7 @@ func RegisterContentHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/protoe.Content/RemovePost")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/proto.Content/RemovePost")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1371,7 +1371,7 @@ func RegisterContentHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/protoe.Content/GetPostById")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/proto.Content/GetPostById")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1391,7 +1391,7 @@ func RegisterContentHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/protoe.Content/SearchContentByLocation")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/proto.Content/SearchContentByLocation")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1411,7 +1411,7 @@ func RegisterContentHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/protoe.Content/GetPostsByHashtag")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/proto.Content/GetPostsByHashtag")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1431,7 +1431,7 @@ func RegisterContentHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/protoe.Content/CreateComment")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/proto.Content/CreateComment")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1451,7 +1451,7 @@ func RegisterContentHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/protoe.Content/GetCommentsForPost")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/proto.Content/GetCommentsForPost")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1471,7 +1471,7 @@ func RegisterContentHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/protoe.Content/CreateLike")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/proto.Content/CreateLike")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1491,7 +1491,7 @@ func RegisterContentHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/protoe.Content/GetLikesForPost")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/proto.Content/GetLikesForPost")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1511,7 +1511,7 @@ func RegisterContentHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/protoe.Content/GetDislikesForPost")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/proto.Content/GetDislikesForPost")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1531,7 +1531,7 @@ func RegisterContentHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/protoe.Content/GetAllCollections")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/proto.Content/GetAllCollections")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1551,7 +1551,7 @@ func RegisterContentHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/protoe.Content/GetCollection")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/proto.Content/GetCollection")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1571,7 +1571,7 @@ func RegisterContentHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/protoe.Content/CreateCollection")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/proto.Content/CreateCollection")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1591,7 +1591,7 @@ func RegisterContentHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/protoe.Content/RemoveCollection")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/proto.Content/RemoveCollection")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1611,7 +1611,7 @@ func RegisterContentHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/protoe.Content/GetUserFavorites")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/proto.Content/GetUserFavorites")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1631,7 +1631,7 @@ func RegisterContentHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/protoe.Content/CreateFavorite")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/proto.Content/CreateFavorite")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1651,7 +1651,7 @@ func RegisterContentHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/protoe.Content/RemoveFavorite")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/proto.Content/RemoveFavorite")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1671,7 +1671,7 @@ func RegisterContentHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/protoe.Content/CreateHashtag")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/proto.Content/CreateHashtag")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

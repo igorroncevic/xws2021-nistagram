@@ -4,7 +4,7 @@ package proto;
 
 import "google/api/annotations.proto";
 
-option go_package = "github.com/xws2021-nistagram/user_service/proto";
+option go_package = "github.com/xws2021-nistagram/common/proto";
 
 service Privacy {
     rpc CreatePrivacy (CreatePrivacyRequest) returns (EmptyResponsePrivacy) {

@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"github.com/david-drvar/xws2021-nistagram/common"
+	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
-	recommendationpb "github.com/david-drvar/xws2021-nistagram/user_service/proto_intercommunication"
 	"github.com/david-drvar/xws2021-nistagram/user_service/repositories"
 	"github.com/david-drvar/xws2021-nistagram/user_service/util/encryption"
 	"google.golang.org/grpc"
@@ -68,10 +68,10 @@ func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, us
 	}
 	defer conn.Close()
 
-	c := recommendationpb.NewFollowersClient(conn)
+	c := protopb.NewFollowersClient(conn)
 
-	createUserRequest := recommendationpb.CreateUserRequestFollowers{
-		User: &recommendationpb.UserFollowers{
+	createUserRequest := protopb.CreateUserRequestFollowers{
+		User: &protopb.UserFollowers{
 			UserId: user.Id,
 		},
 	}
