@@ -2,9 +2,14 @@ import React, {useEffect, useState} from 'react';
 import {Button, Form, Modal} from "react-bootstrap";
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from "axios";
-import RegistrationPage from "./RegistrationPage";
-const TEST_SITE_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
+import { useHistory } from 'react-router-dom';
 
+import RegistrationPage from "./RegistrationPage";
+import Profile from "../components/ProfileComponent/Profile";
+import Chats from "../components/HomePageComponents/Chats";
+import {Route} from "react-router-dom";
+import HomePage from "../components/HomePageComponents/HomePage";
+const TEST_SITE_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
 
 export function IndexPage(){
     const[details,setDetails]=useState({email:"", password:""});
@@ -14,6 +19,7 @@ export function IndexPage(){
     const[reCaptcha,setCaptcha]=useState(0);
     const[logInDisabled,setLogInDisabled]=useState(false);
     const[showModal,setShowModal]=useState(false);
+    const history = useHistory()
 
     useEffect(() => {
         document.body.style.backgroundColor = "#C0C0C0"
@@ -21,13 +27,16 @@ export function IndexPage(){
 
     async function sendParams(){
         axios
-            .post("http://localhost:8001/users/login", {
+            .post("http://localhost:8080/api/users/api/users/login", {
                 email: details.email,
                 password: details.password
             })
             .then(res => {
                 alert("Login successful ");
-                //localStorage.setItem("jwt", res.data); // Change asap
+                history.push({
+                    pathname: '/aj',
+                    state: { user:res.data, follow:false }
+                })
             })
             .catch(res => {
                 if (reCaptcha >= 2) {

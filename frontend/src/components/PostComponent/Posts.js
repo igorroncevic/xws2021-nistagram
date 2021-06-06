@@ -5,6 +5,7 @@ import Post from "./Post";
 
 function Posts () {
     //prvo cemo dobavljati postove iz baze sve
+
     const posts=[
         {id:'1',
             userId:'2dsdsd',

@@ -4,11 +4,14 @@ import Stories from "../StoryCompoent/Stories";
 import Posts from "../PostComponent/Posts";
 
 
-function PostsAndStories() {
+function PostsAndStories(props) {
+  // console.log(props.location.state);
+    console.log(props.location.state.user)
+   // const{user}=props.location.state.user;
     return (
 
-        <div className='home'>
-            <HomePage />
+        <div >
+            <HomePage user={props.location.state.user}/>
             <Stories />
             <Posts/>
         </div>

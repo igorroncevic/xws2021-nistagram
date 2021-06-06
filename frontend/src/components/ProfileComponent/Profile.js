@@ -1,28 +1,41 @@
 import React, {useEffect, useState} from "react";
 import '../../style/Profile.css';
-import HomePage from "../HomePageComponents/HomePage";
 import {Button, Modal} from "react-bootstrap";
-import Stories from "react-insta-stories";
 import EditProfile from "./EditProfile";
-import Posts from "../PostComponent/Posts";
 import Post from "../PostComponent/Post";
 import ChangePassword from "./ChangePassword";
 import FollowAndUnfollow from "./FollowAndUnfollow";
 import axios from "axios";
+import Navigation from "../HomePage/Navigation";
 //user ce se pokupiti kroz props isto kao i follow true/false
 //kad idem na myprofile, saljem mu sebe i follow false
 //kad stisnem na nekog saljem mu tog nekog i saljem mu follow true
 //kad ulazis u bilo ciji profil trebaju ti info o pratiocima kao i info o postovima
 //ako je tudji profil ne trebaju ti update funkcionalnosti, treba ti mogucnost follow/unfollow
+
+
 function Profile(props) {
-    const[follow,setFollow]=useState(props.follow);
+
+   const [user,setUser] =useState(props.location.state.user);
+   const [follow,setFollow] =useState(props.location.state.follow);
+
+    useEffect(() => {
+        setFollow(props.location.state.follow);
+    }, [])
+    useEffect(() => {
+        setUser(props.location.state.user);
+    }, [])
+
     const [image, setImage] = useState('');
-    const[user,setUser]=useState({username:"joksi3333",firstName:"Marko", lastName:"Markovic",email:"joksi323@gmail.com", birthDate: Date(), phoneNumber:"06589526262626", sex:"MAN", biography:"bla",website:"truc", password:'bla'})
     const [showModal, setModal] = useState(false);
     const [showModalPass, setModalPass] = useState(false);
     const [followers, setFollowers] = useState([]);
     const [following, setFollowings] = useState([]);
     const [posts, setPosts] = useState([]);
+
+    console.log("PROFILE")
+    console.log(user);
+    console.log(follow);
 
     const updatePhoto = (file) => {
         setImage(file)
@@ -48,7 +61,7 @@ function Profile(props) {
 
     function getFollowers(){
         axios
-            .post('http://localhost:8080/api/followers/get_followers', {
+            .post('http://localhost:8005/api/followers/get_followers', {
                     UserId:'5190c16f-7886-4fad-9d76-ef0b5e304639'
             })
             .then(res => {
@@ -102,9 +115,9 @@ function Profile(props) {
 
     return (
         <div>
-            <HomePage/>
-            <div style={{marginLeft: '20%', marginRight: '20%'}}>
-                <div style={{margin: "18px 0px", orderBottom: "1px solid grey"}}>
+            <Navigation user={user}/>
+            <div style={{marginLeft: '20%', marginRight: '20%',marginTop:'15%'}}>
+                <div style={{margin: "18px 0px", orderBottom: "1px solid "}}>
                     <div style={{display: "flex", justifyContent: "space-around",}}>
                         <div>
                             <img style={{width: "180px", height: "160px", borderRadius: "80px"}}
@@ -119,12 +132,12 @@ function Profile(props) {
                                 <h6 style={{marginLeft:'13px'}}> {following.length} following </h6>
                             </div>
                             {follow ?
+                                <FollowAndUnfollow following={following}/>
+                                :
                                 <div>
                                     <Button variant="link" style={{marginTop:'2em', borderTop: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModal}>Update profile info?</Button>
                                     <Button variant="link" style={{borderBottom: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModalPass}>Change password?</Button>
                                 </div>
-                                :
-                               <FollowAndUnfollow following={following}/>
 
 
                             }

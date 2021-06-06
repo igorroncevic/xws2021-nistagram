@@ -6,9 +6,12 @@ import '../../style/HomePage.css';
 import { IconContext } from 'react-icons';
 import {SidebarData} from "./SidebarData";
 import {Button} from "react-bootstrap";
+import PostsAndStories from "./PostsAndStories";
 
 
-function HomePage() {
+function HomePage(props) {
+    const{user}=props;
+    console.log(user)
     const [sidebar, setSidebar] = useState(false);
 
     const showSidebar = () => setSidebar(!sidebar);
@@ -26,7 +29,7 @@ function HomePage() {
                     <Link to='#' className='menu-bars'>
                         <FaIcons.FaBars onClick={showSidebar}/>
                     </Link>
-                    <p className='text'>Ništagram</p>
+                    <p className='text'>Ništagram </p>
                     <Button style={{background: 'white', borderColor: '#ffeecc', color: '#ff4d4d'}} onClick={logOut} >Log out</Button>
 
                 </div>
@@ -41,9 +44,7 @@ function HomePage() {
                         {SidebarData.map((item, index) => {
                             return (
                                 <li key={index} className={item.cName}>
-                                    <Link to={item.path}>
-                                        {item.icon}
-                                        <span>{item.title}</span>
+                                    <Link to={item.path} >  {item.icon}  <span>{item.title}</span>
                                     </Link>
                                 </li>
                             );

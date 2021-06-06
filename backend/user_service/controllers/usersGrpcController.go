@@ -122,6 +122,7 @@ func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginReq
 	return &protopb.LoginResponse{
 		AccessToken: token,
 		UserId:      user.Id,
+		Username:    user.Username,
 		Role:        user.Role.String(),
 	}, nil
 }

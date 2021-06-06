@@ -19,20 +19,20 @@ const EditProfile = props => {
     function sendParams(){
         axios
             .post('http://localhost:8080/api/users/api/users/update_profile', {
-        user:{
-            id: '11e215ef-a6ce-40c6-ad0b-e602e298f0a4',
-            firstName: 'Ana',
-            lastName: 'Zoric',
-            email: 'kkosta98@gmail.com',
-            phoneNumber: '0658456152',
-            username: 'kole998',
-            profilePhoto: 'idk',
-            sex: 'MAN',
-            website:'igorijovanzauvekzajednojej',
-            biography:'igorijovanzauvekzajednojej',
-            category:'igorijovanzauvekzajednojej',
-            isActive: true
-        }
+                user:{
+                    id: '11e215ef-a6ce-40c6-ad0b-e602e298f0a4',
+                    firstName: 'Ana',
+                    lastName: 'Zoric',
+                    email: 'kkosta98@gmail.com',
+                    phoneNumber: '0658456152',
+                    username: 'kole998',
+                    profilePhoto: 'idk',
+                    sex: 'MAN',
+                    website:'igorijovanzauvekzajednojej',
+                    biography:'igorijovanzauvekzajednojej',
+                    category:'igorijovanzauvekzajednojej',
+                    isActive: true
+                }
             })
             .then(res => {
                 console.log("RADI")

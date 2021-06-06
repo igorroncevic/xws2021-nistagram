@@ -11,6 +11,7 @@ import HomePage from "./components/HomePageComponents/HomePage";
 import Search from "./pages/Search";
 import Profile from "./components/ProfileComponent/Profile";
 import NewPost from "./components/PostComponent/NewPost";
+import Home from "./components/HomePage/Home";
 
 
 
@@ -21,13 +22,15 @@ function App () {
                 <Route path='/' exact={true} component={IndexPage}/>
                 <Route path='/forgotten' exact={true} component={ForgotPasswordPage}/>
                 <Route path='/registration' exact={true} component={RegistrationPage}/>
-                <Route path='/home' exact={true} component={HomePage}/>
                 <Route path='/posts' exact component={PostsAndStories} />
                 <Route path='/newpost' exact component={NewPost} />
-                <Route path='/profile' exact component={() => <Profile follow={false} />}/>
+                <Route path='/profile' exact component={Profile}/>
                 <Route path='/chats' exact component={Chats} />
                 <Route path='/saved' exact component={Saved} />
                 <Route path='/search' exact={true} component={Search}/>
+
+
+                <Route path='/aj' exact  component={Home}/>
              </Router>
         </div>
     );
