@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"context"
+	"github.com/david-drvar/xws2021-nistagram/common"
+	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
@@ -9,20 +11,23 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"log"
 )
 
 type PostGrpcController struct {
-	service *services.PostService
+	service    *services.PostService
+	jwtManager *common.JWTManager
 }
 
-func NewPostController(db *gorm.DB) (*PostGrpcController, error) {
+func NewPostController(db *gorm.DB, jwtManager *common.JWTManager) (*PostGrpcController, error) {
 	service, err := services.NewPostService(db)
 	if err != nil {
 		return nil, err
 	}
 
 	return &PostGrpcController{
-		service: service,
+		service,
+		jwtManager,
 	}, nil
 }
 
@@ -46,6 +51,27 @@ func (s *PostGrpcController) GetAllPosts(ctx context.Context, in *protopb.EmptyR
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPosts")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	claims, err := s.jwtManager.ExtractClaimsFromMetadata(ctx)
+	if err != nil {
+		return &protopb.ReducedPostArray{
+			Posts: []*protopb.ReducedPost{},
+		}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	userId := claims.UserId
+	conn, err := grpc_common.CreateGrpcConnection(grpc_common.Recommendation_service_address)
+	if err != nil{
+		return &protopb.ReducedPostArray{
+			Posts: []*protopb.ReducedPost{},
+		}, status.Errorf(codes.Unknown, err.Error())
+	}
+	client := grpc_common.GetFollowersClient(conn)
+	response, err := client.GetAllFollowing(ctx, &protopb.CreateUserRequestFollowers{
+		User: &protopb.UserFollowers{ UserId: userId },
+	})
+
+	log.Println(response)
 
 	posts, err := s.service.GetAllPosts(ctx)
 

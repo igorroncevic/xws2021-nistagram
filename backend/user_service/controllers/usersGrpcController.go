@@ -106,7 +106,15 @@ func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginReq
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	token, err := s.jwtManager.GenerateJwt("someuserid", "ADMIN")
+	var request domain.LoginRequest
+	request = request.ConvertFromGrpc(in)
+
+	user, err := s.service.LoginUser(ctx, request)
+	if err != nil{
+		return &protopb.LoginResponse{AccessToken: ""}, err
+	}
+
+	token, err := s.jwtManager.GenerateJwt(user.Id, user.Role.String())
 	if err != nil {
 		return &protopb.LoginResponse{AccessToken: ""}, err
 	}

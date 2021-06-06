@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
@@ -14,12 +13,12 @@ import (
 )
 
 type UserRepository interface {
-	GetAllUsers(context.Context) ([]persistence.User, error)
-	CreateUser(context.Context, *persistence.User) error
+	GetAllUsers(context.Context) 					([]persistence.User, error)
+	CreateUser(context.Context, *persistence.User) 	error
 	CreateUserWithAdditionalInfo(context.Context, *persistence.User, *persistence.UserAdditionalInfo) (*persistence.User, error)
-	CheckPassword(data common.Credentials) error
-	UpdateUserProfile(ctx context.Context, dto domain.User) (bool, error)
-	UpdateUserPassword(ctx context.Context, password domain.Password) (bool, error)
+	LoginUser(context.Context, domain.LoginRequest) 				     (persistence.User, error)
+	UpdateUserProfile(ctx context.Context, dto domain.User) 			 (bool, error)
+	UpdateUserPassword(ctx context.Context, password domain.Password)    (bool, error)
 	SearchUsersByUsernameAndName(ctx context.Context, user *domain.User) ([]domain.User, error)
 }
 
@@ -141,30 +140,23 @@ func (repository *userRepository) GetAllUsers(ctx context.Context) ([]persistenc
 	return users, nil
 }
 
-func (repository *userRepository) CheckPassword(data common.Credentials) error {
-	/*var user models.User
+func (repository *userRepository) LoginUser(ctx context.Context, request domain.LoginRequest) (persistence.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "LoginUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	query := "select u.id, u.password from registered_users u where u.email = $1"
-	rows, err := repository.DB.Query(context.Background(), query, data.Email)
-	defer rows.Close()
-	if err != nil {
-		return err
+	var dbUser persistence.User
+	result := repository.DB.Where("email = ?", request.Email).First(&dbUser)
+	if result.Error != nil || result.RowsAffected != 1 {
+		return persistence.User{}, result.Error
 	}
 
-	for rows.Next() {
-		err := rows.Scan(&user.ID, &user.Password)
-		if err != nil {
-			return err
-		}
-	}
-
-	err = encryption.CompareHashAndPassword([]byte(user.Password), []byte(data.Password))
+	err := encryption.CompareHashAndPassword([]byte(dbUser.Password), []byte(request.Password))
 	if err != nil{
-		return err
+		return persistence.User{}, errors.New("passwords do not match")
 	}
-	*/
 
-	return nil
+	return dbUser, nil
 }
 
 func (repository *userRepository) CreateUser(ctx context.Context, user *persistence.User) error {

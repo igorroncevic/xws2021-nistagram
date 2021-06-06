@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"github.com/david-drvar/xws2021-nistagram/common"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	otgo "github.com/opentracing/opentracing-go"
@@ -22,8 +23,8 @@ type Server struct {
 	closer io.Closer
 }
 
-func NewServer(db *gorm.DB) (*Server, error) {
-	postController, _ := NewPostController(db)
+func NewServer(db *gorm.DB, manager *common.JWTManager) (*Server, error) {
+	postController, _ := NewPostController(db, manager)
 	storyController, _ := NewStoryController(db)
 	commentController, _ := NewCommentController(db)
 	likeController, _ := NewLikeController(db)
@@ -38,7 +39,7 @@ func NewServer(db *gorm.DB) (*Server, error) {
 		likeController:      likeController,
 		favoritesController: favoritesController,
 		hashtagController:   hashtagController,
-		storyController: storyController,
+		storyController: 	 storyController,
 		highlightController: highlightController,
 		tracer: tracer,
 		closer: closer,

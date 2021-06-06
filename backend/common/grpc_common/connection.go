@@ -2,9 +2,11 @@ package grpc_common
 
 import (
 	"context"
+	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	otgo "github.com/opentracing/opentracing-go"
 	"google.golang.org/grpc"
+	"log"
 )
 
 func CreateGrpcConnection(address string) (*grpc.ClientConn, error) {
@@ -26,4 +28,18 @@ func CreateGrpcConnection(address string) (*grpc.ClientConn, error) {
 			),
 		),
 	)
+}
+
+// MUST use defer outside the function, not in it
+func GetClientConnection(address string) (*grpc.ClientConn, error){
+	conn, err := grpc.Dial(address, grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("could not connect to %s ", err)
+	}
+
+	return conn, err
+}
+
+func GetFollowersClient(conn *grpc.ClientConn) protopb.FollowersClient{
+	return protopb.NewFollowersClient(conn)
 }
