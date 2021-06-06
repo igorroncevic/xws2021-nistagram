@@ -24,7 +24,7 @@ function App () {
                 <Route path='/home' exact={true} component={HomePage}/>
                 <Route path='/posts' exact component={PostsAndStories} />
                 <Route path='/newpost' exact component={NewPost} />
-                <Route path='/profile' exact component={Profile} />
+                <Route path='/profile' exact component={() => <Profile follow={false} />}/>
                 <Route path='/chats' exact component={Chats} />
                 <Route path='/saved' exact component={Saved} />
                 <Route path='/search' exact={true} component={Search}/>

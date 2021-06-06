@@ -12,6 +12,7 @@ const EditProfile = props => {
     const[usernameErr,setUsernameErr]=useState('');
     const[phoneNumErr,setPhoneErr]=useState('');
     const [submitted, setSubmitted] = useState(false);
+
     useEffect(() => {
         console.log(phoneNumErr)
     }, [phoneNumErr])
@@ -42,7 +43,7 @@ const EditProfile = props => {
             console.log("NE RADIs")
         })
     }
-    function handleInputChange(event) {
+    async function handleInputChange(event) {
         setUser({
             ...user,
             [event.target.name]: event.target.value,
@@ -82,6 +83,8 @@ const EditProfile = props => {
     }
 
     function checkNameAndSurname(value) {
+        var mika= !(value && !/^[a-zA-Z ,.'-]+$/i.test(value));
+        console.log(mika)
         var pera= /^[a-zA-Z ,.'-]+$/.test(value);
         return pera;
     }
