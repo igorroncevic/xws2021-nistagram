@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"errors"
-	"github.com/david-drvar/xws2021-nistagram/common"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
@@ -84,8 +83,16 @@ func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, us
 	return nil
 }
 
-func (service *UserService) LoginUser(ctx context.Context, data common.Credentials) error {
-	return nil //service.repository.CheckPassword(ctx, data)
+func (service *UserService) LoginUser(ctx context.Context, request domain.LoginRequest) (persistence.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "LoginUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if request.Email == "" || request.Password == "" {
+		return persistence.User{}, errors.New("empty login request")
+	}
+
+	return service.repository.LoginUser(ctx, request)
 }
 
 func (service *UserService) UpdateUserProfile(ctx context.Context, userDTO domain.User) (bool, error) {

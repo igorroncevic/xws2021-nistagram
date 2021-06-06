@@ -32,7 +32,7 @@ func GRPCServer(db *gorm.DB) {
 		grpc.UnaryInterceptor(authInterceptor.Unary()),
     )
 
-	server, err := controllers.NewServer(db)
+	server, err := controllers.NewServer(db, jwtManager)
 	if err != nil {
 		log.Fatal(err.Error())
 		return
