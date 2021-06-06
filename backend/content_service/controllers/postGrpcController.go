@@ -11,7 +11,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
-	"log"
 )
 
 type PostGrpcController struct {
@@ -50,9 +49,9 @@ func (s *PostGrpcController) CreatePost(ctx context.Context, in *protopb.Post) (
 func (s *PostGrpcController) GetAllPosts(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.ReducedPostArray, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPosts")
 	defer span.Finish()
+	claims, err := s.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	claims, err := s.jwtManager.ExtractClaimsFromMetadata(ctx)
 	if err != nil {
 		return &protopb.ReducedPostArray{
 			Posts: []*protopb.ReducedPost{},
@@ -71,9 +70,18 @@ func (s *PostGrpcController) GetAllPosts(ctx context.Context, in *protopb.EmptyR
 		User: &protopb.UserFollowers{ UserId: userId },
 	})
 
-	log.Println(response)
+	if len(response.Users) == 0 {
+		return &protopb.ReducedPostArray{
+			Posts: []*protopb.ReducedPost{},
+		}, nil
+	}
 
-	posts, err := s.service.GetAllPosts(ctx)
+	followings := []string{}
+	for _, followingId := range response.Users{
+		followings = append(followings, followingId.UserId)
+	}
+
+	posts, err := s.service.GetAllPosts(ctx, followings)
 
 	if err != nil {
 		return &protopb.ReducedPostArray{

@@ -63,14 +63,14 @@ func NewPostService(db *gorm.DB) (*PostService, error) {
 	}, err
 }
 
-func (service *PostService) GetAllPosts(ctx context.Context) ([]domain.ReducedPost, error) {
+func (service *PostService) GetAllPosts(ctx context.Context, followings []string) ([]domain.ReducedPost, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPosts")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	posts := []domain.ReducedPost{}
 
-	dbPosts, err := service.postRepository.GetAllPosts(ctx)
+	dbPosts, err := service.postRepository.GetAllPosts(ctx, followings)
 	if err != nil {
 		return posts, err
 	}

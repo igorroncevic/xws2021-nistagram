@@ -10,7 +10,7 @@ service Followers {
     rpc CreateUserConnection (CreateFollowerRequest) returns (EmptyResponseFollowers) {
         option(google.api.http) = {
             post: "/api/followers/create_connection",
-            body: "follower"
+            body: "*"
         };
     }
 
@@ -65,12 +65,12 @@ service Followers {
 }
 
 message Follower {
-    string UserId = 1;
-    string FollowerId = 2;
-    bool IsMuted = 3;
-    bool IsCloseFriends = 4;
-    bool IsApprovedRequest = 5;
-    bool IsNotificationEnabled = 6;
+    string userId = 1;
+    string followerId = 2;
+    bool isMuted = 3;
+    bool isCloseFriends = 4;
+    bool isApprovedRequest = 5;
+    bool isNotificationEnabled = 6;
 }
 
 message UserFollowers {

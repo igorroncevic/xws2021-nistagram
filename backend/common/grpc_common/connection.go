@@ -17,6 +17,10 @@ func CreateGrpcConnection(address string) (*grpc.ClientConn, error) {
 		address,
 		grpc.WithBlock(),
 		grpc.WithInsecure(),
+		grpc.WithDefaultCallOptions(
+			grpc.MaxCallSendMsgSize(4 << 30),
+			grpc.MaxCallRecvMsgSize(4 << 30),
+			),
 		grpc.WithUnaryInterceptor(
 			grpc_opentracing.UnaryClientInterceptor(
 				grpc_opentracing.WithTracer(otgo.GlobalTracer()),

@@ -11,7 +11,7 @@ import (
 )
 
 type PostRepository interface {
-	GetAllPosts(context.Context) ([]persistence.Post, error)
+	GetAllPosts(context.Context, []string) ([]persistence.Post, error)
 	CreatePost(context.Context, *domain.Post) error
 	GetPostById(context.Context, string) (*persistence.Post, error)
 	RemovePost(context.Context, string) error
@@ -40,13 +40,13 @@ func NewPostRepo(db *gorm.DB) (*postRepository, error) {
 	}, nil
 }
 
-func (repository *postRepository) GetAllPosts(ctx context.Context) ([]persistence.Post, error) {
+func (repository *postRepository) GetAllPosts(ctx context.Context, followings []string) ([]persistence.Post, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPosts")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	posts := []persistence.Post{}
-	result := repository.DB.Order("created_at desc").Find(&posts)
+	result := repository.DB.Order("created_at desc").Where("user_id IN (?)", followings).Find(&posts)
 	if result.Error != nil {
 		return posts, result.Error
 	}
