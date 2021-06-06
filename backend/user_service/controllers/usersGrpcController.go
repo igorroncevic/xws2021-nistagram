@@ -111,13 +111,17 @@ func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginReq
 
 	user, err := s.service.LoginUser(ctx, request)
 	if err != nil{
-		return &protopb.LoginResponse{AccessToken: ""}, err
+		return &protopb.LoginResponse{}, err
 	}
 
 	token, err := s.jwtManager.GenerateJwt(user.Id, user.Role.String())
 	if err != nil {
-		return &protopb.LoginResponse{AccessToken: ""}, err
+		return &protopb.LoginResponse{}, err
 	}
 
-	return &protopb.LoginResponse{AccessToken: token}, nil
+	return &protopb.LoginResponse{
+		AccessToken: token,
+		UserId:      user.Id,
+		Role:        user.Role.String(),
+	}, nil
 }

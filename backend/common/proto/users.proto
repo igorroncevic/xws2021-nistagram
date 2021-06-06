@@ -123,6 +123,8 @@ message LoginRequest {
 
 message LoginResponse {
   string accessToken = 1;
+  string userId = 2;
+  string role = 3;
 }
 
 
