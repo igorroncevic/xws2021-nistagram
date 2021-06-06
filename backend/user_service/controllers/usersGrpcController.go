@@ -30,7 +30,7 @@ func NewUserController(db *gorm.DB, jwtManager *common.JWTManager) (*UserGrpcCon
 	}, nil
 }
 
-func (s *UserGrpcController) CreateUser(ctx context.Context, in *protopb.CreateUserRequest) (*protopb.EmptyResponse, error) {
+func (s *UserGrpcController) CreateUser(ctx context.Context, in *protopb.CreateUserRequest) (*protopb.UsersDTO, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -40,12 +40,14 @@ func (s *UserGrpcController) CreateUser(ctx context.Context, in *protopb.CreateU
 	user = *user.ConvertFromGrpc(in.User)
 	userAdditionalInfo = *userAdditionalInfo.ConvertFromGrpc(in.User)
 
-	err := s.service.CreateUserWithAdditionalInfo(ctx, &user, &userAdditionalInfo)
+	userDomain, err := s.service.CreateUserWithAdditionalInfo(ctx, &user, &userAdditionalInfo)
 	if err != nil {
-		return &protopb.EmptyResponse{}, status.Errorf(codes.Unknown, err.Error())
+		return &protopb.UsersDTO{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
-	return &protopb.EmptyResponse{}, nil
+	userProto := userDomain.ConvertToGrpc()
+
+	return userProto, nil
 }
 
 func (s *UserGrpcController) GetAllUsers(ctx context.Context, in *protopb.EmptyRequest) (*protopb.UsersResponse, error) {

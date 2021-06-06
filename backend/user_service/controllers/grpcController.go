@@ -40,7 +40,7 @@ func (s *Server) GetCloser() io.Closer {
 	return s.closer
 }
 
-func (s *Server) CreateUser(ctx context.Context, in *protopb.CreateUserRequest) (*protopb.EmptyResponse, error) {
+func (s *Server) CreateUser(ctx context.Context, in *protopb.CreateUserRequest) (*protopb.UsersDTO, error) {
 	return s.userController.CreateUser(ctx, in)
 }
 

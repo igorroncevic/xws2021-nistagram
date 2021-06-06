@@ -15,7 +15,7 @@ service Users {
     };
   }
 
-  rpc CreateUser (CreateUserRequest) returns (EmptyResponse) {
+  rpc CreateUser (CreateUserRequest) returns (UsersDTO) {
     option(google.api.http) = {
       post: "/api/users",
       body: "user"

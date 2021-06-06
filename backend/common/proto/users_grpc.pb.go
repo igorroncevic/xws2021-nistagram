@@ -19,7 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UsersClient interface {
 	LoginUser(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
-	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*UsersDTO, error)
 	GetAllUsers(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*UsersResponse, error)
 	UpdateUserProfile(ctx context.Context, in *CreateUserDTORequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	UpdateUserPassword(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
@@ -43,8 +43,8 @@ func (c *usersClient) LoginUser(ctx context.Context, in *LoginRequest, opts ...g
 	return out, nil
 }
 
-func (c *usersClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
-	out := new(EmptyResponse)
+func (c *usersClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*UsersDTO, error) {
+	out := new(UsersDTO)
 	err := c.cc.Invoke(ctx, "/proto.Users/CreateUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -93,7 +93,7 @@ func (c *usersClient) SearchUser(ctx context.Context, in *SearchUserDtoRequest, 
 // for forward compatibility
 type UsersServer interface {
 	LoginUser(context.Context, *LoginRequest) (*LoginResponse, error)
-	CreateUser(context.Context, *CreateUserRequest) (*EmptyResponse, error)
+	CreateUser(context.Context, *CreateUserRequest) (*UsersDTO, error)
 	GetAllUsers(context.Context, *EmptyRequest) (*UsersResponse, error)
 	UpdateUserProfile(context.Context, *CreateUserDTORequest) (*EmptyResponse, error)
 	UpdateUserPassword(context.Context, *CreatePasswordRequest) (*EmptyResponse, error)
@@ -108,7 +108,7 @@ type UnimplementedUsersServer struct {
 func (UnimplementedUsersServer) LoginUser(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginUser not implemented")
 }
-func (UnimplementedUsersServer) CreateUser(context.Context, *CreateUserRequest) (*EmptyResponse, error) {
+func (UnimplementedUsersServer) CreateUser(context.Context, *CreateUserRequest) (*UsersDTO, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
 func (UnimplementedUsersServer) GetAllUsers(context.Context, *EmptyRequest) (*UsersResponse, error) {
