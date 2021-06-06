@@ -48,6 +48,10 @@ func (s *Server) GetAllUsers(ctx context.Context, in *protopb.EmptyRequest) (*pr
 	return s.userController.GetAllUsers(ctx, in)
 }
 
+func (s *Server) GetUserById(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.UsersDTO, error) {
+	return s.userController.GetUserById(ctx, in)
+}
+
 func (s *Server) UpdateUserProfile(ctx context.Context, in *protopb.CreateUserDTORequest) (*protopb.EmptyResponse, error) {
 	return s.userController.UpdateUserProfile(ctx, in)
 }
@@ -78,6 +82,10 @@ func (s *Server) SearchUser(ctx context.Context, in *protopb.SearchUserDtoReques
 
 func (s *Server) CheckUserProfilePublic(ctx context.Context, in *protopb.PrivacyRequest) (*protopb.BooleanResponse, error) {
 	return s.privacyController.CheckUserProfilePublic(ctx, in)
+}
+
+func (s *Server) GetAllPublicUsers(ctx context.Context, in *protopb.EmptyRequestPrivacy) (*protopb.StringArray, error) {
+	return s.privacyController.GetAllPublicUsers(ctx, in)
 }
 
 func (s *Server) LoginUser(ctx context.Context, in *protopb.LoginRequest) (*protopb.LoginResponse, error) {

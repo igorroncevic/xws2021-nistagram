@@ -35,6 +35,16 @@ type Story struct {
 	IsCloseFriends bool
 }
 
+type StoryHome struct {
+	UserId   string
+	Username string
+	Stories  []Story
+}
+
+type StoriesHome struct {
+	Stories []StoryHome
+}
+
 type Media struct {
 	Id       string
 	Type     model.MediaType

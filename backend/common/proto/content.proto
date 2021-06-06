@@ -57,9 +57,15 @@ service Content {
     };
   }
 
-  rpc GetAllStories (EmptyRequestContent) returns (StoriesArray) {
+  rpc GetAllStories (EmptyRequestContent) returns (StoriesHome) {
     option(google.api.http) = {
       get: "/stories"
+    };
+  }
+
+  rpc GetStoriesForUser (RequestId) returns (StoriesArray) {
+    option(google.api.http) = {
+      get: "/stories/{id}"
     };
   }
 
@@ -282,6 +288,16 @@ message Story {
 
 message StoriesArray {
   repeated Story stories = 1;
+}
+
+message StoryHome {
+  string userId = 1;
+  string username = 2;
+  repeated Story stories = 3;
+}
+
+message StoriesHome {
+  repeated StoryHome stories = 1;
 }
 
 /* * * * * * * * * * * * */

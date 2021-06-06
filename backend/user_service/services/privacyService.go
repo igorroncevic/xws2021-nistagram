@@ -63,3 +63,20 @@ func (service *PrivacyService) CheckUserProfilePublic(ctx context.Context, userI
 	var privacy, _ = service.repository.GetUserPrivacy(ctx, userId)
 	return privacy.IsProfilePublic == true
 }
+
+func (service *PrivacyService) GetAllPublicUsers(ctx context.Context) []string {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPublicUsers")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	privacies, _ := service.repository.GetAlLPublicUsers(ctx)
+
+	publicUsers := []string{}
+	for _, privacy := range privacies {
+		if privacy.IsProfilePublic {
+			publicUsers = append(publicUsers, privacy.UserId)
+		}
+	}
+
+	return publicUsers
+}

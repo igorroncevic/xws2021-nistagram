@@ -47,6 +47,14 @@ func (s *Server) GetAllFollowing(ctx context.Context, in *protopb.CreateUserRequ
 	return s.followerController.GetAllFollowing(ctx, in)
 }
 
+func (s *Server) GetAllFollowingsForHomepagePosts(ctx context.Context, in *protopb.CreateUserRequestFollowers) (*protopb.CreateUserResponse, error) {
+	return s.followerController.GetAllFollowingsForHomepagePosts(ctx, in)
+}
+
+func (s *Server) GetAllFollowingsForHomepageStories(ctx context.Context, in *protopb.CreateUserRequestFollowers) (*protopb.CreateUserResponse, error) {
+	return s.followerController.GetAllFollowingsForHomepageStories(ctx, in)
+}
+
 func (s *Server) DeleteBiDirectedConnection(ctx context.Context, in *protopb.CreateFollowerRequest) (*protopb.EmptyResponseFollowers, error) {
 	return s.followerController.DeleteBiDirectedConnection(ctx, in)
 }
@@ -62,6 +70,7 @@ func (s *Server) CreateUser(ctx context.Context, in *protopb.CreateUserRequestFo
 func (s *Server) UpdateUserConnection(ctx context.Context, in *protopb.CreateFollowerRequest) (*protopb.CreateFollowerResponse, error) {
 	return s.followerController.UpdateUserConnection(ctx, in)
 }
-func (s *Server) GetFollowersConnection(ctx context.Context, in *protopb.CreateFollowerRequest) (*protopb.CreateFollowerResponse, error) {
+
+func (s *Server) GetFollowersConnection(ctx context.Context, in *protopb.Follower) (*protopb.Follower, error) {
 	return s.followerController.GetFollowersConnection(ctx, in)
 }

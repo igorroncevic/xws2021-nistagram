@@ -24,8 +24,10 @@ type FollowersClient interface {
 	DeleteDirectedConnection(ctx context.Context, in *CreateFollowerRequest, opts ...grpc.CallOption) (*EmptyResponseFollowers, error)
 	DeleteBiDirectedConnection(ctx context.Context, in *CreateFollowerRequest, opts ...grpc.CallOption) (*EmptyResponseFollowers, error)
 	GetAllFollowing(ctx context.Context, in *CreateUserRequestFollowers, opts ...grpc.CallOption) (*CreateUserResponse, error)
+	GetAllFollowingsForHomepagePosts(ctx context.Context, in *CreateUserRequestFollowers, opts ...grpc.CallOption) (*CreateUserResponse, error)
+	GetAllFollowingsForHomepageStories(ctx context.Context, in *CreateUserRequestFollowers, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	UpdateUserConnection(ctx context.Context, in *CreateFollowerRequest, opts ...grpc.CallOption) (*CreateFollowerResponse, error)
-	GetFollowersConnection(ctx context.Context, in *CreateFollowerRequest, opts ...grpc.CallOption) (*CreateFollowerResponse, error)
+	GetFollowersConnection(ctx context.Context, in *Follower, opts ...grpc.CallOption) (*Follower, error)
 }
 
 type followersClient struct {
@@ -90,6 +92,24 @@ func (c *followersClient) GetAllFollowing(ctx context.Context, in *CreateUserReq
 	return out, nil
 }
 
+func (c *followersClient) GetAllFollowingsForHomepagePosts(ctx context.Context, in *CreateUserRequestFollowers, opts ...grpc.CallOption) (*CreateUserResponse, error) {
+	out := new(CreateUserResponse)
+	err := c.cc.Invoke(ctx, "/proto.Followers/GetAllFollowingsForHomepagePosts", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *followersClient) GetAllFollowingsForHomepageStories(ctx context.Context, in *CreateUserRequestFollowers, opts ...grpc.CallOption) (*CreateUserResponse, error) {
+	out := new(CreateUserResponse)
+	err := c.cc.Invoke(ctx, "/proto.Followers/GetAllFollowingsForHomepageStories", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *followersClient) UpdateUserConnection(ctx context.Context, in *CreateFollowerRequest, opts ...grpc.CallOption) (*CreateFollowerResponse, error) {
 	out := new(CreateFollowerResponse)
 	err := c.cc.Invoke(ctx, "/proto.Followers/UpdateUserConnection", in, out, opts...)
@@ -99,8 +119,8 @@ func (c *followersClient) UpdateUserConnection(ctx context.Context, in *CreateFo
 	return out, nil
 }
 
-func (c *followersClient) GetFollowersConnection(ctx context.Context, in *CreateFollowerRequest, opts ...grpc.CallOption) (*CreateFollowerResponse, error) {
-	out := new(CreateFollowerResponse)
+func (c *followersClient) GetFollowersConnection(ctx context.Context, in *Follower, opts ...grpc.CallOption) (*Follower, error) {
+	out := new(Follower)
 	err := c.cc.Invoke(ctx, "/proto.Followers/GetFollowersConnection", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -118,8 +138,10 @@ type FollowersServer interface {
 	DeleteDirectedConnection(context.Context, *CreateFollowerRequest) (*EmptyResponseFollowers, error)
 	DeleteBiDirectedConnection(context.Context, *CreateFollowerRequest) (*EmptyResponseFollowers, error)
 	GetAllFollowing(context.Context, *CreateUserRequestFollowers) (*CreateUserResponse, error)
+	GetAllFollowingsForHomepagePosts(context.Context, *CreateUserRequestFollowers) (*CreateUserResponse, error)
+	GetAllFollowingsForHomepageStories(context.Context, *CreateUserRequestFollowers) (*CreateUserResponse, error)
 	UpdateUserConnection(context.Context, *CreateFollowerRequest) (*CreateFollowerResponse, error)
-	GetFollowersConnection(context.Context, *CreateFollowerRequest) (*CreateFollowerResponse, error)
+	GetFollowersConnection(context.Context, *Follower) (*Follower, error)
 	mustEmbedUnimplementedFollowersServer()
 }
 
@@ -145,10 +167,16 @@ func (UnimplementedFollowersServer) DeleteBiDirectedConnection(context.Context, 
 func (UnimplementedFollowersServer) GetAllFollowing(context.Context, *CreateUserRequestFollowers) (*CreateUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllFollowing not implemented")
 }
+func (UnimplementedFollowersServer) GetAllFollowingsForHomepagePosts(context.Context, *CreateUserRequestFollowers) (*CreateUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllFollowingsForHomepagePosts not implemented")
+}
+func (UnimplementedFollowersServer) GetAllFollowingsForHomepageStories(context.Context, *CreateUserRequestFollowers) (*CreateUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllFollowingsForHomepageStories not implemented")
+}
 func (UnimplementedFollowersServer) UpdateUserConnection(context.Context, *CreateFollowerRequest) (*CreateFollowerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserConnection not implemented")
 }
-func (UnimplementedFollowersServer) GetFollowersConnection(context.Context, *CreateFollowerRequest) (*CreateFollowerResponse, error) {
+func (UnimplementedFollowersServer) GetFollowersConnection(context.Context, *Follower) (*Follower, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFollowersConnection not implemented")
 }
 func (UnimplementedFollowersServer) mustEmbedUnimplementedFollowersServer() {}
@@ -272,6 +300,42 @@ func _Followers_GetAllFollowing_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Followers_GetAllFollowingsForHomepagePosts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateUserRequestFollowers)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FollowersServer).GetAllFollowingsForHomepagePosts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Followers/GetAllFollowingsForHomepagePosts",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FollowersServer).GetAllFollowingsForHomepagePosts(ctx, req.(*CreateUserRequestFollowers))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Followers_GetAllFollowingsForHomepageStories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateUserRequestFollowers)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FollowersServer).GetAllFollowingsForHomepageStories(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Followers/GetAllFollowingsForHomepageStories",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FollowersServer).GetAllFollowingsForHomepageStories(ctx, req.(*CreateUserRequestFollowers))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Followers_UpdateUserConnection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateFollowerRequest)
 	if err := dec(in); err != nil {
@@ -291,7 +355,7 @@ func _Followers_UpdateUserConnection_Handler(srv interface{}, ctx context.Contex
 }
 
 func _Followers_GetFollowersConnection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateFollowerRequest)
+	in := new(Follower)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -303,7 +367,7 @@ func _Followers_GetFollowersConnection_Handler(srv interface{}, ctx context.Cont
 		FullMethod: "/proto.Followers/GetFollowersConnection",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FollowersServer).GetFollowersConnection(ctx, req.(*CreateFollowerRequest))
+		return srv.(FollowersServer).GetFollowersConnection(ctx, req.(*Follower))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -338,6 +402,14 @@ var Followers_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllFollowing",
 			Handler:    _Followers_GetAllFollowing_Handler,
+		},
+		{
+			MethodName: "GetAllFollowingsForHomepagePosts",
+			Handler:    _Followers_GetAllFollowingsForHomepagePosts_Handler,
+		},
+		{
+			MethodName: "GetAllFollowingsForHomepageStories",
+			Handler:    _Followers_GetAllFollowingsForHomepageStories_Handler,
 		},
 		{
 			MethodName: "UpdateUserConnection",

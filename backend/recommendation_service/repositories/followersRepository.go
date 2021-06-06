@@ -12,6 +12,8 @@ type FollowersRepository interface {
 	CreateUserConnection(context.Context, model.Follower) (bool, error)
 	GetAllFollowers(context.Context, string) ([]model.User, error)
 	GetAllFollowing(context.Context, string) ([]model.User, error)
+	GetAllFollowingsForHomepagePosts(context.Context, string) ([]model.User, error)
+	GetAllFollowingsForHomepageStories(context.Context, string) ([]model.User, error)
 	CreateUser(context.Context, model.User) (bool, error)
 	DeleteDirectedConnection(context.Context, model.Follower) (bool, error)
 	DeleteBiDirectedConnection (context.Context, model.Follower) (bool, error)
@@ -66,12 +68,22 @@ func (repository *followersRepository) GetUsers(ctx context.Context, userId stri
 }
 
 func (repository *followersRepository) GetAllFollowing(ctx context.Context, userId string) ([]model.User, error){
-	query := "MATCH (a:User {id : $UserId})-[r:Follows]->(b:User) RETURN b.id"
+	query := "MATCH (a:User {id : $UserId})-[r:Follows]->(b:User) WHERE r.IsApprovedRequest = true RETURN b.id"
+	return repository.GetUsers(ctx, userId, query)
+}
+
+func (repository *followersRepository) GetAllFollowingsForHomepagePosts(ctx context.Context, userId string) ([]model.User, error){
+	query := "MATCH (a:User {id : $UserId})-[r:Follows]->(b:User) WHERE r.IsApprovedRequest = true AND r.IsMuted = false RETURN b.id"
+	return repository.GetUsers(ctx, userId, query)
+}
+
+func (repository *followersRepository) GetAllFollowingsForHomepageStories(ctx context.Context, userId string) ([]model.User, error){
+	query := "MATCH (a:User {id : $UserId})-[r:Follows]->(b:User) WHERE r.IsApprovedRequest = true AND r.IsMuted = false AND r.IsCloseFriend = true RETURN b.id"
 	return repository.GetUsers(ctx, userId, query)
 }
 
 func (repository *followersRepository) GetAllFollowers(ctx context.Context, userId string) ([]model.User, error){
-	query := "MATCH (b:User)-[r:Follows]->(a:User {id : $UserId}) RETURN b.id"
+	query := "MATCH (b:User)-[r:Follows]->(a:User {id : $UserId}) WHERE r.IsApprovedRequest = true RETURN b.id"
 	return repository.GetUsers(ctx, userId, query)
 }
 

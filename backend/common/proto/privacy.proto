@@ -41,6 +41,12 @@ service Privacy {
             body: "*"
         };
     }
+
+    rpc GetAllPublicUsers (EmptyRequestPrivacy) returns (StringArray) {
+        option(google.api.http) = {
+            get: "/api/privacy/public",
+        };
+    }
 }
 
 message Block {
@@ -69,6 +75,10 @@ message BooleanResponse {
 
 message PrivacyRequest {
     string userId = 1;
+}
+
+message StringArray {
+    repeated string ids = 1;
 }
 
 message EmptyResponsePrivacy {}

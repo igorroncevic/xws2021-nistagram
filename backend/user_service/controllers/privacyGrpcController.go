@@ -83,3 +83,15 @@ func (s *PrivacyGrpcController) CheckUserProfilePublic(ctx context.Context, in *
 
 	return &finalResponse, nil
 }
+
+func (s *PrivacyGrpcController) GetAllPublicUsers(ctx context.Context, in *protopb.EmptyRequestPrivacy) (*protopb.StringArray, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPublicUsers")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	finalResponse := protopb.StringArray{
+		Ids: s.service.GetAllPublicUsers(ctx),
+	}
+
+	return &finalResponse, nil
+}

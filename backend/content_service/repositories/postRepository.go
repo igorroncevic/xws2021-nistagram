@@ -14,7 +14,7 @@ type PostRepository interface {
 	GetAllPosts(context.Context, []string) ([]persistence.Post, error)
 	CreatePost(context.Context, *domain.Post) error
 	GetPostById(context.Context, string) (*persistence.Post, error)
-	RemovePost(context.Context, string) error
+	RemovePost(context.Context, string, string) error
 	GetPostsByLocation(ctx context.Context, location string) ([]persistence.Post, error)
 	GetCollectionsPosts(context.Context, string) ([]persistence.Post, error)
 }
@@ -107,13 +107,13 @@ func (repository *postRepository) CreatePost(ctx context.Context, post *domain.P
 	return nil
 }
 
-func (repository *postRepository) RemovePost(ctx context.Context, postId string) error {
+func (repository *postRepository) RemovePost(ctx context.Context, postId string, userId string) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemovePost")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	err := repository.DB.Transaction(func(tx *gorm.DB) error {
-		post := &persistence.Post{Id: postId}
+		post := &persistence.Post{Id: postId, UserId: userId}
 		result := repository.DB.First(&post)
 
 		if result.Error != nil || result.RowsAffected != 1 {

@@ -100,26 +100,18 @@ func (service *PostService) CreatePost(ctx context.Context, post *domain.Post) e
 	return service.postRepository.CreatePost(ctx, post)
 }
 
-func (service *PostService) RemovePost(ctx context.Context, id string) error {
+func (service *PostService) RemovePost(ctx context.Context, id string, userId string) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemovePost")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	if id == "" {
-		return errors.New("cannot remove post")
-	}
-
-	return service.postRepository.RemovePost(ctx, id)
+	return service.postRepository.RemovePost(ctx, id, userId)
 }
 
 func (service *PostService) GetPostById(ctx context.Context, id string) (domain.Post, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostById")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
-
-	if id == "" {
-		return domain.Post{}, errors.New("cannot retrieve post")
-	}
 
 	dbPost, err := service.postRepository.GetPostById(ctx, id)
 	if err != nil {

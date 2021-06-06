@@ -47,3 +47,11 @@ func GetClientConnection(address string) (*grpc.ClientConn, error){
 func GetFollowersClient(conn *grpc.ClientConn) protopb.FollowersClient{
 	return protopb.NewFollowersClient(conn)
 }
+
+func GetUsersClient(conn *grpc.ClientConn) protopb.UsersClient{
+	return protopb.NewUsersClient(conn)
+}
+
+func GetPrivacyClient(conn *grpc.ClientConn) protopb.PrivacyClient{
+	return protopb.NewPrivacyClient(conn)
+}

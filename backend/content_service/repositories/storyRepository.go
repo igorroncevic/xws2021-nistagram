@@ -1,6 +1,5 @@
 package repositories
 
-
 import (
 	"context"
 	"errors"
@@ -12,11 +11,12 @@ import (
 )
 
 type StoryRepository interface {
-	GetAllHomeStories(context.Context) ([]persistence.Story, error)
+	GetAllHomeStories(context.Context, []string) ([]persistence.Story, error)
 	CreateStory(context.Context, *domain.Story) error
 	GetStoryById(context.Context, string) (*persistence.Story, error)
-	RemoveStory(context.Context, string) error
+	RemoveStory(context.Context, string, string) error
 	GetHighlightsStories(context.Context, string) ([]persistence.Story, error)
+	GetUsersStories(context.Context, string, bool) ([]persistence.Story, error)
 }
 
 type storyRepository struct {
@@ -44,9 +44,7 @@ const(
 	storyDurationQuery = "created_at > (LOCALTIMESTAMP - interval '1 day')"
 )
 
-// TODO Group stories with their respective owners
-// Use to retrieve stories for users home page
-func (repository *storyRepository) GetAllHomeStories(ctx context.Context) ([]persistence.Story, error) {
+func (repository *storyRepository) GetAllHomeStories(ctx context.Context, userIds []string) ([]persistence.Story, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllHomeStories")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -54,8 +52,25 @@ func (repository *storyRepository) GetAllHomeStories(ctx context.Context) ([]per
 	// TODO Retrieve ids from people you follow
 	stories := []persistence.Story{}
 	result := repository.DB.Order("created_at desc").
-		//Where(storyDurationQuery + " AND user_id IN ?", userIds). // Get stories from people you follow
-		Where(storyDurationQuery).
+		Where(storyDurationQuery + " AND user_id IN ?", userIds).
+		Group("user_id").
+		Find(&stories)
+	if result.Error != nil {
+		return stories, result.Error
+	}
+
+	return stories, nil
+}
+
+func (repository *storyRepository) GetUsersStories(ctx context.Context, userId string, isCloseFriends bool) ([]persistence.Story, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUsersStories")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	// TODO Retrieve ids from people you follow
+	stories := []persistence.Story{}
+	result := repository.DB.Order("created_at desc").
+		Where(storyDurationQuery + " AND user_id = ? AND is_close_friends = ?", userId, isCloseFriends).
 		Find(&stories)
 	if result.Error != nil {
 		return stories, result.Error
@@ -117,14 +132,14 @@ func (repository *storyRepository) CreateStory(ctx context.Context, story *domai
 	return nil
 }
 
-func (repository *storyRepository) RemoveStory(ctx context.Context, storyId string) error {
+func (repository *storyRepository) RemoveStory(ctx context.Context, storyId string, userId string) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveStory")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	err := repository.DB.Transaction(func (tx *gorm.DB) error{
 		story := &persistence.Story{
-			Post: persistence.Post{Id: storyId },
+			Post: persistence.Post{Id: storyId, UserId: userId },
 		}
 		result := repository.DB.First(&story)
 

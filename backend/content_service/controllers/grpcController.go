@@ -25,7 +25,7 @@ type Server struct {
 
 func NewServer(db *gorm.DB, manager *common.JWTManager) (*Server, error) {
 	postController, _ := NewPostController(db, manager)
-	storyController, _ := NewStoryController(db)
+	storyController, _ := NewStoryController(db, manager)
 	commentController, _ := NewCommentController(db)
 	likeController, _ := NewLikeController(db)
 	favoritesController, _ := NewFavoritesController(db)
@@ -80,8 +80,12 @@ func (s *Server) CreateStory(ctx context.Context, in *protopb.Story) (*protopb.E
 	return s.storyController.CreateStory(ctx, in)
 }
 
-func (s *Server) GetAllStories(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.StoriesArray, error) {
+func (s *Server) GetAllStories(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.StoriesHome, error) {
 	return s.storyController.GetAllHomeStories(ctx, in)
+}
+
+func (s *Server) GetStoriesForUser(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.StoriesArray, error) {
+	return s.storyController.GetStoriesForUser(ctx, in)
 }
 
 func (s *Server) GetStoryById(ctx context.Context, in *protopb.RequestId) (*protopb.Story, error) {

@@ -35,8 +35,8 @@ func (s *UserGrpcController) CreateUser(ctx context.Context, in *protopb.CreateU
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	var user persistence.User = persistence.User{}
-	var userAdditionalInfo persistence.UserAdditionalInfo = persistence.UserAdditionalInfo{}
+	var user persistence.User
+	var userAdditionalInfo persistence.UserAdditionalInfo
 	user = *user.ConvertFromGrpc(in.User)
 	userAdditionalInfo = *userAdditionalInfo.ConvertFromGrpc(in.User)
 
@@ -81,9 +81,9 @@ func (s *UserGrpcController) SearchUser(ctx context.Context, in *protopb.SearchU
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	var user = domain.User{}
-
+	var user domain.User
 	user = user.ConvertFromGrpc(in.User)
+
 	users, err := s.service.SearchUsersByUsernameAndName(ctx, &user)
 	if err != nil {
 		return nil, err
@@ -100,6 +100,27 @@ func (s *UserGrpcController) SearchUser(ctx context.Context, in *protopb.SearchU
 
 	return &finalResponse, nil
 }
+
+func (s *UserGrpcController) GetUserById(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.UsersDTO, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "LoginUser")
+	defer span.Finish()
+	claims, err := s.jwtManager.ExtractClaimsFromMetadata(ctx)
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if claims.UserId == "" {
+		return &protopb.UsersDTO{}, status.Errorf(codes.Unauthenticated, "cannot retrieve this user")
+	}
+
+	user, err := s.service.GetUser(ctx, in.Id, claims.UserId)
+	if err != nil{
+		return &protopb.UsersDTO{}, err
+	}
+
+	userResponse := user.ConvertToGrpc()
+
+	return userResponse, nil
+}
+
 
 func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginRequest) (*protopb.LoginResponse, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "LoginUser")
