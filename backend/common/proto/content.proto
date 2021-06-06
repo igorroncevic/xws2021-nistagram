@@ -49,6 +49,33 @@ service Content {
   }
   /* * * * * * * * * * * * */
 
+  /*    Stories    */
+  rpc CreateStory (Story) returns (EmptyResponseContent) {
+    option(google.api.http) = {
+      post: "/stories",
+      body: "*"
+    };
+  }
+
+  rpc GetAllStories (EmptyRequestContent) returns (StoriesArray) {
+    option(google.api.http) = {
+      get: "/stories"
+    };
+  }
+
+  rpc RemoveStory (RequestId) returns (EmptyResponseContent) {
+    option(google.api.http) = {
+      delete: "/stories/{id}"
+    };
+  }
+
+  rpc GetStoryById (RequestId) returns (Story) {
+    option(google.api.http) = {
+      get: "/stories/{id}"
+    };
+  }
+  /* * * * * * * * * * * * */
+
   /*    Comments    */
   rpc CreateComment (Comment) returns (EmptyResponseContent) {
     option(google.api.http) = {
@@ -136,10 +163,49 @@ service Content {
   rpc CreateHashtag (Hashtag) returns (Hashtag) {
     option(google.api.http) = {
       post: "/hashtag/create",
+    };
+  }
+
+  /*   Highlights   */
+  rpc GetAllHighlights (RequestId) returns (HighlightsArray) {
+    option(google.api.http) = {
+      get: "/highlights/user/{id}"
+    };
+  }
+
+  rpc GetHighlight (RequestId) returns (Highlight) {
+    option(google.api.http) = {
+      get: "/highlights/{id}"
+    };
+  }
+
+  rpc CreateHighlight (Highlight) returns (EmptyResponseContent) {
+    option(google.api.http) = {
+      post: "/highlights",
       body: "*"
     };
   }
 
+  rpc RemoveHighlight (RequestId) returns (EmptyResponseContent) {
+    option(google.api.http) = {
+      delete: "/highlights/{id}"
+    };
+  }
+
+  rpc CreateHighlightStory (HighlightRequest) returns (EmptyResponseContent) {
+    option(google.api.http) = {
+      post: "/highlights/create",
+      body: "*"
+    };
+  }
+
+  rpc RemoveHighlightStory (HighlightRequest) returns (EmptyResponseContent) {
+    option(google.api.http) = {
+      post: "/highlights/delete",
+      body: "*"
+    };
+  }
+  /* * * * * * * * * * * * */
 }
 
 /*    Posts    */
@@ -214,13 +280,7 @@ message Story {
   bool isCloseFriends = 9;
 }
 
-message Highlight {
-  string id = 1;
-  string name = 2;
-  repeated Story stories = 3;
-}
-
-message StoryArray {
+message StoriesArray {
   repeated Story stories = 1;
 }
 
@@ -275,6 +335,25 @@ message Comment {
 
 message CommentsArray {
   repeated Comment comments = 1;
+}
+/* * * * * * * * * * * * */
+
+/*    Highlights   */
+message Highlight {
+  string id = 1;
+  string name = 2;
+  string userId = 3;
+  repeated Story stories = 4;
+}
+
+message HighlightsArray {
+  repeated Highlight highlights = 1;
+}
+
+message HighlightRequest{
+  string userId = 1;
+  string highlightId = 2;
+  string storyId = 3;
 }
 /* * * * * * * * * * * * */
 

@@ -53,6 +53,97 @@ func ConvertMultiplePostsToGrpc(posts []Post) []*protopb.Post {
 	return grpcPosts
 }
 
+// Story Converters
+func (s Story) ConvertToGrpc() *protopb.Story {
+	return &protopb.Story{
+		Id:          s.Id,
+		UserId:      s.UserId,
+		IsAd:        s.IsAd,
+		Type:        s.Type.String(),
+		Description: s.Description,
+		Location:    s.Location,
+		CreatedAt:   timestamppb.New(s.CreatedAt),
+		Media: 		 ConvertMultipleMediaToGrpc(s.Media),
+		IsCloseFriends: s.IsCloseFriends,
+	}
+}
+
+func (s *Story) ConvertFromGrpc(story *protopb.Story) *Story {
+	if story == nil { story = &protopb.Story{} }
+	return &Story{
+		Objava: Objava{
+			Id: 		 story.Id,
+			UserId:      story.UserId,
+			IsAd:        story.IsAd,
+			Type:        model.GetPostType(story.Type),
+			Description: story.Description,
+			Location:    story.Location,
+			CreatedAt:   story.CreatedAt.AsTime(),
+			Media: 		 ConvertMultipleMediaFromGrpc(story.Media),
+		},
+		IsCloseFriends: story.IsCloseFriends,
+	}
+}
+
+// HighlightRequest Converters
+func (hr HighlightRequest) ConvertToGrpc() *protopb.HighlightRequest {
+	return &protopb.HighlightRequest{
+		UserId:      hr.UserId,
+		HighlightId: hr.HighlightId,
+		StoryId:     hr.StoryId,
+	}
+}
+
+func (hr *HighlightRequest) ConvertFromGrpc(request *protopb.HighlightRequest) *HighlightRequest {
+	if request == nil { request = &protopb.HighlightRequest{} }
+	return &HighlightRequest{
+		UserId:      request.UserId,
+		HighlightId: request.HighlightId,
+		StoryId:     request.StoryId,
+	}
+}
+
+// HighlightRequest Converters
+func (h Highlight) ConvertToGrpc() *protopb.Highlight {
+	return &protopb.Highlight{
+		Id:      h.Id,
+		Name:    h.Name,
+		UserId:  h.UserId,
+		Stories: ConvertMultipleStoriesToGrpc(h.Stories),
+	}
+}
+
+func (h *Highlight) ConvertFromGrpc(request *protopb.Highlight) *Highlight {
+	if request == nil { request = &protopb.Highlight{} }
+	return &Highlight{
+		Id:      request.Id,
+		Name:    request.Name,
+		UserId:  request.UserId,
+		Stories: ConvertMultipleStoriesFromGrpc(request.Stories),
+	}
+}
+
+func ConvertMultipleStoriesFromGrpc(stories []*protopb.Story) []Story {
+	convertedStories := []Story{}
+	for _, story := range stories {
+		var converted *Story
+		converted = converted.ConvertFromGrpc(story)
+
+		convertedStories = append(convertedStories, *converted)
+	}
+
+	return convertedStories
+}
+
+func ConvertMultipleStoriesToGrpc(stories []Story) []*protopb.Story{
+	grpcStories := []*protopb.Story{}
+	for _, story := range stories {
+		grpcStories = append(grpcStories, story.ConvertToGrpc())
+	}
+
+	return grpcStories
+}
+
 // ReducedPost Converters
 func (p ReducedPost) ConvertToGrpc() *protopb.ReducedPost {
 	return &protopb.ReducedPost{

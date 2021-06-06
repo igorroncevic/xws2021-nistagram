@@ -13,6 +13,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"time"
 )
 
 func GRPCServer(db *gorm.DB) {
@@ -25,7 +26,9 @@ func GRPCServer(db *gorm.DB) {
 	// Create a gRPC server object
 	s := grpc.NewServer()
 
-	server, err := controllers.NewServer(db)
+	jwtManager := common.NewJWTManager("somesecretkey", 15 * time.Minute)
+
+	server, err := controllers.NewServer(db, jwtManager)
 	if err != nil {
 		log.Fatal(err.Error())
 		return

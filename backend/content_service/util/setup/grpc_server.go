@@ -2,7 +2,9 @@ package setup
 
 import (
 	"context"
+	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
+	"github.com/david-drvar/xws2021-nistagram/common/interceptors"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/controllers"
@@ -12,6 +14,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"time"
 )
 
 func GRPCServer(db *gorm.DB) {
@@ -21,8 +24,13 @@ func GRPCServer(db *gorm.DB) {
 		log.Fatalln("Failed to listen:", err)
 	}
 
+	jwtManager := common.NewJWTManager("somesecretkey", 15 * time.Minute)
+	authInterceptor := interceptors.NewAuthInterceptor(jwtManager)
+
 	// Create a gRPC server object
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc.UnaryInterceptor(authInterceptor.Unary()),
+    )
 
 	server, err := controllers.NewServer(db)
 	if err != nil {
