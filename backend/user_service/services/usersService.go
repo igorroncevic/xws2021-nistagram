@@ -49,15 +49,15 @@ func (service *UserService) CreateUser(ctx context.Context, user *persistence.Us
 	return service.repository.CreateUser(ctx, user)
 }
 
-func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, user *persistence.User, userAdditionalInfo *persistence.UserAdditionalInfo) error {
+func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, user *persistence.User, userAdditionalInfo *persistence.UserAdditionalInfo) (*domain.User, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	user.Password = encryption.HashAndSalt([]byte(user.Password))
-	user, err := service.repository.CreateUserWithAdditionalInfo(ctx, user, userAdditionalInfo)
+	userResult, err := service.repository.CreateUserWithAdditionalInfo(ctx, user, userAdditionalInfo)
 	if err != nil {
-		return errors.New("Cannot create user!")
+		return nil, errors.New("Cannot create user!")
 	}
 
 	//todo create user node in graph database
@@ -69,7 +69,7 @@ func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, us
 	defer conn.Close()
 
 	c := protopb.NewFollowersClient(conn)
-
+	//print(c)
 	createUserRequest := protopb.CreateUserRequestFollowers{
 		User: &protopb.UserFollowers{
 			UserId: user.Id,
@@ -81,7 +81,7 @@ func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, us
 		log.Fatalf("could not create node user: %s", err)
 	}
 
-	return nil
+	return userResult, nil
 }
 
 func (service *UserService) LoginUser(ctx context.Context, data common.Credentials) error {
