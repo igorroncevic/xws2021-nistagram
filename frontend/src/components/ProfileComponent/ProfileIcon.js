@@ -1,5 +1,5 @@
 import "../../style/ProfileIcon.css";
-import Profile from "../ProfileComponent/Profile";
+import Profile from "./Profile";
 import { NavLink } from 'react-router-dom'
 
 function ProfileIcon(props) {

@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import axios from "axios";
 import {Button} from "react-bootstrap";
+import "../../style/comments.css";
 
 function Comments(props) {
     const{post}=props;
@@ -52,7 +53,7 @@ function Comments(props) {
     ];
     function handleSubmitComment(){
         axios
-            .post('http://localhost:8080/api/comments',{
+            .post('http://localhost:8005/api/comments',{
                 PostId: post.id,
                 UserId: post.userId,
                 Content:newComment,

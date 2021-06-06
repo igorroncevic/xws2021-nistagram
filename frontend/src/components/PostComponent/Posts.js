@@ -1,10 +1,11 @@
-import React, {Component, useEffect, useState} from "react";
-import "../../style/Post.css";
+import React, {useState} from "react";
+import "../../style/post.css";
 import Post from "./Post";
 
 
-function Posts () {
+function Posts (props) {
     //prvo cemo dobavljati postove iz baze sve
+    const [user, setUser] = useState({...props.user});
 
     const posts=[
         {id:'1',

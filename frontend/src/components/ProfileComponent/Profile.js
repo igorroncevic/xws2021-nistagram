@@ -19,13 +19,10 @@ function Profile(props) {
    const [user,setUser] =useState(props.location.state.user);
    const [follow,setFollow] =useState(props.location.state.follow);
 
+
     useEffect(() => {
-        setFollow(props.location.state.follow);
-    }, [])
-    useEffect(() => {
-        console.log("DOSAO")
-        setUser(props.location.state.user);
-    }, [])
+        setUser(user);
+    }, [user])
 
     const [image, setImage] = useState('');
     const [showModal, setModal] = useState(false);
@@ -35,8 +32,20 @@ function Profile(props) {
     const [posts, setPosts] = useState([]);
 
     console.log("PROFILE")
-    console.log(user);
-    console.log(follow);
+    console.log(props);
+
+    function getUser(){
+        axios
+            .post('http://localhost:8080/api/users/api/users/searchByUser', {
+                username:user.username
+            })
+            .then(res => {
+                console.log("RADI get user")
+                setUser(res.data.users[0])
+            }).catch(res => {
+            console.log("NE RADI get user")
+        })
+    }
 
     const updatePhoto = (file) => {
         setImage(file)
@@ -49,7 +58,7 @@ function Profile(props) {
     });
     function getFollowing(){
         axios
-            .post('http://localhost:8080/api/followers/get_followings', {
+            .post('http://localhost:8005/api/followers/get_followings', {
                 UserId:'5190c16f-7886-4fad-9d76-ef0b5e304639'
             })
             .then(res => {
@@ -185,7 +194,7 @@ function Profile(props) {
                             <Modal.Title>Edit profile</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            <EditProfile user={user}/>
+                            <EditProfile user={user} updateUser={getUser}/>
                         </Modal.Body>
                         <Modal.Footer>
 

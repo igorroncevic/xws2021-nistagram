@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import Navigation from "../HomePage/Navigation";
 
 
-function Chats(props) {
+function Notifications(props) {
     console.log("chats")
     console.log(props)
     const [user,setUser] =useState(props.location.state.user);
@@ -10,10 +10,9 @@ function Chats(props) {
         <div style={{marginTop:'5%'}}>
             <Navigation user={user}/>
 
-            <h1>Cet</h1>
-
+            <h1>Notifikacije</h1>
         </div>
 
     );
 
-}export default Chats;
+}export default Notifications;

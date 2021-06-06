@@ -5,10 +5,6 @@ import axios from "axios";
 import { useHistory } from 'react-router-dom';
 
 import RegistrationPage from "./RegistrationPage";
-import Profile from "../components/ProfileComponent/Profile";
-import Chats from "../components/HomePageComponents/Chats";
-import {Route} from "react-router-dom";
-import HomePage from "../components/HomePageComponents/HomePage";
 const TEST_SITE_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
 
 export function IndexPage(){
@@ -34,7 +30,7 @@ export function IndexPage(){
             .then(res => {
                 alert("Login successful ");
                 history.push({
-                    pathname: '/aj',
+                    pathname: '/home',
                     state: { user:res.data, follow:false }
                 })
             })

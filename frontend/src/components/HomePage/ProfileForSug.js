@@ -1,18 +1,8 @@
 import "../../style/profileSug.css";
-import ProfileIcon from "./ProfileIcon";
+import ProfileIcon from "../ProfileComponent/ProfileIcon";
 
 function ProfileForSug(props) {
-    const {
-        username,
-        caption,
-        urlText,
-        iconSize,
-        captionSize,
-        storyBorder,
-        hideAccountName,
-        image,
-    } = props;
-
+    const { username, caption,  urlText, iconSize,captionSize, storyBorder,hideAccountName,image,} = props;
 
     return (
         <div className="profile">

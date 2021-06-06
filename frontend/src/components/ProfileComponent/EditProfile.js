@@ -10,12 +10,16 @@ const EditProfile = props => {
     const[lastNameErr,setLastNameErr]=useState('');
     const[emailErr,setEmailErr]=useState('');
     const[usernameErr,setUsernameErr]=useState('');
+    const[birthDateErr,setBirthDateErr]=useState('');
     const[phoneNumErr,setPhoneErr]=useState('');
     const [submitted, setSubmitted] = useState(false);
 
-    useEffect(() => {
-        console.log(phoneNumErr)
-    }, [phoneNumErr])
+       console.log("EDITTTTTT");
+       console.log(user);
+    console.log(user.biography);
+    console.log(user.website);
+
+
     function sendParams(){
         axios
             .post('http://localhost:8080/api/users/api/users/update_profile', {
@@ -34,7 +38,7 @@ const EditProfile = props => {
             })
             .then(res => {
                 console.log("RADI")
-
+                props.updateUser()
                 setSuccess(true);
 
             }).catch(res => {
@@ -162,8 +166,11 @@ const EditProfile = props => {
                                 {edit
                                     ?
 
-                                    <FormControl name="birthDate" className="mt-2 mb-2" value={user.birthDate} onChange={handleInputChange}/>
-                                    : <td>{user.birthDate}</td>
+                                    <div className="col-sm-6 mb-2">
+                                        <input defaultChecked={user.birthdate} min="1900-01-02" max="2009-01-01"  type="date" value={user.birthdate} name="birthdate" onChange={(e) => handleInputChange(e) } className="form-control" id="birthdate" />
+                                        {submitted && birthDateErr.length > 0 && <span className="text-danger">{birthDateErr}</span>}
+                                    </div>
+                                    : <td>{user.birthdate}</td>
                                 }
                             </tr>
                             <tr>
@@ -179,14 +186,20 @@ const EditProfile = props => {
                                 }
                             </tr>
                             <tr>
+
                                 <td>Sex</td>
                                 {edit
-                                    ? <FormControl name="sex" className="mt-2 mb-2" value={user.sex} onChange={handleInputChange}/>
+                                    ?  <select onChange={(e) => handleInputChange(e)} name={"sex"} value={user.sex}>
+                                        <option disabled={true} value="">Select sex</option>
+                                        <option value="MALE">Male</option>
+                                        <option value="FEMALE">Female</option>
+                                        <option value="OTHER">Other</option>
+                                    </select>
                                     : <td>{user.sex}</td>
                                 }
                             </tr>
                             <tr>
-                                <td>Biography</td>
+                                <td>Biography </td>
                                 {edit
                                     ? <FormControl name="biography" className="mt-2 mb-2" value={user.biography}  onChange={handleInputChange}/>
                                     : <td>{user.biography}</td>

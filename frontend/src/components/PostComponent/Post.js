@@ -1,5 +1,5 @@
 import React, {Component, useEffect, useState} from "react";
-import "../../style/Post.css";
+import "../../style/post.css";
 import axios from "axios";
 import Comments from "./Comments";
 import LikesAndDislikes from "./LikesAndDislikes";
@@ -7,19 +7,19 @@ import LikesAndDislikes from "./LikesAndDislikes";
 
 function Post (props) {
     const{post,userId}=props;
+    //mokovano ime
     const[user,setUser]=useState({username:'majanokti123'});
 
     /*treba da dobavimo usera na osnovu id-a
     useEffect(() => {
             getUserInfo();
-\            getLikes();
     });
     */
 
 
     function getUserInfo(){
         axios
-            .get('http://localhost:8080/api/users/getUserById'+userId)
+            .get('http://localhost:8080/api/users/api/users/getUserById'+userId)
             .then(res => {
                 console.log("RADI")
                 //setUser();
@@ -27,9 +27,6 @@ function Post (props) {
             console.log("NE RADI")
         })
     }
-
-
-
 
     return(
             <div className="Post">

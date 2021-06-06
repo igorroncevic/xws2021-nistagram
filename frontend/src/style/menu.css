@@ -4,11 +4,10 @@
 }
 .icon {
     margin-right: 1.5em;
-    width: 40px;
-    height: 40px;
+    width: 25px;
+    height: 25px;
   }
-
-  .profileIcon {
+.profileIcon {
     margin-top: -3px;
   }
 

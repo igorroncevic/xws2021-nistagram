@@ -8,9 +8,3 @@
     height: 7.4em;
     overflow: hidden;
 }
-
-@media only screen and (max-width: 640px) {
-    .stories {
-        margin: 0 0 0.5em 0;
-    }
-}

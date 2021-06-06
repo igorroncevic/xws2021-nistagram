@@ -1,10 +1,12 @@
 import React, {useState} from 'react';
-import HomePage from "../HomePageComponents/HomePage";
 import axios from "axios";
+import Navigation from "../HomePage/Navigation";
 
 
 
-function NewPost() {
+function NewPost(props) {
+    const [user,setUser] =useState(props.location.state.user);
+
     const[description,setDescription]=useState('');
     const[image,setImage]=useState('');
 
@@ -32,7 +34,7 @@ function NewPost() {
 
     return (
         <div className='home'>
-            <HomePage />
+            <Navigation user={user} />
 
             <div className="card input-filed"
                  style={{ margin:"30px auto",maxWidth:"500px",padding:"20px", textAlign:"center" }} >

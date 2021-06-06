@@ -18,20 +18,20 @@ function Home(props) {
                     username:props.location.state.user.username
             })
             .then(res => {
-                console.log("RADI")
+                console.log("RADI get user")
                 setUser(res.data.users[0])
             }).catch(res => {
-            console.log("NE RADIs")
+            console.log("NE RADI get user")
         })
     }
     return (
         <div className="App">
-            <Navigation user={user}/>
+            <Navigation user={user} getUser={getUser}/>
             <main>
                 <div>
                     <Stories/>
                 <div className="container">
-                    <Posts />
+                    <Posts user={user}/>
                     <Sidebar/>
                 </div>
                 </div>

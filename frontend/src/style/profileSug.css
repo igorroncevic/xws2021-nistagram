@@ -11,9 +11,8 @@
   min-width: 180px;
 }
 .accountName {
-      font-weight: 500;
-      margin-bottom: 5px;
-
+    font-weight: 500;
+    margin-bottom: 5px;
 }
 
 .caption {
@@ -26,5 +25,4 @@
 a{
     text-align: right;
     width: 100%;
-  }
-
+}

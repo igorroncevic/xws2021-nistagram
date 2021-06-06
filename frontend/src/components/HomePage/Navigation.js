@@ -12,8 +12,8 @@ function Navigation(props) {
         <div className="navigation">
             <div className="container">
                 <font face = "Comic Sans MS" size = "5" style={{marginRight:'5em'}}>Ništagram</font>
-                    <input type="text" placeholder="Search.."style={{marginRight:'25em'}}/>
-                <Menu user={user}/>
+                    <input type="text" placeholder="Search.."style={{marginRight:'25em'}} onClick={props.getUser}/>
+                <Menu user={user} getUser={props.getUser}/>
             </div>
         </div>
     );
