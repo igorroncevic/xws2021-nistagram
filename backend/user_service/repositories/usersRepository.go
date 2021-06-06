@@ -16,7 +16,7 @@ import (
 type UserRepository interface {
 	GetAllUsers(context.Context) ([]persistence.User, error)
 	CreateUser(context.Context, *persistence.User) error
-	CreateUserWithAdditionalInfo(context.Context, *persistence.User, *persistence.UserAdditionalInfo) (*persistence.User, error)
+	CreateUserWithAdditionalInfo(context.Context, *persistence.User, *persistence.UserAdditionalInfo) (*domain.User, error)
 	CheckPassword(data common.Credentials) error
 	UpdateUserProfile(ctx context.Context, dto domain.User) (bool, error)
 	UpdateUserPassword(ctx context.Context, password domain.Password) (bool, error)
@@ -189,14 +189,14 @@ func (repository *userRepository) CheckEmailExists(ctx context.Context, email st
 
 }
 
-func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Context, user *persistence.User, userAdditionalInfo *persistence.UserAdditionalInfo) (*persistence.User, error) {
+func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Context, user *persistence.User, userAdditionalInfo *persistence.UserAdditionalInfo) (*domain.User, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUserWithAdditionalInfo")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	var userPersistence domain.User
-	userPersistence, _ = repository.GetUserByUsername(user.Username)
-	if userPersistence.Username == user.Username {
+	var userDomain domain.User
+	userDomain, _ = repository.GetUserByUsername(user.Username)
+	if userDomain.Username == user.Username {
 		return nil, errors.New("username already exists")
 	}
 
@@ -213,7 +213,7 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 
 
 	userAdditionalInfo.Id = user.Id
-	resultUserAdditionalInfo := repository.DB.Create(&userAdditionalInfo)
+	repository.DB.Create(&userAdditionalInfo)
 
 	var privacy = persistence.Privacy{}
 	privacy.UserId = user.Id
@@ -225,7 +225,10 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 		return nil, err
 	}
 
-	return user, resultUserAdditionalInfo.Error
+	userReturn := &domain.User{}
+	userReturn.GenerateUserDTO(*user, *userAdditionalInfo)
+
+	return userReturn, nil
 }
 
 func (repository *userRepository) SearchUsersByUsernameAndName(ctx context.Context, user *domain.User) ([]domain.User, error) {
