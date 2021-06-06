@@ -58,12 +58,12 @@ func (service *StoryService) GetStoriesForUser(ctx context.Context, userId strin
 	return stories, nil
 }
 
-func (service *StoryService) GetAllHomeStories(ctx context.Context, userIds []string) (domain.StoriesHome, error){
+func (service *StoryService) GetAllHomeStories(ctx context.Context, userIds []string, isCloseFriends bool) (domain.StoriesHome, error){
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllHomeStories")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	dbStories, err := service.storyRepository.GetAllHomeStories(ctx, userIds)
+	dbStories, err := service.storyRepository.GetAllHomeStories(ctx, userIds, isCloseFriends)
 	if err != nil { return domain.StoriesHome{}, err }
 
 	storiesHome := domain.StoriesHome{}

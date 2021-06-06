@@ -12,13 +12,13 @@ type FollowersRepository interface {
 	CreateUserConnection(context.Context, model.Follower) (bool, error)
 	GetAllFollowers(context.Context, string) ([]model.User, error)
 	GetAllFollowing(context.Context, string) ([]model.User, error)
-	GetAllFollowingsForHomepagePosts(context.Context, string) ([]model.User, error)
-	GetAllFollowingsForHomepageStories(context.Context, string) ([]model.User, error)
+	GetAllFollowingsForHomepage(context.Context, string) ([]model.User, error)
 	CreateUser(context.Context, model.User) (bool, error)
 	DeleteDirectedConnection(context.Context, model.Follower) (bool, error)
 	DeleteBiDirectedConnection (context.Context, model.Follower) (bool, error)
 	UpdateUserConnection(context.Context, model.Follower) (*model.Follower,error)
 	GetFollowersConnection(context.Context, model.Follower) (*model.Follower, error)
+	GetCloseFriends(context.Context, string) ([]model.User, error)
 }
 
 type followersRepository struct {
@@ -72,14 +72,14 @@ func (repository *followersRepository) GetAllFollowing(ctx context.Context, user
 	return repository.GetUsers(ctx, userId, query)
 }
 
-func (repository *followersRepository) GetAllFollowingsForHomepagePosts(ctx context.Context, userId string) ([]model.User, error){
+func (repository *followersRepository) GetAllFollowingsForHomepage(ctx context.Context, userId string) ([]model.User, error){
 	query := "MATCH (a:User {id : $UserId})-[r:Follows]->(b:User) WHERE r.IsApprovedRequest = true AND r.IsMuted = false RETURN b.id"
 	return repository.GetUsers(ctx, userId, query)
 }
 
-func (repository *followersRepository) GetAllFollowingsForHomepageStories(ctx context.Context, userId string) ([]model.User, error){
+func (repository *followersRepository) GetCloseFriends(ctx context.Context, id string) ([]model.User, error){
 	query := "MATCH (a:User {id : $UserId})-[r:Follows]->(b:User) WHERE r.IsApprovedRequest = true AND r.IsMuted = false AND r.IsCloseFriend = true RETURN b.id"
-	return repository.GetUsers(ctx, userId, query)
+	return repository.GetUsers(ctx, id, query)
 }
 
 func (repository *followersRepository) GetAllFollowers(ctx context.Context, userId string) ([]model.User, error){

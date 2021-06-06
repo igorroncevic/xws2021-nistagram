@@ -26,8 +26,8 @@ type Server struct {
 func NewServer(db *gorm.DB, manager *common.JWTManager) (*Server, error) {
 	postController, _ := NewPostController(db, manager)
 	storyController, _ := NewStoryController(db, manager)
-	commentController, _ := NewCommentController(db)
-	likeController, _ := NewLikeController(db)
+	commentController, _ := NewCommentController(db, manager)
+	likeController, _ := NewLikeController(db, manager)
 	favoritesController, _ := NewFavoritesController(db)
 	hashtagController, _ := NewHashtagController(db)
 	highlightController, _ := NewHighlightController(db)

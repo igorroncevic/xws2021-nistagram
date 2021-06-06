@@ -121,6 +121,23 @@ func (s *UserGrpcController) GetUserById(ctx context.Context, in *protopb.Reques
 	return userResponse, nil
 }
 
+func (s *UserGrpcController) GetUsernameById(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.UsersDTO, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "LoginUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	username, err := s.service.GetUsername(ctx, in.Id)
+	if err != nil{
+		return &protopb.UsersDTO{}, err
+	}
+
+	userResponse := &protopb.UsersDTO{
+		Username:     username,
+	}
+
+	return userResponse, nil
+}
+
 
 func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginRequest) (*protopb.LoginResponse, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "LoginUser")

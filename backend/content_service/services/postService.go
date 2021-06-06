@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
@@ -122,9 +123,13 @@ func (service *PostService) GetPostById(ctx context.Context, id string) (domain.
 	if err != nil {
 		return domain.Post{}, err
 	}
+
 	comments := []domain.Comment{}
 	for _, comment := range dbComments {
-		comments = append(comments, comment.ConvertToDomain("someusername")) // TODO Retrieve usernames from other service
+		username, err := grpc_common.GetUsernameById(ctx, comment.UserId)
+		if err == nil {
+			comments = append(comments, comment.ConvertToDomain(username))
+		}
 	}
 
 	dbLikes, err := service.likeRepository.GetLikesForPost(ctx, dbPost.Id, true)
@@ -133,7 +138,10 @@ func (service *PostService) GetPostById(ctx context.Context, id string) (domain.
 	}
 	likes := []domain.Like{}
 	for _, like := range dbLikes {
-		likes = append(likes, like.ConvertToDomain()) // TODO Retrieve usernames from other service
+		username, err := grpc_common.GetUsernameById(ctx, like.UserId)
+		if err == nil {
+			likes = append(likes, like.ConvertToDomain(username))
+		}
 	}
 
 	dbDislikes, err := service.likeRepository.GetLikesForPost(ctx, dbPost.Id, false)
@@ -142,7 +150,10 @@ func (service *PostService) GetPostById(ctx context.Context, id string) (domain.
 	}
 	dislikes := []domain.Like{}
 	for _, dislike := range dbDislikes {
-		dislikes = append(dislikes, dislike.ConvertToDomain()) // TODO Retrieve usernames from other service
+		username, err := grpc_common.GetUsernameById(ctx, dislike.UserId)
+		if err == nil {
+			dislikes = append(dislikes, dislike.ConvertToDomain(username))
+		}
 	}
 
 	dbMedia, err := service.mediaRepository.GetMediaForPost(ctx, dbPost.Id)
@@ -362,4 +373,29 @@ func (service *PostService) GetPostsByHashtag(ctx context.Context, text string) 
 	}
 
 	return postsWithPublicAccess, nil
+}
+
+func (service *PostService) GetPostsForUser(ctx context.Context, id string) ([]domain.ReducedPost, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostsForUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	posts := []domain.ReducedPost{}
+
+	dbPosts, err := service.postRepository.GetPostsForUser(ctx, id)
+	if err != nil {
+		return posts, err
+	}
+
+	// TODO Retrieve all domain data
+	for _, post := range dbPosts {
+		converted, err := service.GetReducedPostData(ctx, post.Id)
+		if err != nil {
+			return []domain.ReducedPost{}, err
+		}
+
+		posts = append(posts, converted)
+	}
+
+	return posts, nil
 }

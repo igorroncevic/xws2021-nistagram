@@ -35,6 +35,13 @@ service Privacy {
         };
     }
 
+    rpc CheckIfBlocked (CreateBlockRequest) returns (BooleanResponse) {
+        option(google.api.http) = {
+            post: "/api/privacy/check_block",
+            body: "block"
+        };
+    }
+
     rpc CheckUserProfilePublic (PrivacyRequest) returns (BooleanResponse) {
         option(google.api.http) = {
             post: "/api/privacy/isProfilePublic"
@@ -42,9 +49,9 @@ service Privacy {
         };
     }
 
-    rpc GetAllPublicUsers (EmptyRequestPrivacy) returns (StringArray) {
+    rpc GetAllPublicUsers (RequestIdPrivacy) returns (StringArray) {
         option(google.api.http) = {
-            get: "/api/privacy/public",
+            get: "/api/privacy/public/{id}",
         };
     }
 }
@@ -79,6 +86,10 @@ message PrivacyRequest {
 
 message StringArray {
     repeated string ids = 1;
+}
+
+message RequestIdPrivacy{
+    string id = 1;
 }
 
 message EmptyResponsePrivacy {}

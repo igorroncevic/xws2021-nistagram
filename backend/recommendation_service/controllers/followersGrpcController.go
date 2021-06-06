@@ -53,14 +53,14 @@ func (controller *FollowersGrpcController) GetAllFollowing(ctx context.Context, 
 	return &protopb.CreateUserResponse{Users: user.ConvertAllToGrpc(users)}, err
 }
 
-func (controller *FollowersGrpcController) GetAllFollowingsForHomepagePosts(ctx context.Context, in *protopb.CreateUserRequestFollowers) (*protopb.CreateUserResponse, error) {
-	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllFollowingsForHomepagePosts")
+func (controller *FollowersGrpcController) GetAllFollowingsForHomepage(ctx context.Context, in *protopb.CreateUserRequestFollowers) (*protopb.CreateUserResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllFollowingsForHomepage")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var user = model.User{}
 	user = *user.ConvertFromGrpc(in.User)
-	users, err := controller.service.GetAllFollowingsForHomepagePosts(ctx, user.UserId)
+	users, err := controller.service.GetAllFollowingsForHomepage(ctx, user.UserId)
 	if err != nil {
 		return nil, errors.New("Could not get all followings")
 	}
@@ -68,16 +68,15 @@ func (controller *FollowersGrpcController) GetAllFollowingsForHomepagePosts(ctx 
 	return &protopb.CreateUserResponse{Users: user.ConvertAllToGrpc(users)}, err
 }
 
-func (controller *FollowersGrpcController) GetAllFollowingsForHomepageStories(ctx context.Context, in *protopb.CreateUserRequestFollowers) (*protopb.CreateUserResponse, error) {
-	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllFollowingsForHomepageStories")
+func (controller *FollowersGrpcController) GetCloseFriends(ctx context.Context, in *protopb.RequestIdFollowers) (*protopb.CreateUserResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetCloseFriends")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	var user = model.User{}
-	user = *user.ConvertFromGrpc(in.User)
-	users, err := controller.service.GetAllFollowingsForHomepageStories(ctx, user.UserId)
+	var user model.User
+	users, err := controller.service.GetCloseFriends(ctx, in.Id)
 	if err != nil {
-		return nil, errors.New("Could not get all followings")
+		return nil, errors.New("could not get close friends")
 	}
 
 	return &protopb.CreateUserResponse{Users: user.ConvertAllToGrpc(users)}, err

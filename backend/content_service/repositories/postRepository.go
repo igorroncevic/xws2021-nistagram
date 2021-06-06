@@ -17,6 +17,7 @@ type PostRepository interface {
 	RemovePost(context.Context, string, string) error
 	GetPostsByLocation(ctx context.Context, location string) ([]persistence.Post, error)
 	GetCollectionsPosts(context.Context, string) ([]persistence.Post, error)
+	GetPostsForUser(context.Context, string) ([]persistence.Post, error)
 }
 
 type postRepository struct {
@@ -47,6 +48,20 @@ func (repository *postRepository) GetAllPosts(ctx context.Context, followings []
 
 	posts := []persistence.Post{}
 	result := repository.DB.Order("created_at desc").Where("user_id IN (?)", followings).Find(&posts)
+	if result.Error != nil {
+		return posts, result.Error
+	}
+
+	return posts, nil
+}
+
+func (repository *postRepository) GetPostsForUser(ctx context.Context, id string) ([]persistence.Post, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostsForUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	posts := []persistence.Post{}
+	result := repository.DB.Order("created_at desc").Where("user_id = ?", id).Find(&posts)
 	if result.Error != nil {
 		return posts, result.Error
 	}

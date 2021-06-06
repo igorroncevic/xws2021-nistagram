@@ -28,6 +28,12 @@ service Users {
     };
   }
 
+  rpc GetUsernameById (RequestIdUsers) returns (UsersDTO) {
+    option(google.api.http) = {
+      get: "/api/users/username/{id}"
+    };
+  }
+
   rpc GetAllUsers (EmptyRequest) returns (UsersResponse) {
     option(google.api.http) = {
       get: "/api/users"

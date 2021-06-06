@@ -33,16 +33,16 @@ func (repository *tagRepository) GetTagsForMedia(ctx context.Context, mediaId st
 
 	// TODO Get Username from other microservice
 	tags := []domain.Tag{}
-	/* result := repository.DB.Model(&domain.Tag{}).
+	result := repository.DB.Model(&domain.Tag{}).
 		Select("tags.media_id, tags.user_id, users.username").
 		Joins("left join media on media.id = tags.media_id").
 		Joins("left join posts on posts.id = media.post_id").
 		Joins("left join users on users.id = tags.user_id").
-		Where("media.id = ?", mediaId).Find(&tags)*/
-	result := repository.DB.Model(&domain.Tag{}).
+		Where("media.id = ?", mediaId).Find(&tags)
+	/*result := repository.DB.Model(&domain.Tag{}).
 		Select("tags.user_id, tags.media_id").
 		Joins("left join media on media.id = tags.media_id").
-		Where("media.id = ?", mediaId).Find(&tags)
+		Where("media.id = ?", mediaId).Find(&tags)*/
 
 	if result.Error != nil {
 		return tags, result.Error

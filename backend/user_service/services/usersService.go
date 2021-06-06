@@ -29,6 +29,19 @@ func NewUserService(db *gorm.DB) (*UserService, error) {
 	}, err
 }
 
+func (service *UserService) GetUsername(ctx context.Context, userId string) (string, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUsername")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	dbUser, err := service.userRepository.GetUserById(ctx, userId)
+	if err != nil {
+		return "", err
+	}
+
+	return dbUser.Username, nil
+}
+
 func (service *UserService) GetUser(ctx context.Context, requestedUserId string, requestingUserId string) (domain.User, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
 	defer span.Finish()

@@ -85,9 +85,10 @@ type FavoritesRequest struct {
 }
 
 type Like struct {
-	PostId string
-	UserId string // TODO Username?
-	IsLike bool
+	PostId   string
+	UserId   string
+	IsLike   bool
+	Username string
 }
 
 type Comment struct {

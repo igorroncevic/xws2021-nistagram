@@ -38,38 +38,31 @@ func (c *StoryGrpcController) GetStoriesForUser(ctx context.Context, in *protopb
 
 	if err != nil {
 		return &protopb.StoriesArray{}, status.Errorf(codes.Unknown, err.Error())
-	}else if claims.UserId == "" {
+	}else if claims.UserId == "" || in.Id == "" {
 		return &protopb.StoriesArray{}, status.Errorf(codes.InvalidArgument, "no user id is provided")
 	}
 
-	conn, err := grpc_common.CreateGrpcConnection(grpc_common.Recommendation_service_address)
-	if err != nil{
+	followConnection, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
+	if err != nil {
 		return &protopb.StoriesArray{}, status.Errorf(codes.Unknown, err.Error())
 	}
-	defer conn.Close()
 
-	followerClient := grpc_common.GetFollowersClient(conn)
-	followingResponse, err := followerClient.GetFollowersConnection(ctx, &protopb.Follower{
-		UserId:      claims.UserId,
-		FollowerId:  userId,
-	})
-
-	privacyConn, err := grpc_common.CreateGrpcConnection(grpc_common.Users_service_address)
-	if err != nil{
+	isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
+	if err != nil {
 		return &protopb.StoriesArray{}, status.Errorf(codes.Unknown, err.Error())
 	}
-	defer privacyConn.Close()
 
-	privacyClient := grpc_common.GetPrivacyClient(conn)
-	publicResponse, err := privacyClient.CheckUserProfilePublic(ctx, &protopb.PrivacyRequest{
-		UserId: userId,
-	})
+	isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.Id, claims.UserId)
+	if err != nil {
+		return &protopb.StoriesArray{}, status.Errorf(codes.Unknown, err.Error())
+	}
 
-	if !followingResponse.IsApprovedRequest || !publicResponse.Response {
+	// If used is blocked or his profile is private and did not approve your request
+	if isBlocked || (!isPublic && !followConnection.IsApprovedRequest ) {
 		return &protopb.StoriesArray{}, nil
 	}
 
-	stories, err := c.service.GetStoriesForUser(ctx, userId, followingResponse.IsCloseFriends)
+	stories, err := c.service.GetStoriesForUser(ctx, in.Id, followConnection.IsCloseFriends)
 	if err != nil{
 		return &protopb.StoriesArray{}, status.Errorf(codes.Unknown, err.Error())
 	}
@@ -93,70 +86,58 @@ func (c *StoryGrpcController) GetAllHomeStories(ctx context.Context, in *protopb
 		return &protopb.StoriesHome{}, status.Errorf(codes.InvalidArgument, "no user id is provided")
 	}
 
-	userId := claims.UserId
 	conn, err := grpc_common.CreateGrpcConnection(grpc_common.Recommendation_service_address)
 	if err != nil{
 		return &protopb.StoriesHome{}, status.Errorf(codes.Unknown, err.Error())
 	}
 	defer conn.Close()
 
-	followerClient := grpc_common.GetFollowersClient(conn)
-	followingResponse, err := followerClient.GetAllFollowingsForHomepageStories(ctx, &protopb.CreateUserRequestFollowers{
-		User: &protopb.UserFollowers{ UserId: userId },
-	})
-
-	if len(followingResponse.Users) == 0 {
-		return &protopb.StoriesHome{}, nil
+	userIds, err := grpc_common.GetHomepageUsers(ctx, claims.UserId)
+	if err != nil {
+		return &protopb.StoriesHome{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
-	userIds := []string{}
-	for _, following := range followingResponse.Users{
-		userIds = append(userIds, following.UserId)
+	closeFriends, err := grpc_common.GetCloseFriends(ctx, claims.UserId)
+	nonCloseFriends := []string{}
+	for _, userId := range userIds{
+		found := false
+		for _, closeFriends := range closeFriends{
+			if closeFriends == userId {
+				found = true
+				break
+			}
+		}
+		if !found{
+			nonCloseFriends = append(nonCloseFriends, userId)
+		}
 	}
 
-	privacyConn, err := grpc_common.CreateGrpcConnection(grpc_common.Users_service_address)
+	closeFriendsStories, err := c.service.GetAllHomeStories(ctx, closeFriends, true)
 	if err != nil{
 		return &protopb.StoriesHome{}, status.Errorf(codes.Unknown, err.Error())
 	}
-	defer privacyConn.Close()
-
-	privacyClient := grpc_common.GetPrivacyClient(conn)
-	publicResponse, err := privacyClient.GetAllPublicUsers(ctx, &protopb.EmptyRequestPrivacy{})
-
-	if len(publicResponse.Ids) == 0 {
-		return &protopb.StoriesHome{}, nil
-	}
-
-	for _, publicUser := range publicResponse.Ids{
-		userIds = append(userIds, publicUser)
-	}
-
-	if len(userIds) == 0 {
-		return &protopb.StoriesHome{}, nil
-	}
-
-	stories, err := c.service.GetAllHomeStories(ctx, userIds)
-
+	nonCloseFriendsStories, err := c.service.GetAllHomeStories(ctx, nonCloseFriends, false)
 	if err != nil{
 		return &protopb.StoriesHome{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	allStories := domain.StoriesHome{}
+	allStories.Stories = nonCloseFriendsStories.Stories
+	for _, storyHome := range closeFriendsStories.Stories {
+		allStories.Stories = append(allStories.Stories, storyHome)
 	}
 
 	// Get usernames
-	usersClient := grpc_common.GetUsersClient(conn)
-	for index, story := range stories.Stories {
-		response, err := usersClient.GetUsedById(ctx, &protopb.RequestIdUsers{
-			Id: story.UserId,
-		})
-
+	for index, story := range allStories.Stories {
+		username, err := grpc_common.GetUsernameById(ctx, story.UserId)
 		if err != nil {
 			return &protopb.StoriesHome{}, status.Errorf(codes.Unknown, err.Error())
 		}
 
-		stories.Stories[index].UserId = response.Username
+		allStories.Stories[index].UserId = username
 	}
 
-	responseStories := stories.ConvertToGrpc()
-
+	responseStories := allStories.ConvertToGrpc()
 	return responseStories, nil
 }
 
@@ -200,21 +181,12 @@ func (c *StoryGrpcController) GetStoryById(ctx context.Context, in *protopb.Requ
 	}
 
 	story, err := c.service.GetStoryById(ctx, in.Id)
-
 	if err != nil { return &protopb.Story{}, status.Errorf(codes.Unknown, err.Error()) }
 
-	conn, err := grpc_common.CreateGrpcConnection(grpc_common.Recommendation_service_address)
-	if err != nil{
-		return &protopb.Story{}, status.Errorf(codes.Unknown, err.Error())
-	}
-	defer conn.Close()
-	followerClient := grpc_common.GetFollowersClient(conn)
-	followingResponse, err := followerClient.GetFollowersConnection(ctx, &protopb.Follower{
-		UserId:                claims.UserId,
-		FollowerId:            story.UserId,
-	})
+	following, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
+	if err != nil { return &protopb.Story{}, status.Errorf(codes.Unknown, err.Error()) }
 
-	if (!followingResponse.IsCloseFriends && story.IsCloseFriends) || !followingResponse.IsApprovedRequest {
+	if (!following.IsCloseFriends && story.IsCloseFriends) || !following.IsApprovedRequest {
 		return &protopb.Story{}, status.Errorf(codes.PermissionDenied, "cannot retrieve this story")
 	}
 

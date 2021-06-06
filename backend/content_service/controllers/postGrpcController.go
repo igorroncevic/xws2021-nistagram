@@ -67,58 +67,14 @@ func (c *PostGrpcController) GetAllPosts(ctx context.Context, in *protopb.EmptyR
 		return &protopb.ReducedPostArray{}, status.Errorf(codes.InvalidArgument, "no user id is provided")
 	}
 
-	userId := claims.UserId
-	conn, err := grpc_common.CreateGrpcConnection(grpc_common.Recommendation_service_address)
-	if err != nil{
+	userIds, err := grpc_common.GetHomepageUsers(ctx, claims.UserId)
+	if err != nil {
 		return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
-	}
-	defer conn.Close()
-
-	followerClient := grpc_common.GetFollowersClient(conn)
-	followingResponse, err := followerClient.GetAllFollowingsForHomepagePosts(ctx, &protopb.CreateUserRequestFollowers{
-		User: &protopb.UserFollowers{ UserId: userId },
-	})
-
-	if len(followingResponse.Users) == 0 {
-		return &protopb.ReducedPostArray{
-			Posts: []*protopb.ReducedPost{},
-		}, nil
-	}
-
-	userIds := []string{}
-	for _, following := range followingResponse.Users{
-		userIds = append(userIds, following.UserId)
-	}
-
-	privacyConn, err := grpc_common.CreateGrpcConnection(grpc_common.Users_service_address)
-	if err != nil{
-		return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
-	}
-	defer privacyConn.Close()
-
-	privacyClient := grpc_common.GetPrivacyClient(conn)
-	publicResponse, err := privacyClient.GetAllPublicUsers(ctx, &protopb.EmptyRequestPrivacy{})
-
-	if len(publicResponse.Ids) == 0 {
-		return &protopb.ReducedPostArray{
-			Posts: []*protopb.ReducedPost{},
-		}, nil
-	}
-
-	for _, publicUser := range publicResponse.Ids{
-		userIds = append(userIds, publicUser)
-	}
-
-	if len(userIds) == 0 {
-		return &protopb.ReducedPostArray{ Posts: []*protopb.ReducedPost{} }, nil
 	}
 
 	posts, err := c.service.GetAllPosts(ctx, userIds)
-
 	if err != nil {
-		return &protopb.ReducedPostArray{
-			Posts: []*protopb.ReducedPost{},
-		}, status.Errorf(codes.Unknown, err.Error())
+		return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
 	responsePosts := []*protopb.ReducedPost{}
@@ -129,6 +85,48 @@ func (c *PostGrpcController) GetAllPosts(ctx context.Context, in *protopb.EmptyR
 	return &protopb.ReducedPostArray{
 		Posts: responsePosts,
 	}, nil
+}
+
+func (c *PostGrpcController) GetPostsForUser(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.ReducedPostArray, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostsForUser")
+	defer span.Finish()
+	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if err != nil {
+		return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
+	}else if claims.UserId == "" || in.Id == "" {
+		return &protopb.ReducedPostArray{}, status.Errorf(codes.InvalidArgument, "no user id is provided")
+	}
+
+	followConnection, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
+	if err != nil {
+		return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
+	if err != nil {
+		return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.Id, claims.UserId)
+	if err != nil {
+		return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	// If used is blocked or his profile is private and did not approve your request
+	if isBlocked || (!isPublic && !followConnection.IsApprovedRequest ) {
+		return &protopb.ReducedPostArray{}, nil
+	}
+
+	posts, err := c.service.GetPostsForUser(ctx, in.Id)
+	if err != nil{
+		return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	responsePosts := domain.ConvertMultipleReducedPostsToGrpc(posts)
+
+	return &protopb.ReducedPostArray{ Posts: responsePosts }, nil
 }
 
 func (c *PostGrpcController) GetPostById(ctx context.Context, id string) (*protopb.Post, error) {
@@ -142,7 +140,7 @@ func (c *PostGrpcController) GetPostById(ctx context.Context, id string) (*proto
 	}else if claims.UserId == ""{
 		return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error())
 	}else if id == "" {
-		return &protopb.Post{}, status.Errorf(codes.Unknown, "cannot retrieve non-existing posts")
+		return &protopb.Post{}, status.Errorf(codes.InvalidArgument, "cannot retrieve non-existing posts")
 	}
 
 	post, err := c.service.GetPostById(ctx, id)
@@ -150,19 +148,14 @@ func (c *PostGrpcController) GetPostById(ctx context.Context, id string) (*proto
 		return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
-	conn, err := grpc_common.CreateGrpcConnection(grpc_common.Recommendation_service_address)
-	if err != nil{
-		return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error())
-	}
-	defer conn.Close()
-	followerClient := grpc_common.GetFollowersClient(conn)
-	followingResponse, err := followerClient.GetFollowersConnection(ctx, &protopb.Follower{
-		UserId:                claims.UserId,
-		FollowerId:            post.UserId,
-	})
+	following, err := grpc_common.CheckFollowInteraction(ctx, post.UserId, claims.UserId)
+	if err != nil { return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error()) }
 
-	if !followingResponse.IsApprovedRequest {
-		return &protopb.Post{}, status.Errorf(codes.PermissionDenied, "cannot retrieve this story")
+	isPublic, err := grpc_common.CheckIfPublicProfile(ctx, post.UserId)
+	if err != nil { return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error()) }
+
+	if !following.IsApprovedRequest && !isPublic {
+		return &protopb.Post{}, status.Errorf(codes.PermissionDenied, "cannot retrieve this post")
 	}
 
 	grpcPost := post.ConvertToGrpc()

@@ -84,14 +84,40 @@ func (s *PrivacyGrpcController) CheckUserProfilePublic(ctx context.Context, in *
 	return &finalResponse, nil
 }
 
-func (s *PrivacyGrpcController) GetAllPublicUsers(ctx context.Context, in *protopb.EmptyRequestPrivacy) (*protopb.StringArray, error) {
+func (s *PrivacyGrpcController) CheckIfBlocked(ctx context.Context, in *protopb.CreateBlockRequest) (*protopb.BooleanResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CheckIfBlocked")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	isBlocked, err := s.service.CheckIfBlocked(ctx, in.Block.UserId, in.Block.BlockedUserId)
+	if err != nil { return &protopb.BooleanResponse{Response: true}, nil }
+
+	return &protopb.BooleanResponse{
+		Response: isBlocked,
+	}, nil
+}
+
+func (s *PrivacyGrpcController) GetAllPublicUsers(ctx context.Context, in *protopb.RequestIdPrivacy) (*protopb.StringArray, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPublicUsers")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	finalResponse := protopb.StringArray{
-		Ids: s.service.GetAllPublicUsers(ctx),
+	users := s.service.GetAllPublicUsers(ctx)
+	if in.Id == "" || in == nil {
+		return &protopb.StringArray{
+			Ids: users,
+		}, nil
 	}
 
-	return &finalResponse, nil
+	nonBlockedUsers := []string{}
+	for _, user := range users {
+		isBlocked, err := s.service.CheckIfBlocked(ctx, user, in.Id)
+		if err == nil || !isBlocked {
+			nonBlockedUsers = append(nonBlockedUsers, user)
+		}
+	}
+
+	return &protopb.StringArray{
+		Ids: nonBlockedUsers,
+	}, nil
 }

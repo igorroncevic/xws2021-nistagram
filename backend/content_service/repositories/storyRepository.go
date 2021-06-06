@@ -11,7 +11,7 @@ import (
 )
 
 type StoryRepository interface {
-	GetAllHomeStories(context.Context, []string) ([]persistence.Story, error)
+	GetAllHomeStories(context.Context, []string, bool) ([]persistence.Story, error)
 	CreateStory(context.Context, *domain.Story) error
 	GetStoryById(context.Context, string) (*persistence.Story, error)
 	RemoveStory(context.Context, string, string) error
@@ -44,7 +44,7 @@ const(
 	storyDurationQuery = "created_at > (LOCALTIMESTAMP - interval '1 day')"
 )
 
-func (repository *storyRepository) GetAllHomeStories(ctx context.Context, userIds []string) ([]persistence.Story, error) {
+func (repository *storyRepository) GetAllHomeStories(ctx context.Context, userIds []string, isCloseFriends bool) ([]persistence.Story, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllHomeStories")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -52,7 +52,7 @@ func (repository *storyRepository) GetAllHomeStories(ctx context.Context, userId
 	// TODO Retrieve ids from people you follow
 	stories := []persistence.Story{}
 	result := repository.DB.Order("created_at desc").
-		Where(storyDurationQuery + " AND user_id IN ?", userIds).
+		Where(storyDurationQuery + " AND user_id IN ? AND is_close_friends = ?", userIds, isCloseFriends).
 		Group("user_id").
 		Find(&stories)
 	if result.Error != nil {
