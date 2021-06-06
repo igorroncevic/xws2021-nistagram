@@ -4,6 +4,7 @@ import axios from "axios";
 import PasswordStrengthBar from "react-password-strength-bar";
 
 function ChangePassword(props) {
+    const[pass,setPass]=useState('bla')
     const [user, setUser] = useState(props.user);
     const[passwords,setPasswords]=useState({oldPass:'',newPass:'',repPass:''})
     const[submitted,setSubmitted]=useState(false)
@@ -16,10 +17,10 @@ function ChangePassword(props) {
         axios
             .post('http://localhost:8080/api/users/api/users/update_password', {
                 password: {
-                    Id: '5190c16f-7886-4fad-9d76-ef0b5e304639',
-                    OldPassword: passwords.oldPass,
-                    NewPassword: passwords.newPass,
-                    RepeatedPassword: passwords.repPass
+                    Id: '482ab952-f9a1-46a3-bc63-3117e85c7457',
+                    OldPassword: 'Tamara1998@@',
+                    NewPassword: 'passwords.newPass',
+                    RepeatedPassword: 'passwords.newPass'
                 }
             })
             .then(res => {
@@ -72,9 +73,9 @@ function ChangePassword(props) {
         if(/^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*])[\w!@#$%^&*]{8,}$/.test(password)){
             setPasswordStrength(password);
             return false;
-        //else if(blacklistedPasswords.includes(password)){
-         //   setPasswordStrength(password);
-         //   return false;
+            //else if(blacklistedPasswords.includes(password)){
+            //   setPasswordStrength(password);
+            //   return false;
         } else {
             setPasswordStrength("");
             return true;
@@ -82,7 +83,7 @@ function ChangePassword(props) {
     }
 
     function validatePasswords(){
-        if(passwords.oldPass=="" || user.password!=passwords.oldPass){
+        if(passwords.oldPass=="" || pass!=passwords.oldPass){
             setOldErr('Please enter valid old password!');
         }else{
             setOldErr('');
@@ -98,32 +99,32 @@ function ChangePassword(props) {
         }
 
         if(passwords.newPass!=passwords.repPass && oldErr==""){
-             setRepErr('This password must match the previous.')
+            setRepErr('This password must match the previous.')
         }else{
-              setRepErr('')
+            setRepErr('')
 
         }
     }
-        return (
-            <Container>
-                <h2 className="pt-4 pb-3">Change Password</h2>
-                <Row className="m-2">
-                    <FormControl name="oldPass" type="password" placeholder="Please enter old password"  value={passwords.oldPass} onChange={handleChange}/>
-                     {submitted &&  <label className="text-danger">{oldErr}</label>}
-                </Row>
-                <Row className="m-2">
-                    <FormControl name="newPass" type="password" placeholder="Enter new Password" value={passwords.newPass} onChange={handleChange}/>
-                    <PasswordStrengthBar password={passwordStrength} />
+    return (
+        <Container>
+            <h2 className="pt-4 pb-3">Change Password</h2>
+            <Row className="m-2">
+                <FormControl name="oldPass" type="password" placeholder="Please enter old password"  value={passwords.oldPass} onChange={handleChange}/>
+                {submitted &&  <label className="text-danger">{oldErr}</label>}
+            </Row>
+            <Row className="m-2">
+                <FormControl name="newPass" type="password" placeholder="Enter new Password" value={passwords.newPass} onChange={handleChange}/>
+                <PasswordStrengthBar password={passwordStrength} />
 
-                    {submitted &&  <label className="text-danger">{newErr}</label>}
+                {submitted &&  <label className="text-danger">{newErr}</label>}
 
-                </Row>
-                <Row className="m-2">
-                    <FormControl name="repPass" type="password" placeholder="Repeat new Password" value={passwords.repPass} onChange={handleChange}/>
-                    {submitted &&  <label className="text-danger">{repErr}</label>}
-                </Row>
-               <button  style={{marginRight:'100px', float:'right'}} type="button" className="btn btn-outline-danger" onClick={activateUpdateMode}>Edit profile</button>
-            </Container>
-        );
+            </Row>
+            <Row className="m-2">
+                <FormControl name="repPass" type="password" placeholder="Repeat new Password" value={passwords.repPass} onChange={handleChange}/>
+                {submitted &&  <label className="text-danger">{repErr}</label>}
+            </Row>
+            <button  style={{marginRight:'100px', float:'right'}} type="button" className="btn btn-outline-danger" onClick={activateUpdateMode}>Edit profile</button>
+        </Container>
+    );
 }
 export default ChangePassword;

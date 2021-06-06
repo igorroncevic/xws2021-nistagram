@@ -12,6 +12,7 @@ import Search from "./pages/Search";
 import Profile from "./components/ProfileComponent/Profile";
 import NewPost from "./components/PostComponent/NewPost";
 import Home from "./components/HomePage/Home";
+import ChangePassword from "./components/ProfileComponent/ChangePassword";
 
 
 
@@ -28,6 +29,8 @@ function App () {
                 <Route path='/chats' exact component={Chats} />
                 <Route path='/saved' exact component={Saved} />
                 <Route path='/search' exact={true} component={Search}/>
+                <Route path='/pass' exact={true} component={ChangePassword}/>
+
 
 
                 <Route path='/aj' exact  component={Home}/>

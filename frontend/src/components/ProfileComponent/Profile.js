@@ -23,6 +23,7 @@ function Profile(props) {
         setFollow(props.location.state.follow);
     }, [])
     useEffect(() => {
+        console.log("DOSAO")
         setUser(props.location.state.user);
     }, [])
 
@@ -42,9 +43,9 @@ function Profile(props) {
     }
 
     useEffect(() => {
-        getFollowers()
-        getFollowing()
-        getPosts()
+        //getFollowers()
+        //getFollowing()
+       //getPosts()
     });
     function getFollowing(){
         axios
@@ -116,7 +117,7 @@ function Profile(props) {
     return (
         <div>
             <Navigation user={user}/>
-            <div style={{marginLeft: '20%', marginRight: '20%',marginTop:'15%'}}>
+            <div style={{marginLeft: '20%', marginRight: '20%',marginTop:'10%'}}>
                 <div style={{margin: "18px 0px", orderBottom: "1px solid "}}>
                     <div style={{display: "flex", justifyContent: "space-around",}}>
                         <div>

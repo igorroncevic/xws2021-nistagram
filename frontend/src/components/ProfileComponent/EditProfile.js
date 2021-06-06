@@ -3,7 +3,7 @@ import React, {useEffect, useState} from "react";
 import axios from "axios";
 
 const EditProfile = props => {
-    const [user, setUser] = useState(props.user);  //  PAZI NA KUPLJENJE PROPS-A DOLAZI MU user{username:''}
+    const [user, setUser] = useState(props.user);
     const[edit,setEdit]=useState(false)
     const[success,setSuccess]=useState(false)
     const[firstNameErr,setFirstNameErr]=useState('');
@@ -20,18 +20,16 @@ const EditProfile = props => {
         axios
             .post('http://localhost:8080/api/users/api/users/update_profile', {
                 user:{
-                    id: '11e215ef-a6ce-40c6-ad0b-e602e298f0a4',
-                    firstName: 'Ana',
-                    lastName: 'Zoric',
-                    email: 'kkosta98@gmail.com',
-                    phoneNumber: '0658456152',
-                    username: 'kole998',
+                    id: user.id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    phoneNumber: user.phoneNumber,
+                    username: user.username,
                     profilePhoto: 'idk',
-                    sex: 'MAN',
-                    website:'igorijovanzauvekzajednojej',
-                    biography:'igorijovanzauvekzajednojej',
-                    category:'igorijovanzauvekzajednojej',
-                    isActive: true
+                    sex: user.sex,
+                    website:user.website,
+                    biography:user.biography,
                 }
             })
             .then(res => {

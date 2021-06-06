@@ -16,11 +16,7 @@ function ProfileForSug(props) {
 
     return (
         <div className="profile">
-            <ProfileIcon
-                iconSize={iconSize}
-                storyBorder={storyBorder}
-                image={image}
-            />
+            <ProfileIcon iconSize={iconSize} storyBorder={storyBorder} image={image} />
             {('maja' || caption) && !hideAccountName && (
                 <div className="textContainer">
                     <span className="accountName">Maja</span>
