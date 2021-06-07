@@ -1,22 +1,20 @@
-FROM golang:1.12-alpine as builder
-RUN apk --no-cache add ca-certificates git
+FROM golang:1.16.3 as builder
 WORKDIR /build/myapp
 
 # Fetch dependencies
-COPY ["user_service", "user_service/"]
-COPY ["common" ,"user_service/"]
-COPY ["common", "common/"]
-WORKDIR /build/myapp/user_service
-COPY go.mod ./
-RUN go mod download
+COPY ["user_service", "github.com/david-drvar/xws2021-nistagram/user_service/"]
+COPY ["common", "github.com/david-drvar/xws2021-nistagram/common/"]
+WORKDIR /build/myapp/github.com/david-drvar/xws2021-nistagram/user_service
+RUN GOPROXY=https://proxy.golang.org/ GO111MODULE=on go mod download
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 
 # Create final image
 FROM alpine
+RUN apk --no-cache add ca-certificates git
 WORKDIR /root
-COPY --from=builder /build/myapp/myapp/user_service .
+COPY --from=builder /build/myapp/github.com/david-drvar/xws2021-nistagram/user_service .
 EXPOSE 8001
 EXPOSE 8091
-CMD ["./myapp"]
+CMD ["./main"]
