@@ -124,6 +124,12 @@ func (repository *userRepository) GetUserByUsername(username string) (domain.Use
 
 	user.GenerateUserDTO(dbUser, dbUserAdditionalInfo)
 
+	filename, err := images.LoadImageToBase64(user.ProfilePhoto)
+	if err != nil {
+		return domain.User{}, err
+	}
+	user.ProfilePhoto = filename
+
 	return *user, nil
 }
 
@@ -291,6 +297,11 @@ func (repository *userRepository) SearchUsersByUsernameAndName(ctx context.Conte
 			return nil, err
 		}
 		user.GenerateUserDTO(v, dbUserAdditionalInfo)
+		filename, err := images.LoadImageToBase64(v.ProfilePhoto)
+		if err != nil {
+			return nil, err
+		}
+		user.ProfilePhoto = filename
 		usersDomain = append(usersDomain, *user)
 	}
 

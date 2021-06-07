@@ -129,7 +129,7 @@ function Profile(props) {
                     <div style={{display: "flex", justifyContent: "space-around",}}>
                         <div>
                             <img style={{width: "180px", height: "160px", borderRadius: "80px"}}
-                                 src='https://images.unsplash.com/photo-1522228115018-d838bcce5c3a?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
+                                 src={user.profilePhoto}/>
                         </div>
                         <div>
                             <h4>{user.firstName} {user.lastName}</h4>
