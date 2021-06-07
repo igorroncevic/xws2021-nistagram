@@ -34,6 +34,7 @@ export default function RegistrationPage() {
     const [errorMessage, setErrorMessage] = useState(false);
     const [blacklistedPasswords, setBlacklistedPasswords] = useState([]);
     const [website, setWebsite] = useState("");
+    const [profilePhoto, setProfilePhoto] = useState("");
 
 
     useEffect(() => {
@@ -194,6 +195,7 @@ export default function RegistrationPage() {
     async function sendParams() {
         //setBirthDate(new Date(birthDate));
         const jsonDate = birthDate + 'T' + '01:30:15.01Z';
+        console.log(profilePhoto)
         axios
             .post('http://localhost:8080/api/users/api/users', {
                 'id':'1',
@@ -204,12 +206,12 @@ export default function RegistrationPage() {
                 'password' : password,
                 'role' : 'Basic',
                 'birthdate' : jsonDate,
-                'profilePhoto' : 'idk',
+                'profilePhoto' : profilePhoto,
                 'phoneNumber' : phoneNumber,
                 'sex' : 'MAN',
                 'isActive' : true,
                 'biography' : biography,
-                'website' : website
+                'website' : website,
             })
             .then(res => {
                 setErrorMessage(false);
@@ -219,6 +221,18 @@ export default function RegistrationPage() {
                 setErrorMessage(true);
                 console.log("NE RADI")
         })
+    }
+
+    function handleChangeImage(evt) {
+        console.log("Uploading");
+        var self = this;
+        var reader = new FileReader();
+        var file = evt.target.files[0];
+
+        reader.onload = function(upload) {
+            setProfilePhoto(upload.target.result)
+        };
+        reader.readAsDataURL(file);
 
     }
 
@@ -328,6 +342,20 @@ export default function RegistrationPage() {
                     <FormControl  disabled = {(disabled)? "disabled" : ""}  name="rePassword" type="password" placeholder="Repeat new Password" value={rePassword} onChange={(e) => handleInputChange(e) }/>
                     {submitted && rePasswordErr.length > 0 &&  <span className="text-danger">{rePasswordErr}</span>}
 
+                </div>
+                <div className="col-sm-4">
+                </div>
+            </div>
+            <div className="row" style={{marginTop: '1rem'}}>
+                <label  className="col-sm-2 col-form-label">*Profile photo</label>
+                <div className="col-sm-6 mb-2">
+                    {/*<input type="file" onChange={(e) => setProfilePhoto(e.target.files[0])} />*/}
+                    <input type="file" name="file"
+                           className="upload-file"
+                           id="file"
+                           onChange={handleChangeImage}
+                           formEncType="multipart/form-data"
+                           required />
                 </div>
                 <div className="col-sm-4">
                 </div>
