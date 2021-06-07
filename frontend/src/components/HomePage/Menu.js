@@ -27,6 +27,8 @@ function Menu(props) {
             <NavLink  to={{ pathname: "/profile", state: { user:user, follow:false}  }}  >
                 <ProfileIcon iconSize="medium" image='https://i.pravatar.cc/150?img=1' />
             </NavLink>
+            <a href='/' style={{marginLeft:'10px'}}>Log out</a>
+
         </div>
     );
 }
