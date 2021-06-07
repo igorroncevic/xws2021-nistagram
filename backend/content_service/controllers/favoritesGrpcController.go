@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"github.com/david-drvar/xws2021-nistagram/common"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
@@ -12,10 +13,11 @@ import (
 )
 
 type FavoritesGrpcController struct {
-	service *services.FavoritesService
+	service    *services.FavoritesService
+	jwtManager *common.JWTManager
 }
 
-func NewFavoritesController(db *gorm.DB) (*FavoritesGrpcController, error) {
+func NewFavoritesController(db *gorm.DB, jwtManager *common.JWTManager) (*FavoritesGrpcController, error) {
 	service, err := services.NewFavoritesService(db)
 	if err != nil {
 		return nil, err
@@ -23,13 +25,23 @@ func NewFavoritesController(db *gorm.DB) (*FavoritesGrpcController, error) {
 
 	return &FavoritesGrpcController{
 		service,
+		jwtManager,
 	}, nil
 }
 
 func (c *FavoritesGrpcController) GetAllCollections(ctx context.Context, in *protopb.RequestId) (*protopb.CollectionsArray, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllCollections")
 	defer span.Finish()
+	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if err != nil {
+		return &protopb.CollectionsArray{}, status.Errorf(codes.Unknown, err.Error())
+	}  else if claims.UserId == "" {
+		return &protopb.CollectionsArray{}, status.Errorf(codes.InvalidArgument, "no user id provided")
+	}  else if claims.UserId != in.Id {
+		return &protopb.CollectionsArray{}, status.Errorf(codes.Unknown, "cannot get another user's collections")
+	}
 
 	collections, err := c.service.GetAllCollections(ctx, in.Id)
 	if err != nil {
@@ -49,7 +61,16 @@ func (c *FavoritesGrpcController) GetAllCollections(ctx context.Context, in *pro
 func (c *FavoritesGrpcController) GetCollection(ctx context.Context, in *protopb.RequestId) (*protopb.Collection, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetCollection")
 	defer span.Finish()
+	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if err != nil {
+		return &protopb.Collection{}, status.Errorf(codes.Unknown, "could not retrieve collection")
+	}else if claims.UserId == "" {
+		return &protopb.Collection{}, status.Errorf(codes.InvalidArgument, "no user id provided")
+	}  else if claims.UserId != in.Id {
+		return &protopb.Collection{}, status.Errorf(codes.Unknown, "cannot get another user's collection")
+	}
 
 	collection, err := c.service.GetCollection(ctx, in.Id)
 	if err != nil || collection.Id == "" {
@@ -64,7 +85,16 @@ func (c *FavoritesGrpcController) GetCollection(ctx context.Context, in *protopb
 func (c *FavoritesGrpcController) GetUserFavorites(ctx context.Context, in *protopb.RequestId) (*protopb.Favorites, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserFavorites")
 	defer span.Finish()
+	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if err != nil {
+		return &protopb.Favorites{}, status.Errorf(codes.Unknown, "could not retrieve favorites")
+	}else if claims.UserId == "" {
+		return &protopb.Favorites{}, status.Errorf(codes.InvalidArgument, "no user id provided")
+	}  else if claims.UserId != in.Id {
+		return &protopb.Favorites{}, status.Errorf(codes.Unknown, "cannot get another user's favorites")
+	}
 
 	favorites, err := c.service.GetUserFavorites(ctx, in.Id)
 	if err != nil {
@@ -79,12 +109,21 @@ func (c *FavoritesGrpcController) GetUserFavorites(ctx context.Context, in *prot
 func (c *FavoritesGrpcController) CreateFavorite(ctx context.Context, in *protopb.FavoritesRequest) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateFavorite")
 	defer span.Finish()
+	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if err != nil {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create favorite")
+	}else if claims.UserId == "" {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "no user id provided")
+	}  else if claims.UserId != in.UserId {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot create favorite for another user")
+	}
 
 	var favoritesRequest domain.FavoritesRequest
 	favoritesRequest = favoritesRequest.ConvertFromGrpc(in)
 
-	err := c.service.CreateFavorite(ctx, favoritesRequest)
+	err = c.service.CreateFavorite(ctx, favoritesRequest)
 	if err != nil {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create favorite")
 	}
@@ -95,12 +134,21 @@ func (c *FavoritesGrpcController) CreateFavorite(ctx context.Context, in *protop
 func (c *FavoritesGrpcController) RemoveFavorite(ctx context.Context, in *protopb.FavoritesRequest) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveFavorite")
 	defer span.Finish()
+	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if err != nil {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not remove favorite")
+	}else if claims.UserId == "" {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "no user id provided")
+	}  else if claims.UserId != in.UserId {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot remove favorite for another user")
+	}
 
 	var favoritesRequest domain.FavoritesRequest
 	favoritesRequest = favoritesRequest.ConvertFromGrpc(in)
 
-	err := c.service.RemoveFavorite(ctx, favoritesRequest)
+	err = c.service.RemoveFavorite(ctx, favoritesRequest)
 	if err != nil {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not remove favorite")
 	}
@@ -111,12 +159,21 @@ func (c *FavoritesGrpcController) RemoveFavorite(ctx context.Context, in *protop
 func (c *FavoritesGrpcController) CreateCollection(ctx context.Context, in *protopb.Collection) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateCollection")
 	defer span.Finish()
+	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if err != nil {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create collection")
+	}else if claims.UserId == "" {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "no user id provided")
+	}  else if claims.UserId != in.UserId {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot create collection for another user")
+	}
 
 	var collection domain.Collection
 	collection = collection.ConvertFromGrpc(in)
 
-	err := c.service.CreateCollection(ctx, collection)
+	err = c.service.CreateCollection(ctx, collection)
 	if err != nil {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create collection")
 	}
@@ -127,9 +184,16 @@ func (c *FavoritesGrpcController) CreateCollection(ctx context.Context, in *prot
 func (c *FavoritesGrpcController) RemoveCollection(ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveFavorite")
 	defer span.Finish()
+	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	err := c.service.RemoveCollection(ctx, in.Id)
+	if err != nil {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create favorite")
+	}else if claims.UserId == "" {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "no user id provided")
+	}
+
+	err = c.service.RemoveCollection(ctx, in.Id, claims.UserId)
 	if err != nil {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not remove collection")
 	}

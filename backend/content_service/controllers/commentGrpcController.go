@@ -77,7 +77,10 @@ func (s *CommentGrpcController) GetCommentsForPost(ctx context.Context, id strin
 	isPublic, err := grpc_common.CheckIfPublicProfile(ctx, post.UserId)
 	if err != nil { return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, err.Error()) }
 
-	if !following.IsApprovedRequest && !isPublic {
+	isBlocked, err := grpc_common.CheckIfBlocked(ctx, post.UserId, claims.UserId)
+	if err != nil { return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, err.Error()) }
+
+	if (!following.IsApprovedRequest && !isPublic) || isBlocked {
 		return &protopb.CommentsArray{}, status.Errorf(codes.PermissionDenied, "cannot access this post")
 	}
 

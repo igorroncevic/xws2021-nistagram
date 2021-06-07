@@ -2,22 +2,23 @@ package controllers
 
 import (
 	"context"
-	"fmt"
+	"github.com/david-drvar/xws2021-nistagram/common"
+	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/content_service/services"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
 
 type HighlightGrpcController struct {
-	service *services.HighlightService
+	service 	*services.HighlightService
+	jwtManager  *common.JWTManager
 }
 
-func NewHighlightController(db *gorm.DB) (*HighlightGrpcController, error) {
+func NewHighlightController(db *gorm.DB, jwtManager *common.JWTManager) (*HighlightGrpcController, error) {
 	service, err := services.NewHighlightService(db)
 	if err != nil {
 		return nil, err
@@ -25,13 +26,41 @@ func NewHighlightController(db *gorm.DB) (*HighlightGrpcController, error) {
 
 	return &HighlightGrpcController{
 		service,
+		jwtManager,
 	}, nil
 }
 
 func (c *HighlightGrpcController) GetAllHighlights (ctx context.Context, in *protopb.RequestId) (*protopb.HighlightsArray, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllHighlights")
 	defer span.Finish()
+	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if err != nil {
+		return &protopb.HighlightsArray{}, status.Errorf(codes.Unknown, err.Error())
+	}  else if claims.UserId == "" {
+		return &protopb.HighlightsArray{}, status.Errorf(codes.InvalidArgument, "no user id provided")
+	}
+
+	followConnection, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
+	if err != nil {
+		return &protopb.HighlightsArray{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
+	if err != nil {
+		return &protopb.HighlightsArray{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.Id, claims.UserId)
+	if err != nil {
+		return &protopb.HighlightsArray{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	// If used is blocked or his profile is private and did not approve your request
+	if isBlocked || (!isPublic && !followConnection.IsApprovedRequest ) {
+		return &protopb.HighlightsArray{}, nil
+	}
 
 	highlights, err := c.service.GetAllHighlights(ctx, in.Id)
 	if err != nil {
@@ -51,7 +80,34 @@ func (c *HighlightGrpcController) GetAllHighlights (ctx context.Context, in *pro
 func (c *HighlightGrpcController) GetHighlight (ctx context.Context, in *protopb.RequestId) (*protopb.Highlight, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetHighlight")
 	defer span.Finish()
+	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if err != nil {
+		return &protopb.Highlight{}, status.Errorf(codes.Unknown, err.Error())
+	}  else if claims.UserId == "" {
+		return &protopb.Highlight{}, status.Errorf(codes.InvalidArgument, "no user id provided")
+	}
+
+	followConnection, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
+	if err != nil {
+		return &protopb.Highlight{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
+	if err != nil {
+		return &protopb.Highlight{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.Id, claims.UserId)
+	if err != nil {
+		return &protopb.Highlight{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	// If used is blocked or his profile is private and did not approve your request
+	if isBlocked || (!isPublic && !followConnection.IsApprovedRequest ) {
+		return &protopb.Highlight{}, nil
+	}
 
 	highlight, err := c.service.GetHighlight(ctx, in.Id)
 	if err != nil || highlight.Id == "" {
@@ -66,12 +122,21 @@ func (c *HighlightGrpcController) GetHighlight (ctx context.Context, in *protopb
 func (c *HighlightGrpcController) CreateHighlightStory(ctx context.Context, in *protopb.HighlightRequest) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateHighlightStory")
 	defer span.Finish()
+	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if err != nil {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
+	}  else if claims.UserId == "" {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "no user id provided")
+	}  else if claims.UserId != in.UserId {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot create post for another user")
+	}
 
 	var highlightRequest *domain.HighlightRequest
 	highlightRequest = highlightRequest.ConvertFromGrpc(in)
 
-	err := c.service.CreateHighlightStory(ctx, *highlightRequest)
+	err = c.service.CreateHighlightStory(ctx, *highlightRequest)
 	if err != nil {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create story from highlight")
 	}
@@ -82,12 +147,21 @@ func (c *HighlightGrpcController) CreateHighlightStory(ctx context.Context, in *
 func (c *HighlightGrpcController) RemoveHighlightStory(ctx context.Context, in *protopb.HighlightRequest) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveHighlightStory")
 	defer span.Finish()
+	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if err != nil {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
+	}  else if claims.UserId == "" {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "no user id provided")
+	}  else if claims.UserId != in.UserId {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot create post for another user")
+	}
 
 	var highlightRequest *domain.HighlightRequest
 	highlightRequest = highlightRequest.ConvertFromGrpc(in)
 
-	err := c.service.RemoveHighlightStory(ctx, *highlightRequest)
+	err = c.service.RemoveHighlightStory(ctx, *highlightRequest)
 	if err != nil {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not remove story from highlight")
 	}
@@ -98,14 +172,21 @@ func (c *HighlightGrpcController) RemoveHighlightStory(ctx context.Context, in *
 func (c *HighlightGrpcController) CreateHighlight (ctx context.Context, in *protopb.Highlight) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateHighlight")
 	defer span.Finish()
-	contextMetadata, _ := metadata.FromIncomingContext(ctx)
-	fmt.Println(contextMetadata)
+	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if err != nil {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
+	}  else if claims.UserId == "" {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "no user id provided")
+	}  else if claims.UserId != in.UserId {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot create post for another user")
+	}
 
 	var collection *domain.Highlight
 	collection = collection.ConvertFromGrpc(in)
 
-	err := c.service.CreateHighlight(ctx, *collection)
+	err = c.service.CreateHighlight(ctx, *collection)
 	if err != nil {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create highlight")
 	}
@@ -116,9 +197,16 @@ func (c *HighlightGrpcController) CreateHighlight (ctx context.Context, in *prot
 func (c *HighlightGrpcController) RemoveHighlight (ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveHighlight")
 	defer span.Finish()
+	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	err := c.service.RemoveHighlight(ctx, in.Id)
+	if err != nil {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
+	}  else if claims.UserId == "" {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "no user id provided")
+	}
+
+	err = c.service.RemoveHighlight(ctx, in.Id, claims.UserId)
 	if err != nil {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not remove highlight")
 	}
