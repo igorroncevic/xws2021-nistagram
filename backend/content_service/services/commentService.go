@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/content_service/repositories"
@@ -61,7 +62,10 @@ func (service CommentService) GetCommentsForPost(ctx context.Context, id string)
 	}
 
 	for _, comment := range dbComments{
-		comments = append(comments, comment.ConvertToDomain("username"))	// TODO Retrieve user's username, maybe even a picture
+		username, err := grpc_common.GetUsernameById(ctx, comment.UserId)
+		if err == nil {
+			comments = append(comments, comment.ConvertToDomain(username))
+		}
 	}
 
 	return comments, nil

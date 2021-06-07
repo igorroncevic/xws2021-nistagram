@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/content_service/repositories"
@@ -51,7 +52,10 @@ func (service *LikeService) GetLikesForPost(ctx context.Context, postId string, 
 	}
 
 	for _, like := range dbLikes{
-		likes = append(likes, like.ConvertToDomain())
+		username, err := grpc_common.GetUsernameById(ctx, like.UserId)
+		if err == nil {
+			likes = append(likes, like.ConvertToDomain(username))
+		}
 	}
 
 	return likes, nil

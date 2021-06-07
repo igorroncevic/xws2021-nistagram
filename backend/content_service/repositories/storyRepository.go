@@ -49,11 +49,9 @@ func (repository *storyRepository) GetAllHomeStories(ctx context.Context, userId
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	// TODO Retrieve ids from people you follow
 	stories := []persistence.Story{}
 	result := repository.DB.Order("created_at desc").
 		Where(storyDurationQuery + " AND user_id IN ? AND is_close_friends = ?", userIds, isCloseFriends).
-		Group("user_id").
 		Find(&stories)
 	if result.Error != nil {
 		return stories, result.Error

@@ -47,9 +47,38 @@ func (c *PostGrpcController) CreatePost(ctx context.Context, in *protopb.Post) (
 	var post *domain.Post
 	post = post.ConvertFromGrpc(in)
 
+	for _, media := range post.Media{
+		for _, tag := range media.Tags {
+			following, err := grpc_common.CheckFollowInteraction(ctx, tag.UserId, post.UserId)
+			if err != nil {
+				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
+			}
+
+			isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
+			if err != nil {
+				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
+			}
+
+			isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.Id, claims.UserId)
+			if err != nil {
+				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
+			}
+
+			// If used is blocked or his profile is private and did not approve your request
+			if isBlocked || (!isPublic && !following.IsApprovedRequest ) {
+				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
+			}
+
+			username, err := grpc_common.GetUsernameById(ctx, tag.UserId)
+			if username == "" || err != nil {
+				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
+			}
+		}
+	}
+
 	err = c.service.CreatePost(ctx, post)
 	if err != nil {
-		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create post")
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
 	return &protopb.EmptyResponseContent{}, nil
@@ -87,7 +116,7 @@ func (c *PostGrpcController) GetAllPosts(ctx context.Context, in *protopb.EmptyR
 	}, nil
 }
 
-func (c *PostGrpcController) GetPostsForUser(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.ReducedPostArray, error){
+func (c *PostGrpcController) GetPostsForUser(ctx context.Context, in *protopb.RequestId) (*protopb.ReducedPostArray, error){
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostsForUser")
 	defer span.Finish()
 	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
@@ -99,24 +128,26 @@ func (c *PostGrpcController) GetPostsForUser(ctx context.Context, in *protopb.Re
 		return &protopb.ReducedPostArray{}, status.Errorf(codes.InvalidArgument, "no user id is provided")
 	}
 
-	followConnection, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
-	if err != nil {
-		return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
-	}
+	if in.Id != claims.UserId{
+		followConnection, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
+		if err != nil {
+			return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
+		}
 
-	isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
-	if err != nil {
-		return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
-	}
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
+		if err != nil {
+			return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
+		}
 
-	isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.Id, claims.UserId)
-	if err != nil {
-		return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
-	}
+		isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.Id, claims.UserId)
+		if err != nil {
+			return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
+		}
 
-	// If used is blocked or his profile is private and did not approve your request
-	if isBlocked || (!isPublic && !followConnection.IsApprovedRequest ) {
-		return &protopb.ReducedPostArray{}, nil
+		// If used is blocked or his profile is private and did not approve your request
+		if isBlocked || (!isPublic && !followConnection.IsApprovedRequest ) {
+			return &protopb.ReducedPostArray{}, nil
+		}
 	}
 
 	posts, err := c.service.GetPostsForUser(ctx, in.Id)
@@ -148,14 +179,21 @@ func (c *PostGrpcController) GetPostById(ctx context.Context, id string) (*proto
 		return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
-	following, err := grpc_common.CheckFollowInteraction(ctx, post.UserId, claims.UserId)
-	if err != nil { return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error()) }
+	if post.UserId != claims.UserId{
+		following, err := grpc_common.CheckFollowInteraction(ctx, post.UserId, claims.UserId)
+		if err != nil { return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error()) }
 
-	isPublic, err := grpc_common.CheckIfPublicProfile(ctx, post.UserId)
-	if err != nil { return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error()) }
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, post.UserId)
+		if err != nil { return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error()) }
 
-	if !following.IsApprovedRequest && !isPublic {
-		return &protopb.Post{}, status.Errorf(codes.PermissionDenied, "cannot retrieve this post")
+		isBlocked, err := grpc_common.CheckIfBlocked(ctx, post.UserId, claims.UserId)
+		if err != nil {
+			return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error())
+		}
+
+		if (!following.IsApprovedRequest && !isPublic) || isBlocked {
+			return &protopb.Post{}, status.Errorf(codes.PermissionDenied, "cannot retrieve this post")
+		}
 	}
 
 	grpcPost := post.ConvertToGrpc()

@@ -106,6 +106,7 @@ func GetHomepageUsers(ctx context.Context, userId string) ([]string, error){
 	followingResponse, err := followerClient.GetAllFollowingsForHomepage(ctx, &protopb.CreateUserRequestFollowers{
 		User: &protopb.UserFollowers{ UserId: userId },
 	})
+	if err != nil{ return []string{}, status.Errorf(codes.Unknown, err.Error()) }
 
 	userIds := []string{}
 	for _, following := range followingResponse.Users{
@@ -120,6 +121,7 @@ func GetHomepageUsers(ctx context.Context, userId string) ([]string, error){
 
 	privacyClient := GetPrivacyClient(privacyConn)
 	publicResponse, err := privacyClient.GetAllPublicUsers(ctx, &protopb.RequestIdPrivacy{Id: userId})
+	if err != nil{ return []string{}, status.Errorf(codes.Unknown, err.Error()) }
 
 	for _, publicUser := range publicResponse.Ids {
 		found := false
@@ -128,9 +130,10 @@ func GetHomepageUsers(ctx context.Context, userId string) ([]string, error){
 				found = true
 				break
 			}
-			if !found {
-				userIds = append(userIds, userId)
-			}
+		}
+
+		if !found {
+			userIds = append(userIds, publicUser)
 		}
 	}
 
@@ -148,6 +151,7 @@ func GetCloseFriends(ctx context.Context, userId string) ([]string, error){
 	closeFriends, err := followerClient.GetCloseFriends(ctx, &protopb.RequestIdFollowers{
 		Id: userId,
 	})
+	if err != nil{ return []string{}, status.Errorf(codes.Unknown, err.Error()) }
 
 	userIds := []string{}
 	for _, closeFriend := range closeFriends.Users{

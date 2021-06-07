@@ -21,6 +21,7 @@ type ContentClient interface {
 	//    Posts
 	CreatePost(ctx context.Context, in *Post, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetAllPosts(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*ReducedPostArray, error)
+	GetPostsForUser(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*ReducedPostArray, error)
 	RemovePost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetPostById(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Post, error)
 	SearchContentByLocation(ctx context.Context, in *SearchLocationRequest, opts ...grpc.CallOption) (*ReducedPostArray, error)
@@ -77,6 +78,15 @@ func (c *contentClient) CreatePost(ctx context.Context, in *Post, opts ...grpc.C
 func (c *contentClient) GetAllPosts(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*ReducedPostArray, error) {
 	out := new(ReducedPostArray)
 	err := c.cc.Invoke(ctx, "/proto.Content/GetAllPosts", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) GetPostsForUser(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*ReducedPostArray, error) {
+	out := new(ReducedPostArray)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetPostsForUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -342,6 +352,7 @@ type ContentServer interface {
 	//    Posts
 	CreatePost(context.Context, *Post) (*EmptyResponseContent, error)
 	GetAllPosts(context.Context, *EmptyRequestContent) (*ReducedPostArray, error)
+	GetPostsForUser(context.Context, *RequestId) (*ReducedPostArray, error)
 	RemovePost(context.Context, *RequestId) (*EmptyResponseContent, error)
 	GetPostById(context.Context, *RequestId) (*Post, error)
 	SearchContentByLocation(context.Context, *SearchLocationRequest) (*ReducedPostArray, error)
@@ -388,6 +399,9 @@ func (UnimplementedContentServer) CreatePost(context.Context, *Post) (*EmptyResp
 }
 func (UnimplementedContentServer) GetAllPosts(context.Context, *EmptyRequestContent) (*ReducedPostArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllPosts not implemented")
+}
+func (UnimplementedContentServer) GetPostsForUser(context.Context, *RequestId) (*ReducedPostArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPostsForUser not implemented")
 }
 func (UnimplementedContentServer) RemovePost(context.Context, *RequestId) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemovePost not implemented")
@@ -518,6 +532,24 @@ func _Content_GetAllPosts_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).GetAllPosts(ctx, req.(*EmptyRequestContent))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_GetPostsForUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetPostsForUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetPostsForUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetPostsForUser(ctx, req.(*RequestId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1040,6 +1072,10 @@ var Content_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllPosts",
 			Handler:    _Content_GetAllPosts_Handler,
+		},
+		{
+			MethodName: "GetPostsForUser",
+			Handler:    _Content_GetPostsForUser_Handler,
 		},
 		{
 			MethodName: "RemovePost",

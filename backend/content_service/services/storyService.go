@@ -44,8 +44,18 @@ func (service *StoryService) GetStoriesForUser(ctx context.Context, userId strin
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	dbStories, err := service.storyRepository.GetUsersStories(ctx, userId, isCloseFriend)
+
+	dbStories, err := service.storyRepository.GetUsersStories(ctx, userId, false)
 	if err != nil { return []domain.Story{}, err }
+
+	if isCloseFriend{
+		closeFriendsStories, err := service.storyRepository.GetUsersStories(ctx, userId, true)
+		if err != nil { return []domain.Story{}, err }
+
+		for _, closeFriendStory := range closeFriendsStories {
+			dbStories = append(dbStories, closeFriendStory)
+		}
+	}
 
 	stories := []domain.Story{}
 	for _, dbStory := range dbStories{
@@ -63,8 +73,17 @@ func (service *StoryService) GetAllHomeStories(ctx context.Context, userIds []st
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	dbStories, err := service.storyRepository.GetAllHomeStories(ctx, userIds, isCloseFriends)
+	dbStories, err := service.storyRepository.GetAllHomeStories(ctx, userIds, false)
 	if err != nil { return domain.StoriesHome{}, err }
+
+	if isCloseFriends {
+		closeFriendsStories, err := service.storyRepository.GetAllHomeStories(ctx, userIds, true)
+		if err != nil { return domain.StoriesHome{}, err }
+
+		for _, closeFriendStory := range closeFriendsStories {
+			dbStories = append(dbStories, closeFriendStory)
+		}
+	}
 
 	storiesHome := domain.StoriesHome{}
 	for _, dbStory := range dbStories{

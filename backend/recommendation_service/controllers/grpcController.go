@@ -67,6 +67,10 @@ func (s *Server) UpdateUserConnection(ctx context.Context, in *protopb.CreateFol
 	return s.followerController.UpdateUserConnection(ctx, in)
 }
 
+func (s *Server) GetCloseFriends(ctx context.Context, in *protopb.RequestIdFollowers) (*protopb.CreateUserResponse, error) {
+	return s.followerController.GetCloseFriends(ctx, in)
+}
+
 func (s *Server) GetFollowersConnection(ctx context.Context, in *protopb.Follower) (*protopb.Follower, error) {
 	return s.followerController.GetFollowersConnection(ctx, in)
 }

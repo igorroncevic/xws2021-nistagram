@@ -22,6 +22,12 @@ service Content {
     };
   }
 
+  rpc GetPostsForUser (RequestId) returns (ReducedPostArray) {
+    option(google.api.http) = {
+      get: "/posts/user/{id}"
+    };
+  }
+
   rpc RemovePost (RequestId) returns (EmptyResponseContent) {
     option(google.api.http) = {
       delete: "/posts/{id}"
@@ -65,7 +71,7 @@ service Content {
 
   rpc GetStoriesForUser (RequestId) returns (StoriesArray) {
     option(google.api.http) = {
-      get: "/stories/{id}"
+      get: "/stories/user/{id}"
     };
   }
 
@@ -332,6 +338,7 @@ message Like {
   string postId = 1;
   string userId = 2;
   bool isLike = 3;
+  string username = 4;
 }
 
 message LikesArray {

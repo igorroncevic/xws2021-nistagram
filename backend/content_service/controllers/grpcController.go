@@ -28,9 +28,9 @@ func NewServer(db *gorm.DB, manager *common.JWTManager) (*Server, error) {
 	storyController, _ := NewStoryController(db, manager)
 	commentController, _ := NewCommentController(db, manager)
 	likeController, _ := NewLikeController(db, manager)
-	favoritesController, _ := NewFavoritesController(db)
+	favoritesController, _ := NewFavoritesController(db, manager)
 	hashtagController, _ := NewHashtagController(db)
-	highlightController, _ := NewHighlightController(db)
+	highlightController, _ := NewHighlightController(db, manager)
 	tracer, closer := tracer.Init("global_ContentGrpcController")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
@@ -63,6 +63,10 @@ func (s *Server) GetAllPosts(ctx context.Context, in *protopb.EmptyRequestConten
 	return s.postController.GetAllPosts(ctx, in)
 }
 
+func (s *Server) GetPostsForUser(ctx context.Context, in *protopb.RequestId) (*protopb.ReducedPostArray, error) {
+	return s.postController.GetPostsForUser(ctx, in)
+}
+
 func (s *Server) GetPostById(ctx context.Context, in *protopb.RequestId) (*protopb.Post, error) {
 	return s.postController.GetPostById(ctx, in.Id)
 }
@@ -81,10 +85,10 @@ func (s *Server) CreateStory(ctx context.Context, in *protopb.Story) (*protopb.E
 }
 
 func (s *Server) GetAllStories(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.StoriesHome, error) {
-	return s.storyController.GetAllHomeStories(ctx, in)
+	return s.storyController.GetAllStories(ctx, in)
 }
 
-func (s *Server) GetStoriesForUser(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.StoriesArray, error) {
+func (s *Server) GetStoriesForUser(ctx context.Context, in *protopb.RequestId) (*protopb.StoriesArray, error) {
 	return s.storyController.GetStoriesForUser(ctx, in)
 }
 

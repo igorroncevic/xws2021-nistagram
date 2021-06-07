@@ -383,6 +383,7 @@ func (l *Like) ConvertToGrpc() *protopb.Like {
 		PostId: l.PostId,
 		UserId: l.UserId,
 		IsLike: l.IsLike,
+		Username: l.Username,
 	}
 }
 

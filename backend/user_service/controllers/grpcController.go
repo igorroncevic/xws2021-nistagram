@@ -80,6 +80,10 @@ func (s *Server) UnBlockUser(ctx context.Context, in *protopb.CreateBlockRequest
 	return s.privacyController.UnBlockUser(ctx, in)
 }
 
+func (s *Server) CheckIfBlocked(ctx context.Context, in *protopb.CreateBlockRequest) (*protopb.BooleanResponse, error) {
+	return s.privacyController.CheckIfBlocked(ctx, in)
+}
+
 func (s *Server) SearchUser(ctx context.Context, in *protopb.SearchUserDtoRequest) (*protopb.UsersResponse, error) {
 	return s.userController.SearchUser(ctx, in)
 }

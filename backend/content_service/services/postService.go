@@ -167,6 +167,14 @@ func (service *PostService) GetPostById(ctx context.Context, id string) (domain.
 			return domain.Post{}, err
 		}
 
+		for index, tag := range tags {
+			username, err := grpc_common.GetUsernameById(ctx, tag.UserId)
+			if username == "" || err != nil {
+				return domain.Post{}, errors.New("cannot retrieve tags")
+			}
+			tags[index].Username = username
+		}
+
 		converted, err := single.ConvertToDomain(tags)
 		if err != nil {
 			return domain.Post{}, err
@@ -210,6 +218,14 @@ func (service *PostService) GetReducedPostData(ctx context.Context, postId strin
 		tags, err := service.tagRepository.GetTagsForMedia(ctx, single.Id)
 		if err != nil {
 			return domain.ReducedPost{}, errors.New("unable to retrieve media tags")
+		}
+
+		for index, tag := range tags {
+			username, err := grpc_common.GetUsernameById(ctx, tag.UserId)
+			if username == "" || err != nil {
+				return domain.ReducedPost{}, errors.New("cannot retrieve tags")
+			}
+			tags[index].Username = username
 		}
 
 		converted, err := single.ConvertToDomain(tags)
@@ -387,7 +403,6 @@ func (service *PostService) GetPostsForUser(ctx context.Context, id string) ([]d
 		return posts, err
 	}
 
-	// TODO Retrieve all domain data
 	for _, post := range dbPosts {
 		converted, err := service.GetReducedPostData(ctx, post.Id)
 		if err != nil {
