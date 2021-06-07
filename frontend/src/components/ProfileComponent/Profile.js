@@ -25,7 +25,6 @@ function Profile(props) {
     var loggedUsername = sessionStorage.getItem("username");
 
     useEffect(() => {
-        console.log("TIGER")
         getUserByUsername();
         getUserPrivacy();
         getFollowers()
@@ -40,7 +39,6 @@ function Profile(props) {
             })
             .then(res => {
                 setLoggedUser(res.data.users[0])
-                console.log("RADI get user")
             }).catch(res => {
             console.log("NE RADI get user")
         })
@@ -82,7 +80,7 @@ function Profile(props) {
                 UserId:user.id
             })
             .then(res => {
-              //  console.log("following radi")
+                console.log("following radi")
               //  console.log(res.data.users)
                 setFollowings(res.data.users);
 
@@ -97,7 +95,7 @@ function Profile(props) {
                 UserId:user.id
             })
             .then(res => {
-              //  console.log("followers radi")
+                console.log("followers radi")
 
                 setFollowers(res.data.users);
 
@@ -142,7 +140,7 @@ function Profile(props) {
                                 <h6 style={{marginLeft:'13px'}}> {following.length} following </h6>
                             </div>
                             {follow ?
-                                <FollowAndUnfollow user={user} followers={followers}/>
+                                <FollowAndUnfollow user={user} loggedUser={loggedUser} followers={followers} getFollowers={getFollowers}/>
 :
                                 <div>
                                     <Button variant="link" style={{marginTop:'2em', borderTop: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModal}>Update profile info?</Button>
