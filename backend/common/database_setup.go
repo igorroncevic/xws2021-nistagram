@@ -2,7 +2,6 @@ package common
 
 import (
 	"fmt"
-	"github.com/lytics/confl"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -25,13 +24,17 @@ const (
 
 func InitDatabase(dbname string) *gorm.DB {
 	var dbConf dbConfig
-	if _, err := confl.DecodeFile("./../dbconfig.conf", &dbConf); err != nil {
+/*	if _, err := confl.DecodeFile("./../dbconfig.conf", &dbConf); err != nil {
 		panic(err)
-	}
+	}*/
 
 	var dsn string
 	if dbname == UserDatabase{
-		dsn = fmt.Sprintf("%s", dbConf.UserDatabaseURL)
+		dsn = fmt.Sprintf("%s", "user=" + os.Getenv("DB_USER") +
+											" dbname=" + os.Getenv("DB_NAME") +
+											" password=" +os.Getenv("DB_PW")+
+											" host=" + os.Getenv("DB_HOST"))
+
 	}else if dbname == ContentDatabase{
 		dsn = fmt.Sprintf("%s", dbConf.ContentDatabaseURL)
 	}else if dbname == AgentDatabase{

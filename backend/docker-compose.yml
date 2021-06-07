@@ -1,10 +1,41 @@
 version: '3.4'
 
 services:
-  backend:
-    image: backend
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    ports:
+  
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: always
+    networks: 
+      - demo
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: postgres
+      POSTGRES_DB: xws_users_service
+
+  user_service:
+    image: user_service
+    container_name: user_service
+    restart: always
+    environment:
+      Docker_env: env 
+      DB_HOST: postgres
+      DB_NAME: xws_users_service
+      DB_USER: postgres
+      DB_PW: root
+    networks: 
+      - demo
+    ports: 
       - 8001:8001
+      - 8091:8091
+    depends_on: 
+      - postgres
+
+volumes:
+  mysql-data:
+
+networks:
+  demo:
+    name: demo
+    driver: bridge
+    external: false
