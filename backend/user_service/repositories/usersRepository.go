@@ -7,21 +7,23 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
+	"github.com/david-drvar/xws2021-nistagram/user_service/util"
 	"github.com/david-drvar/xws2021-nistagram/user_service/util/encryption"
+	"github.com/david-drvar/xws2021-nistagram/user_service/util/images"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"time"
 )
 
 type UserRepository interface {
-
 	GetAllUsers(context.Context) ([]persistence.User, error)
 	CreateUser(context.Context, *persistence.User) error
 	CreateUserWithAdditionalInfo(context.Context, *persistence.User, *persistence.UserAdditionalInfo) (*domain.User, error)
 	UpdateUserProfile(ctx context.Context, dto domain.User) (bool, error)
 	UpdateUserPassword(ctx context.Context, password domain.Password) (bool, error)
 	SearchUsersByUsernameAndName(ctx context.Context, user *domain.User) ([]domain.User, error)
-	LoginUser(context.Context, domain.LoginRequest) 				     (persistence.User, error)
-
+	LoginUser(context.Context, domain.LoginRequest) (persistence.User, error)
+	SaveUserProfilePhoto(ctx context.Context, user *persistence.User) (bool, error)
 }
 
 type userRepository struct {
@@ -154,7 +156,7 @@ func (repository *userRepository) LoginUser(ctx context.Context, request domain.
 	}
 
 	err := encryption.CompareHashAndPassword([]byte(dbUser.Password), []byte(request.Password))
-	if err != nil{
+	if err != nil {
 		return persistence.User{}, errors.New("passwords do not match")
 	}
 
@@ -204,7 +206,10 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 		return nil, resultUser.Error
 	}
 
-
+	_, err := repository.SaveUserProfilePhoto(ctx, user)
+	if err != nil {
+		return nil, err
+	}
 
 	userAdditionalInfo.Id = user.Id
 	repository.DB.Create(&userAdditionalInfo)
@@ -214,7 +219,7 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 	privacy.IsProfilePublic = true
 	privacy.IsDMPublic = true
 	privacy.IsTagEnabled = true
-	_, err := repository.privacyRepository.CreatePrivacy(ctx, &privacy)
+	_, err = repository.privacyRepository.CreatePrivacy(ctx, &privacy)
 	if err != nil {
 		return nil, err
 	}
@@ -257,4 +262,32 @@ func (repository *userRepository) SearchUsersByUsernameAndName(ctx context.Conte
 	}
 
 	return usersDomain, nil
+}
+
+func (repository *userRepository) SaveUserProfilePhoto(ctx context.Context, user *persistence.User) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "SaveUserProfilePhoto")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	mimeType, err := images.GetImageType(user.ProfilePhoto)
+	if err != nil {
+		return false, err
+	}
+
+	t := time.Now()
+	formatted := fmt.Sprintf("%s%d%02d%02d%02d%02d%02d%02d", user.Id, t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond())
+	name := formatted + "." + mimeType
+
+	err = images.SaveImage(name, user.ProfilePhoto)
+	if err != nil {
+		return false, err
+	}
+
+	user.ProfilePhoto = util.GetContentLocation(name)
+	db := repository.DB.Model(&user).Where("id = ?", user.Id).Updates(user)
+	if db.Error != nil {
+		return false, db.Error
+	}
+
+	return true, nil
 }
