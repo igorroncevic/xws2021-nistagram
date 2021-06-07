@@ -12,6 +12,8 @@ function Home(props) {
         getUser();
     },[])
 
+
+
     function getUser(){
         axios
             .post('http://localhost:8080/api/users/api/users/searchByUser', {

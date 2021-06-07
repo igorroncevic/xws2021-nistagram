@@ -4,8 +4,11 @@ import axios from "axios";
 import ProfileIcon from "../components/ProfileComponent/ProfileIcon";
 import ProfileForSug from "../components/HomePage/ProfileForSug";
 import {useHistory} from "react-router-dom";
+import Navigation from "../components/HomePage/Navigation";
 
-export default function Search() {
+export default function Search(props) {
+    console.log(props);
+    const [user,setUser] =useState(props.location.state.user);
     // Declare a new state variable, which we'll call "count"
     const [searchCategory, setSearchCategory] = useState("Search category");
     const [input, setInput] = useState("");
@@ -78,17 +81,7 @@ export default function Search() {
 
     if (searchCategory === 'User' && searchResult.length > 0) {
         var userResults = searchResult.map((user, i) =>
-            // <Card style={{ width: '18rem' }}>
-            //     <Card.Img variant="top" src="holder.js/100px180" alt="user pic"/>
-            //     <Card.Body>
-            //         <Card.Title>@{user.username} ({user.firstName} {user.lastName})</Card.Title>
-            //         <Card.Text>
-            //             {user.biography}
-            //         </Card.Text>
-            //         <Button variant="primary">Visit profile</Button>
-            //     </Card.Body>
-            // </Card>
-            <ProfileForSug username={user.username} firstName={user.firstName} lastName={user.lastName} caption={user.biography} urlText="Follow" iconSize="medium" captionSize="small"  storyBorder={true} />
+            <ProfileForSug user={user} username={user.username} firstName={user.firstName} lastName={user.lastName} caption={user.biography} urlText="Follow" iconSize="big" captionSize="small"  storyBorder={true} />
         );
     }
 
@@ -107,35 +100,22 @@ export default function Search() {
         }
     }
 
-    function goBack() {
-        history.push({ //todo what to send back?
-            pathname: '/home',
-            state: { user:"", follow:false }
-        })
-    }
-
 
     return (
         <div  className="App">
-            {/*<h1 style={{marginLeft : "30px"}}>Search</h1>*/}
-            <br/>
-            <Button variant="outline-dark" style={{marginLeft : "30px"}} onClick={goBack} >←Back</Button>{' '}
+            <Navigation user={user}/>
 
+            <br/>
             <br/><br/>
             <div className="row" style={{marginLeft : "10px"}}>
                 <div className="col-sm-5 mb-2">
-                    <DropdownButton onSelect={(e) => handleSearchCategoryChange(e) }
-                                    as={InputGroup.Append}
-                                    variant="outline-secondary"
-                                    title={searchCategory}
-                                    id="input-group-dropdown-2"
-                    >
+                    <DropdownButton onSelect={(e) => handleSearchCategoryChange(e) } as={InputGroup.Append}  variant="outline-secondary" title={searchCategory} id="input-group-dropdown-2" >
                         <Dropdown.Item eventKey={"Location"} >Location</Dropdown.Item>
                         <Dropdown.Item eventKey={"Tag"} >Tag</Dropdown.Item>
                         <Dropdown.Item eventKey={"User"} >User</Dropdown.Item>
                     </DropdownButton>
                 </div>
-                <div className="col-sm-5 mb-2">
+                <div className="col-sm-5 mb-2" >
                     <input name="input" className="form-control" placeholder={searchPlaceholder} value={input} onClick={(e) => setInputErr("")} onChange={(e) => setInput(e.target.value)}/>
                     {inputErr.length > 0 &&
                     <span className="text-danger">{inputErr}</span>}

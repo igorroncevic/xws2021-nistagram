@@ -18,6 +18,7 @@ function Navigation(props) {
     function redirectToSearch(){
         history.push({
             pathname: '/search',
+            state: { user:user }
         })
     }
 
