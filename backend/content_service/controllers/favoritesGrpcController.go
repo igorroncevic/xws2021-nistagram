@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"github.com/david-drvar/xws2021-nistagram/common"
+	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
@@ -13,7 +14,8 @@ import (
 )
 
 type FavoritesGrpcController struct {
-	service    *services.FavoritesService
+	service     *services.FavoritesService
+	postService *services.PostService
 	jwtManager *common.JWTManager
 }
 
@@ -23,8 +25,14 @@ func NewFavoritesController(db *gorm.DB, jwtManager *common.JWTManager) (*Favori
 		return nil, err
 	}
 
+	postService, err := services.NewPostService(db)
+	if err != nil {
+		return nil, err
+	}
+
 	return &FavoritesGrpcController{
 		service,
+		postService,
 		jwtManager,
 	}, nil
 }
@@ -118,6 +126,31 @@ func (c *FavoritesGrpcController) CreateFavorite(ctx context.Context, in *protop
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "no user id provided")
 	}  else if claims.UserId != in.UserId {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot create favorite for another user")
+	}
+
+	post, err := c.postService.GetReducedPostData(ctx, in.PostId)
+	if err != nil { return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot create favorite") }
+
+	if post.UserId != claims.UserId{
+		following, err := grpc_common.CheckFollowInteraction(ctx, post.UserId, claims.UserId)
+		if err != nil {
+			return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
+		}
+
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, post.UserId)
+		if err != nil {
+			return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
+		}
+
+		isBlocked, err := grpc_common.CheckIfBlocked(ctx, post.UserId, claims.UserId)
+		if err != nil {
+			return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
+		}
+
+		// If used is blocked or his profile is private and did not approve your request
+		if isBlocked || (!isPublic && !following.IsApprovedRequest ) {
+			return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
+		}
 	}
 
 	var favoritesRequest domain.FavoritesRequest

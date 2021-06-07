@@ -183,19 +183,6 @@ func (repository *favoritesRepository) CreateCollection(ctx context.Context, col
 		var collectionPers *persistence.Collection
 		collectionPers = collectionPers.ConvertToPersistence(collection)
 
-		if collectionPers.Id != "" {
-			// Check if user has that collection
-			var count int64
-			result := repository.DB.Model(&persistence.Collection{}).Where("id = ?", collectionPers.Id).Count(&count)
-
-			if result.Error != nil {
-				return result.Error
-			}else if count == 0 {
-				return errors.New("user does not own that collection")
-			}
-		}
-
-		// TODO Check if user can save that post
 		result := repository.DB.Create(collectionPers)
 
 		if result.Error != nil || result.RowsAffected != 1 {

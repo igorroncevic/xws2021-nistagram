@@ -14,7 +14,8 @@ import (
 )
 
 type HighlightGrpcController struct {
-	service 	*services.HighlightService
+	service 	 *services.HighlightService
+	storyService *services.StoryService
 	jwtManager  *common.JWTManager
 }
 
@@ -24,8 +25,14 @@ func NewHighlightController(db *gorm.DB, jwtManager *common.JWTManager) (*Highli
 		return nil, err
 	}
 
+	storyService, err := services.NewStoryService(db)
+	if err != nil {
+		return nil, err
+	}
+
 	return &HighlightGrpcController{
 		service,
+		storyService,
 		jwtManager,
 	}, nil
 }
@@ -42,29 +49,46 @@ func (c *HighlightGrpcController) GetAllHighlights (ctx context.Context, in *pro
 		return &protopb.HighlightsArray{}, status.Errorf(codes.InvalidArgument, "no user id provided")
 	}
 
-	followConnection, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
-	if err != nil {
-		return &protopb.HighlightsArray{}, status.Errorf(codes.Unknown, err.Error())
-	}
+	isCloseFriend := false
+	if claims.UserId != in.Id{
+		followConnection, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
+		if err != nil {
+			return &protopb.HighlightsArray{}, status.Errorf(codes.Unknown, err.Error())
+		}
+		isCloseFriend = followConnection.IsCloseFriends
 
-	isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
-	if err != nil {
-		return &protopb.HighlightsArray{}, status.Errorf(codes.Unknown, err.Error())
-	}
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
+		if err != nil {
+			return &protopb.HighlightsArray{}, status.Errorf(codes.Unknown, err.Error())
+		}
 
-	isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.Id, claims.UserId)
-	if err != nil {
-		return &protopb.HighlightsArray{}, status.Errorf(codes.Unknown, err.Error())
-	}
+		isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.Id, claims.UserId)
+		if err != nil {
+			return &protopb.HighlightsArray{}, status.Errorf(codes.Unknown, err.Error())
+		}
 
-	// If used is blocked or his profile is private and did not approve your request
-	if isBlocked || (!isPublic && !followConnection.IsApprovedRequest ) {
-		return &protopb.HighlightsArray{}, nil
+		// If used is blocked or his profile is private and did not approve your request
+		if isBlocked || (!isPublic && !followConnection.IsApprovedRequest ) {
+			return &protopb.HighlightsArray{}, nil
+		}
 	}
 
 	highlights, err := c.service.GetAllHighlights(ctx, in.Id)
 	if err != nil {
 		return &protopb.HighlightsArray{}, status.Errorf(codes.Unknown, "could not retrieve highlights")
+	}
+
+	// Allow retrieving only non-close friend stories
+	if !isCloseFriend {
+		for index, highlight := range highlights{
+			newStories := []domain.Story{}
+			for _, story := range highlight.Stories {
+				if !story.IsCloseFriends {
+					newStories = append(newStories, story)
+				}
+			}
+			highlights[index].Stories = newStories
+		}
 	}
 
 	grpcHighlights := []*protopb.Highlight{}
@@ -89,29 +113,44 @@ func (c *HighlightGrpcController) GetHighlight (ctx context.Context, in *protopb
 		return &protopb.Highlight{}, status.Errorf(codes.InvalidArgument, "no user id provided")
 	}
 
-	followConnection, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
-	if err != nil {
-		return &protopb.Highlight{}, status.Errorf(codes.Unknown, err.Error())
-	}
-
-	isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
-	if err != nil {
-		return &protopb.Highlight{}, status.Errorf(codes.Unknown, err.Error())
-	}
-
-	isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.Id, claims.UserId)
-	if err != nil {
-		return &protopb.Highlight{}, status.Errorf(codes.Unknown, err.Error())
-	}
-
-	// If used is blocked or his profile is private and did not approve your request
-	if isBlocked || (!isPublic && !followConnection.IsApprovedRequest ) {
-		return &protopb.Highlight{}, nil
-	}
-
 	highlight, err := c.service.GetHighlight(ctx, in.Id)
 	if err != nil || highlight.Id == "" {
 		return &protopb.Highlight{}, status.Errorf(codes.Unknown, "could not retrieve highlight")
+	}
+
+	isCloseFriend := false
+	if claims.UserId != highlight.UserId {
+		followConnection, err := grpc_common.CheckFollowInteraction(ctx, highlight.UserId, claims.UserId)
+		if err != nil {
+			return &protopb.Highlight{}, status.Errorf(codes.Unknown, err.Error())
+		}
+		isCloseFriend = followConnection.IsCloseFriends
+
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, highlight.UserId)
+		if err != nil {
+			return &protopb.Highlight{}, status.Errorf(codes.Unknown, err.Error())
+		}
+
+		isBlocked, err := grpc_common.CheckIfBlocked(ctx, highlight.UserId, claims.UserId)
+		if err != nil {
+			return &protopb.Highlight{}, status.Errorf(codes.Unknown, err.Error())
+		}
+
+		// If used is blocked or his profile is private and did not approve your request
+		if isBlocked || (!isPublic && !followConnection.IsApprovedRequest ) {
+			return &protopb.Highlight{}, nil
+		}
+	}
+
+	// Allow retrieving only non-close friend stories
+	if !isCloseFriend {
+		newStories := []domain.Story{}
+		for _, story := range highlight.Stories {
+			if !story.IsCloseFriends {
+				newStories = append(newStories, story)
+			}
+		}
+		highlight.Stories = newStories
 	}
 
 	grpcHighlight := highlight.ConvertToGrpc()
@@ -130,7 +169,36 @@ func (c *HighlightGrpcController) CreateHighlightStory(ctx context.Context, in *
 	}  else if claims.UserId == "" {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "no user id provided")
 	}  else if claims.UserId != in.UserId {
-		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot create post for another user")
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot save story for another user")
+	}
+
+	story, err := c.storyService.GetStoryById(ctx, in.StoryId)
+	if err != nil { return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot save story") }
+
+	if claims.UserId != story.UserId {
+		followConnection, err := grpc_common.CheckFollowInteraction(ctx, story.UserId, claims.UserId)
+		if err != nil {
+			return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
+		}
+
+		if !followConnection.IsCloseFriends && story.IsCloseFriends {
+			return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot save non-close friends story")
+		}
+
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, story.UserId)
+		if err != nil {
+			return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
+		}
+
+		isBlocked, err := grpc_common.CheckIfBlocked(ctx, story.UserId, claims.UserId)
+		if err != nil {
+			return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
+		}
+
+		// If used is blocked or his profile is private and did not approve your request
+		if isBlocked || (!isPublic && !followConnection.IsApprovedRequest ) {
+			return &protopb.EmptyResponseContent{}, nil
+		}
 	}
 
 	var highlightRequest *domain.HighlightRequest
