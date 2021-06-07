@@ -13,15 +13,14 @@ import (
 )
 
 type UserRepository interface {
-
 	GetAllUsers(context.Context) ([]persistence.User, error)
 	CreateUser(context.Context, *persistence.User) error
 	CreateUserWithAdditionalInfo(context.Context, *persistence.User, *persistence.UserAdditionalInfo) (*domain.User, error)
 	UpdateUserProfile(ctx context.Context, dto domain.User) (bool, error)
 	UpdateUserPassword(ctx context.Context, password domain.Password) (bool, error)
 	SearchUsersByUsernameAndName(ctx context.Context, user *domain.User) ([]domain.User, error)
-	LoginUser(context.Context, domain.LoginRequest) 				     (persistence.User, error)
-
+	LoginUser(context.Context, domain.LoginRequest) (persistence.User, error)
+	GetUserAdditionalInfoById(ctx context.Context, id string) (persistence.UserAdditionalInfo, error)
 }
 
 type userRepository struct {
@@ -154,7 +153,7 @@ func (repository *userRepository) LoginUser(ctx context.Context, request domain.
 	}
 
 	err := encryption.CompareHashAndPassword([]byte(dbUser.Password), []byte(request.Password))
-	if err != nil{
+	if err != nil {
 		return persistence.User{}, errors.New("passwords do not match")
 	}
 
@@ -204,8 +203,6 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 		return nil, resultUser.Error
 	}
 
-
-
 	userAdditionalInfo.Id = user.Id
 	repository.DB.Create(&userAdditionalInfo)
 
@@ -223,6 +220,19 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 	userReturn.GenerateUserDTO(*user, *userAdditionalInfo)
 
 	return userReturn, nil
+}
+
+func (repository *userRepository) GetUserAdditionalInfoById(ctx context.Context, id string) (persistence.UserAdditionalInfo, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "SearchUsersByUsernameAndName")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var dbUserAdditionalInfo persistence.UserAdditionalInfo
+	db := repository.DB.Where("id = ?", id).Find(&dbUserAdditionalInfo)
+	if db.Error != nil {
+		return persistence.UserAdditionalInfo{}, db.Error
+	}
+	return dbUserAdditionalInfo, nil
 }
 
 func (repository *userRepository) SearchUsersByUsernameAndName(ctx context.Context, user *domain.User) ([]domain.User, error) {
@@ -252,7 +262,11 @@ func (repository *userRepository) SearchUsersByUsernameAndName(ctx context.Conte
 
 	for _, v := range users { //i - index, v - user
 		user := &domain.User{}
-		user.GenerateUserDTO(v, persistence.UserAdditionalInfo{})
+		dbUserAdditionalInfo, err := repository.GetUserAdditionalInfoById(ctx, v.Id)
+		if err != nil {
+			return nil, err
+		}
+		user.GenerateUserDTO(v, dbUserAdditionalInfo)
 		usersDomain = append(usersDomain, *user)
 	}
 
