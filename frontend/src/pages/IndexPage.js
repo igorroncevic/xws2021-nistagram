@@ -17,10 +17,6 @@ export function IndexPage(){
     const[showModal,setShowModal]=useState(false);
     const history = useHistory()
 
-    useEffect(() => {
-        document.body.style.backgroundColor = "#C0C0C0"
-    });
-
     async function sendParams(){
         axios
             .post("http://localhost:8080/api/users/api/users/login", {
@@ -28,7 +24,7 @@ export function IndexPage(){
                 password: details.password
             })
             .then(res => {
-                alert("Login successful ");
+                sessionStorage.setItem("username", res.data.username);
                 history.push({
                     pathname: '/home',
                     state: { user:res.data, follow:false }

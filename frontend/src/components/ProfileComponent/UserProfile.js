@@ -8,7 +8,7 @@ import FollowAndUnfollow from "./FollowAndUnfollow";
 import Navigation from "../HomePage/Navigation";
 
 
-function Profile(props) {
+function UserProfile(props) {
     const [user,setUser] =useState(props.location.state.user);
     const [follow,setFollow] =useState(props.location.state.follow);
     const[publicProfile,setPublicProfile]=useState(false);
@@ -20,29 +20,18 @@ function Profile(props) {
     const [followers, setFollowers] = useState([]);
     const [following, setFollowings] = useState([]);
     const [posts, setPosts] = useState([]);
-    const [loggedUser, setLoggedUser] = useState();
 
-    var loggedUsername = sessionStorage.getItem("username");
 
     useEffect(() => {
-        getUserByUsername();
+        setUser(user);
+    }, [user])
+
+    useEffect(() => {
         getUserPrivacy();
         getFollowers()
         getFollowing()
         //getPosts()
     },[]);
-
-    function getUserByUsername(){
-        axios
-            .post('http://localhost:8080/api/users/api/users/searchByUser', {
-                username:loggedUsername
-            })
-            .then(res => {
-                setLoggedUser(res.data.users[0])
-            }).catch(res => {
-            console.log("NE RADI get user")
-        })
-    }
 
     function  getUserPrivacy(){
         axios
@@ -51,7 +40,7 @@ function Profile(props) {
             })
             .then(res => {
                 setPublicProfile(res.data.response)
-               // console.log("privacy radi")
+                console.log("privacy radi")
             }).catch(res => {
             console.log("privacy ne radi")
         })
@@ -63,7 +52,7 @@ function Profile(props) {
                 username:user.username
             })
             .then(res => {
-              //  console.log("RADI get user")
+                console.log("RADI get user")
                 setUser(res.data.users[0])
             }).catch(res => {
             console.log("NE RADI get user")
@@ -81,7 +70,7 @@ function Profile(props) {
             })
             .then(res => {
                 console.log("following radi")
-              //  console.log(res.data.users)
+                console.log(res.data.users)
                 setFollowings(res.data.users);
 
             }).catch(res => {
@@ -96,6 +85,7 @@ function Profile(props) {
             })
             .then(res => {
                 console.log("followers radi")
+                console.log(res.data.users)
 
                 setFollowers(res.data.users);
 
@@ -108,6 +98,7 @@ function Profile(props) {
         axios
             .get('http://localhost:8080/api/content/api/posts',+user.id)
             .then(res => {
+                console.log("RADI")
                 setPosts(res);
             }).catch(res => {
             console.log("NE RADIs")
@@ -123,7 +114,7 @@ function Profile(props) {
 
     return (
         <div>
-            <Navigation user={loggedUser}/>
+            <Navigation user={user}/>
             <div style={{marginLeft: '20%', marginRight: '20%',marginTop:'10%'}}>
                 <div style={{margin: "18px 0px", orderBottom: "1px solid "}}>
                     <div style={{display: "flex", justifyContent: "space-around",}}>
@@ -140,8 +131,8 @@ function Profile(props) {
                                 <h6 style={{marginLeft:'13px'}}> {following.length} following </h6>
                             </div>
                             {follow ?
-                                <FollowAndUnfollow user={user} loggedUser={loggedUser} followers={followers} getFollowers={getFollowers}/>
-:
+                                <FollowAndUnfollow user={user} followers={followers}/>
+                                :
                                 <div>
                                     <Button variant="link" style={{marginTop:'2em', borderTop: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModal}>Update profile info?</Button>
                                     <Button variant="link" style={{borderBottom: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModalPass}>Change password?</Button>
@@ -197,7 +188,7 @@ function Profile(props) {
             </div>
         </div>
     );
-}export default Profile;
+}export default UserProfile;
 
 /*
 const postsMock = [
