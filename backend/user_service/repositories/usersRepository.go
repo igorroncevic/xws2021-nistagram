@@ -24,6 +24,7 @@ type UserRepository interface {
 	SearchUsersByUsernameAndName(ctx context.Context, user *domain.User) ([]domain.User, error)
 	LoginUser(context.Context, domain.LoginRequest) (persistence.User, error)
 	SaveUserProfilePhoto(ctx context.Context, user *persistence.User) (bool, error)
+	GetUserAdditionalInfoById(ctx context.Context, id string) (persistence.UserAdditionalInfo, error)
 }
 
 type userRepository struct {
@@ -87,7 +88,15 @@ func (repository *userRepository) UpdateUserProfile(ctx context.Context, userDTO
 	} else if db.RowsAffected == 0 {
 		return false, errors.New("rows affected is equal to zero")
 	}
-	db = repository.DB.Model(&userAdditionalInfo).Where("id = ?", userDTO.Id).Updates(persistence.UserAdditionalInfo{Website: userDTO.Website, Category: userDTO.Category, Biography: userDTO.Biography})
+
+	userAdditionalInfoUpdate := persistence.UserAdditionalInfo{Website: userDTO.Website, Category: userDTO.Category, Biography: userDTO.Biography}
+	if userAdditionalInfoUpdate.Website == "" {
+		userAdditionalInfoUpdate.Website = " "
+	}
+	if userAdditionalInfoUpdate.Biography == "" {
+		userAdditionalInfoUpdate.Biography = " "
+	}
+	db = repository.DB.Model(&userAdditionalInfo).Where("id = ?", userDTO.Id).Updates(userAdditionalInfoUpdate)
 
 	if db.Error != nil {
 		return false, db.Error
@@ -212,7 +221,14 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 	}
 
 	userAdditionalInfo.Id = user.Id
-	repository.DB.Create(&userAdditionalInfo)
+	if userAdditionalInfo.Website == "" {
+		userAdditionalInfo.Website = " "
+	}
+	if userAdditionalInfo.Biography == "" {
+		userAdditionalInfo.Biography = " "
+	}
+	err2 := repository.DB.Create(&userAdditionalInfo)
+	print(err2)
 
 	var privacy = persistence.Privacy{}
 	privacy.UserId = user.Id
@@ -228,6 +244,19 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 	userReturn.GenerateUserDTO(*user, *userAdditionalInfo)
 
 	return userReturn, nil
+}
+
+func (repository *userRepository) GetUserAdditionalInfoById(ctx context.Context, id string) (persistence.UserAdditionalInfo, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "SearchUsersByUsernameAndName")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var dbUserAdditionalInfo persistence.UserAdditionalInfo
+	db := repository.DB.Where("id = ?", id).Find(&dbUserAdditionalInfo)
+	if db.Error != nil {
+		return persistence.UserAdditionalInfo{}, db.Error
+	}
+	return dbUserAdditionalInfo, nil
 }
 
 func (repository *userRepository) SearchUsersByUsernameAndName(ctx context.Context, user *domain.User) ([]domain.User, error) {
@@ -257,7 +286,11 @@ func (repository *userRepository) SearchUsersByUsernameAndName(ctx context.Conte
 
 	for _, v := range users { //i - index, v - user
 		user := &domain.User{}
-		user.GenerateUserDTO(v, persistence.UserAdditionalInfo{})
+		dbUserAdditionalInfo, err := repository.GetUserAdditionalInfoById(ctx, v.Id)
+		if err != nil {
+			return nil, err
+		}
+		user.GenerateUserDTO(v, dbUserAdditionalInfo)
 		usersDomain = append(usersDomain, *user)
 	}
 
