@@ -145,7 +145,7 @@ func (c *PostGrpcController) GetPostsForUser(ctx context.Context, in *protopb.Re
 		}
 
 		// If used is blocked or his profile is private and did not approve your request
-		if isBlocked || (!isPublic && !followConnection.IsApprovedRequest ) {
+		if isBlocked || (!isPublic && !followConnection.IsApprovedRequest) {
 			return &protopb.ReducedPostArray{}, nil
 		}
 	}

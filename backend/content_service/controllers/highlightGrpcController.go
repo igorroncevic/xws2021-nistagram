@@ -50,7 +50,7 @@ func (c *HighlightGrpcController) GetAllHighlights (ctx context.Context, in *pro
 	}
 
 	isCloseFriend := false
-	if claims.UserId != in.Id{
+	if claims.UserId != in.Id {
 		followConnection, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
 		if err != nil {
 			return &protopb.HighlightsArray{}, status.Errorf(codes.Unknown, err.Error())

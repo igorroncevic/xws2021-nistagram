@@ -202,7 +202,7 @@ func (repository *followersRepository) GetFollowersConnection(ctx context.Contex
 			}
 			return nil, nil
 		}
-		return nil, errors.New("error: can not get users connection ")
+		return &model.Follower{}, nil
 	})
 	if err != nil{
 		return nil, err
