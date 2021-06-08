@@ -3,7 +3,9 @@ package main
 import (
 	"github.com/david-drvar/xws2021-nistagram/recommendation_service/util/setup"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
+	"log"
 	"os"
+	"time"
 )
 
 func main(){
@@ -11,23 +13,32 @@ func main(){
 		SetupEnvVariables()
 	}
 
-	driver, _ := setup.CreateConnection("bolt://localhost:7687", "neo4j", "root")
+
+	driver, _ := setup.CreateConnection(os.Getenv("DB_HOST"), os.Getenv("DB_NAME"), os.Getenv("DB_PW"))
 	defer setup.CloseConnection(driver)
-
-	err := CreateUniqueConstraint(driver)
-
-	if err != nil {
-		panic("Could not create unique constraint!")
+	time.Sleep(15*time.Second)
+	for  i := 1; i < 5; i++ {
+		duration := 2 << i - 1
+		time.Sleep(time.Duration(duration)*time.Second)
+		err := CreateUniqueConstraint(driver)
+		if err != nil {
+			log.Println("Retrying . . . ")
+			continue
+		}else {
+			log.Println("Success!")
+		}
+		break
 	}
+
+
 
 	setup.GRPCServer(driver)
 
 }
 
 func SetupEnvVariables() {
-	os.Setenv("DB_HOST", "localhost")
-	os.Setenv("DB_NAME", "xws_users")
-	os.Setenv("DB_USER", "postgres")
+	os.Setenv("DB_HOST", "bolt://localhost:7687")
+	os.Setenv("DB_NAME", "neo4j")
 	os.Setenv("DB_PW", "root")
 }
 
