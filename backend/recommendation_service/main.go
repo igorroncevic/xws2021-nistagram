@@ -3,9 +3,14 @@ package main
 import (
 	"github.com/david-drvar/xws2021-nistagram/recommendation_service/util/setup"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
+	"os"
 )
 
 func main(){
+	if os.Getenv("Docker_env") == "" {
+		SetupEnvVariables()
+	}
+
 	driver, _ := setup.CreateConnection("bolt://localhost:7687", "neo4j", "root")
 	defer setup.CloseConnection(driver)
 
@@ -18,6 +23,14 @@ func main(){
 	setup.GRPCServer(driver)
 
 }
+
+func SetupEnvVariables() {
+	os.Setenv("DB_HOST", "localhost")
+	os.Setenv("DB_NAME", "xws_users")
+	os.Setenv("DB_USER", "postgres")
+	os.Setenv("DB_PW", "root")
+}
+
 
 
 func CreateUniqueConstraint(driver neo4j.Driver) error {

@@ -8,10 +8,12 @@ services:
     restart: always
     networks: 
       - demo
+    volumes: 
+      -  ./pg-init-scripts:/docker-entrypoint-initdb.d
     environment:
       POSTGRES_PASSWORD: root
       POSTGRES_USER: postgres
-      POSTGRES_DB: xws_users_service
+      POSTGRES_MULTIPLE_DATABASES: xws_users_service,xws_content_service
 
   user_service:
     image: user_service
@@ -30,6 +32,24 @@ services:
       - 8091:8091
     depends_on: 
       - postgres
+  
+  content_service:
+    image: content_service
+    container_name: content_service
+    restart: always
+    environment:
+      Docker_env: env 
+      DB_HOST: postgres
+      DB_NAME: xws_content_service
+      DB_USER: postgres
+      DB_PW: root
+    networks: 
+      - demo
+    ports: 
+      - 8002:8002
+      - 8092:8092
+    depends_on: 
+      - user_service
 
 volumes:
   mysql-data:

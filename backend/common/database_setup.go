@@ -36,7 +36,10 @@ func InitDatabase(dbname string) *gorm.DB {
 											" host=" + os.Getenv("DB_HOST"))
 
 	}else if dbname == ContentDatabase{
-		dsn = fmt.Sprintf("%s", dbConf.ContentDatabaseURL)
+		dsn = fmt.Sprintf("%s", "user=" + os.Getenv("DB_USER") +
+										" dbname=" + os.Getenv("DB_NAME") +
+										" password=" +os.Getenv("DB_PW")+
+										" host=" + os.Getenv("DB_HOST"))
 	}else if dbname == AgentDatabase{
 		dsn = fmt.Sprintf("%s", dbConf.AgentDatabaseURL)
 	}else if dbname == RecommendationDatabase{
