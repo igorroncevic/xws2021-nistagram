@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"github.com/david-drvar/xws2021-nistagram/common"
+	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
@@ -109,11 +110,33 @@ func (s *UserGrpcController) GetUserById(ctx context.Context, in *protopb.Reques
 	claims, err := s.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	if claims.UserId == "" {
+	if claims.UserId == "" || in.Id == "" {
 		return &protopb.UsersDTO{}, status.Errorf(codes.Unauthenticated, "cannot retrieve this user")
 	}
 
-	user, err := s.service.GetUser(ctx, in.Id, claims.UserId)
+	if claims.UserId != in.Id{
+		following, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
+		if err != nil {
+			return &protopb.UsersDTO{}, status.Errorf(codes.Unknown, "cannot retrieve this user")
+		}
+
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
+		if err != nil {
+			return &protopb.UsersDTO{}, status.Errorf(codes.Unknown, err.Error())
+		}
+
+		isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.Id, claims.UserId)
+		if err != nil {
+			return &protopb.UsersDTO{}, status.Errorf(codes.Unknown, err.Error())
+		}
+
+		// If used is blocked or his profile is private and did not approve your request
+		if isBlocked || (!isPublic && !following.IsApprovedRequest ) {
+			return &protopb.UsersDTO{}, status.Errorf(codes.Unknown, "cannot retrieve this user, no connection available")
+		}
+	}
+
+	user, err := s.service.GetUser(ctx, in.Id)
 	if err != nil{
 		return &protopb.UsersDTO{}, err
 	}

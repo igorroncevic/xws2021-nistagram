@@ -29,19 +29,16 @@ func (interceptor *AuthInterceptor) Unary() grpc.UnaryServerInterceptor{
 			return nil, errors.New("something went wrong")
 		}
 
-		if methodParts[2] == "LoginUser" || methodParts[2] == "CreateUser" {
-			return handler(ctx, req)
-		}
-
-		ctx, err := interceptor.authorize(ctx)
+		/*ctx, err := interceptor.authorize(ctx)
 		if err != nil {
 			return nil, err
-		}
+		}*/
 
 		return handler(ctx, req)
 	}
 }
 
+// TODO Add intraservice authentication
 func (interceptor *AuthInterceptor) authorize(ctx context.Context) (context.Context, error) {
 	contextMetadata, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
