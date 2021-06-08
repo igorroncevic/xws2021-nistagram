@@ -3,8 +3,10 @@ import { ReactComponent as Home } from "../../images/home.svg";
 import { ReactComponent as Inbox } from "../../images/inbox.svg";
 import { ReactComponent as Notifications } from "../../images/notifications.svg";
 import { ReactComponent as Bookmark } from "../../images/bookmark.svg";
+import { ReactComponent as Plus } from "../../images/plus.svg";
 import ProfileIcon from "../ProfileComponent/ProfileIcon";
 import {NavLink} from "react-router-dom";
+import NewPost from "../HomePageComponents/NewPost";
 
 function Menu(props) {
     const{user}=props;
@@ -18,12 +20,14 @@ function Menu(props) {
                 <Inbox className="icon" />
             </NavLink>
             <NavLink  to={{ pathname: "/notifications", state: { user:user}  }}  >
-                    <Notifications className="icon" />
+                <Notifications className="icon" />
             </NavLink>
             <NavLink  to={{ pathname: "/saved", state: { user:user}  }}  >
                 <Bookmark className="icon" />
             </NavLink>
-
+            <NavLink  to={{ pathname: "/newpost", state: { user:user}  }}  >
+                <Plus className="icon" />
+            </NavLink>
             <NavLink  to={{ pathname: "/profile", state: { user:user, follow:false}  }}  >
                 <ProfileIcon iconSize="medium" image='https://i.pravatar.cc/150?img=1' />
             </NavLink>

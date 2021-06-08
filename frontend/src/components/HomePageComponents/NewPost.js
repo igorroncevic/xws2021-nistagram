@@ -37,7 +37,7 @@ function NewPost(props) {
             <Navigation user={user} />
 
             <div className="card input-filed"
-                 style={{ margin:"30px auto",maxWidth:"500px",padding:"20px", textAlign:"center" }} >
+                 style={{ margin:"30px auto",maxWidth:"500px",padding:"20px", textAlign:"center", marginTop: "5%" }} >
                 <input type="text" placeholder="description" value={description} onChange={(e)=>setDescription(e.target.value)} />
                 <div className="file-field input-field">
                     <div className="btn #64b5f6 blue darken-1">
