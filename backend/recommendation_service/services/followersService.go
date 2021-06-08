@@ -44,6 +44,22 @@ func (service *FollowersService) GetAllFollowing(ctx context.Context, userId str
 	return service.repository.GetAllFollowing(ctx, userId)
 }
 
+func (service *FollowersService) GetAllFollowingsForHomepage(ctx context.Context, userId string) ([]model.User, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllFollowingsForHomepagePosts")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.GetAllFollowingsForHomepage(ctx, userId)
+}
+
+func (service *FollowersService) GetCloseFriends(ctx context.Context, userId string) ([]model.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetCloseFriends")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.GetCloseFriends(ctx, userId)
+}
+
 func (service *FollowersService) CreateUser(ctx context.Context, u model.User) (bool, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
 	defer span.Finish()

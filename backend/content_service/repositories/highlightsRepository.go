@@ -17,7 +17,7 @@ type HighlightRepository interface {
 	RemoveHighlightStory(context.Context, domain.HighlightRequest) error
 
 	CreateHighlight(context.Context, domain.Highlight) error
-	RemoveHighlight(context.Context, string) error
+	RemoveHighlight(context.Context, string, string)   error
 }
 
 type highlightRepository struct {
@@ -84,6 +84,8 @@ func (repository *highlightRepository) CreateHighlightStory(ctx context.Context,
 		}else if count == 0 {
 			return errors.New("user does not own that story")
 		}
+	}else{
+		return errors.New("no story id provided")
 	}
 
 	if highlightPers.HighlightId != "" {
@@ -97,6 +99,8 @@ func (repository *highlightRepository) CreateHighlightStory(ctx context.Context,
 		} else if count == 0 {
 			return errors.New("highlight does not exist")
 		}
+	}else{
+		return errors.New("no highlight id provided")
 	}
 
 	result := repository.DB.Create(highlightPers)
@@ -160,13 +164,13 @@ func (repository *highlightRepository) CreateHighlight(ctx context.Context, high
 	return nil
 }
 
-func (repository *highlightRepository) RemoveHighlight(ctx context.Context, highlightId string) error{
+func (repository *highlightRepository) RemoveHighlight(ctx context.Context, highlightId string, userId string) error{
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveHighlight")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	err := repository.DB.Transaction(func (tx *gorm.DB) error{
-		highlightPers := persistence.Highlight{Id: highlightId}
+		highlightPers := persistence.Highlight{Id: highlightId, UserId: userId}
 		result := repository.DB.Delete(&highlightPers)
 
 		if result.Error != nil || result.RowsAffected != 1 {

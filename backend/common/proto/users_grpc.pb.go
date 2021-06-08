@@ -20,6 +20,8 @@ const _ = grpc.SupportPackageIsVersion7
 type UsersClient interface {
 	LoginUser(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*UsersDTO, error)
+	GetUserById(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*UsersDTO, error)
+	GetUsernameById(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*UsersDTO, error)
 	GetAllUsers(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*UsersResponse, error)
 	UpdateUserProfile(ctx context.Context, in *CreateUserDTORequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	UpdateUserPassword(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
@@ -46,6 +48,24 @@ func (c *usersClient) LoginUser(ctx context.Context, in *LoginRequest, opts ...g
 func (c *usersClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*UsersDTO, error) {
 	out := new(UsersDTO)
 	err := c.cc.Invoke(ctx, "/proto.Users/CreateUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) GetUserById(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*UsersDTO, error) {
+	out := new(UsersDTO)
+	err := c.cc.Invoke(ctx, "/proto.Users/GetUserById", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) GetUsernameById(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*UsersDTO, error) {
+	out := new(UsersDTO)
+	err := c.cc.Invoke(ctx, "/proto.Users/GetUsernameById", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -94,6 +114,8 @@ func (c *usersClient) SearchUser(ctx context.Context, in *SearchUserDtoRequest, 
 type UsersServer interface {
 	LoginUser(context.Context, *LoginRequest) (*LoginResponse, error)
 	CreateUser(context.Context, *CreateUserRequest) (*UsersDTO, error)
+	GetUserById(context.Context, *RequestIdUsers) (*UsersDTO, error)
+	GetUsernameById(context.Context, *RequestIdUsers) (*UsersDTO, error)
 	GetAllUsers(context.Context, *EmptyRequest) (*UsersResponse, error)
 	UpdateUserProfile(context.Context, *CreateUserDTORequest) (*EmptyResponse, error)
 	UpdateUserPassword(context.Context, *CreatePasswordRequest) (*EmptyResponse, error)
@@ -110,6 +132,12 @@ func (UnimplementedUsersServer) LoginUser(context.Context, *LoginRequest) (*Logi
 }
 func (UnimplementedUsersServer) CreateUser(context.Context, *CreateUserRequest) (*UsersDTO, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
+}
+func (UnimplementedUsersServer) GetUserById(context.Context, *RequestIdUsers) (*UsersDTO, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserById not implemented")
+}
+func (UnimplementedUsersServer) GetUsernameById(context.Context, *RequestIdUsers) (*UsersDTO, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUsernameById not implemented")
 }
 func (UnimplementedUsersServer) GetAllUsers(context.Context, *EmptyRequest) (*UsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllUsers not implemented")
@@ -168,6 +196,42 @@ func _Users_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UsersServer).CreateUser(ctx, req.(*CreateUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_GetUserById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestIdUsers)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).GetUserById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/GetUserById",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).GetUserById(ctx, req.(*RequestIdUsers))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_GetUsernameById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestIdUsers)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).GetUsernameById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/GetUsernameById",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).GetUsernameById(ctx, req.(*RequestIdUsers))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -258,6 +322,14 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateUser",
 			Handler:    _Users_CreateUser_Handler,
+		},
+		{
+			MethodName: "GetUserById",
+			Handler:    _Users_GetUserById_Handler,
+		},
+		{
+			MethodName: "GetUsernameById",
+			Handler:    _Users_GetUsernameById_Handler,
 		},
 		{
 			MethodName: "GetAllUsers",

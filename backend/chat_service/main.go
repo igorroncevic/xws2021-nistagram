@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/david-drvar/xws2021-nistagram/backend"
 	"github.com/david-drvar/xws2021-nistagram/chat_service/util/setup"
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/gorilla/mux"
@@ -8,7 +9,7 @@ import (
 )
 
 func main(){
-	db := common.InitDatabase("")
+	db := backend.InitDatabase("")
 	err := setup.FillDatabase(db)
 	if err != nil {
 		panic("Cannot setup database tables. Error message: " + err.Error())

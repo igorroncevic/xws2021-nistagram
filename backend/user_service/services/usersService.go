@@ -15,20 +15,55 @@ import (
 )
 
 type UserService struct {
-	repository repositories.UserRepository
+	userRepository    repositories.UserRepository
+	privacyRepository repositories.PrivacyRepository
 }
 
 func NewUserService(db *gorm.DB) (*UserService, error) {
-	repository, err := repositories.NewUserRepo(db)
+	userRepository, err := repositories.NewUserRepo(db)
+	privacyRepository, err := repositories.NewPrivacyRepo(db)
 
 	return &UserService{
-		repository: repository,
+		userRepository,
+		privacyRepository,
 	}, err
 }
 
-func (service *UserService) GetUser(id string) (domain.User, error) {
+func (service *UserService) GetUsername(ctx context.Context, userId string) (string, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUsername")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	return domain.User{}, nil
+	dbUser, err := service.userRepository.GetUserById(ctx, userId)
+	if err != nil {
+		return "", err
+	}
+
+	return dbUser.Username, nil
+}
+
+func (service *UserService) GetUser(ctx context.Context, requestedUserId string, requestingUserId string) (domain.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	isBlocked, err := service.privacyRepository.CheckIfBlocked(ctx, requestedUserId, requestingUserId)
+	if err != nil {
+		return domain.User{}, err
+	} else if isBlocked {
+		return domain.User{}, errors.New("cannot access this user")
+	}
+
+	dbUser, err := service.userRepository.GetUserById(ctx, requestedUserId)
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	//TODO Get user's additional info
+	var converted *domain.User
+	converted.GenerateUserDTO(dbUser, persistence.UserAdditionalInfo{})
+
+	return *converted, nil
 }
 
 func (service *UserService) GetAllUsers(ctx context.Context) ([]persistence.User, error) {
@@ -36,7 +71,7 @@ func (service *UserService) GetAllUsers(ctx context.Context) ([]persistence.User
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	return service.repository.GetAllUsers(ctx)
+	return service.userRepository.GetAllUsers(ctx)
 }
 
 func (service *UserService) CreateUser(ctx context.Context, user *persistence.User) error {
@@ -45,7 +80,7 @@ func (service *UserService) CreateUser(ctx context.Context, user *persistence.Us
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	user.Password = encryption.HashAndSalt([]byte(user.Password))
-	return service.repository.CreateUser(ctx, user)
+	return service.userRepository.CreateUser(ctx, user)
 }
 
 func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, user *persistence.User, userAdditionalInfo *persistence.UserAdditionalInfo) (*domain.User, error) {
@@ -54,7 +89,7 @@ func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, us
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	user.Password = encryption.HashAndSalt([]byte(user.Password))
-	userResult, err := service.repository.CreateUserWithAdditionalInfo(ctx, user, userAdditionalInfo)
+	userResult, err := service.userRepository.CreateUserWithAdditionalInfo(ctx, user, userAdditionalInfo)
 	if err != nil {
 		return nil, errors.New("Cannot create user!")
 	}
@@ -92,7 +127,7 @@ func (service *UserService) LoginUser(ctx context.Context, request domain.LoginR
 		return persistence.User{}, errors.New("empty login request")
 	}
 
-	return service.repository.LoginUser(ctx, request)
+	return service.userRepository.LoginUser(ctx, request)
 }
 
 func (service *UserService) UpdateUserProfile(ctx context.Context, userDTO domain.User) (bool, error) {
@@ -104,7 +139,7 @@ func (service *UserService) UpdateUserProfile(ctx context.Context, userDTO domai
 		return false, errors.New("username or email can not be empty string")
 	}
 
-	return service.repository.UpdateUserProfile(ctx, userDTO)
+	return service.userRepository.UpdateUserProfile(ctx, userDTO)
 }
 
 func (service *UserService) UpdateUserPassword(ctx context.Context, password domain.Password) (bool, error) {
@@ -116,7 +151,7 @@ func (service *UserService) UpdateUserPassword(ctx context.Context, password dom
 		return false, errors.New("Passwords do not match!")
 	}
 
-	_, err := service.repository.UpdateUserPassword(ctx, password)
+	_, err := service.userRepository.UpdateUserPassword(ctx, password)
 	if err != nil {
 		return false, err
 	}
@@ -129,5 +164,5 @@ func (service *UserService) SearchUsersByUsernameAndName(ctx context.Context, us
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	return service.repository.SearchUsersByUsernameAndName(ctx, user)
+	return service.userRepository.SearchUsersByUsernameAndName(ctx, user)
 }

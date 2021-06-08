@@ -30,13 +30,13 @@ func InitDatabase(dbname string) *gorm.DB {
 	}
 
 	var dsn string
-	if dbname == UserDatabase{
+	if dbname == UserDatabase {
 		dsn = fmt.Sprintf("%s", dbConf.UserDatabaseURL)
-	}else if dbname == ContentDatabase{
+	}else if dbname == ContentDatabase {
 		dsn = fmt.Sprintf("%s", dbConf.ContentDatabaseURL)
-	}else if dbname == AgentDatabase{
+	}else if dbname == AgentDatabase {
 		dsn = fmt.Sprintf("%s", dbConf.AgentDatabaseURL)
-	}else if dbname == RecommendationDatabase{
+	}else if dbname == RecommendationDatabase {
 		dsn = fmt.Sprintf("%s", dbConf.RecommendationDatabaseURL)
 	}
 

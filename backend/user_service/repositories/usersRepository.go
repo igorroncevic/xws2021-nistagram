@@ -25,6 +25,7 @@ type UserRepository interface {
 	LoginUser(context.Context, domain.LoginRequest) (persistence.User, error)
 	SaveUserProfilePhoto(ctx context.Context, user *persistence.User) (bool, error)
 	GetUserAdditionalInfoById(ctx context.Context, id string) (persistence.UserAdditionalInfo, error)
+	GetUserById(context.Context, string) 	(persistence.User, error)
 }
 
 type userRepository struct {
@@ -181,6 +182,20 @@ func (repository *userRepository) CreateUser(ctx context.Context, user *persiste
 	result := repository.DB.Create(&user)
 
 	return result.Error
+}
+
+func (repository *userRepository) GetUserById(ctx context.Context, id string) (persistence.User, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var user persistence.User
+	result := repository.DB.Where("id = ?", id).Find(&user)
+	if result.Error != nil || result.RowsAffected != 1 {
+		return persistence.User{}, errors.New("cannot retrieve this user")
+	}
+
+	return user, nil
 }
 
 func (repository *userRepository) CheckEmailExists(ctx context.Context, email string) bool {

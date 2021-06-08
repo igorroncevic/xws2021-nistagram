@@ -22,6 +22,18 @@ service Users {
     };
   }
 
+  rpc GetUserById (RequestIdUsers) returns (UsersDTO) {
+    option(google.api.http) = {
+      get: "/api/users/{id}"
+    };
+  }
+
+  rpc GetUsernameById (RequestIdUsers) returns (UsersDTO) {
+    option(google.api.http) = {
+      get: "/api/users/username/{id}"
+    };
+  }
+
   rpc GetAllUsers (EmptyRequest) returns (UsersResponse) {
     option(google.api.http) = {
       get: "/api/users"
@@ -100,6 +112,7 @@ message UsersResponse {
 message UserResponse {
   UsersDTO users = 1;
 }
+
 message CreateUserRequest {
   User user = 1;
 }
@@ -128,6 +141,9 @@ message LoginResponse {
   string username = 4;
 }
 
+message RequestIdUsers {
+  string id = 1;
+}
 
 message EmptyRequest {}
 message EmptyResponse {}

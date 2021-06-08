@@ -37,6 +37,7 @@ func (controller *FollowersGrpcController) CreateUserConnection(ctx context.Cont
 	}
 	return &protopb.EmptyResponseFollowers{}, nil
 }
+
 func (controller *FollowersGrpcController) GetAllFollowing(ctx context.Context, in *protopb.CreateUserRequestFollowers) (*protopb.CreateUserResponse, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllFollowing")
 	defer span.Finish()
@@ -47,6 +48,35 @@ func (controller *FollowersGrpcController) GetAllFollowing(ctx context.Context, 
 	users, err := controller.service.GetAllFollowing(ctx, user.UserId)
 	if err != nil {
 		return nil, errors.New("Could not get all followings")
+	}
+
+	return &protopb.CreateUserResponse{Users: user.ConvertAllToGrpc(users)}, err
+}
+
+func (controller *FollowersGrpcController) GetAllFollowingsForHomepage(ctx context.Context, in *protopb.CreateUserRequestFollowers) (*protopb.CreateUserResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllFollowingsForHomepage")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var user = model.User{}
+	user = *user.ConvertFromGrpc(in.User)
+	users, err := controller.service.GetAllFollowingsForHomepage(ctx, user.UserId)
+	if err != nil {
+		return nil, errors.New("Could not get all followings")
+	}
+
+	return &protopb.CreateUserResponse{Users: user.ConvertAllToGrpc(users)}, err
+}
+
+func (controller *FollowersGrpcController) GetCloseFriends(ctx context.Context, in *protopb.RequestIdFollowers) (*protopb.CreateUserResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetCloseFriends")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var user model.User
+	users, err := controller.service.GetCloseFriends(ctx, in.Id)
+	if err != nil {
+		return nil, errors.New("could not get close friends")
 	}
 
 	return &protopb.CreateUserResponse{Users: user.ConvertAllToGrpc(users)}, err
@@ -66,6 +96,22 @@ func (controller *FollowersGrpcController) GetAllFollowers(ctx context.Context, 
 
 	return &protopb.CreateUserResponse{Users: user.ConvertAllToGrpc(users)}, err
 }
+
+func (controller *FollowersGrpcController) GetFollowersConnection(ctx context.Context, in *protopb.Follower) (*protopb.Follower, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetFollowersConnection")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var follower *model.Follower
+	follower = follower.ConvertFromGrpc(in)
+	follower, err := controller.service.GetFollowersConnection(ctx, *follower)
+	if err != nil {
+		return nil, errors.New("couldn't get connection between users")
+	}
+
+	return follower.ConvertToGrpc(), err
+}
+
 func (controller *FollowersGrpcController) DeleteBiDirectedConnection(ctx context.Context, in *protopb.CreateFollowerRequest) (*protopb.EmptyResponseFollowers, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteBiDirectedConnection")
 	defer span.Finish()
@@ -119,22 +165,6 @@ func (controller *FollowersGrpcController) UpdateUserConnection(ctx context.Cont
 	var follower = model.Follower{}
 	follower = *follower.ConvertFromGrpc(in.Follower)
 	result, err := controller.service.UpdateUserConnection(ctx, follower)
-
-	if err != nil {
-		return nil, errors.New("Could not update follower info!")
-	}
-
-	return &protopb.CreateFollowerResponse{Follower: result.ConvertToGrpc()}, nil
-}
-
-func (controller *FollowersGrpcController) GetFollowersConnection(ctx context.Context, in *protopb.CreateFollowerRequest) (*protopb.CreateFollowerResponse, error) {
-	span := tracer.StartSpanFromContextMetadata(ctx, "GetFollowersConnection")
-	defer span.Finish()
-	ctx = tracer.ContextWithSpan(context.Background(), span)
-
-	var follower = model.Follower{}
-	follower = *follower.ConvertFromGrpc(in.Follower)
-	result, err := controller.service.GetFollowersConnection(ctx, follower)
 
 	if err != nil {
 		return nil, errors.New("Could not update follower info!")
