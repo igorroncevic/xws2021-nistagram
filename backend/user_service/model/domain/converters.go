@@ -61,19 +61,22 @@ func (u User) ConvertFromGrpc(user *protopb.UsersDTO) User {
 	}
 }
 
-func (u *User) GenerateUserDTO(user persistence.User, userAdditionalInfo persistence.UserAdditionalInfo) {
-	u.Id = user.Id
-	u.FirstName = user.FirstName
-	u.LastName = user.LastName
-	u.Email = user.Email
-	u.Username = user.Username
-	u.Role = user.Role
-	u.BirthDate = user.BirthDate
-	u.ProfilePhoto = user.ProfilePhoto
-	u.PhoneNumber = user.PhoneNumber
-	u.IsActive = user.IsActive
-	u.Sex = user.Sex
-	u.Biography = userAdditionalInfo.Biography
-	u.Category = userAdditionalInfo.Category
-	u.Website = userAdditionalInfo.Website
+func (u *User) GenerateUserDTO(user persistence.User, userAdditionalInfo persistence.UserAdditionalInfo) *User {
+	if u == nil { u = &User{} }
+	return &User{
+		Id:          user.Id,
+		FirstName:    user.FirstName,
+		LastName:     user.LastName,
+		Email:        user.Email,
+		Username:     user.Username,
+		Role:         user.Role,
+		BirthDate:    user.BirthDate,
+		ProfilePhoto: user.ProfilePhoto,
+		PhoneNumber:  user.PhoneNumber,
+		Sex:          user.Sex,
+		IsActive:     user.IsActive,
+		Biography:    userAdditionalInfo.Biography,
+		Website:      userAdditionalInfo.Website,
+		Category:     userAdditionalInfo.Category,
+	}
 }

@@ -42,26 +42,24 @@ func (service *UserService) GetUsername(ctx context.Context, userId string) (str
 	return dbUser.Username, nil
 }
 
-func (service *UserService) GetUser(ctx context.Context, requestedUserId string, requestingUserId string) (domain.User, error) {
+func (service *UserService) GetUser(ctx context.Context, requestedUserId string) (domain.User, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
-
-	isBlocked, err := service.privacyRepository.CheckIfBlocked(ctx, requestedUserId, requestingUserId)
-	if err != nil {
-		return domain.User{}, err
-	} else if isBlocked {
-		return domain.User{}, errors.New("cannot access this user")
-	}
 
 	dbUser, err := service.userRepository.GetUserById(ctx, requestedUserId)
 	if err != nil {
 		return domain.User{}, err
 	}
 
+	additionalInfo, err := service.userRepository.GetUserAdditionalInfoById(ctx, requestedUserId)
+	if err != nil {
+		return domain.User{}, err
+	}
+
 	//TODO Get user's additional info
 	var converted *domain.User
-	converted.GenerateUserDTO(dbUser, persistence.UserAdditionalInfo{})
+	converted = converted.GenerateUserDTO(dbUser, additionalInfo)
 
 	return *converted, nil
 }
