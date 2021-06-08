@@ -8,7 +8,7 @@ function FollowAndUnfollow(props){
     const[follows,setFollows]=useState(false);
 
     useEffect(() => {
-        setFollows(followers.some(item=>item.id=loggedUser.id))
+        setFollows(followers.some(item=>item.id==loggedUser.id))
     }, [followers])
 
     function follow(){
