@@ -2,6 +2,7 @@ package interceptors
 
 import (
 	"context"
+	"errors"
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -22,6 +23,15 @@ func NewAuthInterceptor(jwtManager *common.JWTManager) *AuthInterceptor {
 func (interceptor *AuthInterceptor) Unary() grpc.UnaryServerInterceptor{
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error){
 		log.Println("---> unary interceptor: ", info.FullMethod)
+
+		methodParts := strings.Split(info.FullMethod, "/")
+		if len(methodParts) != 3 {
+			return nil, errors.New("something went wrong")
+		}
+
+		if methodParts[2] == "LoginUser" || methodParts[2] == "CreateUser" {
+			return handler(ctx, req)
+		}
 
 		ctx, err := interceptor.authorize(ctx)
 		if err != nil {

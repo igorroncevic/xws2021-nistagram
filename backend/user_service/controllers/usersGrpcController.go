@@ -124,7 +124,7 @@ func (s *UserGrpcController) GetUserById(ctx context.Context, in *protopb.Reques
 }
 
 func (s *UserGrpcController) GetUsernameById(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.UsersDTO, error) {
-	span := tracer.StartSpanFromContextMetadata(ctx, "LoginUser")
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUsernameById")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
