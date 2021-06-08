@@ -90,7 +90,7 @@ function NewPost(props) {
                 // dislikes: 0,
             })
             .then(res => {
-                console.log(" RADI")
+                alert("Post created successfully!");
 
             }).catch(res => {
             console.log("NE RADI")

@@ -8,6 +8,7 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/content_service/repositories"
+	"github.com/david-drvar/xws2021-nistagram/content_service/util/images"
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
 	"log"
@@ -308,6 +309,22 @@ func (service *PostService) SearchContentByLocation(ctx context.Context, locatio
 		if response.Response {
 			finalPosts = append(finalPosts, post)
 		}
+	}
+
+	//get media for post
+	//todo fix smh
+	for _, post := range finalPosts {
+		medias, err := service.mediaRepository.GetMediaForPost(ctx, post.Id) //vraca mi persistence media a treba mi domain
+		if err != nil {
+			log.Fatalf("Error when calling CheckUserProfilePublic: %s", err)
+		}
+		var mediasDomain []domain.Media
+		for _, mediaFor := range medias {
+			var mediaDomain = domain.Media{Id: mediaFor.Id, Type: mediaFor.Type, PostId: mediaFor.PostId, OrderNum: int32(mediaFor.OrderNum)}
+			mediaDomain.Content, _ = images.LoadImageToBase64(mediaFor.Filename)
+			mediasDomain = append(mediasDomain, mediaDomain)
+		}
+		post.Media = mediasDomain
 	}
 
 	return finalPosts, nil
