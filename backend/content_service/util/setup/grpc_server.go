@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
-	"github.com/david-drvar/xws2021-nistagram/common/interceptors"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/controllers"
@@ -24,13 +23,11 @@ func GRPCServer(db *gorm.DB) {
 		log.Fatalln("Failed to listen:", err)
 	}
 
-	jwtManager := common.NewJWTManager("somesecretkey", 15 * time.Minute)
-	authInterceptor := interceptors.NewAuthInterceptor(jwtManager)
+	jwtManager := common.NewJWTManager("somesecretkey", 15*time.Minute)
+	//authInterceptor := interceptors.NewAuthInterceptor(jwtManager)
 
 	// Create a gRPC server object
-	s := grpc.NewServer(
-		grpc.UnaryInterceptor(authInterceptor.Unary()),
-    )
+	s := grpc.NewServer()
 
 	server, err := controllers.NewServer(db, jwtManager)
 	if err != nil {
@@ -59,9 +56,11 @@ func GRPCServer(db *gorm.DB) {
 		log.Fatalln("Failed to register gateway:", err)
 	}
 
+	c := common.SetupCors()
+
 	gwServer := &http.Server{
 		Addr:    grpc_common.Content_gateway_address,
-		Handler: tracer.TracingWrapper(gatewayMux),
+		Handler: tracer.TracingWrapper(c.Handler(gatewayMux)),
 	}
 
 	log.Println("Serving gRPC-Gateway on " + grpc_common.Content_gateway_address)
