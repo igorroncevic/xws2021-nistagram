@@ -6,9 +6,11 @@ import axios from "axios";
 function FollowAndUnfollow(props){
     const{user,loggedUser,followers,getFollowers}=props;
     const[follows,setFollows]=useState(false);
+    console.log(loggedUser)
 
     useEffect(() => {
-        setFollows(followers.some(item=>item.id==loggedUser.id))
+        setFollows(followers.some(item=>item.UserId===loggedUser.id))
+        console.log(follows)
     }, [followers])
 
     function follow(){

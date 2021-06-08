@@ -23,7 +23,6 @@ function Profile(props) {
     const [loggedUser, setLoggedUser] = useState();
 
     var loggedUsername = sessionStorage.getItem("username");
-
     useEffect(() => {
         getUserByUsername();
         getUserPrivacy();
@@ -96,7 +95,7 @@ function Profile(props) {
             })
             .then(res => {
                 console.log("followers radi")
-
+                console.log(res.data.users)
                 setFollowers(res.data.users);
 
             }).catch(res => {
