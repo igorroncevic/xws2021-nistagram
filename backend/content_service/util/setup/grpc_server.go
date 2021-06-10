@@ -61,6 +61,7 @@ func GRPCServer(db *gorm.DB) {
 		log.Fatalln("Failed to register gateway:", err)
 	}
 
+	// cors := common.SetupCors()
 	gwServer := &http.Server{
 		Addr:    grpc_common.Content_gateway_address,
 		Handler: tracer.TracingWrapper(gatewayMux),
