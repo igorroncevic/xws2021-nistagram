@@ -13,15 +13,17 @@ func main(){
 		SetupEnvVariables()
 	}
 
+	time.Sleep(30*time.Second)
 
 	driver, _ := setup.CreateConnection(os.Getenv("DB_HOST"), os.Getenv("DB_NAME"), os.Getenv("DB_PW"))
 	defer setup.CloseConnection(driver)
-	time.Sleep(15*time.Second)
 	for  i := 1; i < 5; i++ {
 		duration := 2 << i - 1
 		time.Sleep(time.Duration(duration)*time.Second)
 		err := CreateUniqueConstraint(driver)
 		if err != nil {
+			log.Println(err)
+			log.Println("AJDEEEE")
 			log.Println("Retrying . . . ")
 			continue
 		}else {
@@ -45,6 +47,7 @@ func SetupEnvVariables() {
 
 
 func CreateUniqueConstraint(driver neo4j.Driver) error {
+	log.Println("Nece error da ispise")
 
 	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
 	defer session.Close()
@@ -55,8 +58,11 @@ func CreateUniqueConstraint(driver neo4j.Driver) error {
 
 			})
 		if err != nil {
+			log.Println(err)
+			log.Println("Nece error da ispise")
 			return nil, err
 		}
+		log.Println("A ja ovde baka....")
 		return nil, nil
 	})
 	if err != nil {

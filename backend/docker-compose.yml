@@ -1,19 +1,29 @@
 version: '3.4'
 
 services:
+
+  gateway:
+    image: gateway
+    container_name: gateway
+    restart: always
+    ports: 
+      - 8080:8080
+    environment: 
+      USER_SERVICE : http://user_service:8001
+      CONTENT_SERVICE : content_service:8002
+      RECOMMENDATION_SERVICE : http://recommendation_service:8005
   
   neo4j:
     image: neo4j
     container_name: neo4j
     restart: always
     ports:
-      - "7474:7474"
-      - "7687:7687"
-    networks: 
-      - demo
+      - 7474:7474
+      - 7687:7687
     environment: 
       NEO4J_AUTH : neo4j/root
       NEO4J_dbms_default__database : neo4j
+      NEO4J_dbms_connector_bolt_advertised__address: neo4j:7687
 
   recommendation_service:
     image: recommendation_service
@@ -21,11 +31,9 @@ services:
     restart: always
     environment:
       Docker_env: env 
-      DB_HOST: bolt://localhost:7687
+      DB_HOST: bolt://neo4j:7687
       DB_NAME: neo4j
       DB_PW: root
-    networks: 
-      - demo
     ports: 
       - 8005:8005
       - 8095:8095
@@ -36,8 +44,6 @@ services:
     image: postgres
     container_name: postgres
     restart: always
-    networks: 
-      - demo
     volumes: 
       -  ./pg-init-scripts:/docker-entrypoint-initdb.d
     environment:
@@ -55,8 +61,6 @@ services:
       DB_NAME: xws_users_service
       DB_USER: postgres
       DB_PW: root
-    networks: 
-      - demo
     ports: 
       - 8001:8001
       - 8091:8091
@@ -73,8 +77,6 @@ services:
       DB_NAME: xws_content_service
       DB_USER: postgres
       DB_PW: root
-    networks: 
-      - demo
     ports: 
       - 8002:8002
       - 8092:8092
@@ -83,9 +85,3 @@ services:
 
 volumes:
   mysql-data:
-
-networks:
-  demo:
-    name: demo
-    driver: bridge
-    external: false
