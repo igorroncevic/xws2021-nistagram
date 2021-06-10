@@ -27,6 +27,9 @@ type User struct {
 	Biography    string
 	Website      string
 	Category     model.UserCategory
+	ResetCode    string
+	ApprovedAccount bool
+	TokenEnd    time.Time
 }
 
 type LoginRequest struct{

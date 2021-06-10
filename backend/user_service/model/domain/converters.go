@@ -39,6 +39,9 @@ func (u User) ConvertToGrpc() *protopb.UsersDTO {
 		Website:      u.Website,
 		Biography:    u.Biography,
 		Category:     model.GetUserCategoriesString(u.Category),
+		ResetCode:    u.ResetCode,
+		ApprovedAccount: u.ApprovedAccount,
+		TokenEnd: timestamppb.New(u.TokenEnd),
 	}
 }
 
@@ -58,6 +61,9 @@ func (u User) ConvertFromGrpc(user *protopb.UsersDTO) User {
 		Website:      user.Website,
 		Biography:    user.Biography,
 		Category:     model.GetUserCategories(user.Category),
+		ResetCode:    user.ResetCode,
+		ApprovedAccount: user.ApprovedAccount,
+		TokenEnd:  user.TokenEnd.AsTime(),
 	}
 }
 
@@ -76,4 +82,7 @@ func (u *User) GenerateUserDTO(user persistence.User, userAdditionalInfo persist
 	u.Biography = userAdditionalInfo.Biography
 	u.Category = userAdditionalInfo.Category
 	u.Website = userAdditionalInfo.Website
+	u.ResetCode=user.ResetCode
+	u.ApprovedAccount=user.ApprovedAccount
+	u.TokenEnd=user.TokenEnd
 }

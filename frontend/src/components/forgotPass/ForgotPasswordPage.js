@@ -11,6 +11,7 @@ export function ForgotPasswordPage() {
     const[emailError,setEmailError]=useState('Enter email');
     const[submitted,setSubmitted]=useState(false);
     const[success,setSuccess]=useState(false);
+    const [user, setUser] = useState(false);
 
     function handleEmailChange(event) {
         setEmail(event.target.value);
@@ -46,7 +47,7 @@ export function ForgotPasswordPage() {
     async function sendMail(){
         axios
             .post('http://localhost:8080/api/users/api/users/sendEmail',{
-                to:'t.kovacevic98@gmail.com'
+                to:'majaa@gmail.com'
             })
             .then(res => {
                 console.log("RADI")
@@ -74,12 +75,15 @@ export function ForgotPasswordPage() {
         });
     }
 
-    function setStateFromChild(){
+    function setStateFromChild(user){
         setSteps({
             ...steps,
             step4:true,
             step3:false,
         });
+        setUser(user)
+        console.log("GRJEFOA00")
+        console.log(user)
     }
 
     function setSuccessFromChild(){
@@ -140,7 +144,7 @@ export function ForgotPasswordPage() {
                     }
 
                     {steps.step3 && <ResetPasswordCode email={email}  onChangeValue={setStateFromChild}/>}
-                    {steps.step4 && <PasswordChange email={email} onChangeValue={setSuccessFromChild}/>}
+                    {steps.step4 && <PasswordChange  user={user} onChangeValue={setSuccessFromChild}/>}
 
                     </tbody>
 

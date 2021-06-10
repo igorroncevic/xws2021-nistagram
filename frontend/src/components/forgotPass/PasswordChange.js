@@ -3,8 +3,8 @@ import {Alert, Button, Container, Form, Table} from "react-bootstrap";
 import axios from "axios";
 import PasswordStrengthBar from "react-password-strength-bar";
 
-export function PasswordChange(props,onChangeValue) {
-        const [email, setEmail] = useState(props);
+export function PasswordChange(props) {
+        const [user, setUser] = useState(props.user);
         const[password,setPassword]=useState('');
         const[rePassword,setRePassword]=useState('');
         const[passwordStrength,setPasswordStrength]=useState('');
@@ -16,11 +16,11 @@ export function PasswordChange(props,onChangeValue) {
 
 
     useEffect(() => {
-        let response =  axios.get('http://localhost:8080/security/passwords');
-        if (response && response.status && response.status == 200)
-            setBlackListedPasswords( [...response.data]);
-        else
-            console.log("No blacklisted passwords.")
+       // let response =  axios.get('http://localhost:8080/security/passwords');
+        //if (response && response.status && response.status == 200)
+       //     setBlackListedPasswords( [...response.data]);
+       // else
+       //     console.log("No blacklisted passwords.")
     });
 
     function handleInputChange(event){
@@ -47,7 +47,7 @@ export function PasswordChange(props,onChangeValue) {
                 if(isValidRepeatedPassword(rePassword)){
                     setErrRePassword('' );
                 }else{
-                    setErrPassword('This password must match the previous!');
+                    setErrRePassword('This password must match the previous!');
                 }
                 break;
             default:
@@ -107,18 +107,25 @@ export function PasswordChange(props,onChangeValue) {
 
     async function sendParams(){
         axios
-            .post('http://localhost:8080/auth/changePassword', {
-                'email': email,
-                'password': password,
+            .post('http://localhost:8080/api/users/api/users/update_password', {
+                password: {
+                    Id: user.id,
+                    OldPassword: 'bla',
+                    NewPassword: password,
+                    RepeatedPassword: rePassword
+
+                }
             })
             .then(res => {
-                onChangeValue();
+               // setOldErr('');
                 setSuccess(true);
+
             }).catch(res => {
-            alert("Something went wrong!")
+            console.log("NE RADI")
+            //setOldErr('Please enter valid old password!');
+
 
         })
-
     }
 
     return (

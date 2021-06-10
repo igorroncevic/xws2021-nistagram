@@ -2,38 +2,39 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
+	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
+	"github.com/david-drvar/xws2021-nistagram/user_service/repositories"
+	"gorm.io/gorm"
 	"math/rand"
 	"net/smtp"
+	"time"
 )
 type EmailService struct {
+	repository repositories.UserRepository
+
 }
 
-func NewEmailService() (*EmailService, error) {
-	return &EmailService{},nil
-}
+func NewEmailService(db *gorm.DB) (*EmailService, error) {
+	repository, err := repositories.NewUserRepo(db)
+
+	return &EmailService{
+		repository: repository,
+	}, err}
 
 func  (service *EmailService)  SendEmail(ctx context.Context, in string) (bool, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserProfile")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-
-	// Sender data.
-	from := "bsep2021@gmail.com"
-	password := "BSEP2021"
-
-	// Receiver email address.
-	to := []string{
-		"t.kovacevic98@gmail.com",
+	var userDomain domain.User
+	userDomain, _ = service.repository.GetUserByEmail(in)
+	if userDomain.Id=="" {
+		return false, errors.New("email not exist")
 	}
 
-	// smtp server configuration.
-	smtpHost := "smtp.gmail.com"
-	smtpPort := "587"
-
-	// Message.
 	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 	s := make([]rune, 8)
 	for i := range s {
@@ -41,13 +42,21 @@ func  (service *EmailService)  SendEmail(ctx context.Context, in string) (bool, 
 	}
 	fmt.Println(string(s))
 
+	userDomain.ResetCode=string(s)
+	userDomain.TokenEnd=time.Now().AddDate(0,0,1)
+	service.repository.UpdateUserProfile(ctx,userDomain)
+
+	from := "bsep2021@gmail.com"
+	password := "BSEP2021"
+	to := []string{
+		"t.kovacevic98@gmail.com",
+	}
+	smtpHost := "smtp.gmail.com"
+	smtpPort := "587"
+
 	message := []byte("Hi,\nwe received a request to reset your password.Your old password has been locked for security reasons.\nTo unlock your profile you must verify your identity.\n\nYour password reset code is:"+string(s));
-
-
-	// Authentication.
 	auth := smtp.PlainAuth("", from, password, smtpHost)
 
-	// Sending email.
 	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, to, message)
 	if err != nil {
 		fmt.Println(err)
@@ -57,3 +66,4 @@ func  (service *EmailService)  SendEmail(ctx context.Context, in string) (bool, 
 
 	return true, nil
 }
+

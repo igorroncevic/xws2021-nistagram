@@ -7,14 +7,15 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/user_service/services"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 )
 
 type EmailGrpcController struct {
 	service *services.EmailService
 }
 
-func NewEmailController() (*EmailGrpcController, error) {
-	service, err := services.NewEmailService()
+func NewEmailController(db *gorm.DB) (*EmailGrpcController, error) {
+	service, err := services.NewEmailService(db)
 	if err != nil {
 		return nil, err
 	}

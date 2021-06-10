@@ -23,7 +23,7 @@ type Server struct {
 func NewServer(db *gorm.DB, jwtManager *common.JWTManager) (*Server, error) {
 	newUserController, _ := NewUserController(db, jwtManager)
 	newPrivacyController, _ := NewPrivacyController(db)
-	newEmailController, _ := NewEmailController()
+	newEmailController, _ := NewEmailController(db)
 	tracer, closer := tracer.Init("userService")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
@@ -89,4 +89,7 @@ func (s *Server) LoginUser(ctx context.Context, in *protopb.LoginRequest) (*prot
 
 func (s *Server) SendEmail(ctx context.Context, in *protopb.SendEmailDtoRequest) (*protopb.EmptyResponse, error) {
 	return s.emailController.SendEmail(ctx,in)
+}
+func (s *Server) GetUserByEmail(ctx context.Context, in *protopb.RequestEmailUser) (*protopb.UsersDTO, error) {
+	return s.userController.GetUserByEmail(ctx,in)
 }

@@ -56,6 +56,12 @@ service Users {
     };
   }
 
+  rpc GetUserByEmail (RequestEmailUser) returns (UsersDTO) {
+    option(google.api.http) = {
+      get: "/api/users/getByEmail/{email}"
+    };
+  }
+
 }
 
 message Password {
@@ -80,8 +86,9 @@ message User {
   bool isActive = 12;
   string biography = 13;
   string website = 14;
-  string ResetCode=15;
-  bool ApprovedAccount=16;
+  string resetCode=15;
+  bool approvedAccount=16;
+  google.protobuf.Timestamp tokenEnd=17;
 }
 
 message UsersDTO {
@@ -99,6 +106,9 @@ message UsersDTO {
   string biography = 12;
   string website = 13;
   string category = 14;
+  string resetCode=15;
+  bool approvedAccount=16;
+  google.protobuf.Timestamp tokenEnd=17;
 }
 
 //TODO ne treba da vracamo usera vec usera bez sifre i sa biografijom i website-om
@@ -140,5 +150,9 @@ message SendEmailDtoRequest {
   string to = 1;
 }
 
+
+message RequestEmailUser {
+  string email = 1;
+}
 message EmptyRequest {}
 message EmptyResponse {}

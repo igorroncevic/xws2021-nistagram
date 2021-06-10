@@ -128,3 +128,19 @@ func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginReq
 		Role:        user.Role.String(),
 	}, nil
 }
+
+func (s *UserGrpcController) GetUserByEmail(ctx context.Context, in *protopb.RequestEmailUser) (*protopb.UsersDTO, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserByEmail")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	user, err := s.service.GetUserByEmail(ctx,in.Email)
+
+	if err != nil{
+		return &protopb.UsersDTO{}, err
+	}
+
+	userResponse := user.ConvertToGrpc()
+
+	return userResponse, nil
+}

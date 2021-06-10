@@ -2,9 +2,10 @@ import {useEffect, useState} from "react";
 import {Alert, Button, Container, Form, Table} from "react-bootstrap";
 import axios from "axios";
 
-export function ResetPasswordCode(props,onChangeValue) {
+export function ResetPasswordCode(props) {
+
     const [resetCode, setResetCode] = useState('');
-    const [email, setEmail] = useState(props);
+    const [email, setEmail] = useState(props.email);
     const [wrongEmail, setWrongEmail] = useState(false);
     const [errorResetCode, setErrorResetCode] = useState('');
     const [submitted, setSubmitted] = useState(false);
@@ -12,15 +13,13 @@ export function ResetPasswordCode(props,onChangeValue) {
 
     useEffect(() => {
          axios
-            .get('http://localhost:8080/api/users/getUserByEmail/' + email, {
-                headers: {"Access-Control-Allow-Origin": "*"}
-            })
+            .get('http://localhost:8080/api/users/api/users/getByEmail/' + email)
             .then(res => {
                 setUser(res.data)
             }).catch(res => {
-                setWrongEmail(true);
+             setWrongEmail(true);
             })
-    });
+    },[]);
 
 
     function handleInputChange(event){
@@ -31,11 +30,13 @@ export function ResetPasswordCode(props,onChangeValue) {
     function submitResetCode(){
         setSubmitted(true);
         if (isValidResetCode(resetCode)) {
-            onChangeValue();
+            props.onChangeValue(user);
         }
     }
 
     function isValidResetCode(value){
+        console.log(value)
+        console.log(user.resetCode)
         if (value === user.resetCode) {
             setErrorResetCode('');
             return true;

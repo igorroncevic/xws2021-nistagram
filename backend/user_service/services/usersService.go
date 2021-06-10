@@ -131,3 +131,10 @@ func (service *UserService) SearchUsersByUsernameAndName(ctx context.Context, us
 
 	return service.repository.SearchUsersByUsernameAndName(ctx, user)
 }
+func (service *UserService) GetUserByEmail(ctx context.Context, email string) (domain.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.GetUserByEmail(email)
+}

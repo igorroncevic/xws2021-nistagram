@@ -22,6 +22,7 @@ type User struct {
 	IsActive     bool
 	ResetCode    string
 	ApprovedAccount bool
+	TokenEnd    time.Time
 }
 
 func (u User) ConvertToGrpc() *protopb.User {
@@ -40,6 +41,7 @@ func (u User) ConvertToGrpc() *protopb.User {
 		IsActive:     u.IsActive,
 		ResetCode:    u.ResetCode,
 		ApprovedAccount: u.ApprovedAccount,
+		TokenEnd:	  timestamppb.New(u.TokenEnd),
 	}
 }
 
@@ -59,6 +61,7 @@ func (u *User) ConvertFromGrpc(user *protopb.User) *User {
 		IsActive:     user.IsActive,
 		ResetCode:    user.ResetCode,
 		ApprovedAccount: user.ApprovedAccount,
+		TokenEnd:     user.TokenEnd.AsTime(),
 	}
 }
 
