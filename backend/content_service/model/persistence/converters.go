@@ -109,11 +109,12 @@ func (c *Comment) ConvertToPersistence(comment domain.Comment) *Comment{
 	}
 }
 
-func (l Like) ConvertToDomain() domain.Like {
+func (l Like) ConvertToDomain(username string) domain.Like {
 	return domain.Like{
 		PostId: l.PostId,
 		UserId: l.UserId,
 		IsLike: l.IsLike,
+		Username: username,
 	}
 }
 

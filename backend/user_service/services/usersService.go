@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"errors"
-	"github.com/david-drvar/xws2021-nistagram/common"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
@@ -16,20 +15,53 @@ import (
 )
 
 type UserService struct {
-	repository repositories.UserRepository
+	userRepository    repositories.UserRepository
+	privacyRepository repositories.PrivacyRepository
 }
 
 func NewUserService(db *gorm.DB) (*UserService, error) {
-	repository, err := repositories.NewUserRepo(db)
+	userRepository, err := repositories.NewUserRepo(db)
+	privacyRepository, err := repositories.NewPrivacyRepo(db)
 
 	return &UserService{
-		repository: repository,
+		userRepository,
+		privacyRepository,
 	}, err
 }
 
-func (service *UserService) GetUser(id string) (domain.User, error) {
+func (service *UserService) GetUsername(ctx context.Context, userId string) (string, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUsername")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	return domain.User{}, nil
+	dbUser, err := service.userRepository.GetUserById(ctx, userId)
+	if err != nil {
+		return "", err
+	}
+
+	return dbUser.Username, nil
+}
+
+func (service *UserService) GetUser(ctx context.Context, requestedUserId string) (domain.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	dbUser, err := service.userRepository.GetUserById(ctx, requestedUserId)
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	additionalInfo, err := service.userRepository.GetUserAdditionalInfoById(ctx, requestedUserId)
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	//TODO Get user's additional info
+	var converted *domain.User
+	converted = converted.GenerateUserDTO(dbUser, additionalInfo)
+
+	return *converted, nil
 }
 
 func (service *UserService) GetAllUsers(ctx context.Context) ([]persistence.User, error) {
@@ -37,7 +69,7 @@ func (service *UserService) GetAllUsers(ctx context.Context) ([]persistence.User
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	return service.repository.GetAllUsers(ctx)
+	return service.userRepository.GetAllUsers(ctx)
 }
 
 func (service *UserService) CreateUser(ctx context.Context, user *persistence.User) error {
@@ -46,18 +78,18 @@ func (service *UserService) CreateUser(ctx context.Context, user *persistence.Us
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	user.Password = encryption.HashAndSalt([]byte(user.Password))
-	return service.repository.CreateUser(ctx, user)
+	return service.userRepository.CreateUser(ctx, user)
 }
 
-func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, user *persistence.User, userAdditionalInfo *persistence.UserAdditionalInfo) error {
+func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, user *persistence.User, userAdditionalInfo *persistence.UserAdditionalInfo) (*domain.User, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	user.Password = encryption.HashAndSalt([]byte(user.Password))
-	user, err := service.repository.CreateUserWithAdditionalInfo(ctx, user, userAdditionalInfo)
+	userResult, err := service.userRepository.CreateUserWithAdditionalInfo(ctx, user, userAdditionalInfo)
 	if err != nil {
-		return errors.New("Cannot create user!")
+		return nil, errors.New("Cannot create user!")
 	}
 
 	//todo create user node in graph database
@@ -69,7 +101,7 @@ func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, us
 	defer conn.Close()
 
 	c := protopb.NewFollowersClient(conn)
-
+	//print(c)
 	createUserRequest := protopb.CreateUserRequestFollowers{
 		User: &protopb.UserFollowers{
 			UserId: user.Id,
@@ -81,11 +113,19 @@ func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, us
 		log.Fatalf("could not create node user: %s", err)
 	}
 
-	return nil
+	return userResult, nil
 }
 
-func (service *UserService) LoginUser(ctx context.Context, data common.Credentials) error {
-	return nil //service.repository.CheckPassword(ctx, data)
+func (service *UserService) LoginUser(ctx context.Context, request domain.LoginRequest) (persistence.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "LoginUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if request.Email == "" || request.Password == "" {
+		return persistence.User{}, errors.New("empty login request")
+	}
+
+	return service.userRepository.LoginUser(ctx, request)
 }
 
 func (service *UserService) UpdateUserProfile(ctx context.Context, userDTO domain.User) (bool, error) {
@@ -97,7 +137,7 @@ func (service *UserService) UpdateUserProfile(ctx context.Context, userDTO domai
 		return false, errors.New("username or email can not be empty string")
 	}
 
-	return service.repository.UpdateUserProfile(ctx, userDTO)
+	return service.userRepository.UpdateUserProfile(ctx, userDTO)
 }
 
 func (service *UserService) UpdateUserPassword(ctx context.Context, password domain.Password) (bool, error) {
@@ -109,7 +149,7 @@ func (service *UserService) UpdateUserPassword(ctx context.Context, password dom
 		return false, errors.New("Passwords do not match!")
 	}
 
-	_, err := service.repository.UpdateUserPassword(ctx, password)
+	_, err := service.userRepository.UpdateUserPassword(ctx, password)
 	if err != nil {
 		return false, err
 	}
@@ -122,5 +162,5 @@ func (service *UserService) SearchUsersByUsernameAndName(ctx context.Context, us
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	return service.repository.SearchUsersByUsernameAndName(ctx, user)
+	return service.userRepository.SearchUsersByUsernameAndName(ctx, user)
 }

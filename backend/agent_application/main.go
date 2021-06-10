@@ -2,13 +2,14 @@ package main
 
 import (
 	"github.com/david-drvar/xws2021-nistagram/agent_application/util/setup"
+	"github.com/david-drvar/xws2021-nistagram/backend"
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/gorilla/mux"
 	"net/http"
 )
 
 func main(){
-	db := common.InitDatabase(common.AgentDatabase)
+	db := backend.InitDatabase(backend.AgentDatabase)
 	err := setup.FillDatabase(db)
 	if err != nil {
 		panic("Cannot setup database tables. Error message: " + err.Error())

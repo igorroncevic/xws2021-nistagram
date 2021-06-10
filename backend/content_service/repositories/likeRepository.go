@@ -89,8 +89,10 @@ func (repository *likeRepository) CreateLike(ctx context.Context, like domain.Li
 		}
 
 	}else {
+		var newLike *persistence.Like
+		newLike = newLike.ConvertToPersistence(like)
 		// Like does not exist, create a new one
-		result := repository.DB.Create(like)
+		result := repository.DB.Create(newLike)
 
 		if result.Error != nil || result.RowsAffected != 1 {
 			return errors.New("unable to create new like after deletion")

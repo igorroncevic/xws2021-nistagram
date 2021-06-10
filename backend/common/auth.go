@@ -1,8 +1,12 @@
 package common
 
 import (
+	"context"
 	"errors"
 	"github.com/dgrijalva/jwt-go"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 	"net/http"
 	"strings"
 	"time"
@@ -101,6 +105,32 @@ func (manager *JWTManager) ValidateJWT(jwtString string) (*Claims, error){
 	claims, ok := token.Claims.(*Claims)
 	if !ok {
 		return nil, errors.New("invalid token claims")
+	}
+
+	return claims, nil
+}
+
+func (manager *JWTManager) ExtractClaimsFromMetadata(ctx context.Context) (*Claims, error) {
+	contextMetadata, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, status.Errorf(codes.Unauthenticated, "metadata is not provided")
+	}
+
+	values := contextMetadata["authorization"]
+	if len(values) == 0 {
+		return nil, status.Errorf(codes.Unauthenticated, "authorization token is not provided")
+	}
+
+	authorizationHeader := values[0]
+	headerParts := strings.Split(authorizationHeader, " ")
+	if len(headerParts) != 2 {
+		return nil, status.Errorf(codes.Unauthenticated, "authorization token is not in valid format")
+	}
+	accessToken := headerParts[1]
+
+	claims, err := manager.ValidateJWT(accessToken)
+	if err != nil {
+		return nil,  status.Errorf(codes.Unauthenticated, "authorization token is not valid")
 	}
 
 	return claims, nil

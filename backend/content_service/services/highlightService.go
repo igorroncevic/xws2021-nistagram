@@ -105,12 +105,12 @@ func (service *HighlightService) CreateHighlight(ctx context.Context, highlight 
 
 	return nil
 }
-func (service *HighlightService) RemoveHighlight(ctx context.Context, highlightId string) error {
+func (service *HighlightService) RemoveHighlight(ctx context.Context, highlightId string, userId string) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveHighlight")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	err := service.highlightRepository.RemoveHighlight(ctx, highlightId)
+	err := service.highlightRepository.RemoveHighlight(ctx, highlightId, userId)
 	if err != nil {
 		return err
 	}

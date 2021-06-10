@@ -35,6 +35,16 @@ type Story struct {
 	IsCloseFriends bool
 }
 
+type StoryHome struct {
+	UserId   string
+	Username string
+	Stories  []Story
+}
+
+type StoriesHome struct {
+	Stories []StoryHome
+}
+
 type Media struct {
 	Id       string
 	Type     model.MediaType
@@ -75,9 +85,10 @@ type FavoritesRequest struct {
 }
 
 type Like struct {
-	PostId string
-	UserId string // TODO Username?
-	IsLike bool
+	PostId   string
+	UserId   string
+	IsLike   bool
+	Username string
 }
 
 type Comment struct {

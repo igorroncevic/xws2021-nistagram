@@ -159,12 +159,12 @@ func (service *FavoritesService) CreateCollection(ctx context.Context, collectio
 
 	return nil
 }
-func (service *FavoritesService) RemoveCollection(ctx context.Context, collectionId string) error {
+func (service *FavoritesService) RemoveCollection(ctx context.Context, collectionId string, userId string) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveCollection")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	err := service.favoritesRepository.RemoveCollection(ctx, collectionId)
+	err := service.favoritesRepository.RemoveCollection(ctx, collectionId, userId)
 	if err != nil {
 		return err
 	}

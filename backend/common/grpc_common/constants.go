@@ -13,3 +13,4 @@ const (
 	Agent_gateway_address = "0.0.0.0:8004"
 	Recommendation_gateway_address = "0.0.0.0:8005"
 )
+

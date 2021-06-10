@@ -85,6 +85,19 @@ func (s *Story) ConvertFromGrpc(story *protopb.Story) *Story {
 	}
 }
 
+func (s *StoriesHome) ConvertToGrpc() *protopb.StoriesHome{
+	storiesHome := &protopb.StoriesHome{}
+	for _, storyHome := range s.Stories {
+		storiesHome.Stories = append(storiesHome.Stories, &protopb.StoryHome{
+			UserId:   storyHome.UserId,
+			Username: storyHome.Username,
+			Stories:  ConvertMultipleStoriesToGrpc(storyHome.Stories),
+		})
+	}
+
+	return storiesHome
+}
+
 // HighlightRequest Converters
 func (hr HighlightRequest) ConvertToGrpc() *protopb.HighlightRequest {
 	return &protopb.HighlightRequest{
@@ -370,6 +383,7 @@ func (l *Like) ConvertToGrpc() *protopb.Like {
 		PostId: l.PostId,
 		UserId: l.UserId,
 		IsLike: l.IsLike,
+		Username: l.Username,
 	}
 }
 
