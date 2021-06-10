@@ -26,6 +26,8 @@ type UsersClient interface {
 	SearchUser(ctx context.Context, in *SearchUserDtoRequest, opts ...grpc.CallOption) (*UsersResponse, error)
 	SendEmail(ctx context.Context, in *SendEmailDtoRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GetUserByEmail(ctx context.Context, in *RequestEmailUser, opts ...grpc.CallOption) (*UsersDTO, error)
+	ValidateResetCode(ctx context.Context, in *RequestResetCode, opts ...grpc.CallOption) (*EmptyResponse, error)
+	ChangeForgottenPass(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 }
 
 type usersClient struct {
@@ -108,6 +110,24 @@ func (c *usersClient) GetUserByEmail(ctx context.Context, in *RequestEmailUser, 
 	return out, nil
 }
 
+func (c *usersClient) ValidateResetCode(ctx context.Context, in *RequestResetCode, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Users/ValidateResetCode", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) ChangeForgottenPass(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Users/ChangeForgottenPass", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UsersServer is the server API for Users service.
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
@@ -120,6 +140,8 @@ type UsersServer interface {
 	SearchUser(context.Context, *SearchUserDtoRequest) (*UsersResponse, error)
 	SendEmail(context.Context, *SendEmailDtoRequest) (*EmptyResponse, error)
 	GetUserByEmail(context.Context, *RequestEmailUser) (*UsersDTO, error)
+	ValidateResetCode(context.Context, *RequestResetCode) (*EmptyResponse, error)
+	ChangeForgottenPass(context.Context, *CreatePasswordRequest) (*EmptyResponse, error)
 	mustEmbedUnimplementedUsersServer()
 }
 
@@ -150,6 +172,12 @@ func (UnimplementedUsersServer) SendEmail(context.Context, *SendEmailDtoRequest)
 }
 func (UnimplementedUsersServer) GetUserByEmail(context.Context, *RequestEmailUser) (*UsersDTO, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserByEmail not implemented")
+}
+func (UnimplementedUsersServer) ValidateResetCode(context.Context, *RequestResetCode) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateResetCode not implemented")
+}
+func (UnimplementedUsersServer) ChangeForgottenPass(context.Context, *CreatePasswordRequest) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangeForgottenPass not implemented")
 }
 func (UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}
 
@@ -308,6 +336,42 @@ func _Users_GetUserByEmail_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_ValidateResetCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestResetCode)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).ValidateResetCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/ValidateResetCode",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).ValidateResetCode(ctx, req.(*RequestResetCode))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_ChangeForgottenPass_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreatePasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).ChangeForgottenPass(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/ChangeForgottenPass",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).ChangeForgottenPass(ctx, req.(*CreatePasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Users_ServiceDesc is the grpc.ServiceDesc for Users service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -346,6 +410,14 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserByEmail",
 			Handler:    _Users_GetUserByEmail_Handler,
+		},
+		{
+			MethodName: "ValidateResetCode",
+			Handler:    _Users_ValidateResetCode_Handler,
+		},
+		{
+			MethodName: "ChangeForgottenPass",
+			Handler:    _Users_ChangeForgottenPass_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -24,28 +24,31 @@ export function ResetPasswordCode(props) {
 
     function handleInputChange(event){
         setResetCode(event.target.value);
-        isValidResetCode(event.target.value);
     }
 
     function submitResetCode(){
         setSubmitted(true);
-        if (isValidResetCode(resetCode)) {
-            props.onChangeValue(user);
-        }
+        validateResetCode();
+
     }
 
-    function isValidResetCode(value){
-        console.log(value)
-        console.log(user.resetCode)
-        if (value === user.resetCode) {
-            setErrorResetCode('');
-            return true;
-        } else {
+    function validateResetCode(){
+        console.log(user)
+        axios
+            .post('http://localhost:8080/api/users/api/users/validateResetCode',{
+                resetCode:resetCode,
+                email: user.email
+            })
+            .then(res => {
+                setErrorResetCode('');
+                props.onChangeValue(user);
+
+            }).catch(res => {
             setErrorResetCode('Please enter valid reset code!');
-            return false;
-        }
-    }
 
+            console.log("BLAAAA")
+        })
+    }
     return (
         <div>
             {!wrongEmail ?

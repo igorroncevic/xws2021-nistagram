@@ -93,3 +93,9 @@ func (s *Server) SendEmail(ctx context.Context, in *protopb.SendEmailDtoRequest)
 func (s *Server) GetUserByEmail(ctx context.Context, in *protopb.RequestEmailUser) (*protopb.UsersDTO, error) {
 	return s.userController.GetUserByEmail(ctx,in)
 }
+func (s *Server) ValidateResetCode(ctx context.Context, in *protopb.RequestResetCode) (*protopb.EmptyResponse, error) {
+	return s.userController.ValidateResetCode(ctx,in)
+}
+func (s *Server) ChangeForgottenPass(ctx context.Context, in *protopb.CreatePasswordRequest) (*protopb.EmptyResponse, error) {
+	return s.userController.ChangeForgottenPass(ctx,in)
+}

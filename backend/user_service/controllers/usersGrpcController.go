@@ -144,3 +144,30 @@ func (s *UserGrpcController) GetUserByEmail(ctx context.Context, in *protopb.Req
 
 	return userResponse, nil
 }
+
+func (s *UserGrpcController) ValidateResetCode(ctx context.Context, in *protopb.RequestResetCode) (*protopb.EmptyResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserByEmail")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	_, err := s.service.ValidateResetCode(ctx,in.ResetCode,in.Email)
+
+	if err != nil {
+		return &protopb.EmptyResponse{}, status.Errorf(codes.Unknown, "Could not create user")
+	}
+
+	return &protopb.EmptyResponse{}, nil
+}
+
+
+func (s *UserGrpcController) ChangeForgottenPass(ctx context.Context, in *protopb.CreatePasswordRequest) (*protopb.EmptyResponse, error) {
+	var password domain.Password
+
+	password = password.ConvertFromGrpc(in.Password)
+	_, err := s.service.ChangeForgottenPass(ctx, password)
+	if err != nil {
+		return &protopb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Could not create user")
+	}
+
+	return &protopb.EmptyResponse{}, nil
+}

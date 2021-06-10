@@ -47,7 +47,7 @@ export function ForgotPasswordPage() {
     async function sendMail(){
         axios
             .post('http://localhost:8080/api/users/api/users/sendEmail',{
-                to:'majaa@gmail.com'
+                to:email
             })
             .then(res => {
                 console.log("RADI")
@@ -144,7 +144,7 @@ export function ForgotPasswordPage() {
                     }
 
                     {steps.step3 && <ResetPasswordCode email={email}  onChangeValue={setStateFromChild}/>}
-                    {steps.step4 && <PasswordChange  user={user} onChangeValue={setSuccessFromChild}/>}
+                    {steps.step4 && <PasswordChange  user={user} email={email} onChangeValue={setSuccessFromChild}/>}
 
                     </tbody>
 

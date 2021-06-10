@@ -62,6 +62,22 @@ service Users {
     };
   }
 
+  rpc ValidateResetCode (RequestResetCode) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/validateResetCode"
+      body: "*"
+
+    };
+  }
+
+  rpc ChangeForgottenPass (CreatePasswordRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/changeForgottenPass"
+      body: "*"
+
+    };
+  }
+
 }
 
 message Password {
@@ -150,9 +166,18 @@ message SendEmailDtoRequest {
   string to = 1;
 }
 
-
 message RequestEmailUser {
   string email = 1;
 }
+
+message RequestResetCode {
+  string resetCode = 1;
+  string email = 2;
+}
+message RequestChangeForgottenPass {
+  string password = 1;
+  string rePassword = 2;
+}
+
 message EmptyRequest {}
 message EmptyResponse {}

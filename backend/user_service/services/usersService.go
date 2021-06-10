@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
 	"log"
+	"time"
 )
 
 type UserService struct {
@@ -137,4 +138,39 @@ func (service *UserService) GetUserByEmail(ctx context.Context, email string) (d
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	return service.repository.GetUserByEmail(email)
+}
+
+func (service *UserService) ValidateResetCode(ctx context.Context, resetCode string, email string) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserPassword")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var user domain.User
+	user, _ =service.GetUserByEmail(ctx,email)
+	if user.ResetCode!=resetCode{
+		return false, errors.New("wrong reset code!")
+	}
+
+	today := time.Now()
+	if today.After(user.TokenEnd){
+		return false, errors.New("Reset code expired!")
+	}
+	return true, nil
+}
+
+func (service *UserService) ChangeForgottenPass(ctx context.Context, password domain.Password) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserPassword")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if password.NewPassword != password.RepeatedPassword {
+		return false, errors.New("Passwords do not match!")
+	}
+
+	_, err := service.repository.ChangeForgottenPass(ctx, password)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
