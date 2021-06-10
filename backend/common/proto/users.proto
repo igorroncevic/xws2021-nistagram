@@ -49,6 +49,13 @@ service Users {
     };
   }
 
+  rpc SendEmail (SendEmailDtoRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/sendEmail"
+      body: "*"
+    };
+  }
+
 }
 
 message Password {
@@ -73,6 +80,8 @@ message User {
   bool isActive = 12;
   string biography = 13;
   string website = 14;
+  string ResetCode=15;
+  bool ApprovedAccount=16;
 }
 
 message UsersDTO {
@@ -127,7 +136,9 @@ message LoginResponse {
   string role = 3;
   string username = 4;
 }
-
+message SendEmailDtoRequest {
+  string to = 1;
+}
 
 message EmptyRequest {}
 message EmptyResponse {}

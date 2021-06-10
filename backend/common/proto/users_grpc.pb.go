@@ -24,6 +24,7 @@ type UsersClient interface {
 	UpdateUserProfile(ctx context.Context, in *CreateUserDTORequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	UpdateUserPassword(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	SearchUser(ctx context.Context, in *SearchUserDtoRequest, opts ...grpc.CallOption) (*UsersResponse, error)
+	SendEmail(ctx context.Context, in *SendEmailDtoRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 }
 
 type usersClient struct {
@@ -88,6 +89,15 @@ func (c *usersClient) SearchUser(ctx context.Context, in *SearchUserDtoRequest, 
 	return out, nil
 }
 
+func (c *usersClient) SendEmail(ctx context.Context, in *SendEmailDtoRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Users/SendEmail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UsersServer is the server API for Users service.
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
@@ -98,6 +108,7 @@ type UsersServer interface {
 	UpdateUserProfile(context.Context, *CreateUserDTORequest) (*EmptyResponse, error)
 	UpdateUserPassword(context.Context, *CreatePasswordRequest) (*EmptyResponse, error)
 	SearchUser(context.Context, *SearchUserDtoRequest) (*UsersResponse, error)
+	SendEmail(context.Context, *SendEmailDtoRequest) (*EmptyResponse, error)
 	mustEmbedUnimplementedUsersServer()
 }
 
@@ -122,6 +133,9 @@ func (UnimplementedUsersServer) UpdateUserPassword(context.Context, *CreatePassw
 }
 func (UnimplementedUsersServer) SearchUser(context.Context, *SearchUserDtoRequest) (*UsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchUser not implemented")
+}
+func (UnimplementedUsersServer) SendEmail(context.Context, *SendEmailDtoRequest) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendEmail not implemented")
 }
 func (UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}
 
@@ -244,6 +258,24 @@ func _Users_SearchUser_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_SendEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendEmailDtoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).SendEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/SendEmail",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).SendEmail(ctx, req.(*SendEmailDtoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Users_ServiceDesc is the grpc.ServiceDesc for Users service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -274,6 +306,10 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SearchUser",
 			Handler:    _Users_SearchUser_Handler,
+		},
+		{
+			MethodName: "SendEmail",
+			Handler:    _Users_SendEmail_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

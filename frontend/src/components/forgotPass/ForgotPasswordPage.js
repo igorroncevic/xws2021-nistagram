@@ -14,12 +14,29 @@ export function ForgotPasswordPage() {
 
     function handleEmailChange(event) {
         setEmail(event.target.value);
+
+        validateEmail(event.target.value);
     }
+
+    function validateEmail(value){
+        if(isValidEmail(value) ) {
+            setEmailError('')
+        }else{
+            setEmailError('Email is not valid!')
+        }
+    }
+
+    function isValidEmail (value) {
+        return !(value && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,64}$/i.test(value))
+    }
+
 
     function handleSubmit() {
         setSubmitted(true);
+        sendMail()
+
         if(emailError=="") {
-           // this.sendMail();  SALJI MEJL
+             sendMail()
         }else{
             setEmailError("Please enter valid email address!");
         }
@@ -28,19 +45,22 @@ export function ForgotPasswordPage() {
 
     async function sendMail(){
         axios
-            .put("http://localhost:8080/api/email/send", {
-                'to': email,
-                'subject': "Recover your password",
+            .post('http://localhost:8080/api/users/api/users/sendEmail',{
+                to:'t.kovacevic98@gmail.com'
             })
             .then(res => {
+                console.log("RADI")
                 setSteps({
                     ...steps,
-                    step2:true,
+                    step2: true,
                     step1:false,
                 });
-                setEmailError('');
+                setEmailError('')
+
             }).catch(res => {
-             setEmailError('Sorry, we don\'t recognize this email. Please try again.')
+            setEmailError('Sorry, we don\'t recognize this email. Please try again.')
+
+            console.log("NE RADIs")
         })
     }
 
