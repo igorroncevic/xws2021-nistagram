@@ -20,7 +20,7 @@ type FavoritesRepository interface {
 	RemoveFavorite(context.Context, domain.FavoritesRequest) error
 
 	CreateCollection(context.Context, domain.Collection) error
-	RemoveCollection(context.Context, string) error
+	RemoveCollection(context.Context, string, string)    error
 }
 
 type favoritesRepository struct {
@@ -183,19 +183,6 @@ func (repository *favoritesRepository) CreateCollection(ctx context.Context, col
 		var collectionPers *persistence.Collection
 		collectionPers = collectionPers.ConvertToPersistence(collection)
 
-		if collectionPers.Id != "" {
-			// Check if user has that collection
-			var count int64
-			result := repository.DB.Model(&persistence.Collection{}).Where("id = ?", collectionPers.Id).Count(&count)
-
-			if result.Error != nil {
-				return result.Error
-			}else if count == 0 {
-				return errors.New("user does not own that collection")
-			}
-		}
-
-		// TODO Check if user can save that post
 		result := repository.DB.Create(collectionPers)
 
 		if result.Error != nil || result.RowsAffected != 1 {
@@ -222,13 +209,13 @@ func (repository *favoritesRepository) CreateCollection(ctx context.Context, col
 	return nil
 }
 
-func (repository *favoritesRepository) RemoveCollection(ctx context.Context, collectionId string) error{
+func (repository *favoritesRepository) RemoveCollection(ctx context.Context, collectionId string, userId string) error{
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveCollection")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	err := repository.DB.Transaction(func (tx *gorm.DB) error{
-		collectionPers := persistence.Collection{Id: collectionId}
+		collectionPers := persistence.Collection{Id: collectionId, UserId: userId}
 		result := repository.DB.Delete(&collectionPers)
 
 		if result.Error != nil || result.RowsAffected != 1 {

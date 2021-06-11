@@ -51,6 +51,14 @@ func (s *Server) GetAllUsers(ctx context.Context, in *protopb.EmptyRequest) (*pr
 	return s.userController.GetAllUsers(ctx, in)
 }
 
+func (s *Server) GetUserById(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.UsersDTO, error) {
+	return s.userController.GetUserById(ctx, in)
+}
+
+func (s *Server) GetUsernameById(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.UsersDTO, error) {
+	return s.userController.GetUsernameById(ctx, in)
+}
+
 func (s *Server) UpdateUserProfile(ctx context.Context, in *protopb.CreateUserDTORequest) (*protopb.EmptyResponse, error) {
 	return s.userController.UpdateUserProfile(ctx, in)
 }
@@ -75,12 +83,20 @@ func (s *Server) UnBlockUser(ctx context.Context, in *protopb.CreateBlockRequest
 	return s.privacyController.UnBlockUser(ctx, in)
 }
 
+func (s *Server) CheckIfBlocked(ctx context.Context, in *protopb.CreateBlockRequest) (*protopb.BooleanResponse, error) {
+	return s.privacyController.CheckIfBlocked(ctx, in)
+}
+
 func (s *Server) SearchUser(ctx context.Context, in *protopb.SearchUserDtoRequest) (*protopb.UsersResponse, error) {
 	return s.userController.SearchUser(ctx, in)
 }
 
 func (s *Server) CheckUserProfilePublic(ctx context.Context, in *protopb.PrivacyRequest) (*protopb.BooleanResponse, error) {
 	return s.privacyController.CheckUserProfilePublic(ctx, in)
+}
+
+func (s *Server) GetAllPublicUsers(ctx context.Context, in *protopb.RequestIdPrivacy) (*protopb.StringArray, error) {
+	return s.privacyController.GetAllPublicUsers(ctx, in)
 }
 
 func (s *Server) LoginUser(ctx context.Context, in *protopb.LoginRequest) (*protopb.LoginResponse, error) {

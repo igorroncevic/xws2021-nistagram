@@ -9,11 +9,13 @@ import (
 )
 
 type PrivacyRepository interface {
-	CreatePrivacy(ctx context.Context, privacy *persistence.Privacy) (persistence.Privacy, error)
-	UpdatePrivacy(ctx context.Context, privacy *persistence.Privacy) (bool, error)
-	BlockUser(ctx context.Context, block *persistence.BlockedUsers) (bool, error)
-	UnBlockUser(ctx context.Context, block *persistence.BlockedUsers) (bool, error)
-	GetUserPrivacy(ctx context.Context, userId string) (*persistence.Privacy, error)
+	CreatePrivacy(context.Context, *persistence.Privacy) 	(persistence.Privacy, error)
+	UpdatePrivacy(context.Context, *persistence.Privacy) 	(bool, error)
+	BlockUser(context.Context, *persistence.BlockedUsers) 	(bool, error)
+	UnBlockUser(context.Context, *persistence.BlockedUsers) (bool, error)
+	CheckIfBlocked(context.Context, string, string) 		(bool, error)
+	GetUserPrivacy(context.Context, string) 				(*persistence.Privacy, error)
+	GetAlLPublicUsers(context.Context) 						([]persistence.Privacy, error)
 }
 
 type privacyRepository struct {
@@ -58,6 +60,26 @@ func (repository *privacyRepository) UnBlockUser(ctx context.Context, b *persist
 	return true, nil
 }
 
+func (repository *privacyRepository) CheckIfBlocked(ctx context.Context, requestedUserId string, requestingUserId string) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CheckIfBlocked")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var blocked persistence.BlockedUsers
+	result := repository.DB.
+		Where(
+			repository.DB.Where("(user_id = ? AND blocked_user_id = ?)", requestedUserId, requestingUserId)).
+		Or(
+			repository.DB.Where("(user_id = ? AND blocked_user_id = ?)", requestingUserId, requestedUserId)).
+		Find(&blocked)
+
+	if result.Error != nil {
+		return false, result.Error
+	}
+
+	return result.RowsAffected != 0, nil
+}
+
 func (repository *privacyRepository) CreatePrivacy(ctx context.Context, p *persistence.Privacy) (persistence.Privacy, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreatePrivacy")
 	defer span.Finish()
@@ -97,4 +119,19 @@ func (repository *privacyRepository) GetUserPrivacy(ctx context.Context, userId 
 	}
 
 	return &privacy, nil
+}
+
+func (repository *privacyRepository) GetAlLPublicUsers(ctx context.Context) ([]persistence.Privacy, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAlLPublicUsers")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var privacies []persistence.Privacy
+
+	db := repository.DB.Where("is_profile_public = true").Find(&privacies)
+	if db.Error != nil {
+		return nil, nil
+	}
+
+	return privacies, nil
 }

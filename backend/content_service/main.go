@@ -3,9 +3,14 @@ package main
 import (
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/content_service/util/setup"
+	"os"
 )
 
 func main(){
+	if os.Getenv("Docker_env") == "" {
+		SetupEnvVariables()
+	}
+
 	db := common.InitDatabase(common.ContentDatabase)
 	err := setup.FillDatabase(db)
 	if err != nil {
@@ -14,3 +19,12 @@ func main(){
 
 	setup.GRPCServer(db)
 }
+
+
+func SetupEnvVariables() {
+	os.Setenv("DB_HOST", "localhost")
+	os.Setenv("DB_NAME", "xws_content")
+	os.Setenv("DB_USER", "postgres")
+	os.Setenv("DB_PW", "root")
+}
+

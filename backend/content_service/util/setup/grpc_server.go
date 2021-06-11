@@ -30,6 +30,8 @@ func GRPCServer(db *gorm.DB) {
 	// Create a gRPC server object
 	s := grpc.NewServer(
 		grpc.UnaryInterceptor(authInterceptor.Unary()),
+		grpc.MaxSendMsgSize(4 << 30), // Default: 1024 * 1024 * 4 = 4MB -> Override to 4GBs
+		grpc.MaxRecvMsgSize(4 << 30), // Default: 1024 * 1024 * 4 = 4MB -> Override to 4GBs
     )
 
 	server, err := controllers.NewServer(db, jwtManager)
@@ -59,6 +61,7 @@ func GRPCServer(db *gorm.DB) {
 		log.Fatalln("Failed to register gateway:", err)
 	}
 
+	// cors := common.SetupCors()
 	gwServer := &http.Server{
 		Addr:    grpc_common.Content_gateway_address,
 		Handler: tracer.TracingWrapper(gatewayMux),

@@ -39,23 +39,86 @@ func NewStoryService(db *gorm.DB) (*StoryService, error){
 	}, err
 }
 
-
-func (service *StoryService) GetAllHomeStories(ctx context.Context) ([]domain.Story, error){
-	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllHomeStories")
+func (service *StoryService) GetStoriesForUser(ctx context.Context, userId string, isCloseFriend bool) ([]domain.Story, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetStoriesForUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	dbStories, err := service.storyRepository.GetAllHomeStories(ctx)
+
+	dbStories, err := service.storyRepository.GetUsersStories(ctx, userId, false)
 	if err != nil { return []domain.Story{}, err }
-	
+
+	if isCloseFriend{
+		closeFriendsStories, err := service.storyRepository.GetUsersStories(ctx, userId, true)
+		if err != nil { return []domain.Story{}, err }
+
+		for _, closeFriendStory := range closeFriendsStories {
+			dbStories = append(dbStories, closeFriendStory)
+		}
+	}
+
 	stories := []domain.Story{}
 	for _, dbStory := range dbStories{
 		story, err := service.retrieveStoryAdditionalData(ctx, dbStory)
 		if err != nil { return []domain.Story{}, err }
+
 		stories = append(stories, story)
 	}
 
 	return stories, nil
+}
+
+func (service *StoryService) GetAllHomeStories(ctx context.Context, userIds []string, isCloseFriends bool) (domain.StoriesHome, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllHomeStories")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	dbStories, err := service.storyRepository.GetAllHomeStories(ctx, userIds, false)
+	if err != nil { return domain.StoriesHome{}, err }
+
+	if isCloseFriends {
+		closeFriendsStories, err := service.storyRepository.GetAllHomeStories(ctx, userIds, true)
+		if err != nil { return domain.StoriesHome{}, err }
+
+		for _, closeFriendStory := range closeFriendsStories {
+			dbStories = append(dbStories, closeFriendStory)
+		}
+	}
+
+	storiesHome := domain.StoriesHome{}
+	for _, dbStory := range dbStories{
+		story, err := service.retrieveStoryAdditionalData(ctx, dbStory)
+		if err != nil { return domain.StoriesHome{}, err }
+
+		// If storiesHome are empty (not initialized), create a new entry with first story
+		if len(storiesHome.Stories) == 0 {
+			storiesHome.Stories = append(storiesHome.Stories, domain.StoryHome{
+				UserId:   story.UserId,
+				Username: "",
+				Stories:  []domain.Story{story},
+			})
+		}else{
+			// If storiesHome is initialized, check where current story should go
+			updated := false
+			for index, storyHome := range storiesHome.Stories {
+				if storyHome.UserId == story.UserId { // If storiesHome already has stories from this user, append story
+					storiesHome.Stories[index].Stories = append(storiesHome.Stories[index].Stories, story)
+					updated = true
+					break
+				}
+			}
+			// If we couldn't find a place for this story, create a new group for stories from this user
+			if !updated {
+				storiesHome.Stories = append(storiesHome.Stories, domain.StoryHome{
+					UserId:   story.UserId,
+					Username: "",
+					Stories:  []domain.Story{story},
+				})
+			}
+		}
+	}
+
+	return storiesHome, nil
 }
 func (service *StoryService) CreateStory(ctx context.Context, story *domain.Story) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateStory")
@@ -83,7 +146,7 @@ func (service *StoryService) GetStoryById(ctx context.Context, id string) (domai
 	return story, nil
 }
 
-func (service *StoryService) RemoveStory(ctx context.Context, id string) error{
+func (service *StoryService) RemoveStory(ctx context.Context, id string, userId string) error{
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveStory")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -92,7 +155,7 @@ func (service *StoryService) RemoveStory(ctx context.Context, id string) error{
 		return errors.New("cannot remove story")
 	}
 
-	return service.storyRepository.RemoveStory(ctx, id)
+	return service.storyRepository.RemoveStory(ctx, id, userId)
 }
 
 func (service *StoryService) retrieveStoryAdditionalData(ctx context.Context, story persistence.Story) (domain.Story, error) {

@@ -2,6 +2,7 @@ package interceptors
 
 import (
 	"context"
+	"errors"
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -23,15 +24,22 @@ func (interceptor *AuthInterceptor) Unary() grpc.UnaryServerInterceptor{
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error){
 		log.Println("---> unary interceptor: ", info.FullMethod)
 
-		ctx, err := interceptor.authorize(ctx)
+		methodParts := strings.Split(info.FullMethod, "/")
+		if len(methodParts) != 3 {
+			return nil, errors.New("something went wrong")
+		}
+
+
+		/*ctx, err := interceptor.authorize(ctx)
 		if err != nil {
 			return nil, err
-		}
+		}*/
 
 		return handler(ctx, req)
 	}
 }
 
+// TODO Add intraservice authentication
 func (interceptor *AuthInterceptor) authorize(ctx context.Context) (context.Context, error) {
 	contextMetadata, ok := metadata.FromIncomingContext(ctx)
 	if !ok {

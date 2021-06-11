@@ -11,6 +11,7 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
+// Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
 // PrivacyClient is the client API for Privacy service.
@@ -21,7 +22,9 @@ type PrivacyClient interface {
 	UpdatePrivacy(ctx context.Context, in *CreatePrivacyRequest, opts ...grpc.CallOption) (*EmptyResponsePrivacy, error)
 	BlockUser(ctx context.Context, in *CreateBlockRequest, opts ...grpc.CallOption) (*EmptyResponsePrivacy, error)
 	UnBlockUser(ctx context.Context, in *CreateBlockRequest, opts ...grpc.CallOption) (*EmptyResponsePrivacy, error)
+	CheckIfBlocked(ctx context.Context, in *CreateBlockRequest, opts ...grpc.CallOption) (*BooleanResponse, error)
 	CheckUserProfilePublic(ctx context.Context, in *PrivacyRequest, opts ...grpc.CallOption) (*BooleanResponse, error)
+	GetAllPublicUsers(ctx context.Context, in *RequestIdPrivacy, opts ...grpc.CallOption) (*StringArray, error)
 }
 
 type privacyClient struct {
@@ -68,9 +71,27 @@ func (c *privacyClient) UnBlockUser(ctx context.Context, in *CreateBlockRequest,
 	return out, nil
 }
 
+func (c *privacyClient) CheckIfBlocked(ctx context.Context, in *CreateBlockRequest, opts ...grpc.CallOption) (*BooleanResponse, error) {
+	out := new(BooleanResponse)
+	err := c.cc.Invoke(ctx, "/proto.Privacy/CheckIfBlocked", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *privacyClient) CheckUserProfilePublic(ctx context.Context, in *PrivacyRequest, opts ...grpc.CallOption) (*BooleanResponse, error) {
 	out := new(BooleanResponse)
 	err := c.cc.Invoke(ctx, "/proto.Privacy/CheckUserProfilePublic", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *privacyClient) GetAllPublicUsers(ctx context.Context, in *RequestIdPrivacy, opts ...grpc.CallOption) (*StringArray, error) {
+	out := new(StringArray)
+	err := c.cc.Invoke(ctx, "/proto.Privacy/GetAllPublicUsers", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +106,9 @@ type PrivacyServer interface {
 	UpdatePrivacy(context.Context, *CreatePrivacyRequest) (*EmptyResponsePrivacy, error)
 	BlockUser(context.Context, *CreateBlockRequest) (*EmptyResponsePrivacy, error)
 	UnBlockUser(context.Context, *CreateBlockRequest) (*EmptyResponsePrivacy, error)
+	CheckIfBlocked(context.Context, *CreateBlockRequest) (*BooleanResponse, error)
 	CheckUserProfilePublic(context.Context, *PrivacyRequest) (*BooleanResponse, error)
+	GetAllPublicUsers(context.Context, *RequestIdPrivacy) (*StringArray, error)
 	mustEmbedUnimplementedPrivacyServer()
 }
 
@@ -105,8 +128,14 @@ func (UnimplementedPrivacyServer) BlockUser(context.Context, *CreateBlockRequest
 func (UnimplementedPrivacyServer) UnBlockUser(context.Context, *CreateBlockRequest) (*EmptyResponsePrivacy, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnBlockUser not implemented")
 }
+func (UnimplementedPrivacyServer) CheckIfBlocked(context.Context, *CreateBlockRequest) (*BooleanResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckIfBlocked not implemented")
+}
 func (UnimplementedPrivacyServer) CheckUserProfilePublic(context.Context, *PrivacyRequest) (*BooleanResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckUserProfilePublic not implemented")
+}
+func (UnimplementedPrivacyServer) GetAllPublicUsers(context.Context, *RequestIdPrivacy) (*StringArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllPublicUsers not implemented")
 }
 func (UnimplementedPrivacyServer) mustEmbedUnimplementedPrivacyServer() {}
 
@@ -117,8 +146,8 @@ type UnsafePrivacyServer interface {
 	mustEmbedUnimplementedPrivacyServer()
 }
 
-func RegisterPrivacyServer(s *grpc.Server, srv PrivacyServer) {
-	s.RegisterService(&_Privacy_serviceDesc, srv)
+func RegisterPrivacyServer(s grpc.ServiceRegistrar, srv PrivacyServer) {
+	s.RegisterService(&Privacy_ServiceDesc, srv)
 }
 
 func _Privacy_CreatePrivacy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -193,6 +222,24 @@ func _Privacy_UnBlockUser_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Privacy_CheckIfBlocked_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateBlockRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PrivacyServer).CheckIfBlocked(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Privacy/CheckIfBlocked",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PrivacyServer).CheckIfBlocked(ctx, req.(*CreateBlockRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Privacy_CheckUserProfilePublic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PrivacyRequest)
 	if err := dec(in); err != nil {
@@ -211,7 +258,28 @@ func _Privacy_CheckUserProfilePublic_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-var _Privacy_serviceDesc = grpc.ServiceDesc{
+func _Privacy_GetAllPublicUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestIdPrivacy)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PrivacyServer).GetAllPublicUsers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Privacy/GetAllPublicUsers",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PrivacyServer).GetAllPublicUsers(ctx, req.(*RequestIdPrivacy))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Privacy_ServiceDesc is the grpc.ServiceDesc for Privacy service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Privacy_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.Privacy",
 	HandlerType: (*PrivacyServer)(nil),
 	Methods: []grpc.MethodDesc{
@@ -232,8 +300,16 @@ var _Privacy_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Privacy_UnBlockUser_Handler,
 		},
 		{
+			MethodName: "CheckIfBlocked",
+			Handler:    _Privacy_CheckIfBlocked_Handler,
+		},
+		{
 			MethodName: "CheckUserProfilePublic",
 			Handler:    _Privacy_CheckUserProfilePublic_Handler,
+		},
+		{
+			MethodName: "GetAllPublicUsers",
+			Handler:    _Privacy_GetAllPublicUsers_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -21,13 +21,15 @@ type ContentClient interface {
 	//    Posts
 	CreatePost(ctx context.Context, in *Post, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetAllPosts(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*ReducedPostArray, error)
+	GetPostsForUser(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*ReducedPostArray, error)
 	RemovePost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetPostById(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Post, error)
 	SearchContentByLocation(ctx context.Context, in *SearchLocationRequest, opts ...grpc.CallOption) (*ReducedPostArray, error)
 	GetPostsByHashtag(ctx context.Context, in *Hashtag, opts ...grpc.CallOption) (*ReducedPostArray, error)
 	//    Stories
 	CreateStory(ctx context.Context, in *Story, opts ...grpc.CallOption) (*EmptyResponseContent, error)
-	GetAllStories(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*StoriesArray, error)
+	GetAllStories(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*StoriesHome, error)
+	GetStoriesForUser(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*StoriesArray, error)
 	RemoveStory(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetStoryById(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Story, error)
 	//    Comments
@@ -82,6 +84,15 @@ func (c *contentClient) GetAllPosts(ctx context.Context, in *EmptyRequestContent
 	return out, nil
 }
 
+func (c *contentClient) GetPostsForUser(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*ReducedPostArray, error) {
+	out := new(ReducedPostArray)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetPostsForUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *contentClient) RemovePost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
 	out := new(EmptyResponseContent)
 	err := c.cc.Invoke(ctx, "/proto.Content/RemovePost", in, out, opts...)
@@ -127,9 +138,18 @@ func (c *contentClient) CreateStory(ctx context.Context, in *Story, opts ...grpc
 	return out, nil
 }
 
-func (c *contentClient) GetAllStories(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*StoriesArray, error) {
-	out := new(StoriesArray)
+func (c *contentClient) GetAllStories(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*StoriesHome, error) {
+	out := new(StoriesHome)
 	err := c.cc.Invoke(ctx, "/proto.Content/GetAllStories", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) GetStoriesForUser(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*StoriesArray, error) {
+	out := new(StoriesArray)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetStoriesForUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -332,13 +352,15 @@ type ContentServer interface {
 	//    Posts
 	CreatePost(context.Context, *Post) (*EmptyResponseContent, error)
 	GetAllPosts(context.Context, *EmptyRequestContent) (*ReducedPostArray, error)
+	GetPostsForUser(context.Context, *RequestId) (*ReducedPostArray, error)
 	RemovePost(context.Context, *RequestId) (*EmptyResponseContent, error)
 	GetPostById(context.Context, *RequestId) (*Post, error)
 	SearchContentByLocation(context.Context, *SearchLocationRequest) (*ReducedPostArray, error)
 	GetPostsByHashtag(context.Context, *Hashtag) (*ReducedPostArray, error)
 	//    Stories
 	CreateStory(context.Context, *Story) (*EmptyResponseContent, error)
-	GetAllStories(context.Context, *EmptyRequestContent) (*StoriesArray, error)
+	GetAllStories(context.Context, *EmptyRequestContent) (*StoriesHome, error)
+	GetStoriesForUser(context.Context, *RequestId) (*StoriesArray, error)
 	RemoveStory(context.Context, *RequestId) (*EmptyResponseContent, error)
 	GetStoryById(context.Context, *RequestId) (*Story, error)
 	//    Comments
@@ -378,6 +400,9 @@ func (UnimplementedContentServer) CreatePost(context.Context, *Post) (*EmptyResp
 func (UnimplementedContentServer) GetAllPosts(context.Context, *EmptyRequestContent) (*ReducedPostArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllPosts not implemented")
 }
+func (UnimplementedContentServer) GetPostsForUser(context.Context, *RequestId) (*ReducedPostArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPostsForUser not implemented")
+}
 func (UnimplementedContentServer) RemovePost(context.Context, *RequestId) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemovePost not implemented")
 }
@@ -393,8 +418,11 @@ func (UnimplementedContentServer) GetPostsByHashtag(context.Context, *Hashtag) (
 func (UnimplementedContentServer) CreateStory(context.Context, *Story) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateStory not implemented")
 }
-func (UnimplementedContentServer) GetAllStories(context.Context, *EmptyRequestContent) (*StoriesArray, error) {
+func (UnimplementedContentServer) GetAllStories(context.Context, *EmptyRequestContent) (*StoriesHome, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllStories not implemented")
+}
+func (UnimplementedContentServer) GetStoriesForUser(context.Context, *RequestId) (*StoriesArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetStoriesForUser not implemented")
 }
 func (UnimplementedContentServer) RemoveStory(context.Context, *RequestId) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveStory not implemented")
@@ -508,6 +536,24 @@ func _Content_GetAllPosts_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Content_GetPostsForUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetPostsForUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetPostsForUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetPostsForUser(ctx, req.(*RequestId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Content_RemovePost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RequestId)
 	if err := dec(in); err != nil {
@@ -612,6 +658,24 @@ func _Content_GetAllStories_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).GetAllStories(ctx, req.(*EmptyRequestContent))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_GetStoriesForUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetStoriesForUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetStoriesForUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetStoriesForUser(ctx, req.(*RequestId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1010,6 +1074,10 @@ var Content_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Content_GetAllPosts_Handler,
 		},
 		{
+			MethodName: "GetPostsForUser",
+			Handler:    _Content_GetPostsForUser_Handler,
+		},
+		{
 			MethodName: "RemovePost",
 			Handler:    _Content_RemovePost_Handler,
 		},
@@ -1032,6 +1100,10 @@ var Content_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllStories",
 			Handler:    _Content_GetAllStories_Handler,
+		},
+		{
+			MethodName: "GetStoriesForUser",
+			Handler:    _Content_GetStoriesForUser_Handler,
 		},
 		{
 			MethodName: "RemoveStory",
