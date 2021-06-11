@@ -12,8 +12,10 @@ function UserAutocomplete(props) {
     function onClick(suggestion) {
         setActiveSuggestion(0);
         setShowSuggestions(false);
-        setUserInput(suggestion.username)
+        setUserInput("");
         setFilteredSuggestions([]);
+
+        props.addToTaglist(suggestion);
     }
 
     function onChange(e) {
@@ -57,7 +59,6 @@ function UserAutocomplete(props) {
             suggestionsListComponent = (
                 <ul class="suggestions">
                     {filteredSuggestions.map((suggestion, index) => {
-
                         return (
                             <li  key={suggestion} onClick={() => onClick(suggestion)}>
                                 <ProfileForAutocomplete username={suggestion.username} firstName={suggestion.firstName} lastName={suggestion.lastName}  caption={suggestion.biography} urlText="Follow" iconSize="medium" captionSize="small" storyBorder={true} />

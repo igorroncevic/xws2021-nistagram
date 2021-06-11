@@ -4,6 +4,7 @@ import Navigation from "../HomePage/Navigation";
 import {Button, Modal} from "react-bootstrap";
 import RegistrationPage from "../../pages/RegistrationPage";
 import UserAutocomplete from "../PostComponent/UserAutocomplete";
+import ProfileForAutocomplete from "../PostComponent/ProfileForAutocomplete";
 
 function NewPost(props) {
     const [user,setUser] =useState(props.location.state.user);
@@ -12,11 +13,10 @@ function NewPost(props) {
     const[image,setImage]=useState('');
     const [hashtagList, setHashtagList] = useState([{ text: ""}]);
     const[showModal,setShowModal]=useState(false);
-    const [tagList, setTagList] = useState([{ userId: "", mediaId : "0", username : "ee"}]);
+    const [tagList, setTagList] = useState([]);
+    const [tagListForPrint, setTagListForPrint] = useState([]);
     const [mediaList, setMediaList] = useState([]);
     const [postPrint, setPostPrint] = useState([]);
-    // console.log("new post:");
-    // console.log(user);
     const [imageName, setImageName] = useState("");
     const [allUsers, setAllUsers] = useState([]);
 
@@ -46,24 +46,13 @@ function NewPost(props) {
         setHashtagList([...hashtagList, { text: ""}]);
     }
 
-    //todo tags list
-    function handleTagListChange (e, index) {
-        const { name, value } = e.target;
-        const list = [...tagList];
-        tagList[index][name] = value;
-        setTagList(list);
-    }
 
-    // handle click event of the Remove button
-    function handleRemoveTagListClick (index) {
-        const list = [...tagList];
-        list.splice(index, 1);
-        setTagList(list);
-    }
-
-    // handle click event of the Add button
-    function handleAddTagListClick() {
-        setTagList([...tagList, { userId: "", mediaId : "0", username : "ee"}]);
+    function handleAutocompleteClick(tag) {
+        if (tagListForPrint.some((someTag) => someTag.id === tag.id)) //prevents adding the same tag
+            return;
+        // setTagList([...tagList, {userId: tag.userId, username: tag.username, mediaId: "1"}]);
+        setTagListForPrint([...tagListForPrint, tag]);
+        setTagList([...tagList, {userId : tag.id, mediaId : "1", username : tag.username}]);
     }
 
 
@@ -114,7 +103,8 @@ function NewPost(props) {
     }
 
     function closeModal(){
-        setTagList([{ userId: ""}]);
+        setTagList([]);
+        setTagListForPrint([]);
         setImage("");
         setShowModal(!showModal)
     }
@@ -132,7 +122,8 @@ function NewPost(props) {
         setMediaList([...mediaList, media]);
         setPostPrint([...postPrint, {filename : imageName, tags : tagListFilter}]);
 
-        setTagList([{ userId: ""}]);
+        setTagList([]);
+        setTagListForPrint([]);
         setImage("");
         closeModal();
     }
@@ -185,9 +176,6 @@ function NewPost(props) {
                 })}
                 <br/><br/>
                 <Button type={"primary"}   onClick={()=>postDetails()}> Submit post  </Button>
-                <UserAutocomplete
-                    suggestions={allUsers}
-                />
 
             </div>
             <Modal show={showModal} onHide={closeModal} style={{ 'height': 650 }} >
@@ -203,27 +191,20 @@ function NewPost(props) {
                            required />
 
                     <br/><br/>
+                    <UserAutocomplete addToTaglist={handleAutocompleteClick}
+                        suggestions={allUsers}
+                    />
                     <h3>Tags:</h3>
                     <div>
-                        {tagList.map((x, i) => {
+                        <ul>
+                        {tagListForPrint.map((tag, i) => {
                             return (
-                                <div className="box">
-                                    <input
-                                        name="userId"
-                                        placeholder="userId"
-                                        value={x.userId}
-                                        onChange={e => handleTagListChange(e, i)}
-                                    />
-                                    <div className="btn-box">
-                                        {tagList.length !== 1 && <button
-                                            className="mr10"
-                                            onClick={() => handleRemoveTagListClick(i)}>Remove</button>}
-                                        {tagList.length - 1 === i && <button onClick={handleAddTagListClick}>Add</button>}
-                                    </div>
-                                </div>
+                                <li>
+                                    <ProfileForAutocomplete username={tag.username} firstName={tag.firstName} lastName={tag.lastName}  caption={tag.biography} urlText="Follow" iconSize="medium" captionSize="small" storyBorder={true} />
+                                </li>
                             );
                         })}
-                        {/*<div style={{ marginTop: 20 }}>{JSON.stringify(hashtagList)}</div>*/}
+                        </ul>
                         <br/><br/>
                         <Button type={"primary"}   onClick={()=>saveModal()}> Save  </Button>
                     </div>
