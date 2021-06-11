@@ -27,6 +27,7 @@ type UserRepository interface {
 	GetUserAdditionalInfoById(ctx context.Context, id string) (persistence.UserAdditionalInfo, error)
 	GetUserByEmail(email string) (domain.User, error)
 	ChangeForgottenPass(ctx context.Context, password domain.Password) (bool, error)
+	ApproveAccount(ctx context.Context, password domain.Password) (bool, error)
 }
 
 type userRepository struct {
@@ -374,6 +375,35 @@ func (repository *userRepository) ChangeForgottenPass(ctx context.Context, passw
 
 	db := repository.DB.Model(&user).Where("id = ?", password.Id).Updates(persistence.User{Password: encryption.HashAndSalt([]byte(password.NewPassword))})
 
+	if db.Error != nil {
+		return false, db.Error
+	} else if db.RowsAffected == 0 {
+		return false, errors.New("rows affected is equal to zero")
+	}
+
+	return true, nil
+}
+
+func (repository *userRepository) ApproveAccount(ctx context.Context, password domain.Password) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserPassword")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var user *persistence.User
+
+	db := repository.DB.Select("password").Where("id = ?", password.Id).Find(&user)
+	if db.Error != nil {
+		return false, db.Error
+	} else if db.RowsAffected == 0 {
+		return false, errors.New("rows affected is equal to zero")
+	}
+
+	err := encryption.CompareHashAndPassword([]byte(user.Password), []byte(password.OldPassword))
+	if err != nil {
+		return false, err
+	}
+
+	db = repository.DB.Model(&user).Where("id = ?", password.Id).Updates(persistence.User{Password: encryption.HashAndSalt([]byte(password.NewPassword)), ApprovedAccount: true})
 	if db.Error != nil {
 		return false, db.Error
 	} else if db.RowsAffected == 0 {

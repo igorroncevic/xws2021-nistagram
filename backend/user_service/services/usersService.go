@@ -174,3 +174,19 @@ func (service *UserService) ChangeForgottenPass(ctx context.Context, password do
 
 	return true, nil
 }
+func (service *UserService) ApproveAccount(ctx context.Context, password domain.Password) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserPassword")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if password.NewPassword != password.RepeatedPassword {
+		return false, errors.New("Passwords do not match!")
+	}
+
+	_, err := service.repository.ApproveAccount(ctx, password)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}

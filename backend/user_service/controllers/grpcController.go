@@ -99,3 +99,6 @@ func (s *Server) ValidateResetCode(ctx context.Context, in *protopb.RequestReset
 func (s *Server) ChangeForgottenPass(ctx context.Context, in *protopb.CreatePasswordRequest) (*protopb.EmptyResponse, error) {
 	return s.userController.ChangeForgottenPass(ctx,in)
 }
+func (s *Server) ApproveAccount(ctx context.Context, in *protopb.CreatePasswordRequest) (*protopb.EmptyResponse, error) {
+	return s.userController.ApproveAccount(ctx,in)
+}

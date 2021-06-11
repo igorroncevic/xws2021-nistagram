@@ -78,6 +78,14 @@ service Users {
     };
   }
 
+  rpc ApproveAccount (CreatePasswordRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/approveAccount"
+      body: "*"
+
+    };
+  }
+
 }
 
 message Password {

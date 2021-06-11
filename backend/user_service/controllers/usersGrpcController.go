@@ -171,3 +171,14 @@ func (s *UserGrpcController) ChangeForgottenPass(ctx context.Context, in *protop
 
 	return &protopb.EmptyResponse{}, nil
 }
+func (s *UserGrpcController) ApproveAccount(ctx context.Context, in *protopb.CreatePasswordRequest) (*protopb.EmptyResponse, error) {
+	var password domain.Password
+
+	password = password.ConvertFromGrpc(in.Password)
+	_, err := s.service.ApproveAccount(ctx, password)
+	if err != nil {
+		return &protopb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Could not create user")
+	}
+
+	return &protopb.EmptyResponse{}, nil
+}
