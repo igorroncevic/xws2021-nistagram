@@ -1,9 +1,14 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Navigation from "../HomePage/Navigation";
 
 
 function Saved(props) {
-    const [user,setUser] =useState(props.location.state.user);
+    const [user,setUser] =useState({});
+
+    useEffect(() => {
+        if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
+        setUser(props.location.state.user);
+    },[]);
 
     return (
         <div style={{marginTop:'5%'}}>

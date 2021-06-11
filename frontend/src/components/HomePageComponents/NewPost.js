@@ -1,14 +1,20 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from "axios";
 import Navigation from "../HomePage/Navigation";
 
 
 
 function NewPost(props) {
-    const [user,setUser] =useState(props.location.state.user);
+    const [user,setUser] =useState({});
 
     const[description,setDescription]=useState('');
     const[image,setImage]=useState('');
+
+    useEffect(() => {
+        if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
+        setUser(props.location.state.user);
+
+    },[]);
 
     const postDetails = ()=>{
         axios

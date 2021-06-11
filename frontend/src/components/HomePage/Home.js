@@ -19,6 +19,7 @@ function Home(props) {
     const[repErr,setRepErr]=useState('');
 
     useEffect(() => {
+        if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
         getUser();
 
     },[])

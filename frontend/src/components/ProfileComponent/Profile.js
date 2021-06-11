@@ -9,8 +9,8 @@ import Navigation from "../HomePage/Navigation";
 
 
 function Profile(props) {
-    const [user,setUser] =useState(props.location.state.user);
-    const [follow,setFollow] =useState(props.location.state.follow);
+    const [user,setUser] =useState({});
+    const [follow,setFollow] =useState({});
     const[publicProfile,setPublicProfile]=useState(false);
 
     const [image, setImage] = useState('');
@@ -25,6 +25,10 @@ function Profile(props) {
 
     var loggedUsername = sessionStorage.getItem("username");
     useEffect(() => {
+        if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
+
+        setUser(props.location.state.user);
+        setFollow(props.location.state.follow)
         getUserByUsername();
         getUserPrivacy();
         getFollowers()
