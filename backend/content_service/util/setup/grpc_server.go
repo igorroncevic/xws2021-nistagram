@@ -27,7 +27,10 @@ func GRPCServer(db *gorm.DB) {
 	//authInterceptor := interceptors.NewAuthInterceptor(jwtManager)
 
 	// Create a gRPC server object
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc.MaxSendMsgSize(4<<30), // Default: 1024 * 1024 * 4 = 4MB -> Override to 4GBs
+		grpc.MaxRecvMsgSize(4<<30), // Default: 1024 * 1024 * 4 = 4MB -> Override to 4GBs
+	)
 
 	server, err := controllers.NewServer(db, jwtManager)
 	if err != nil {

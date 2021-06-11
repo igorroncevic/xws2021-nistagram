@@ -16,7 +16,7 @@ import (
 )
 
 type UserRepository interface {
-	GetAllUsers(context.Context) ([]persistence.User, error)
+	GetAllUsers(context.Context) ([]domain.User, error)
 	CreateUser(context.Context, *persistence.User) error
 	CreateUserWithAdditionalInfo(context.Context, *persistence.User, *persistence.UserAdditionalInfo) (*domain.User, error)
 	UpdateUserProfile(ctx context.Context, dto domain.User) (bool, error)
@@ -133,12 +133,32 @@ func (repository *userRepository) GetUserByUsername(username string) (domain.Use
 	return *user, nil
 }
 
-func (repository *userRepository) GetAllUsers(ctx context.Context) ([]persistence.User, error) {
+func (repository *userRepository) GetAllUsers(ctx context.Context) ([]domain.User, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllUsers")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var users []persistence.User
+	var dbUserAdditionalInfo persistence.UserAdditionalInfo
+	var usersDomain []domain.User
+
+	result := repository.DB.Find(&users)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	for _, user := range users {
+		result = repository.DB.Where("id = ?", user.Id).Find(&dbUserAdditionalInfo)
+		if result.Error != nil {
+			return nil, result.Error
+		}
+
+		userDomain := &domain.User{}
+		userDomain.GenerateUserDTO(user, dbUserAdditionalInfo)
+		usersDomain = append(usersDomain, *userDomain)
+	}
+
+	return usersDomain, nil
 
 	/*query := "select u.id, u.first_name, u.last_name, u.email from registered_users u"
 	rows, err := repository.DB.Query(context.Background(), query)
@@ -155,8 +175,6 @@ func (repository *userRepository) GetAllUsers(ctx context.Context) ([]persistenc
 		}
 		users = append(users, user)
 	}*/
-
-	return users, nil
 }
 
 func (repository *userRepository) LoginUser(ctx context.Context, request domain.LoginRequest) (persistence.User, error) {

@@ -31,7 +31,7 @@ func (service *UserService) GetUser(id string) (domain.User, error) {
 	return domain.User{}, nil
 }
 
-func (service *UserService) GetAllUsers(ctx context.Context) ([]persistence.User, error) {
+func (service *UserService) GetAllUsers(ctx context.Context) ([]domain.User, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)

@@ -14,7 +14,7 @@ import (
 )
 
 type UserGrpcController struct {
-	service   *services.UserService
+	service    *services.UserService
 	jwtManager *common.JWTManager
 }
 
@@ -51,7 +51,25 @@ func (s *UserGrpcController) CreateUser(ctx context.Context, in *protopb.CreateU
 }
 
 func (s *UserGrpcController) GetAllUsers(ctx context.Context, in *protopb.EmptyRequest) (*protopb.UsersResponse, error) {
-	return &protopb.UsersResponse{}, nil
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllUsers")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	users, err := s.service.GetAllUsers(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var usersList []*protopb.UsersDTO
+	for _, user := range users {
+		usersList = append(usersList, user.ConvertToGrpc())
+	}
+
+	finalResponse := protopb.UsersResponse{
+		Users: usersList,
+	}
+
+	return &finalResponse, nil
 }
 
 func (s *UserGrpcController) UpdateUserProfile(ctx context.Context, in *protopb.CreateUserDTORequest) (*protopb.EmptyResponse, error) {
@@ -112,7 +130,7 @@ func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginReq
 	request = request.ConvertFromGrpc(in)
 
 	user, err := s.service.LoginUser(ctx, request)
-	if err != nil{
+	if err != nil {
 		return &protopb.LoginResponse{}, err
 	}
 
