@@ -29,17 +29,11 @@ func (interceptor *AuthInterceptor) Unary() grpc.UnaryServerInterceptor{
 			return nil, errors.New("something went wrong")
 		}
 
-		if methodParts[2] == "LoginUser" || methodParts[2] == "CreateUser" ||
-			methodParts[2] == "CheckIfBlocked" || methodParts[2] == "CheckUserProfilePublic" ||
-			methodParts[2] == "GetAllPublicUsers" || methodParts[2] == "GetUsernameById" ||
-			methodParts[2] == "GetHomepageUsers" || methodParts[2] == "GetCloseFriends" || methodParts[2] == "CheckFollowInteraction" {
-			return handler(ctx, req)
-		}
 
-		ctx, err := interceptor.authorize(ctx)
+		/*ctx, err := interceptor.authorize(ctx)
 		if err != nil {
 			return nil, err
-		}
+		}*/
 
 		return handler(ctx, req)
 	}

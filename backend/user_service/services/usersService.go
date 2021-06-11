@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
+	"github.com/david-drvar/xws2021-nistagram/common/security"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
@@ -77,6 +78,10 @@ func (service *UserService) CreateUser(ctx context.Context, user *persistence.Us
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	if security.CheckBlacklistedPassword(user.Password){
+		return errors.New("password is among blacklisted passwords")
+	}
+
 	user.Password = encryption.HashAndSalt([]byte(user.Password))
 	return service.userRepository.CreateUser(ctx, user)
 }
@@ -147,6 +152,10 @@ func (service *UserService) UpdateUserPassword(ctx context.Context, password dom
 
 	if password.NewPassword != password.RepeatedPassword {
 		return false, errors.New("Passwords do not match!")
+	}
+
+	if security.CheckBlacklistedPassword(password.NewPassword){
+		return false, errors.New("password is among blacklisted passwords")
 	}
 
 	_, err := service.userRepository.UpdateUserPassword(ctx, password)
