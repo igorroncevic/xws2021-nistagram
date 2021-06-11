@@ -2,6 +2,7 @@ package setup
 
 import (
 	"context"
+	"crypto/tls"
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
 	"github.com/david-drvar/xws2021-nistagram/common/interceptors"
@@ -61,11 +62,14 @@ func GRPCServer(db *gorm.DB) {
 		log.Fatalln("Failed to register gateway:", err)
 	}
 
+	c := common.SetupCors()
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+
 	gwServer := &http.Server{
 		Addr:    grpc_common.Content_gateway_address,
-		Handler: tracer.TracingWrapper(gatewayMux),
+		Handler: tracer.TracingWrapper(c.Handler(gatewayMux)),
 	}
 
 	log.Println("Serving gRPC-Gateway on " + grpc_common.Content_gateway_address)
-	log.Fatalln(gwServer.ListenAndServe())
+	log.Fatalln(gwServer.ListenAndServeTLS("./../common/sslFile/gateway.crt", "./../common/sslFile/gateway.key"))
 }

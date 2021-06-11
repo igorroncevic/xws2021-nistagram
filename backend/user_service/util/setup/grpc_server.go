@@ -2,6 +2,7 @@ package setup
 
 import (
 	"context"
+	"crypto/tls"
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
 	"github.com/david-drvar/xws2021-nistagram/common/interceptors"
@@ -64,6 +65,7 @@ func GRPCServer(db *gorm.DB) {
 	}
 
 	c := common.SetupCors()
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
 	gwServer := &http.Server{
 		Addr:    grpc_common.Users_gateway_address,
@@ -71,5 +73,5 @@ func GRPCServer(db *gorm.DB) {
 	}
 
 	log.Println("Serving gRPC-Gateway on " + grpc_common.Users_gateway_address)
-	log.Fatalln(gwServer.ListenAndServe())
+	log.Fatalln(gwServer.ListenAndServeTLS("./../common/sslFile/gateway.crt", "./../common/sslFile/gateway.key"))
 }
