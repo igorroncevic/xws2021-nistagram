@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/recommendation_service/util/setup"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"log"
@@ -40,7 +41,7 @@ func main(){
 
 func SetupEnvVariables() {
 	os.Setenv("DB_HOST", "bolt://localhost:7687")
-	os.Setenv("DB_NAME", "neo4j")
+	os.Setenv("DB_NAME", common.RecommendationDatabaseName)
 	os.Setenv("DB_PW", "root")
 }
 

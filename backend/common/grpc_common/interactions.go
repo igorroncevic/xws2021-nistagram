@@ -160,3 +160,22 @@ func GetCloseFriends(ctx context.Context, userId string) ([]string, error){
 
 	return userIds, nil
 }
+
+func GetPublicUsers(ctx context.Context) ([]string, error){
+	conn, err := CreateGrpcConnection(Users_service_address)
+	if err != nil{
+		return []string{}, status.Errorf(codes.Unknown, err.Error())
+	}
+	defer conn.Close()
+
+	privacyClient := GetPrivacyClient(conn)
+	publicUsers, err := privacyClient.GetAllPublicUsers(ctx, &protopb.RequestIdPrivacy{})
+	if err != nil{ return []string{}, status.Errorf(codes.Unknown, err.Error()) }
+
+	userIds := []string{}
+	for _, userId := range publicUsers.Ids{
+		userIds = append(userIds, userId)
+	}
+
+	return userIds, nil
+}

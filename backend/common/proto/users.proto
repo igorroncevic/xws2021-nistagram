@@ -61,6 +61,11 @@ service Users {
     };
   }
 
+  rpc GetPublicUsers (SearchUserDtoRequest) returns (UsersResponse) {
+    option(google.api.http) = {
+      get: "/api/users/public"
+    };
+  }
 }
 
 message Password {

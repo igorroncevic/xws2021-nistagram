@@ -21,7 +21,7 @@ func main() {
 
 func SetupEnvVariables() {
 	os.Setenv("DB_HOST", "localhost")
-	os.Setenv("DB_NAME", "xws_users")
+	os.Setenv("DB_NAME", common.UsersDatabaseName)
 	os.Setenv("DB_USER", "postgres")
 	os.Setenv("DB_PW", "root")
 }

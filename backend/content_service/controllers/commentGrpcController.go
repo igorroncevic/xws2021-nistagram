@@ -63,7 +63,7 @@ func (s *CommentGrpcController) CreateComment(ctx context.Context, in *protopb.C
 func (s *CommentGrpcController) GetCommentsForPost(ctx context.Context, id string) (*protopb.CommentsArray, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateComment")
 	defer span.Finish()
-	claims, err := s.jwtManager.ExtractClaimsFromMetadata(ctx)
+	claims, _ := s.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	post, err := s.postService.GetPostById(ctx, id)
@@ -71,17 +71,25 @@ func (s *CommentGrpcController) GetCommentsForPost(ctx context.Context, id strin
 		return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
-	following, err := grpc_common.CheckFollowInteraction(ctx, post.UserId, claims.UserId)
-	if err != nil { return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, err.Error()) }
+	if claims.UserId == ""{
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, post.UserId)
+		if err != nil { return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, err.Error()) }
+		if !isPublic{
+			return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, "this post is not public")
+		}
+	}else if claims.UserId != post.UserId{
+		following, err := grpc_common.CheckFollowInteraction(ctx, post.UserId, claims.UserId)
+		if err != nil { return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, err.Error()) }
 
-	isPublic, err := grpc_common.CheckIfPublicProfile(ctx, post.UserId)
-	if err != nil { return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, err.Error()) }
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, post.UserId)
+		if err != nil { return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, err.Error()) }
 
-	isBlocked, err := grpc_common.CheckIfBlocked(ctx, post.UserId, claims.UserId)
-	if err != nil { return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, err.Error()) }
+		isBlocked, err := grpc_common.CheckIfBlocked(ctx, post.UserId, claims.UserId)
+		if err != nil { return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, err.Error()) }
 
-	if (!following.IsApprovedRequest && !isPublic) || isBlocked {
-		return &protopb.CommentsArray{}, status.Errorf(codes.PermissionDenied, "cannot access this post")
+		if (!following.IsApprovedRequest && !isPublic) || isBlocked {
+			return &protopb.CommentsArray{}, status.Errorf(codes.PermissionDenied, "cannot access this post")
+		}
 	}
 
 	comments, err := s.service.GetCommentsForPost(ctx, id)

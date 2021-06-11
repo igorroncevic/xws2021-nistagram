@@ -87,18 +87,22 @@ func (c *PostGrpcController) CreatePost(ctx context.Context, in *protopb.Post) (
 func (c *PostGrpcController) GetAllPosts(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.ReducedPostArray, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPosts")
 	defer span.Finish()
-	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
+	claims, _ := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	if err != nil {
-		return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
-	}else if claims.UserId == ""{
-		return &protopb.ReducedPostArray{}, status.Errorf(codes.InvalidArgument, "no user id is provided")
-	}
-
-	userIds, err := grpc_common.GetHomepageUsers(ctx, claims.UserId)
-	if err != nil {
-		return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
+	userIds := []string{}
+	if claims.UserId == "" {
+		publicIds, err := grpc_common.GetPublicUsers(ctx)
+		if err != nil { return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error()) }
+		for _, id := range publicIds {
+			userIds = append(userIds, id)
+		}
+	}else{
+		homepageIds, err := grpc_common.GetHomepageUsers(ctx, claims.UserId)
+		if err != nil { return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error()) }
+		for _, id := range homepageIds {
+			userIds = append(userIds, id)
+		}
 	}
 
 	posts, err := c.service.GetAllPosts(ctx, userIds)
@@ -119,30 +123,24 @@ func (c *PostGrpcController) GetAllPosts(ctx context.Context, in *protopb.EmptyR
 func (c *PostGrpcController) GetPostsForUser(ctx context.Context, in *protopb.RequestId) (*protopb.ReducedPostArray, error){
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostsForUser")
 	defer span.Finish()
-	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
+	claims, _ := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	if err != nil {
-		return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
-	}else if claims.UserId == "" || in.Id == "" {
-		return &protopb.ReducedPostArray{}, status.Errorf(codes.InvalidArgument, "no user id is provided")
-	}
-
-	if in.Id != claims.UserId{
-		followConnection, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
-		if err != nil {
-			return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
+	if claims.Id == ""{
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
+		if err != nil { return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error()) }
+		if !isPublic{
+			return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, "this user is not public")
 		}
+	}else if in.Id != claims.UserId{
+		followConnection, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
+		if err != nil { return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error()) }
 
 		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
-		if err != nil {
-			return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
-		}
+		if err != nil { return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error()) }
 
 		isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.Id, claims.UserId)
-		if err != nil {
-			return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
-		}
+		if err != nil { return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error()) }
 
 		// If used is blocked or his profile is private and did not approve your request
 		if isBlocked || (!isPublic && !followConnection.IsApprovedRequest) {
@@ -163,23 +161,21 @@ func (c *PostGrpcController) GetPostsForUser(ctx context.Context, in *protopb.Re
 func (c *PostGrpcController) GetPostById(ctx context.Context, id string) (*protopb.Post, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostById")
 	defer span.Finish()
-	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
+	claims, _ := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	if err != nil {
-		return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error())
-	}else if claims.UserId == ""{
-		return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error())
-	}else if id == "" {
-		return &protopb.Post{}, status.Errorf(codes.InvalidArgument, "cannot retrieve non-existing posts")
-	}
+	if id == "" { return &protopb.Post{}, status.Errorf(codes.InvalidArgument, "cannot retrieve non-existing posts") }
 
 	post, err := c.service.GetPostById(ctx, id)
-	if err != nil {
-		return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error())
-	}
+	if err != nil { return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error()) }
 
-	if post.UserId != claims.UserId{
+	if claims.UserId == "" {
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, post.UserId)
+		if err != nil { return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error()) }
+		if !isPublic {
+			return &protopb.Post{}, status.Errorf(codes.Unknown, "this post is not public")
+		}
+	} else if post.UserId != claims.UserId{
 		following, err := grpc_common.CheckFollowInteraction(ctx, post.UserId, claims.UserId)
 		if err != nil { return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error()) }
 

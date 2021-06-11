@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/david-drvar/xws2021-nistagram/common"
+	"github.com/david-drvar/xws2021-nistagram/common/interceptors/rbac"
 	"github.com/david-drvar/xws2021-nistagram/content_service/util/setup"
 	"os"
 )
@@ -13,9 +14,10 @@ func main(){
 
 	db := common.InitDatabase(common.ContentDatabase)
 	err := setup.FillDatabase(db)
-	if err != nil {
-		panic("Cannot setup database tables. Error message: " + err.Error())
-	}
+	if err != nil { panic("Cannot setup database tables. Error message: " + err.Error()) }
+
+	err = rbac.SetupContentRBAC(db)
+	if err != nil { panic("Cannot setup rbac tables. Error message: " + err.Error()) }
 
 	setup.GRPCServer(db)
 }
@@ -23,7 +25,7 @@ func main(){
 
 func SetupEnvVariables() {
 	os.Setenv("DB_HOST", "localhost")
-	os.Setenv("DB_NAME", "xws_content")
+	os.Setenv("DB_NAME", common.ContentDatabaseName)
 	os.Setenv("DB_USER", "postgres")
 	os.Setenv("DB_PW", "root")
 }

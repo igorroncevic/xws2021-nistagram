@@ -65,7 +65,7 @@ func (c *LikeGrpcController) CreateLike(ctx context.Context, in *protopb.Like) (
 func (c *LikeGrpcController) GetLikesForPost(ctx context.Context, id string, isLike bool) (*protopb.LikesArray, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetLikesForPost")
 	defer span.Finish()
-	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
+	claims, _ := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	post, err := c.postService.GetPostById(ctx, id)
@@ -73,17 +73,25 @@ func (c *LikeGrpcController) GetLikesForPost(ctx context.Context, id string, isL
 		return &protopb.LikesArray{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
-	following, err := grpc_common.CheckFollowInteraction(ctx, post.UserId, claims.UserId)
-	if err != nil { return &protopb.LikesArray{}, status.Errorf(codes.Unknown, err.Error()) }
+	if claims.UserId == "" {
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, post.UserId)
+		if err != nil { return &protopb.LikesArray{}, status.Errorf(codes.Unknown, err.Error()) }
+		if !isPublic {
+			return &protopb.LikesArray{}, status.Errorf(codes.Unknown, "this post is not public")
+		}
+	}else if claims.UserId != post.UserId{
+		following, err := grpc_common.CheckFollowInteraction(ctx, post.UserId, claims.UserId)
+		if err != nil { return &protopb.LikesArray{}, status.Errorf(codes.Unknown, err.Error()) }
 
-	isPublic, err := grpc_common.CheckIfPublicProfile(ctx, post.UserId)
-	if err != nil { return &protopb.LikesArray{}, status.Errorf(codes.Unknown, err.Error()) }
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, post.UserId)
+		if err != nil { return &protopb.LikesArray{}, status.Errorf(codes.Unknown, err.Error()) }
 
-	isBlocked, err := grpc_common.CheckIfBlocked(ctx, post.UserId, claims.UserId)
-	if err != nil { return &protopb.LikesArray{}, status.Errorf(codes.Unknown, err.Error()) }
+		isBlocked, err := grpc_common.CheckIfBlocked(ctx, post.UserId, claims.UserId)
+		if err != nil { return &protopb.LikesArray{}, status.Errorf(codes.Unknown, err.Error()) }
 
-	if (!following.IsApprovedRequest && !isPublic) || isBlocked {
-		return &protopb.LikesArray{}, status.Errorf(codes.PermissionDenied, "cannot access this post")
+		if (!following.IsApprovedRequest && !isPublic) || isBlocked {
+			return &protopb.LikesArray{}, status.Errorf(codes.PermissionDenied, "cannot access this post")
+		}
 	}
 
 	likes, err := c.service.GetLikesForPost(ctx, id, isLike)

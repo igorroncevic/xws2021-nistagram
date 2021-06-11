@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
-	"github.com/david-drvar/xws2021-nistagram/common/interceptors"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/controllers"
@@ -25,11 +24,11 @@ func GRPCServer(db *gorm.DB) {
 	}
 
 	jwtManager := common.NewJWTManager("somesecretkey", 15 * time.Minute)
-	authInterceptor := interceptors.NewAuthInterceptor(jwtManager)
+	// authInterceptor := interceptors.NewAuthInterceptor(jwtManager)
 
 	// Create a gRPC server object
 	s := grpc.NewServer(
-		grpc.UnaryInterceptor(authInterceptor.Unary()),
+		// grpc.UnaryInterceptor(authInterceptor.Unary()),
 		grpc.MaxSendMsgSize(4 << 30), // Default: 1024 * 1024 * 4 = 4MB -> Override to 4GBs
 		grpc.MaxRecvMsgSize(4 << 30), // Default: 1024 * 1024 * 4 = 4MB -> Override to 4GBs
 	)
