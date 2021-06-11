@@ -47,6 +47,13 @@ service Content {
       body: "*"
     };
   }
+
+  rpc GetAllHashtags (EmptyRequestContent) returns (Hashtags) {
+    option(google.api.http) = {
+      get: "/hashtag/get-all",
+    };
+  }
+
   /* * * * * * * * * * * * */
 
   /*    Stories    */
@@ -163,6 +170,7 @@ service Content {
   rpc CreateHashtag (Hashtag) returns (Hashtag) {
     option(google.api.http) = {
       post: "/hashtag/create",
+      body : "*"
     };
   }
 
@@ -221,6 +229,7 @@ message Post {
   repeated Comment comments = 9;
   repeated Like likes = 10;
   repeated Like dislikes = 11;
+  repeated Hashtag hashtags = 12;
 }
 
 // Used for basic preview of posts, comments and likes/dislikes will be fetched on request
@@ -251,6 +260,10 @@ message Tag {
   string mediaId = 1;
   string userId = 2;
   string username = 3;
+}
+
+message Hashtags {
+  repeated Hashtag hashtags = 1;
 }
 
 message Hashtag {

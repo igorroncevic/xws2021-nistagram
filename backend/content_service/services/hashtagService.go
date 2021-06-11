@@ -57,3 +57,16 @@ func (service HashtagService) GetHashtagByText(ctx context.Context, text string)
 
 	return &domain.Hashtag{Id: hashtag.Id, Text: hashtag.Text}, nil
 }
+
+func (service HashtagService) GetAllHashtags(ctx context.Context) ([]domain.Hashtag, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllHashtags")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	hashtags, err := service.hashtagRepository.GetAllHashtags(ctx)
+	if err != nil {
+		return nil, errors.New("hashtag does not exist")
+	}
+
+	return hashtags, nil
+}

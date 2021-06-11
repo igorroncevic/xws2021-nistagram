@@ -13,6 +13,7 @@ type HashtagRepository interface {
 	CreateHashtag(ctx context.Context, text string) (*domain.Hashtag, error)
 	GetHashtagByText(ctx context.Context, text string) (*domain.Hashtag, error)
 	GetPostIdsByHashtag(ctx context.Context, hashtag persistence.Hashtag) ([]string, error)
+	GetAllHashtags(ctx context.Context) ([]domain.Hashtag, error)
 }
 
 type hashtagRepository struct {
@@ -78,4 +79,21 @@ func (repository *hashtagRepository) GetPostIdsByHashtag(ctx context.Context, ha
 	}
 
 	return postIds, nil
+}
+
+func (repository *hashtagRepository) GetAllHashtags(ctx context.Context) ([]domain.Hashtag, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllHashtags")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var hashtags []persistence.Hashtag
+	var hashtagsDomain []domain.Hashtag
+
+	repository.DB.Find(&hashtags)
+
+	for _, hashtag := range hashtags {
+		hashtagsDomain = append(hashtagsDomain, domain.Hashtag{Id: hashtag.Id, Text: hashtag.Text})
+	}
+
+	return hashtagsDomain, nil
 }
