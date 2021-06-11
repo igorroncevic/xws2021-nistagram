@@ -20,9 +20,10 @@ type PostRepository interface {
 }
 
 type postRepository struct {
-	DB              *gorm.DB
-	mediaRepository MediaRepository
-	tagRepository   TagRepository
+	DB                *gorm.DB
+	mediaRepository   MediaRepository
+	tagRepository     TagRepository
+	hashtagRepository HashtagRepository
 }
 
 func NewPostRepo(db *gorm.DB) (*postRepository, error) {
@@ -32,11 +33,13 @@ func NewPostRepo(db *gorm.DB) (*postRepository, error) {
 
 	mediaRepository, _ := NewMediaRepo(db)
 	tagRepository, _ := NewTagRepo(db)
+	hashtagRepository, _ := NewHashtagRepo(db)
 
 	return &postRepository{
-		DB:              db,
-		mediaRepository: mediaRepository,
-		tagRepository:   tagRepository,
+		DB:                db,
+		mediaRepository:   mediaRepository,
+		tagRepository:     tagRepository,
+		hashtagRepository: hashtagRepository,
 	}, nil
 }
 
@@ -80,6 +83,23 @@ func (repository *postRepository) CreatePost(ctx context.Context, post *domain.P
 		result := repository.DB.Create(&postToSave)
 		if result.Error != nil || result.RowsAffected != 1 {
 			return errors.New("cannot save post")
+		}
+
+		var finalHashtags []persistence.Hashtag
+		//create hashtags if not exist
+		for _, hashtag := range post.Hashtags {
+			var domainHashtag *domain.Hashtag
+			domainHashtag, _ = repository.hashtagRepository.GetHashtagByText(ctx, hashtag.Text)
+			if domainHashtag.Id == "" {
+				domainHashtag, _ = repository.hashtagRepository.CreateHashtag(ctx, hashtag.Text)
+			}
+			finalHashtags = append(finalHashtags, persistence.Hashtag{Id: domainHashtag.Id, Text: domainHashtag.Text})
+		}
+
+		//bind post with hashtags
+		err := repository.hashtagRepository.BindPostWithHashtags(ctx, &postToSave, finalHashtags)
+		if err != nil {
+			return errors.New("cannot bind post with hashtags")
 		}
 
 		for _, media := range post.Media {
