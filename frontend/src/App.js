@@ -1,6 +1,6 @@
 import  React from "react";
 import {IndexPage} from './pages/IndexPage.js'
-import {ForgotPasswordPage} from './pages/forgotPass/ForgotPasswordPage.js'
+import {ForgotPasswordPage} from './components/forgotPass/ForgotPasswordPage.js'
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import RegistrationPage from "./pages/RegistrationPage";
@@ -12,6 +12,7 @@ import NewPost from "./components/HomePageComponents/NewPost";
 import Home from "./components/HomePage/Home";
 import ChangePassword from "./components/ProfileComponent/ChangePassword";
 import Notifications from "./components/HomePageComponents/Notifications";
+import UnauthorizedPage from "./helpers/UnauthorizedPage";
 
 
 
@@ -20,12 +21,12 @@ function App () {
         <div className="App">
             <Router>
                 <Route path='/' exact={true} component={IndexPage}/>
+                <Route path='/unauthorized' exact={true} component={UnauthorizedPage}/>
                 <Route path='/forgotten' exact={true} component={ForgotPasswordPage}/>
                 <Route path='/registration' exact={true} component={RegistrationPage}/>
                 <Route path='/home' exact  component={Home}/>
                 <Route path='/search' exact={true} component={Search}/>
                 <Route path='/profile' exact component={Profile}/>
-                <Route path='/pass' exact={true} component={ChangePassword}/>
 
                 <Route path='/newpost' exact component={NewPost} />
                 <Route path='/chats' exact component={Chats} />

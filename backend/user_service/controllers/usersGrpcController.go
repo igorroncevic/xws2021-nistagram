@@ -107,14 +107,18 @@ func (s *UserGrpcController) SearchUser(ctx context.Context, in *protopb.SearchU
 func (s *UserGrpcController) GetUserById(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.UsersDTO, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "LoginUser")
 	defer span.Finish()
-	claims, err := s.jwtManager.ExtractClaimsFromMetadata(ctx)
+	claims, _ := s.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	if claims.UserId == "" || in.Id == "" {
-		return &protopb.UsersDTO{}, status.Errorf(codes.Unauthenticated, "cannot retrieve this user")
-	}
-
-	if claims.UserId != in.Id{
+	if claims.UserId == ""{
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
+		if err != nil {
+			return &protopb.UsersDTO{}, status.Errorf(codes.Unknown, err.Error())
+		}
+		if !isPublic {
+			return &protopb.UsersDTO{}, status.Errorf(codes.Unknown, "this user is private")
+		}
+	}else  if claims.UserId != in.Id{
 		following, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
 		if err != nil {
 			return &protopb.UsersDTO{}, status.Errorf(codes.Unknown, "cannot retrieve this user")
@@ -188,4 +192,58 @@ func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginReq
 		Username:    user.Username,
 		Role:        user.Role.String(),
 	}, nil
+}
+
+func (s *UserGrpcController) GetUserByEmail(ctx context.Context, in *protopb.RequestEmailUser) (*protopb.UsersDTO, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserByEmail")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	user, err := s.service.GetUserByEmail(ctx,in.Email)
+
+	if err != nil{
+		return &protopb.UsersDTO{}, err
+	}
+
+	userResponse := user.ConvertToGrpc()
+
+	return userResponse, nil
+}
+
+func (s *UserGrpcController) ValidateResetCode(ctx context.Context, in *protopb.RequestResetCode) (*protopb.EmptyResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserByEmail")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	_, err := s.service.ValidateResetCode(ctx,in.ResetCode,in.Email)
+
+	if err != nil {
+		return &protopb.EmptyResponse{}, status.Errorf(codes.Unknown, "Could not create user")
+	}
+
+	return &protopb.EmptyResponse{}, nil
+}
+
+
+func (s *UserGrpcController) ChangeForgottenPass(ctx context.Context, in *protopb.CreatePasswordRequest) (*protopb.EmptyResponse, error) {
+	var password domain.Password
+
+	password = password.ConvertFromGrpc(in.Password)
+	_, err := s.service.ChangeForgottenPass(ctx, password)
+	if err != nil {
+		return &protopb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Could not create user")
+	}
+
+	return &protopb.EmptyResponse{}, nil
+}
+func (s *UserGrpcController) ApproveAccount(ctx context.Context, in *protopb.CreatePasswordRequest) (*protopb.EmptyResponse, error) {
+	var password domain.Password
+
+	password = password.ConvertFromGrpc(in.Password)
+	_, err := s.service.ApproveAccount(ctx, password)
+	if err != nil {
+		return &protopb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Could not create user")
+	}
+
+	return &protopb.EmptyResponse{}, nil
 }

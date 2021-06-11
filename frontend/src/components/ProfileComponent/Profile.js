@@ -9,8 +9,8 @@ import Navigation from "../HomePage/Navigation";
 
 
 function Profile(props) {
-    const [user,setUser] =useState(props.location.state.user);
-    const [follow,setFollow] =useState(props.location.state.follow);
+    const [user,setUser] =useState({});
+    const [follow,setFollow] =useState({});
     const[publicProfile,setPublicProfile]=useState(false);
 
     const [image, setImage] = useState('');
@@ -22,9 +22,13 @@ function Profile(props) {
     const [posts, setPosts] = useState([]);
     const [loggedUser, setLoggedUser] = useState();
 
-    var loggedUsername = sessionStorage.getItem("username");
 
+    var loggedUsername = sessionStorage.getItem("username");
     useEffect(() => {
+        if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
+
+        setUser(props.location.state.user);
+        setFollow(props.location.state.follow)
         getUserByUsername();
         getUserPrivacy();
         getFollowers()
@@ -39,6 +43,7 @@ function Profile(props) {
             })
             .then(res => {
                 setLoggedUser(res.data.users[0])
+                console.log(loggedUser)
             }).catch(res => {
             console.log("NE RADI get user")
         })
@@ -96,7 +101,7 @@ function Profile(props) {
             })
             .then(res => {
                 console.log("followers radi")
-
+                console.log(res.data.users)
                 setFollowers(res.data.users);
 
             }).catch(res => {
@@ -129,7 +134,7 @@ function Profile(props) {
                     <div style={{display: "flex", justifyContent: "space-around",}}>
                         <div>
                             <img style={{width: "180px", height: "160px", borderRadius: "80px"}}
-                                 src='https://images.unsplash.com/photo-1522228115018-d838bcce5c3a?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
+                                 src={user.profilePhoto}/>
                         </div>
                         <div>
                             <h4>{user.firstName} {user.lastName}</h4>
@@ -143,8 +148,8 @@ function Profile(props) {
                                 <FollowAndUnfollow user={user} loggedUser={loggedUser} followers={followers} getFollowers={getFollowers}/>
 :
                                 <div>
-                                    <Button variant="link" style={{marginTop:'2em', borderTop: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModal}>Update profile info?</Button>
-                                    <Button variant="link" style={{borderBottom: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModalPass}>Change password?</Button>
+                                    <Button variant="link" style={{marginTop:'2em', borderTop: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModal}>Update profile info</Button>
+                                    <Button variant="link" style={{borderBottom: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModalPass}>Change password</Button>
                                 </div>
 
                             }

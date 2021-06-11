@@ -39,6 +39,9 @@ func (u User) ConvertToGrpc() *protopb.UsersDTO {
 		Website:      u.Website,
 		Biography:    u.Biography,
 		Category:     model.GetUserCategoriesString(u.Category),
+		ResetCode:    u.ResetCode,
+		ApprovedAccount: u.ApprovedAccount,
+		TokenEnd: timestamppb.New(u.TokenEnd),
 	}
 }
 
@@ -58,25 +61,31 @@ func (u User) ConvertFromGrpc(user *protopb.UsersDTO) User {
 		Website:      user.Website,
 		Biography:    user.Biography,
 		Category:     model.GetUserCategories(user.Category),
+		ResetCode:    user.ResetCode,
+		ApprovedAccount: user.ApprovedAccount,
+		TokenEnd:  user.TokenEnd.AsTime(),
 	}
 }
 
 func (u *User) GenerateUserDTO(user persistence.User, userAdditionalInfo persistence.UserAdditionalInfo) *User {
 	if u == nil { u = &User{} }
 	return &User{
-		Id:          user.Id,
-		FirstName:    user.FirstName,
-		LastName:     user.LastName,
-		Email:        user.Email,
-		Username:     user.Username,
-		Role:         user.Role,
-		BirthDate:    user.BirthDate,
+		Id: user.Id,
+		FirstName: user.FirstName,
+		LastName: user.LastName,
+		Email: user.Email,
+		Username: user.Username,
+		Role: user.Role,
+		BirthDate: user.BirthDate,
 		ProfilePhoto: user.ProfilePhoto,
-		PhoneNumber:  user.PhoneNumber,
-		Sex:          user.Sex,
-		IsActive:     user.IsActive,
-		Biography:    userAdditionalInfo.Biography,
-		Website:      userAdditionalInfo.Website,
-		Category:     userAdditionalInfo.Category,
+		PhoneNumber: user.PhoneNumber,
+		IsActive: user.IsActive,
+		Sex: user.Sex,
+		Biography: userAdditionalInfo.Biography,
+		Category: userAdditionalInfo.Category,
+		Website: userAdditionalInfo.Website,
+		ResetCode: user.ResetCode,
+		ApprovedAccount: user.ApprovedAccount,
+		TokenEnd: user.TokenEnd,
 	}
 }

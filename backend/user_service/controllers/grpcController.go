@@ -15,6 +15,7 @@ type Server struct {
 	protopb.UnimplementedPrivacyServer
 	userController    *UserGrpcController
 	privacyController *PrivacyGrpcController
+	emailController   *EmailGrpcController
 	tracer            otgo.Tracer
 	closer            io.Closer
 }
@@ -22,11 +23,13 @@ type Server struct {
 func NewServer(db *gorm.DB, jwtManager *common.JWTManager) (*Server, error) {
 	newUserController, _ := NewUserController(db, jwtManager)
 	newPrivacyController, _ := NewPrivacyController(db)
+	newEmailController, _ := NewEmailController(db)
 	tracer, closer := tracer.Init("userService")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
 		userController:    newUserController,
 		privacyController: newPrivacyController,
+		emailController:    newEmailController,
 		tracer:            tracer,
 		closer:            closer,
 	}, nil
@@ -98,4 +101,20 @@ func (s *Server) GetAllPublicUsers(ctx context.Context, in *protopb.RequestIdPri
 
 func (s *Server) LoginUser(ctx context.Context, in *protopb.LoginRequest) (*protopb.LoginResponse, error) {
 	return s.userController.LoginUser(ctx, in)
+}
+
+func (s *Server) SendEmail(ctx context.Context, in *protopb.SendEmailDtoRequest) (*protopb.EmptyResponse, error) {
+	return s.emailController.SendEmail(ctx,in)
+}
+func (s *Server) GetUserByEmail(ctx context.Context, in *protopb.RequestEmailUser) (*protopb.UsersDTO, error) {
+	return s.userController.GetUserByEmail(ctx,in)
+}
+func (s *Server) ValidateResetCode(ctx context.Context, in *protopb.RequestResetCode) (*protopb.EmptyResponse, error) {
+	return s.userController.ValidateResetCode(ctx,in)
+}
+func (s *Server) ChangeForgottenPass(ctx context.Context, in *protopb.CreatePasswordRequest) (*protopb.EmptyResponse, error) {
+	return s.userController.ChangeForgottenPass(ctx,in)
+}
+func (s *Server) ApproveAccount(ctx context.Context, in *protopb.CreatePasswordRequest) (*protopb.EmptyResponse, error) {
+	return s.userController.ApproveAccount(ctx,in)
 }

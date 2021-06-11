@@ -8,9 +8,12 @@ replace github.com/david-drvar/xws2021-nistagram/common => ./../common
 
 require (
 	github.com/david-drvar/xws2021-nistagram/common v0.0.1
+	github.com/dvwright/xss-mw v0.0.0-20191029162136-7a0dab86d8f6 // indirect
+	github.com/gin-gonic/gin v1.7.2 // indirect
 	github.com/google/uuid v1.1.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.4.0
 	github.com/jackc/pgproto3/v2 v2.0.7 // indirect
+	github.com/microcosm-cc/bluemonday v1.0.9 // indirect
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/satori/go.uuid v1.2.0
 	golang.org/x/text v0.3.6 // indirect

@@ -40,17 +40,18 @@ func NewHighlightController(db *gorm.DB, jwtManager *common.JWTManager) (*Highli
 func (c *HighlightGrpcController) GetAllHighlights (ctx context.Context, in *protopb.RequestId) (*protopb.HighlightsArray, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllHighlights")
 	defer span.Finish()
-	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
+	claims, _ := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	if err != nil {
-		return &protopb.HighlightsArray{}, status.Errorf(codes.Unknown, err.Error())
-	}  else if claims.UserId == "" {
-		return &protopb.HighlightsArray{}, status.Errorf(codes.InvalidArgument, "no user id provided")
-	}
 
 	isCloseFriend := false
-	if claims.UserId != in.Id {
+	if claims.UserId == ""{
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
+		if err != nil { return &protopb.HighlightsArray{}, status.Errorf(codes.Unknown, err.Error()) }
+		if !isPublic{
+			return &protopb.HighlightsArray{}, status.Errorf(codes.Unknown, "this user is private")
+		}
+	}else  if claims.UserId != in.Id {
 		followConnection, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
 		if err != nil {
 			return &protopb.HighlightsArray{}, status.Errorf(codes.Unknown, err.Error())
@@ -107,10 +108,8 @@ func (c *HighlightGrpcController) GetHighlight (ctx context.Context, in *protopb
 	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	if err != nil {
-		return &protopb.Highlight{}, status.Errorf(codes.Unknown, err.Error())
-	}  else if claims.UserId == "" {
-		return &protopb.Highlight{}, status.Errorf(codes.InvalidArgument, "no user id provided")
+	if in.Id == "" {
+		return &protopb.Highlight{}, status.Errorf(codes.InvalidArgument, "no highlight id provided")
 	}
 
 	highlight, err := c.service.GetHighlight(ctx, in.Id)
@@ -119,7 +118,15 @@ func (c *HighlightGrpcController) GetHighlight (ctx context.Context, in *protopb
 	}
 
 	isCloseFriend := false
-	if claims.UserId != highlight.UserId {
+	if claims.UserId == ""{
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, highlight.UserId)
+		if err != nil {
+			return &protopb.Highlight{}, status.Errorf(codes.Unknown, err.Error())
+		}
+		if !isPublic{
+			return &protopb.Highlight{}, status.Errorf(codes.Unknown, "this highlight is not public")
+		}
+	}else if claims.UserId != highlight.UserId {
 		followConnection, err := grpc_common.CheckFollowInteraction(ctx, highlight.UserId, claims.UserId)
 		if err != nil {
 			return &protopb.Highlight{}, status.Errorf(codes.Unknown, err.Error())

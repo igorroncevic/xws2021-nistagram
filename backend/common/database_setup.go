@@ -20,6 +20,11 @@ const (
 	ContentDatabase 	   = "ContentDatabase"
 	AgentDatabase 		   = "AgentDatabase"
 	RecommendationDatabase = "RecommendationDatabase"
+
+	UsersDatabaseName 	   		   = "xws_users"
+	ContentDatabaseName 	   	   = "xws_content"
+	AgentDatabaseName 	   		   = "xws_agent"
+	RecommendationDatabaseName 	   = "neo4j"
 )
 
 func InitDatabase(dbname string) *gorm.DB {
@@ -61,5 +66,3 @@ func InitDatabase(dbname string) *gorm.DB {
 
 	return db
 }
-
-

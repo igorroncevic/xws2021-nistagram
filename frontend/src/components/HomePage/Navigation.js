@@ -9,6 +9,8 @@ import {useHistory} from "react-router-dom";
 
 function Navigation(props) {
     const [user, setUser] = useState({...props.user});
+
+
     const history = useHistory()
 
     useEffect(() => {

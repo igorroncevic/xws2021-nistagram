@@ -25,6 +25,9 @@ type UserRepository interface {
 	LoginUser(context.Context, domain.LoginRequest) (persistence.User, error)
 	SaveUserProfilePhoto(ctx context.Context, user *persistence.User) (bool, error)
 	GetUserAdditionalInfoById(ctx context.Context, id string) (persistence.UserAdditionalInfo, error)
+	GetUserByEmail(email string) (domain.User, error)
+	ChangeForgottenPass(ctx context.Context, password domain.Password) (bool, error)
+	ApproveAccount(ctx context.Context, password domain.Password) (bool, error)
 	GetUserById(context.Context, string) 	(persistence.User, error)
 }
 
@@ -80,7 +83,7 @@ func (repository *userRepository) UpdateUserProfile(ctx context.Context, userDTO
 	var userAdditionalInfo persistence.UserAdditionalInfo
 
 	db := repository.DB.Model(&user).Where("id = ?", userDTO.Id).Updates(persistence.User{FirstName: userDTO.FirstName, LastName: userDTO.LastName, Email: userDTO.Email, Username: userDTO.Username, BirthDate: userDTO.BirthDate,
-		PhoneNumber: userDTO.PhoneNumber, Sex: userDTO.Sex})
+		PhoneNumber: userDTO.PhoneNumber, Sex: userDTO.Sex,ResetCode: userDTO.ResetCode, ApprovedAccount: userDTO.ApprovedAccount, TokenEnd: userDTO.TokenEnd})
 
 	fmt.Println(db.RowsAffected)
 
@@ -124,6 +127,38 @@ func (repository *userRepository) GetUserByUsername(username string) (domain.Use
 	user := &domain.User{}
 
 	user.GenerateUserDTO(dbUser, dbUserAdditionalInfo)
+
+	filename, err := images.LoadImageToBase64(user.ProfilePhoto)
+	if err != nil {
+		return domain.User{}, err
+	}
+	user.ProfilePhoto = filename
+
+	return *user, nil
+}
+
+func (repository *userRepository) GetUserByEmail(email string) (domain.User, error) {
+	var dbUser persistence.User
+	var dbUserAdditionalInfo persistence.UserAdditionalInfo
+
+	db := repository.DB.Where("email = ?", email).Find(&dbUser)
+	if db.Error != nil {
+		return domain.User{}, db.Error
+	}
+
+	db = repository.DB.Where("id = ?", dbUser.Id).Find(&dbUserAdditionalInfo)
+	if db.Error != nil {
+		return domain.User{}, db.Error
+	}
+	user := &domain.User{}
+
+	user.GenerateUserDTO(dbUser, dbUserAdditionalInfo)
+
+	filename, err := images.LoadImageToBase64(user.ProfilePhoto)
+	if err != nil {
+		return domain.User{}, err
+	}
+	user.ProfilePhoto = filename
 
 	return *user, nil
 }
@@ -306,6 +341,11 @@ func (repository *userRepository) SearchUsersByUsernameAndName(ctx context.Conte
 			return nil, err
 		}
 		user.GenerateUserDTO(v, dbUserAdditionalInfo)
+		filename, err := images.LoadImageToBase64(v.ProfilePhoto)
+		if err != nil {
+			return nil, err
+		}
+		user.ProfilePhoto = filename
 		usersDomain = append(usersDomain, *user)
 	}
 
@@ -335,6 +375,54 @@ func (repository *userRepository) SaveUserProfilePhoto(ctx context.Context, user
 	db := repository.DB.Model(&user).Where("id = ?", user.Id).Updates(user)
 	if db.Error != nil {
 		return false, db.Error
+	}
+
+	return true, nil
+}
+
+
+func (repository *userRepository) ChangeForgottenPass(ctx context.Context, password domain.Password) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserPassword")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var user *persistence.User
+
+	db := repository.DB.Model(&user).Where("id = ?", password.Id).Updates(persistence.User{Password: encryption.HashAndSalt([]byte(password.NewPassword))})
+
+	if db.Error != nil {
+		return false, db.Error
+	} else if db.RowsAffected == 0 {
+		return false, errors.New("rows affected is equal to zero")
+	}
+
+	return true, nil
+}
+
+func (repository *userRepository) ApproveAccount(ctx context.Context, password domain.Password) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserPassword")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var user *persistence.User
+
+	db := repository.DB.Select("password").Where("id = ?", password.Id).Find(&user)
+	if db.Error != nil {
+		return false, db.Error
+	} else if db.RowsAffected == 0 {
+		return false, errors.New("rows affected is equal to zero")
+	}
+
+	err := encryption.CompareHashAndPassword([]byte(user.Password), []byte(password.OldPassword))
+	if err != nil {
+		return false, err
+	}
+
+	db = repository.DB.Model(&user).Where("id = ?", password.Id).Updates(persistence.User{Password: encryption.HashAndSalt([]byte(password.NewPassword)), ApprovedAccount: true})
+	if db.Error != nil {
+		return false, db.Error
+	} else if db.RowsAffected == 0 {
+		return false, errors.New("rows affected is equal to zero")
 	}
 
 	return true, nil

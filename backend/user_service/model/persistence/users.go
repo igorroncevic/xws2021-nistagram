@@ -20,6 +20,9 @@ type User struct {
 	PhoneNumber  string
 	Sex          string
 	IsActive     bool
+	ResetCode    string
+	ApprovedAccount bool
+	TokenEnd    time.Time
 }
 
 func (u User) ConvertToGrpc() *protopb.User {
@@ -36,6 +39,9 @@ func (u User) ConvertToGrpc() *protopb.User {
 		PhoneNumber:  u.PhoneNumber,
 		Sex:          u.Sex,
 		IsActive:     u.IsActive,
+		ResetCode:    u.ResetCode,
+		ApprovedAccount: u.ApprovedAccount,
+		TokenEnd:	  timestamppb.New(u.TokenEnd),
 	}
 }
 
@@ -53,6 +59,9 @@ func (u *User) ConvertFromGrpc(user *protopb.User) *User {
 		PhoneNumber:  user.PhoneNumber,
 		Sex:          user.Sex,
 		IsActive:     user.IsActive,
+		ResetCode:    user.ResetCode,
+		ApprovedAccount: user.ApprovedAccount,
+		TokenEnd:     user.TokenEnd.AsTime(),
 	}
 }
 

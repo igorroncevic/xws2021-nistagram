@@ -60,7 +60,7 @@ func (service *PrivacyService) CheckUserProfilePublic(ctx context.Context, userI
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	var privacy, _ = service.repository.GetUserPrivacy(ctx, userId)
+	privacy, _ := service.repository.GetUserPrivacy(ctx, userId)
 	return privacy.IsProfilePublic == true
 }
 

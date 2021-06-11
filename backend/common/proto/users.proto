@@ -61,6 +61,44 @@ service Users {
     };
   }
 
+  // Svi
+  rpc SendEmail (SendEmailDtoRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/sendEmail"
+      body: "*"
+    };
+  }
+
+  // Svi
+  rpc GetUserByEmail (RequestEmailUser) returns (UsersDTO) {
+    option(google.api.http) = {
+      get: "/api/users/getByEmail/{email}"
+    };
+  }
+
+  // Svi
+  rpc ValidateResetCode (RequestResetCode) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/validateResetCode"
+      body: "*"
+    };
+  }
+
+  // Svi
+  rpc ChangeForgottenPass (CreatePasswordRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/changeForgottenPass"
+      body: "*"
+    };
+  }
+
+  // Samo ulogovani
+  rpc ApproveAccount (CreatePasswordRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/approveAccount"
+      body: "*"
+    };
+  }
 }
 
 message Password {
@@ -85,6 +123,9 @@ message User {
   bool isActive = 12;
   string biography = 13;
   string website = 14;
+  string resetCode=15;
+  bool approvedAccount=16;
+  google.protobuf.Timestamp tokenEnd=17;
 }
 
 message UsersDTO {
@@ -102,6 +143,9 @@ message UsersDTO {
   string biography = 12;
   string website = 13;
   string category = 14;
+  string resetCode=15;
+  bool approvedAccount=16;
+  google.protobuf.Timestamp tokenEnd=17;
 }
 
 //TODO ne treba da vracamo usera vec usera bez sifre i sa biografijom i website-om
@@ -139,6 +183,23 @@ message LoginResponse {
   string userId = 2;
   string role = 3;
   string username = 4;
+}
+message SendEmailDtoRequest {
+  string to = 1;
+}
+
+message RequestEmailUser {
+  string email = 1;
+}
+
+message RequestResetCode {
+  string resetCode = 1;
+  string email = 2;
+}
+
+message RequestChangeForgottenPass {
+  string password = 1;
+  string rePassword = 2;
 }
 
 message RequestIdUsers {
