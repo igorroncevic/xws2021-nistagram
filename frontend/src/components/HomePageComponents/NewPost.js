@@ -5,13 +5,15 @@ import {Button, Modal} from "react-bootstrap";
 import RegistrationPage from "../../pages/RegistrationPage";
 import UserAutocomplete from "../PostComponent/UserAutocomplete";
 import ProfileForAutocomplete from "../PostComponent/ProfileForAutocomplete";
+import AutocompleteHashtags from "../PostComponent/AutocompleteHashtags";
 
 function NewPost(props) {
     const [user,setUser] =useState(props.location.state.user);
     const[description,setDescription]=useState('');
     const[location,setLocation]=useState('');
     const[image,setImage]=useState('');
-    const [hashtagList, setHashtagList] = useState([{ text: ""}]);
+    const [hashtagList, setHashtagList] = useState([]);
+    const [hashtagListForPrint, setHashtagListForPrint] = useState([]);
     const[showModal,setShowModal]=useState(false);
     const [tagList, setTagList] = useState([]);
     const [tagListForPrint, setTagListForPrint] = useState([]);
@@ -19,13 +21,19 @@ function NewPost(props) {
     const [postPrint, setPostPrint] = useState([]);
     const [imageName, setImageName] = useState("");
     const [allUsers, setAllUsers] = useState([]);
+    const [allHashtags, setAllHashtags] = useState([]);
 
     useEffect(() => {
         getAllUsers();
+        getAllHashtags();
     }, []);
 
     function getAllUsers() {
         axios.get("http://localhost:8080/api/users/api/users").then(res => setAllUsers(res.data.users));
+    }
+
+    function getAllHashtags() {
+        axios.get("http://localhost:8080/api/content/hashtag/get-all").then(res => setAllHashtags(res.data.hashtags));
     }
 
     //todo hashtag list
@@ -47,12 +55,25 @@ function NewPost(props) {
     }
 
 
-    function handleAutocompleteClick(tag) {
+    function handleTagAutocompleteClick(tag) {
         if (tagListForPrint.some((someTag) => someTag.id === tag.id)) //prevents adding the same tag
             return;
         // setTagList([...tagList, {userId: tag.userId, username: tag.username, mediaId: "1"}]);
         setTagListForPrint([...tagListForPrint, tag]);
         setTagList([...tagList, {userId : tag.id, mediaId : "1", username : tag.username}]);
+    }
+
+    function handleHashtagAutocompleteClick(tag) {
+        if (hashtagListForPrint.some((someTag) => someTag.id === tag.id)) //prevents adding the same tag
+            return;
+        // setTagList([...tagList, {userId: tag.userId, username: tag.username, mediaId: "1"}]);
+        setHashtagListForPrint([...hashtagListForPrint, tag]);
+        setHashtagList([...hashtagList, {id : tag.id, text : tag.text}]);
+    }
+
+    function handleHashtagAutocompleteNewSuggestion(newTag) {
+        setHashtagListForPrint([...hashtagListForPrint, {text : newTag}]);
+        setHashtagList([...hashtagList, {text : newTag}]);
     }
 
 
@@ -75,7 +96,8 @@ function NewPost(props) {
                 media : mediaList,
                 comments : [],
                 likes : [],
-                dislikes : []
+                dislikes : [],
+                hashtags : hashtagList
             })
             .then(res => {
                 alert("Post created successfully!");
@@ -138,27 +160,22 @@ function NewPost(props) {
                 <br/>
                 <input type="text" placeholder="location" value={location} onChange={(e)=>setLocation(e.target.value)} />
 
-
+                <br/>
+                <AutocompleteHashtags addToHashtaglist={handleHashtagAutocompleteClick}
+                                  suggestions={allHashtags} handleHashtagAutocompleteNewSuggestion={handleHashtagAutocompleteNewSuggestion}
+                />
+                <br/><br/>
                 <h3>Hashtags:</h3>
                 <div>
-                    {hashtagList.map((x, i) => {
+                    <ul>
+                    {hashtagListForPrint.map((hashtag, i) => {
                         return (
-                            <div className="box">
-                                <input
-                                    name="text"
-                                    placeholder="text"
-                                    value={x.text}
-                                    onChange={e => handleHashtagListChange(e, i)}
-                                />
-                                <div className="btn-box">
-                                    {hashtagList.length !== 1 && <button
-                                        className="mr10"
-                                        onClick={() => handleRemoveHashtagListClick(i)}>Remove</button>}
-                                    {hashtagList.length - 1 === i && <button onClick={handleAddHashtagListClick}>Add</button>}
-                                </div>
-                            </div>
+                            <li>
+                                {hashtag.text}
+                            </li>
                         );
                     })}
+                    </ul>
                     {/*<div style={{ marginTop: 20 }}>{JSON.stringify(hashtagList)}</div>*/}
                 </div>
                 <br/><br/>
@@ -191,7 +208,7 @@ function NewPost(props) {
                            required />
 
                     <br/><br/>
-                    <UserAutocomplete addToTaglist={handleAutocompleteClick}
+                    <UserAutocomplete addToTaglist={handleTagAutocompleteClick}
                         suggestions={allUsers}
                     />
                     <h3>Tags:</h3>
