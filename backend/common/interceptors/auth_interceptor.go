@@ -59,7 +59,5 @@ func (interceptor *AuthInterceptor) authorize(ctx context.Context) (context.Cont
 		return ctx, status.Errorf(codes.Unauthenticated, "access token is invalid: %v", err)
 	}
 
-	// RBAC Authentication goes here
-
 	return ctx, nil
 }

@@ -23,20 +23,15 @@ func main(){
 		time.Sleep(time.Duration(duration)*time.Second)
 		err := CreateUniqueConstraint(driver)
 		if err != nil {
-			log.Println(err)
-			log.Println("AJDEEEE")
-			log.Println("Retrying . . . ")
+			log.Println("Retrying to connect to Neo4j...")
 			continue
 		}else {
-			log.Println("Success!")
+			log.Println("Successfully connected to Neo4j!")
 		}
 		break
 	}
 
-
-
 	setup.GRPCServer(driver)
-
 }
 
 func SetupEnvVariables() {
@@ -45,11 +40,7 @@ func SetupEnvVariables() {
 	os.Setenv("DB_PW", "root")
 }
 
-
-
 func CreateUniqueConstraint(driver neo4j.Driver) error {
-	log.Println("Nece error da ispise")
-
 	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
 	defer session.Close()
 	_, err := session.WriteTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
@@ -59,11 +50,8 @@ func CreateUniqueConstraint(driver neo4j.Driver) error {
 
 			})
 		if err != nil {
-			log.Println(err)
-			log.Println("Nece error da ispise")
 			return nil, err
 		}
-		log.Println("A ja ovde baka....")
 		return nil, nil
 	})
 	if err != nil {

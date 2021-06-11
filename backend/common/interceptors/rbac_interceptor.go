@@ -33,17 +33,23 @@ func (interceptor *RBACInterceptor) Authorize() grpc.UnaryServerInterceptor{
 
 		permissionToCheck := methodParts[2]
 
-		log.Println("henlo 1")
+		// Skip Login and Register endpoints
+		if permissionToCheck == "LoginUser" || permissionToCheck == "CreateUser" || permissionToCheck == "CreatePrivacy" {
+			return handler(ctx, req)
+		}
+
 		isAllowed, role, err := interceptor.checkPermission(permissionToCheck, ctx)
-		log.Println(isAllowed, role, err)
 		if err != nil { return nil, err }
 		if !isAllowed { return nil, nil }
 
 		// Allowing unauthorized users to hit some endpoints
 		if isAllowed && role == rbac.Nonregistered { return handler(ctx, req) }
 
-		ctx, err = interceptor.auth.authorize(ctx)
-		if err != nil { return nil, err }
+		// Intraservice authorization is not working, so only the most robust service, Content, will validate JWT
+		if methodParts[1] == "proto.Content" {
+			ctx, err = interceptor.auth.authorize(ctx)
+			if err != nil { return nil, err }
+		}
 
 		return handler(ctx, req)
 	}
@@ -58,16 +64,12 @@ func (interceptor *RBACInterceptor) checkPermission(permission string, ctx conte
 		role = claims.Role
 	}
 
-	log.Println("henlo 1 " + role)
-
 	permissionCheck := &rbac.RolePermission{}
 	result := interceptor.db.Model(rbac.RolePermission{}).
 		Joins("left join user_roles ON user_roles.id = role_permissions.role_id").
 		Joins("left join permissions ON permissions.id = role_permissions.permission_id").
 		Where("user_roles.name = ? AND permissions.name = ?", role, permission).
 		Find(&permissionCheck)
-
-	log.Println(permissionCheck)
 
 	if result.Error != nil || permissionCheck == nil { return false, role, result.Error }
 	if permissionCheck.PermissionId == "" || permissionCheck.RoleId == "" {
