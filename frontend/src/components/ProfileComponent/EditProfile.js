@@ -11,6 +11,7 @@ const EditProfile = props => {
     const[emailErr,setEmailErr]=useState('');
     const[usernameErr,setUsernameErr]=useState('');
     const[birthDateErr,setBirthDateErr]=useState('');
+    const[sexErr,setSexErr]=useState('');
     const[phoneNumErr,setPhoneErr]=useState('');
     const [submitted, setSubmitted] = useState(false);
 
@@ -40,6 +41,7 @@ const EditProfile = props => {
                 console.log("RADI")
                 props.updateUser()
                 setSuccess(true);
+                sessionStorage.setItem("username",user.username);
 
             }).catch(res => {
             console.log("NE RADIs")
@@ -57,19 +59,25 @@ const EditProfile = props => {
         const { name, value } = event.target;
         switch (name) {
             case 'firstName':
-                setFirstNameErr(checkNameAndSurname(user.firstName) ? '' : 'EnterFirstName');
+                setFirstNameErr((checkNameAndSurname(user.firstName)&& value.length>1) ? '' : 'EnterFirstName');
                 break;
             case 'lastName':
-                setLastNameErr(checkNameAndSurname(user.lastName) ? '' : 'EnterLastName');
+                setLastNameErr((checkNameAndSurname(user.lastName) && value.length>1)? '' : 'EnterLastName');
                 break;
             case 'email':
-                setEmailErr(isValidEmail(user.email) && user.email.length > 1 ? '' : 'Email is not valid!');
+                setEmailErr(isValidEmail(user.email) && value.length > 1 ? '' : 'Email is not valid!');
                 break;
             case 'phoneNumber':
-                setPhoneErr(isPhoneNumberValid(user.phoneNumber) ? '' : 'Enter phone number');
+                setPhoneErr((isPhoneNumberValid(user.phoneNumber) && value.length > 1)? '' : 'Enter phone number');
                 break;
             case 'username':
-                setUsernameErr( isUsernameValid(user.username) ? '' : 'Enter username');
+                setUsernameErr( (isUsernameValid(user.username)&& value.length>1) ? '' : 'Enter username');
+                break;
+            case 'sex':
+                setSexErr( user.sex !== "" ? '' : 'Select sex')
+                break;
+            case 'birthDate':
+                setBirthDateErr( user.birthdate !== "" ? '' : 'Enter birthdate')
                 break;
             default:
                 break;
@@ -85,10 +93,7 @@ const EditProfile = props => {
     }
 
     function checkNameAndSurname(value) {
-        var mika= !(value && !/^[a-zA-Z ,.'-]+$/i.test(value));
-        console.log(mika)
-        var pera= /^[a-zA-Z ,.'-]+$/.test(value);
-        return pera;
+        return /^[a-zA-Z ,.'-]+$/.test(value);
     }
 
     function isValidEmail (value) {
@@ -98,7 +103,7 @@ const EditProfile = props => {
     async function submitForm (event) {
         setSubmitted(true);
 
-        if(firstNameErr === "" && lastNameErr === "" &&  emailErr === "" &&  usernameErr === "" &&  phoneNumErr === "" ){
+        if(firstNameErr === "" && lastNameErr === "" &&  emailErr === "" &&  usernameErr === "" &&  phoneNumErr === "" && sexErr==="" && birthDateErr==="" ){
             await sendParams()
         }else {
             console.log('Invalid Form')
@@ -123,7 +128,8 @@ const EditProfile = props => {
                             <tbody>
                             <tr>
                                 <td>Username</td>
-                                {edit
+                                <td>{user.username}</td>
+                                {/* {edit
                                     ?
                                     <div>
                                         <FormControl name="username" className="mt-2 mb-1" value={user.username}  onChange={handleInputChange}/>
@@ -131,7 +137,7 @@ const EditProfile = props => {
 
                                     </div>
                                     : <td>{user.username}</td>
-                                }
+                               }*/}
                             </tr>
                             <tr>
                                 <td>First Name</td>
@@ -189,12 +195,15 @@ const EditProfile = props => {
 
                                 <td>Sex</td>
                                 {edit
-                                    ?  <select onChange={(e) => handleInputChange(e)} name={"sex"} value={user.sex}>
+                                    ?
+                                    <div><select onChange={(e) => handleInputChange(e)} name={"sex"} value={user.sex}>
                                         <option disabled={true} value="">Select sex</option>
                                         <option value="MALE">Male</option>
                                         <option value="FEMALE">Female</option>
                                         <option value="OTHER">Other</option>
                                     </select>
+                                    {submitted && sexErr.length > 0 && <span className="text-danger">{sexErr}</span>}
+                                    </div>
                                     : <td>{user.sex}</td>
                                 }
                             </tr>

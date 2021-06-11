@@ -22,6 +22,7 @@ function Profile(props) {
     const [posts, setPosts] = useState([]);
     const [loggedUser, setLoggedUser] = useState();
 
+
     var loggedUsername = sessionStorage.getItem("username");
     useEffect(() => {
         getUserByUsername();
@@ -38,6 +39,7 @@ function Profile(props) {
             })
             .then(res => {
                 setLoggedUser(res.data.users[0])
+                console.log(loggedUser)
             }).catch(res => {
             console.log("NE RADI get user")
         })

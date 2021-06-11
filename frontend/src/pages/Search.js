@@ -63,6 +63,24 @@ export default function Search(props) {
             setInputErr("Enter search value")
             return
         }
+
+        if(!/^[a-zA-Z ,.'-]+$/.test(input) && searchCategory !== "User"){
+            setInputErr("Enter valid search value")
+            return
+        }
+        else if ( searchCategory === "User") {
+            if( input!="" && !/^[a-zA-Z ,.'-]+$/.test(input)) {
+                setInputErr("Enter valid search value")
+                return
+            }else  if( firstName!="" && !/^[a-zA-Z ,.'-]+$/.test(firstName)) {
+                setInputErr("Enter valid search value")
+                return
+            }else  if( lastName!="" && !/^[a-zA-Z ,.'-]+$/.test(lastName)) {
+                setInputErr("Enter valid search value")
+                return
+            }
+        }
+
         switch (searchCategory) {
             case "User" :
                 searchByUser();

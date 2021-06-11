@@ -11,6 +11,8 @@ import NewPost from "../HomePageComponents/NewPost";
 function Menu(props) {
     const{user}=props;
 
+    console.log("NAV")
+    console.log(user)
     return (
         <div className="menu">
             <NavLink  to={{ pathname: "/home", state: { user:user}  }}  >
