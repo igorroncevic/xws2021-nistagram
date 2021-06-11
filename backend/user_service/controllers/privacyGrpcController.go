@@ -25,8 +25,11 @@ func NewPrivacyController(db *gorm.DB) (*PrivacyGrpcController, error) {
 }
 
 func (s *PrivacyGrpcController) CreatePrivacy(ctx context.Context, in *protopb.CreatePrivacyRequest) (*protopb.EmptyResponsePrivacy, error) {
-	var privacy *persistence.Privacy
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreatePrivacy")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	var privacy *persistence.Privacy
 	privacy.ConvertFromGrpc(in.Privacy)
 	_, err := s.service.CreatePrivacy(ctx, privacy)
 	if err != nil {
@@ -37,8 +40,11 @@ func (s *PrivacyGrpcController) CreatePrivacy(ctx context.Context, in *protopb.C
 }
 
 func (s *PrivacyGrpcController) UpdatePrivacy(ctx context.Context, in *protopb.CreatePrivacyRequest) (*protopb.EmptyResponsePrivacy, error) {
-	var privacy *persistence.Privacy
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdatePrivacy")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	var privacy *persistence.Privacy
 	privacy.ConvertFromGrpc(in.Privacy)
 	_, err := s.service.UpdatePrivacy(ctx, privacy)
 	if err != nil {
@@ -49,8 +55,11 @@ func (s *PrivacyGrpcController) UpdatePrivacy(ctx context.Context, in *protopb.C
 }
 
 func (s *PrivacyGrpcController) BlockUser(ctx context.Context, in *protopb.CreateBlockRequest) (*protopb.EmptyResponsePrivacy, error) {
-	var block *persistence.BlockedUsers
+	span := tracer.StartSpanFromContextMetadata(ctx, "BlockUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	var block *persistence.BlockedUsers
 	block.ConvertFromGrpc(in.Block)
 	_, err := s.service.BlockUser(ctx, block)
 	if err != nil {
@@ -61,8 +70,11 @@ func (s *PrivacyGrpcController) BlockUser(ctx context.Context, in *protopb.Creat
 }
 
 func (s *PrivacyGrpcController) UnBlockUser(ctx context.Context, in *protopb.CreateBlockRequest) (*protopb.EmptyResponsePrivacy, error) {
-	var block *persistence.BlockedUsers
+	span := tracer.StartSpanFromContextMetadata(ctx, "UnBlockUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	var block *persistence.BlockedUsers
 	block.ConvertFromGrpc(in.Block)
 	_, err := s.service.UnBlockUser(ctx, block)
 	if err != nil {

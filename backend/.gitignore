@@ -4,5 +4,7 @@
 
 *.png
 *.jpg
+*.jpeg
 *.bmp
 *.mp4
+*.log

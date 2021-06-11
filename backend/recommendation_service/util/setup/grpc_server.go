@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
+	"github.com/david-drvar/xws2021-nistagram/common/logger"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/recommendation_service/controllers"
@@ -20,32 +21,34 @@ import (
 )
 
 func GRPCServer(driver neo4j.Driver) {
+	customLogger := logger.NewLogger()
+
 	// Create a listener on TCP port
 	lis, err := net.Listen("tcp", grpc_common.Recommendation_service_address)
 	if err != nil {
-		log.Fatalln("Failed to listen:", err)
+		customLogger.ToStdoutAndFile("Recommendation GRPC Server", "Couldn't listen to " + grpc_common.Recommendation_service_address, logger.Fatal)
+		return
 	}
 
 	// Create a gRPC server object
 	s := grpc.NewServer()
 
-	server, err := controllers.NewServer(driver)
+	server, err := controllers.NewServer(driver, customLogger)
 	if err != nil {
-		log.Fatal(err.Error())
+		customLogger.ToStdoutAndFile("Recommendation GRPC Server", "Couldn't create server", logger.Fatal)
 		return
 	}
 
-	// Attach the Greeter service to the server
 	protopb.RegisterFollowersServer(s, server)
-	// Serve gRPC server
-	log.Println("Serving gRPC on " + grpc_common.Recommendation_service_address)
+
+	customLogger.ToStdoutAndFile("Recommendation GRPC Server", "Serving gRPC on " + grpc_common.Recommendation_service_address, logger.Info)
 	go func() {
 		log.Fatalln(s.Serve(lis))
 	}()
 
 	conn, err := grpc_common.CreateGrpcConnection(grpc_common.Recommendation_service_address)
 	if err != nil {
-		log.Fatalln(err) // TODO: Graceful shutdown
+		customLogger.ToStdoutAndFile("Recommendation GRPC Server", "Couldn't connect to " + grpc_common.Recommendation_service_address, logger.Fatal)
 		return
 	}
 
@@ -53,7 +56,7 @@ func GRPCServer(driver neo4j.Driver) {
 	// Register Greeter
 	err = protopb.RegisterFollowersHandler(context.Background(), gatewayMux, conn)
 	if err != nil {
-		log.Fatalln("Failed to register gateway:", err)
+		customLogger.ToStdoutAndFile("Recommendation GRPC Server", "Couldn't register gateway", logger.Fatal)
 	}
 
 	c := common.SetupCors()
@@ -72,7 +75,7 @@ func GRPCServer(driver neo4j.Driver) {
 		},*/
 	}
 
-	log.Println("Serving gRPC-Gateway on " + grpc_common.Recommendation_gateway_address)
+	customLogger.ToStdoutAndFile("Recommendation GRPC Server", "Serving gRPC-Gateway on " + grpc_common.Recommendation_gateway_address, logger.Info)
 	log.Fatalln(gwServer.ListenAndServeTLS("./../common/sslFile/gateway.crt", "./../common/sslFile/gateway.key"))
 }
 

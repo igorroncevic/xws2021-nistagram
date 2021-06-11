@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/common/interceptors/rbac"
+	"github.com/david-drvar/xws2021-nistagram/common/logger"
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
 	"log"
@@ -15,11 +16,12 @@ type RBACInterceptor struct {
 	db  		*gorm.DB
 	auth        *AuthInterceptor
 	jwtManager  *common.JWTManager
+	logger		*logger.Logger
 }
 
-func NewRBACInterceptor(db *gorm.DB, jwtManager *common.JWTManager) *RBACInterceptor {
+func NewRBACInterceptor(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger) *RBACInterceptor {
 	auth := NewAuthInterceptor(jwtManager)
-	return &RBACInterceptor{ db, auth, jwtManager }
+	return &RBACInterceptor{ db, auth, jwtManager, logger }
 }
 
 var (
@@ -53,8 +55,14 @@ func (interceptor *RBACInterceptor) Authorize() grpc.UnaryServerInterceptor{
 		}
 
 		isAllowed, role, err := interceptor.checkPermission(permissionToCheck, ctx)
-		if err != nil { return nil, err }
-		if !isAllowed { return nil, nil }
+		if err != nil {
+			interceptor.logger.ToStdoutAndFile("RBAC Interceptor", "No permission to access " + permissionToCheck, logger.Warn)
+			return nil, err
+		}
+		if !isAllowed {
+			interceptor.logger.ToStdoutAndFile("RBAC Interceptor", "No permission to access " + permissionToCheck, logger.Warn)
+			return nil, nil
+		}
 
 		// Allowing unauthorized users to hit some endpoints
 		if isAllowed && role == rbac.Nonregistered { return handler(ctx, req) }
@@ -62,7 +70,10 @@ func (interceptor *RBACInterceptor) Authorize() grpc.UnaryServerInterceptor{
 		// Intraservice authorization is not working, so only the most robust service, Content, will validate JWT
 		if methodParts[1] == "proto.Content" {
 			ctx, err = interceptor.auth.authorize(ctx)
-			if err != nil { return nil, err }
+			if err != nil {
+				interceptor.logger.ToStdoutAndFile("RBAC Interceptor", "No permission to access " + permissionToCheck, logger.Warn)
+				return nil, err
+			}
 		}
 
 		return handler(ctx, req)

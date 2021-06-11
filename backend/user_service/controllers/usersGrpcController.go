@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
+	"github.com/david-drvar/xws2021-nistagram/common/logger"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
@@ -15,11 +16,12 @@ import (
 )
 
 type UserGrpcController struct {
-	service   *services.UserService
-	jwtManager *common.JWTManager
+	service     *services.UserService
+	jwtManager  *common.JWTManager
+	logger		*logger.Logger
 }
 
-func NewUserController(db *gorm.DB, jwtManager *common.JWTManager) (*UserGrpcController, error) {
+func NewUserController(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger) (*UserGrpcController, error) {
 	service, err := services.NewUserService(db)
 	if err != nil {
 		return nil, err
@@ -28,6 +30,7 @@ func NewUserController(db *gorm.DB, jwtManager *common.JWTManager) (*UserGrpcCon
 	return &UserGrpcController{
 		service,
 		jwtManager,
+		logger,
 	}, nil
 }
 
@@ -36,6 +39,8 @@ func (s *UserGrpcController) CreateUser(ctx context.Context, in *protopb.CreateU
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	s.logger.ToStdoutAndFile("CreateUser", "User registration attempt: " + in.User.Email, logger.Info)
+
 	var user persistence.User
 	var userAdditionalInfo persistence.UserAdditionalInfo
 	user = *user.ConvertFromGrpc(in.User)
@@ -43,11 +48,12 @@ func (s *UserGrpcController) CreateUser(ctx context.Context, in *protopb.CreateU
 
 	userDomain, err := s.service.CreateUserWithAdditionalInfo(ctx, &user, &userAdditionalInfo)
 	if err != nil {
+		s.logger.ToStdoutAndFile("CreateUser", "User registration failed: " + in.User.Email, logger.Error)
 		return &protopb.UsersDTO{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
+	s.logger.ToStdoutAndFile("CreateUser", "User registration successful: " + in.User.Email, logger.Info)
 	userProto := userDomain.ConvertToGrpc()
-
 	return userProto, nil
 }
 
@@ -56,8 +62,11 @@ func (s *UserGrpcController) GetAllUsers(ctx context.Context, in *protopb.EmptyR
 }
 
 func (s *UserGrpcController) UpdateUserProfile(ctx context.Context, in *protopb.CreateUserDTORequest) (*protopb.EmptyResponse, error) {
-	var user domain.User
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserProfile")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	var user domain.User
 	user = user.ConvertFromGrpc(in.User)
 	_, err := s.service.UpdateUserProfile(ctx, user)
 	if err != nil {
@@ -68,14 +77,21 @@ func (s *UserGrpcController) UpdateUserProfile(ctx context.Context, in *protopb.
 }
 
 func (s *UserGrpcController) UpdateUserPassword(ctx context.Context, in *protopb.CreatePasswordRequest) (*protopb.EmptyResponse, error) {
-	var password domain.Password
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserPassword")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	s.logger.ToStdoutAndFile("UpdateUserPassword", "Updating password attempt by user with id " + in.Password.Id, logger.Info)
+
+	var password domain.Password
 	password = password.ConvertFromGrpc(in.Password)
 	_, err := s.service.UpdateUserPassword(ctx, password)
 	if err != nil {
+		s.logger.ToStdoutAndFile("UpdateUserPassword", "Updating password failed by user with id " + in.Password.Id, logger.Error)
 		return &protopb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Could not create user")
 	}
 
+	s.logger.ToStdoutAndFile("UpdateUserPassword", "Updating password successful by user with id " + in.Password.Id, logger.Info)
 	return &protopb.EmptyResponse{}, nil
 }
 
@@ -105,7 +121,7 @@ func (s *UserGrpcController) SearchUser(ctx context.Context, in *protopb.SearchU
 }
 
 func (s *UserGrpcController) GetUserById(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.UsersDTO, error) {
-	span := tracer.StartSpanFromContextMetadata(ctx, "LoginUser")
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserById")
 	defer span.Finish()
 	claims, _ := s.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -173,19 +189,24 @@ func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginReq
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	s.logger.ToStdoutAndFile("LoginUser", "Login attempt by " + in.Email, logger.Info)
+
 	var request domain.LoginRequest
 	request = request.ConvertFromGrpc(in)
 
 	user, err := s.service.LoginUser(ctx, request)
 	if err != nil{
+		s.logger.ToStdoutAndFile("LoginUser", "Login failed by " + in.Email, logger.Warn)
 		return &protopb.LoginResponse{}, err
 	}
 
 	token, err := s.jwtManager.GenerateJwt(user.Id, user.Role.String())
 	if err != nil {
+		s.logger.ToStdoutAndFile("LoginUser", "JWT generate failed", logger.Error)
 		return &protopb.LoginResponse{}, err
 	}
 
+	s.logger.ToStdoutAndFile("LoginUser", "Successful login by " + in.Email, logger.Info)
 	return &protopb.LoginResponse{
 		AccessToken: token,
 		UserId:      user.Id,
@@ -211,7 +232,7 @@ func (s *UserGrpcController) GetUserByEmail(ctx context.Context, in *protopb.Req
 }
 
 func (s *UserGrpcController) ValidateResetCode(ctx context.Context, in *protopb.RequestResetCode) (*protopb.EmptyResponse, error) {
-	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserByEmail")
+	span := tracer.StartSpanFromContextMetadata(ctx, "ValidateResetCode")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
@@ -224,26 +245,40 @@ func (s *UserGrpcController) ValidateResetCode(ctx context.Context, in *protopb.
 	return &protopb.EmptyResponse{}, nil
 }
 
-
 func (s *UserGrpcController) ChangeForgottenPass(ctx context.Context, in *protopb.CreatePasswordRequest) (*protopb.EmptyResponse, error) {
-	var password domain.Password
+	span := tracer.StartSpanFromContextMetadata(ctx, "ChangeForgottenPass")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	s.logger.ToStdoutAndFile("ChangeForgottenPass", "Password change attempt: " + in.Password.Id, logger.Info)
+
+	var password domain.Password
 	password = password.ConvertFromGrpc(in.Password)
 	_, err := s.service.ChangeForgottenPass(ctx, password)
 	if err != nil {
+		s.logger.ToStdoutAndFile("ChangeForgottenPass", "Password change failed: " + in.Password.Id, logger.Error)
 		return &protopb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Could not create user")
 	}
 
+	s.logger.ToStdoutAndFile("ChangeForgottenPass", "Password change successful: " + in.Password.Id, logger.Info)
 	return &protopb.EmptyResponse{}, nil
 }
-func (s *UserGrpcController) ApproveAccount(ctx context.Context, in *protopb.CreatePasswordRequest) (*protopb.EmptyResponse, error) {
-	var password domain.Password
 
+func (s *UserGrpcController) ApproveAccount(ctx context.Context, in *protopb.CreatePasswordRequest) (*protopb.EmptyResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "ApproveAccount")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	s.logger.ToStdoutAndFile("ApproveAccount", "Account approval attempt: " + in.Password.Id, logger.Info)
+
+	var password domain.Password
 	password = password.ConvertFromGrpc(in.Password)
 	_, err := s.service.ApproveAccount(ctx, password)
 	if err != nil {
+		s.logger.ToStdoutAndFile("ApproveAccount", "Account approval failed: " + in.Password.Id, logger.Error)
 		return &protopb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Could not create user")
 	}
 
+	s.logger.ToStdoutAndFile("ApproveAccount", "Account approval success: " + in.Password.Id, logger.Info)
 	return &protopb.EmptyResponse{}, nil
 }

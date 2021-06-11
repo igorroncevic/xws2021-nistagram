@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
+	"github.com/david-drvar/xws2021-nistagram/common/logger"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
@@ -16,9 +17,10 @@ import (
 type PostGrpcController struct {
 	service    *services.PostService
 	jwtManager *common.JWTManager
+	logger	   *logger.Logger
 }
 
-func NewPostController(db *gorm.DB, jwtManager *common.JWTManager) (*PostGrpcController, error) {
+func NewPostController(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger) (*PostGrpcController, error) {
 	service, err := services.NewPostService(db)
 	if err != nil {
 		return nil, err
@@ -27,6 +29,7 @@ func NewPostController(db *gorm.DB, jwtManager *common.JWTManager) (*PostGrpcCon
 	return &PostGrpcController{
 		service,
 		jwtManager,
+		logger,
 	}, nil
 }
 
@@ -36,11 +39,16 @@ func (c *PostGrpcController) CreatePost(ctx context.Context, in *protopb.Post) (
 	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt by " + in.UserId, logger.Info)
+
 	if err != nil {
+		c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by " + in.UserId + ", invalid JWT", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 	}  else if claims.UserId == "" {
+		c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by, invalid JWT format", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "no user id provided")
 	}  else if claims.UserId != in.UserId {
+		c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by " + claims.UserId + " tried creating post for " + in.UserId, logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot create post for another user")
 	}
 
@@ -51,26 +59,31 @@ func (c *PostGrpcController) CreatePost(ctx context.Context, in *protopb.Post) (
 		for _, tag := range media.Tags {
 			following, err := grpc_common.CheckFollowInteraction(ctx, tag.UserId, post.UserId)
 			if err != nil {
+				c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by " + claims.UserId + ", cannot tag " + tag.UserId, logger.Error)
 				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
 			}
 
 			isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
 			if err != nil {
+				c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by " + claims.UserId + ", cannot tag " + tag.UserId, logger.Error)
 				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 			}
 
 			isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.Id, claims.UserId)
 			if err != nil {
+				c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by " + claims.UserId + ", cannot tag " + tag.UserId, logger.Error)
 				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 			}
 
 			// If used is blocked or his profile is private and did not approve your request
 			if isBlocked || (!isPublic && !following.IsApprovedRequest ) {
+				c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by " + claims.UserId + ", cannot tag " + tag.UserId, logger.Error)
 				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
 			}
 
 			username, err := grpc_common.GetUsernameById(ctx, tag.UserId)
 			if username == "" || err != nil {
+				c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by " + claims.UserId + ", cannot tag " + tag.UserId, logger.Error)
 				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
 			}
 		}
@@ -78,9 +91,11 @@ func (c *PostGrpcController) CreatePost(ctx context.Context, in *protopb.Post) (
 
 	err = c.service.CreatePost(ctx, post)
 	if err != nil {
+		c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by " + claims.UserId + ", due to server error", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
+	c.logger.ToStdoutAndFile("CreatePost", "Post creation successful by " + claims.UserId, logger.Info)
 	return &protopb.EmptyResponseContent{}, nil
 }
 
@@ -202,19 +217,26 @@ func (c *PostGrpcController) RemovePost(ctx context.Context, id string) (*protop
 	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	c.logger.ToStdoutAndFile("RemovePost", "Post removal attempt by " + claims.UserId, logger.Info)
+
 	if err != nil {
+		c.logger.ToStdoutAndFile("RemovePost", "Post removal attempt failed by " + claims.UserId + ", invalid JWT", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 	}else if claims.UserId == ""{
+		c.logger.ToStdoutAndFile("RemovePost", "Post removal attempt failed by " + claims.UserId + ", invalid JWT", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot remove other people's posts")
 	}else if id == "" {
+		c.logger.ToStdoutAndFile("RemovePost", "Post removal attempt failed by " + claims.UserId + ", no post id provided", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot remove non-existing posts")
 	}
 
 	err = c.service.RemovePost(ctx, id, claims.UserId)
 	if err != nil {
+		c.logger.ToStdoutAndFile("RemovePost", "Post removal attempt failed by " + claims.UserId + ", server error", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
+	c.logger.ToStdoutAndFile("RemovePost", "Post removal attempt successful by " + claims.UserId, logger.Info)
 	return &protopb.EmptyResponseContent{}, nil
 }
 

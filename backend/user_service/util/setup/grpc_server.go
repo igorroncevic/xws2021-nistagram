@@ -6,6 +6,7 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
 	"github.com/david-drvar/xws2021-nistagram/common/interceptors"
+	"github.com/david-drvar/xws2021-nistagram/common/logger"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/controllers"
@@ -19,14 +20,16 @@ import (
 )
 
 func GRPCServer(db *gorm.DB) {
-	// Create a listener on TCP port
+	customLogger := logger.NewLogger()
+
 	lis, err := net.Listen("tcp", grpc_common.Users_service_address)
 	if err != nil {
-		log.Fatalln("Failed to listen:", err)
+		customLogger.ToStdoutAndFile("Users GRPC Server", "Couldn't listen to " + grpc_common.Users_service_address, logger.Fatal)
+		return
 	}
 
 	jwtManager := common.NewJWTManager("somesecretkey", 15 * time.Minute)
-	rbacInterceptor := interceptors.NewRBACInterceptor(db, jwtManager)
+	rbacInterceptor := interceptors.NewRBACInterceptor(db, jwtManager, customLogger)
 
 	// Create a gRPC server object
 	s := grpc.NewServer(
@@ -35,24 +38,23 @@ func GRPCServer(db *gorm.DB) {
 		grpc.MaxRecvMsgSize(4 << 30), // Default: 1024 * 1024 * 4 = 4MB -> Override to 4GBs
 	)
 
-	server, err := controllers.NewServer(db, jwtManager)
+	server, err := controllers.NewServer(db, jwtManager, customLogger)
 	if err != nil {
-		log.Fatal(err.Error())
+		customLogger.ToStdoutAndFile("Users GRPC Server", "Couldn't create server", logger.Fatal)
 		return
 	}
 
-	// Attach the Greeter service to the server
 	protopb.RegisterUsersServer(s, server)
 	protopb.RegisterPrivacyServer(s, server)
-	// Serve gRPC server
-	log.Println("Serving gRPC on " + grpc_common.Users_service_address)
+
+	customLogger.ToStdoutAndFile("Users GRPC Server", "Serving gRPC on " + grpc_common.Users_service_address, logger.Info)
 	go func() {
 		log.Fatalln(s.Serve(lis))
 	}()
 
 	conn, err := grpc_common.CreateGrpcConnection(grpc_common.Users_service_address)
 	if err != nil {
-		log.Fatalln(err) // TODO: Graceful shutdown
+		customLogger.ToStdoutAndFile("Users GRPC Server", "Couldn't connect to " + grpc_common.Users_service_address, logger.Fatal)
 		return
 	}
 
@@ -61,7 +63,8 @@ func GRPCServer(db *gorm.DB) {
 	err = protopb.RegisterUsersHandler(context.Background(), gatewayMux, conn)
 	err = protopb.RegisterPrivacyHandler(context.Background(), gatewayMux, conn)
 	if err != nil {
-		log.Fatalln("Failed to register gateway:", err)
+		customLogger.ToStdoutAndFile("Users GRPC Server", "Failed to register gateway", logger.Fatal)
+		return
 	}
 
 	c := common.SetupCors()
@@ -72,6 +75,7 @@ func GRPCServer(db *gorm.DB) {
 		Handler: tracer.TracingWrapper(c.Handler(gatewayMux)),
 	}
 
-	log.Println("Serving gRPC-Gateway on " + grpc_common.Users_gateway_address)
-	log.Fatalln(gwServer.ListenAndServeTLS("./../common/sslFile/gateway.crt", "./../common/sslFile/gateway.key"))
+	customLogger.ToStdoutAndFile("Users GRPC Server", "Serving gRPC-Gateway on " + grpc_common.Users_gateway_address, logger.Info)
+	// log.Fatalln(gwServer.ListenAndServeTLS("./../common/sslFile/gateway.crt", "./../common/sslFile/gateway.key"))
+	log.Fatalln(gwServer.ListenAndServe())
 }

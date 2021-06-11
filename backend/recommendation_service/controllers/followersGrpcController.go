@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"errors"
+	"github.com/david-drvar/xws2021-nistagram/common/logger"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/recommendation_service/model"
@@ -12,16 +13,18 @@ import (
 
 type FollowersGrpcController struct {
 	service *services.FollowersService
+	logger  *logger.Logger
 }
 
-func NewFollowersController(driver neo4j.Driver) (*FollowersGrpcController, error) {
+func NewFollowersController(driver neo4j.Driver, logger *logger.Logger) (*FollowersGrpcController, error) {
 	service, err := services.NewFollowersService(driver)
 	if err != nil {
 		return nil, err
 	}
 
 	return &FollowersGrpcController{
-		service: service,
+		service,
+		logger,
 	}, nil
 }
 
@@ -29,9 +32,11 @@ func (controller *FollowersGrpcController) CreateUserConnection(ctx context.Cont
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUserConnection")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	var follower = model.Follower{}
 	follower = *follower.ConvertFromGrpc(in.Follower)
 	result, err := controller.service.CreateUserConnection(ctx, follower)
+
 	if !result || err != nil {
 		return &protopb.EmptyResponseFollowers{}, errors.New("Could not make follow!")
 	}
@@ -147,13 +152,18 @@ func (controller *FollowersGrpcController) CreateUser(ctx context.Context, in *p
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	controller.logger.ToStdoutAndFile("CreateUser", "Create user node attempt for " + in.User.UserId, logger.Info)
+
 	var user = model.User{}
 	user = *user.ConvertFromGrpc(in.User)
 	_, err := controller.service.CreateUser(ctx, user)
 
 	if err != nil {
-		return &protopb.EmptyResponseFollowers{}, errors.New("Could not create User!")
+		controller.logger.ToStdoutAndFile("CreateUser", "Create user node attempt failed for " + in.User.UserId, logger.Error)
+		return &protopb.EmptyResponseFollowers{}, errors.New("could not create User")
 	}
+
+	controller.logger.ToStdoutAndFile("CreateUser", "Create user node attempt successful for " + in.User.UserId, logger.Info)
 	return &protopb.EmptyResponseFollowers{}, nil
 }
 

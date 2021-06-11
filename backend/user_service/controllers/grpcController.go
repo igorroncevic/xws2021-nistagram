@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"github.com/david-drvar/xws2021-nistagram/common"
+	"github.com/david-drvar/xws2021-nistagram/common/logger"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	otgo "github.com/opentracing/opentracing-go"
@@ -20,18 +21,18 @@ type Server struct {
 	closer            io.Closer
 }
 
-func NewServer(db *gorm.DB, jwtManager *common.JWTManager) (*Server, error) {
-	newUserController, _ := NewUserController(db, jwtManager)
+func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger) (*Server, error) {
+	newUserController, _ := NewUserController(db, jwtManager, logger)
 	newPrivacyController, _ := NewPrivacyController(db)
 	newEmailController, _ := NewEmailController(db)
 	tracer, closer := tracer.Init("userService")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
-		userController:    newUserController,
-		privacyController: newPrivacyController,
+		userController:     newUserController,
+		privacyController:  newPrivacyController,
 		emailController:    newEmailController,
-		tracer:            tracer,
-		closer:            closer,
+		tracer:             tracer,
+		closer:             closer,
 	}, nil
 }
 

@@ -7,7 +7,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -132,8 +131,6 @@ func (manager *JWTManager) ExtractClaimsFromMetadata(ctx context.Context) (*Clai
 	token, _ := jwt.ParseWithClaims(accessToken, &Claims{}, func(token *jwt.Token)(interface{}, error){
 		return []byte(manager.secretKey), nil
 	})
-
-	log.Println(token)
 
 	claims, ok := token.Claims.(*Claims)
 	if !ok {

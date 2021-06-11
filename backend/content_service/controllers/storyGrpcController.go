@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
+	"github.com/david-drvar/xws2021-nistagram/common/logger"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
@@ -16,9 +17,10 @@ import (
 type StoryGrpcController struct {
 	service    *services.StoryService
 	jwtManager *common.JWTManager
+	logger	   *logger.Logger
 }
 
-func NewStoryController(db *gorm.DB, jwtManager *common.JWTManager) (*StoryGrpcController, error) {
+func NewStoryController(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger) (*StoryGrpcController, error) {
 	service, err := services.NewStoryService(db)
 	if err != nil {
 		return nil, err
@@ -27,6 +29,7 @@ func NewStoryController(db *gorm.DB, jwtManager *common.JWTManager) (*StoryGrpcC
 	return &StoryGrpcController{
 		service,
 		jwtManager,
+		logger,
 	}, nil
 }
 
@@ -158,11 +161,16 @@ func (c *StoryGrpcController) CreateStory(ctx context.Context, in *protopb.Story
 	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	c.logger.ToStdoutAndFile("CreateStory", "Story creation attempt by " + claims.UserId, logger.Info)
+
 	if err != nil {
+		c.logger.ToStdoutAndFile("CreateStory", "Story creation attempt failed by " + claims.UserId + ", invalid JWT", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 	}else if claims.UserId == "" {
+		c.logger.ToStdoutAndFile("CreateStory", "Story creation attempt failed by " + claims.UserId + ", invalid JWT", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "no user id is provided")
 	}else if in.UserId != claims.UserId {
+		c.logger.ToStdoutAndFile("CreateStory", "Story creation attempt failed by " + claims.UserId + ", tried to create story for " + in.UserId, logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot create stories for other people")
 	}
 
@@ -171,9 +179,11 @@ func (c *StoryGrpcController) CreateStory(ctx context.Context, in *protopb.Story
 
 	err = c.service.CreateStory(ctx, story)
 	if err != nil {
+		c.logger.ToStdoutAndFile("CreateStory", "Story creation attempt failed by " + claims.UserId + ", server error", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create story")
 	}
 
+	c.logger.ToStdoutAndFile("CreateStory", "Story creation attempt successful by " + claims.UserId, logger.Info)
 	return &protopb.EmptyResponseContent{}, nil
 }
 
@@ -221,19 +231,26 @@ func (c *StoryGrpcController) RemoveStory(ctx context.Context, in *protopb.Reque
 	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	c.logger.ToStdoutAndFile("RemoveStory", "Story removal attempt by " + claims.UserId, logger.Info)
+
 	if err != nil {
+		c.logger.ToStdoutAndFile("RemoveStory", "Story removal attempt failed by " + claims.UserId + ", invalid JWT", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 	}else if claims.UserId == ""{
+		c.logger.ToStdoutAndFile("RemoveStory", "Story removal attempt failed by " + claims.UserId + ", invalid JWT", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot remove other people's posts")
 	}else if in.Id == "" {
+		c.logger.ToStdoutAndFile("RemoveStory", "Story removal attempt failed by " + claims.UserId + ", no story id provided", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot remove non-existing posts")
 	}
 
 	err = c.service.RemoveStory(ctx, in.Id, claims.UserId)
 
 	if err != nil{
+		c.logger.ToStdoutAndFile("RemoveStory", "Story removal attempt failed by " + claims.UserId + ", server error", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
+	c.logger.ToStdoutAndFile("RemoveStory", "Story removal attempt successful by " + claims.UserId, logger.Info)
 	return &protopb.EmptyResponseContent{}, nil
 }

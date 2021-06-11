@@ -13,9 +13,12 @@ require (
 	github.com/google/uuid v1.1.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.4.0
 	github.com/jackc/pgproto3/v2 v2.0.7 // indirect
+	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible // indirect
 	github.com/microcosm-cc/bluemonday v1.0.9 // indirect
+	github.com/natefinch/lumberjack v2.0.0+incompatible // indirect
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/satori/go.uuid v1.2.0
+	github.com/sirupsen/logrus v1.8.1 // indirect
 	golang.org/x/text v0.3.6 // indirect
 	google.golang.org/genproto v0.0.0-20210426193834-eac7f76ac494
 	google.golang.org/grpc v1.38.0
