@@ -9,7 +9,7 @@ import {Button, Modal} from "react-bootstrap";
 import PasswordStrengthBar from "react-password-strength-bar";
 
 function Home(props) {
-    const[user,setUser]=useState('');
+    const[user,setUser]=useState();
     const[showModal,setModal]=useState(false);
     const[submitted,setSubmitted]=useState(false);
     const[passwordStrength,setPasswordStrength]=useState('');
@@ -20,7 +20,6 @@ function Home(props) {
 
     useEffect(() => {
         getUser();
-        checkIsApproved();
 
     },[])
 
@@ -31,10 +30,12 @@ function Home(props) {
             })
             .then(res => {
                 console.log("RADI get user")
-                console.log(res.data.users[0])
                 setUser(res.data.users[0])
-                    setModal(true)
-                }).catch(res => {
+                console.log(user)
+                console.log(res.data.users[0])
+                checkIsApproved(res.data.users[0].approvedAccount);
+
+            }).catch(res => {
             console.log("NE RADI get user")
         })
     }
@@ -59,8 +60,9 @@ function Home(props) {
         })
     }
 
-    function  checkIsApproved(){
-        if(user.approvedAccount==false){
+    function  checkIsApproved(value){
+        console.log(user)
+        if(value===false){
             setModal(true)
         }else{
             setModal(false)
@@ -139,7 +141,7 @@ function Home(props) {
     function handleModal() {
         setModal(!showModal)
     }
-    
+
     function showModalDialog(){
         return (
             <Modal backdrop="static" show={showModal} onHide={handleModal}>
