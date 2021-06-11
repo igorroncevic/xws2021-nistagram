@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/recommendation_service/util/setup"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"log"
@@ -22,33 +23,24 @@ func main(){
 		time.Sleep(time.Duration(duration)*time.Second)
 		err := CreateUniqueConstraint(driver)
 		if err != nil {
-			log.Println(err)
-			log.Println("AJDEEEE")
-			log.Println("Retrying . . . ")
+			log.Println("Retrying to connect to Neo4j...")
 			continue
 		}else {
-			log.Println("Success!")
+			log.Println("Successfully connected to Neo4j!")
 		}
 		break
 	}
 
-
-
 	setup.GRPCServer(driver)
-
 }
 
 func SetupEnvVariables() {
 	os.Setenv("DB_HOST", "bolt://localhost:7687")
-	os.Setenv("DB_NAME", "neo4j")
+	os.Setenv("DB_NAME", common.RecommendationDatabaseName)
 	os.Setenv("DB_PW", "root")
 }
 
-
-
 func CreateUniqueConstraint(driver neo4j.Driver) error {
-	log.Println("Nece error da ispise")
-
 	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
 	defer session.Close()
 	_, err := session.WriteTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
@@ -58,11 +50,8 @@ func CreateUniqueConstraint(driver neo4j.Driver) error {
 
 			})
 		if err != nil {
-			log.Println(err)
-			log.Println("Nece error da ispise")
 			return nil, err
 		}
-		log.Println("A ja ovde baka....")
 		return nil, nil
 	})
 	if err != nil {

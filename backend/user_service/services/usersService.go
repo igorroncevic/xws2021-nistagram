@@ -61,7 +61,7 @@ func (service *UserService) GetUser(ctx context.Context, requestedUserId string)
 
 	//TODO Get user's additional info
 	var converted *domain.User
-	converted.GenerateUserDTO(dbUser, additionalInfo)
+	converted = converted.GenerateUserDTO(dbUser, additionalInfo)
 
 	return *converted, nil
 }

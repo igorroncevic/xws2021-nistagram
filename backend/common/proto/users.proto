@@ -61,6 +61,7 @@ service Users {
     };
   }
 
+  // Svi
   rpc SendEmail (SendEmailDtoRequest) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/api/users/sendEmail"
@@ -68,36 +69,36 @@ service Users {
     };
   }
 
+  // Svi
   rpc GetUserByEmail (RequestEmailUser) returns (UsersDTO) {
     option(google.api.http) = {
       get: "/api/users/getByEmail/{email}"
     };
   }
 
+  // Svi
   rpc ValidateResetCode (RequestResetCode) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/api/users/validateResetCode"
       body: "*"
-
     };
   }
 
+  // Svi
   rpc ChangeForgottenPass (CreatePasswordRequest) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/api/users/changeForgottenPass"
       body: "*"
-
     };
   }
 
+  // Samo ulogovani
   rpc ApproveAccount (CreatePasswordRequest) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/api/users/approveAccount"
       body: "*"
-
     };
   }
-
 }
 
 message Password {

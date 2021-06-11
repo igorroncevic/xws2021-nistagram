@@ -33,42 +33,45 @@ func NewStoryController(db *gorm.DB, jwtManager *common.JWTManager) (*StoryGrpcC
 func (c *StoryGrpcController) GetStoriesForUser(ctx context.Context, in *protopb.RequestId) (*protopb.StoriesArray, error){
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetStoriesForUser")
 	defer span.Finish()
-	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
+	claims, _ := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	if err != nil {
-		return &protopb.StoriesArray{}, status.Errorf(codes.Unknown, err.Error())
-	}else if claims.UserId == "" || in.Id == "" {
-		return &protopb.StoriesArray{}, status.Errorf(codes.InvalidArgument, "no user id is provided")
-	}
-
 	isCloseFriends := false
-	if in.Id != claims.UserId{
-		followConnection, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
-		if err != nil {
-			return &protopb.StoriesArray{}, status.Errorf(codes.Unknown, err.Error())
-		}
-
+	if claims.UserId == "" {
 		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
 		if err != nil {
 			return &protopb.StoriesArray{}, status.Errorf(codes.Unknown, err.Error())
 		}
-
-		isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.Id, claims.UserId)
-		if err != nil {
-			return &protopb.StoriesArray{}, status.Errorf(codes.Unknown, err.Error())
+		if !isPublic{
+			return &protopb.StoriesArray{}, status.Errorf(codes.Unknown, "this user is private")
 		}
-
-		// If used is blocked or his profile is private and did not approve your request
-		if isBlocked || (!isPublic && !followConnection.IsApprovedRequest ) {
-			return &protopb.StoriesArray{}, nil
-		}
-
-		isCloseFriends = followConnection.IsCloseFriends
 	}else{
-		isCloseFriends = true
-	}
+		if in.Id != claims.UserId{
+			followConnection, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
+			if err != nil {
+				return &protopb.StoriesArray{}, status.Errorf(codes.Unknown, err.Error())
+			}
 
+			isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
+			if err != nil {
+				return &protopb.StoriesArray{}, status.Errorf(codes.Unknown, err.Error())
+			}
+
+			isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.Id, claims.UserId)
+			if err != nil {
+				return &protopb.StoriesArray{}, status.Errorf(codes.Unknown, err.Error())
+			}
+
+			// If used is blocked or his profile is private and did not approve your request
+			if isBlocked || (!isPublic && !followConnection.IsApprovedRequest ) {
+				return &protopb.StoriesArray{}, nil
+			}
+
+			isCloseFriends = followConnection.IsCloseFriends
+		}else{
+			isCloseFriends = true
+		}
+	}
 	stories, err := c.service.GetStoriesForUser(ctx, in.Id, isCloseFriends)
 	if err != nil{
 		return &protopb.StoriesArray{}, status.Errorf(codes.Unknown, err.Error())
@@ -84,56 +87,54 @@ func (c *StoryGrpcController) GetStoriesForUser(ctx context.Context, in *protopb
 func (c *StoryGrpcController) GetAllStories(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.StoriesHome, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllHomeStories")
 	defer span.Finish()
-	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
+	claims, _ := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	if err != nil {
-		return &protopb.StoriesHome{}, status.Errorf(codes.Unknown, err.Error())
-	}else if claims.UserId == "" {
-		return &protopb.StoriesHome{}, status.Errorf(codes.InvalidArgument, "no user id is provided")
-	}
-
-	conn, err := grpc_common.CreateGrpcConnection(grpc_common.Recommendation_service_address)
-	if err != nil{
-		return &protopb.StoriesHome{}, status.Errorf(codes.Unknown, err.Error())
-	}
-	defer conn.Close()
-
-	userIds, err := grpc_common.GetHomepageUsers(ctx, claims.UserId)
-	if err != nil {
-		return &protopb.StoriesHome{}, status.Errorf(codes.Unknown, err.Error())
-	}
-
-	closeFriends, err := grpc_common.GetCloseFriends(ctx, claims.UserId)
-	nonCloseFriends := []string{}
-	for _, userId := range userIds{
-		found := false
-		for _, closeFriends := range closeFriends{
-			if closeFriends == userId {
-				found = true
-				break
-			}
-		}
-		if !found{
-			nonCloseFriends = append(nonCloseFriends, userId)
-		}
-	}
-
-	nonCloseFriendsStories, err := c.service.GetAllHomeStories(ctx, nonCloseFriends, false)
-	if err != nil{
-		return &protopb.StoriesHome{}, status.Errorf(codes.Unknown, err.Error())
-	}
-
 	allStories := domain.StoriesHome{}
-	allStories.Stories = nonCloseFriendsStories.Stories
+	if claims.UserId == "" {
+		userIds, err := grpc_common.GetPublicUsers(ctx)
+		if err != nil { return &protopb.StoriesHome{}, err }
 
-	if len(closeFriends) > 0{
-		closeFriendsStories, err := c.service.GetAllHomeStories(ctx, closeFriends, true)
-		if err != nil{
+		stories, err := c.service.GetAllHomeStories(ctx, userIds, false)
+		if err != nil { return &protopb.StoriesHome{}, err }
+
+		allStories.Stories = stories.Stories
+	}else {
+		userIds, err := grpc_common.GetHomepageUsers(ctx, claims.UserId)
+		if err != nil {
 			return &protopb.StoriesHome{}, status.Errorf(codes.Unknown, err.Error())
 		}
-		for _, storyHome := range closeFriendsStories.Stories {
-			allStories.Stories = append(allStories.Stories, storyHome)
+
+		closeFriends, err := grpc_common.GetCloseFriends(ctx, claims.UserId)
+		nonCloseFriends := []string{}
+		for _, userId := range userIds {
+			found := false
+			for _, closeFriends := range closeFriends {
+				if closeFriends == userId {
+					found = true
+					break
+				}
+			}
+			if !found {
+				nonCloseFriends = append(nonCloseFriends, userId)
+			}
+
+			nonCloseFriendsStories, err := c.service.GetAllHomeStories(ctx, nonCloseFriends, false)
+			if err != nil {
+				return &protopb.StoriesHome{}, status.Errorf(codes.Unknown, err.Error())
+			}
+
+			allStories.Stories = nonCloseFriendsStories.Stories
+
+			if len(closeFriends) > 0 {
+				closeFriendsStories, err := c.service.GetAllHomeStories(ctx, closeFriends, true)
+				if err != nil {
+					return &protopb.StoriesHome{}, status.Errorf(codes.Unknown, err.Error())
+				}
+				for _, storyHome := range closeFriendsStories.Stories {
+					allStories.Stories = append(allStories.Stories, storyHome)
+				}
+			}
 		}
 	}
 
@@ -179,21 +180,22 @@ func (c *StoryGrpcController) CreateStory(ctx context.Context, in *protopb.Story
 func (c *StoryGrpcController) GetStoryById(ctx context.Context, in *protopb.RequestId) (*protopb.Story, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetStoryById")
 	defer span.Finish()
-	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
+	claims, _ := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	if err != nil {
-		return &protopb.Story{}, status.Errorf(codes.Unknown, err.Error())
-	}else if claims.UserId == ""{
-		return &protopb.Story{}, status.Errorf(codes.Unknown, err.Error())
-	}else if in.Id == "" {
+	if in.Id == "" {
 		return &protopb.Story{}, status.Errorf(codes.Unknown, "cannot retrieve non-existing stories")
 	}
 
 	story, err := c.service.GetStoryById(ctx, in.Id)
 	if err != nil { return &protopb.Story{}, status.Errorf(codes.Unknown, err.Error()) }
 
-	if story.UserId != claims.UserId{
+	if claims.UserId == "" {
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, story.UserId)
+		if err != nil { return &protopb.Story{}, status.Errorf(codes.Unknown, err.Error()) }
+
+		if !isPublic { return &protopb.Story{}, status.Errorf(codes.Unknown, "this story is not public") }
+	}else if story.UserId != claims.UserId{
 		following, err := grpc_common.CheckFollowInteraction(ctx, story.UserId, claims.UserId)
 		if err != nil { return &protopb.Story{}, status.Errorf(codes.Unknown, err.Error()) }
 
