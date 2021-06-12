@@ -95,7 +95,11 @@ public class XSSFilter extends ZuulFilter {
                 Map<String, Object> map = json;
                 Map<String, Object> mapJson = new HashMap<>();
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
-                    mapJson.put(entry.getKey(), cleanXSS(entry.getValue().toString()));
+                    if (entry.getValue().getClass().getName() == "String"){
+                        mapJson.put(entry.getKey(), cleanXSS(entry.getValue().toString()));
+                    }else{
+                        mapJson.put(entry.getKey(), entry.getValue());
+                    }
                 }
                 String newBody = JSON.toJSONString(mapJson);
                 final byte[] reqBodyBytes = newBody.getBytes();
@@ -123,7 +127,6 @@ public class XSSFilter extends ZuulFilter {
         try {
             InputStream in = requestContext.getRequest().getInputStream();
             String body = StreamUtils.copyToString(in, Charset.forName("UTF-8"));
-            System.out.println(body);
         } catch (
                 IOException e) {
             log.error("xss filter read parameter abnormal", e);
@@ -135,10 +138,13 @@ public class XSSFilter extends ZuulFilter {
         if (StringUtils.isBlank(value)) {
             return value;
         }
-        System.out.println("HENLO");
-        value = StringEscapeUtils.escapeHtml(value);
-        value = StringEscapeUtils.escapeJavaScript(value);
-        value = value.replaceAll("\\\\", "");
+        if(!value.contains("data:image")){
+            System.out.println("HEHE NIJE SLIKA " + value);
+            value = StringEscapeUtils.escapeHtml(value);
+            value = StringEscapeUtils.escapeJavaScript(value);
+            value = value.replaceAll("\\\\", "");
+            System.out.println("HEHE ESCAPED " + value);
+        }
         return value;
     }
 }
