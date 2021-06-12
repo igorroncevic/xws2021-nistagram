@@ -129,11 +129,13 @@ func (repository *userRepository) GetUserByUsername(username string) (domain.Use
 
 	user.GenerateUserDTO(dbUser, dbUserAdditionalInfo)
 
-	filename, err := images.LoadImageToBase64(user.ProfilePhoto)
-	if err != nil {
-		return domain.User{}, err
+	if user.ProfilePhoto != "" {
+		filename, err := images.LoadImageToBase64(user.ProfilePhoto)
+		if err != nil {
+			return domain.User{}, err
+		}
+		user.ProfilePhoto = filename
 	}
-	user.ProfilePhoto = filename
 
 	return *user, nil
 }
@@ -151,15 +153,17 @@ func (repository *userRepository) GetUserByEmail(email string) (domain.User, err
 	if db.Error != nil {
 		return domain.User{}, db.Error
 	}
-	user := &domain.User{}
 
-	user.GenerateUserDTO(dbUser, dbUserAdditionalInfo)
+	var user *domain.User
+	user = user.GenerateUserDTO(dbUser, dbUserAdditionalInfo)
 
-	filename, err := images.LoadImageToBase64(user.ProfilePhoto)
-	if err != nil {
-		return domain.User{}, err
+	if user.ProfilePhoto != ""{
+		filename, err := images.LoadImageToBase64(user.ProfilePhoto)
+		if err != nil {
+			return domain.User{}, err
+		}
+		user.ProfilePhoto = filename
 	}
-	user.ProfilePhoto = filename
 
 	return *user, nil
 }
@@ -343,12 +347,15 @@ func (repository *userRepository) SearchUsersByUsernameAndName(ctx context.Conte
 		if err != nil {
 			return nil, err
 		}
-		user.GenerateUserDTO(v, dbUserAdditionalInfo)
-		filename, err := images.LoadImageToBase64(v.ProfilePhoto)
-		if err != nil {
-			return nil, err
+		user = user.GenerateUserDTO(v, dbUserAdditionalInfo)
+
+		if v.ProfilePhoto != "" {
+			filename, err := images.LoadImageToBase64(v.ProfilePhoto)
+			if err != nil {
+				return nil, err
+			}
+			user.ProfilePhoto = filename
 		}
-		user.ProfilePhoto = filename
 		usersDomain = append(usersDomain, *user)
 	}
 

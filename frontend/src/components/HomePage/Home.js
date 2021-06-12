@@ -9,20 +9,20 @@ import {Button, Modal} from "react-bootstrap";
 import PasswordStrengthBar from "react-password-strength-bar";
 
 function Home(props) {
-    const[user,setUser]=useState();
-    const[showModal,setModal]=useState(false);
-    const[submitted,setSubmitted]=useState(false);
-    const[passwordStrength,setPasswordStrength]=useState('');
-    const[passwords,setPasswords]=useState({oldPassword:'',newPassword:'',repeatedPassword:'' });
-    const[oldErr,setOldErr]=useState('');
-    const[newErr,setNewErr]=useState('');
-    const[repErr,setRepErr]=useState('');
+    const [user,setUser]=useState();
+    const [showModal,setModal]=useState(false);
+    const [submitted,setSubmitted]=useState(false);
+    const [passwordStrength,setPasswordStrength]=useState('');
+    const [passwords,setPasswords]=useState({oldPassword:'',newPassword:'',repeatedPassword:'' });
+    const [oldErr,setOldErr]=useState('');
+    const [newErr,setNewErr]=useState('');
+    const [repErr,setRepErr]=useState('');
 
+    var isSSO = sessionStorage.getItem("isSSO")
     useEffect(() => {
         if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
         getUser();
-
-    },[])
+    }, [])
 
     async function getUser(){
         await axios
@@ -63,11 +63,11 @@ function Home(props) {
 
     function  checkIsApproved(value){
         console.log(user)
-        if(value===false){
+        if(isSSO) return
+        if(value === false){
             setModal(true)
         }else{
             setModal(false)
-
         }
     }
     function    handleInputChange(event) {

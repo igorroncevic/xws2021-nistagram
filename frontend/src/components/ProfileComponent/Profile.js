@@ -9,9 +9,9 @@ import Navigation from "../HomePage/Navigation";
 
 
 function Profile(props) {
-    const [user,setUser] =useState({});
-    const [follow,setFollow] =useState({});
-    const[publicProfile,setPublicProfile]=useState(false);
+    const [user, setUser] =useState(props.location.state.user ? props.location.state.user : {});
+    const [follow,setFollow] =useState(props.location.state.follow ? props.location.state.follow : {});
+    const [publicProfile,setPublicProfile]=useState(false);
 
     const [image, setImage] = useState('');
     const [showModal, setModal] = useState(false);
@@ -24,6 +24,8 @@ function Profile(props) {
 
 
     var loggedUsername = sessionStorage.getItem("username");
+    var isSSO = sessionStorage.getItem("isSSO")
+
     useEffect(() => {
         if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
 
@@ -52,7 +54,7 @@ function Profile(props) {
     function  getUserPrivacy(){
         axios
             .post('http://localhost:8080/api/users/api/privacy/isProfilePublic', {
-                userId:user.id
+                userId: user.id
             })
             .then(res => {
                 setPublicProfile(res.data.response)
@@ -97,7 +99,7 @@ function Profile(props) {
     function getFollowers(){
         axios
             .post('http://localhost:8005/api/followers/get_followers', {
-                UserId:user.id
+                UserId: user.id
             })
             .then(res => {
                 console.log("followers radi")
@@ -149,7 +151,7 @@ function Profile(props) {
 :
                                 <div>
                                     <Button variant="link" style={{marginTop:'2em', borderTop: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModal}>Update profile info</Button>
-                                    <Button variant="link" style={{borderBottom: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModalPass}>Change password</Button>
+                                    { !isSSO && <Button variant="link" style={{borderBottom: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModalPass}>Change password</Button> }
                                 </div>
 
                             }

@@ -17,7 +17,7 @@ service Followers {
     rpc GetAllFollowers (CreateUserRequestFollowers) returns (CreateUserResponse) {
         option(google.api.http) = {
             post: "/api/followers/get_followers",
-            body: "user"
+            body: "*"
         };
     }
 
@@ -51,7 +51,7 @@ service Followers {
 
     rpc GetAllFollowingsForHomepage (CreateUserRequestFollowers) returns (CreateUserResponse) {
         option(google.api.http) = {
-            post: "/api/followers/get_followings",
+            post: "/api/followers/get_followingss", // TODO
             body: "user"
         };
     }
@@ -102,7 +102,7 @@ message CreateFollowerResponse {
     Follower follower = 1;
 }
 
-message  CreateFollowerRequest {
+message CreateFollowerRequest {
     Follower follower = 1;
 }
 

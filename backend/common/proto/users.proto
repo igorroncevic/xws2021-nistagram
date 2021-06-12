@@ -190,7 +190,9 @@ message LoginResponse {
   string userId = 2;
   string role = 3;
   string username = 4;
+  bool   isSSO = 5;
 }
+
 message SendEmailDtoRequest {
   string to = 1;
 }

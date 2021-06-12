@@ -196,8 +196,8 @@ func (service *UserService) ValidateResetCode(ctx context.Context, resetCode str
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var user domain.User
-	user, _ =service.GetUserByEmail(ctx,email)
-	if user.ResetCode!=resetCode{
+	user, _ = service.GetUserByEmail(ctx,email)
+	if user.ResetCode != resetCode{
 		return false, errors.New("wrong reset code!")
 	}
 
@@ -260,6 +260,8 @@ func (service *UserService) GoogleSignIn(ctx context.Context, token string) (*do
 			Username:        claims.FirstName + "_" + claims.LastName + "_" + uuid.NewV4().String(),
 			Password:        "",	// Google will handle password
 			Role:            model.Basic,
+			IsActive:		 true,
+			ApprovedAccount: true,
 		}
 		dbUser, err := service.CreateUserWithAdditionalInfo(ctx, newUser, &persistence.UserAdditionalInfo{})
 		if err != nil { return &domain.User{}, errors.New("unable to create user") }

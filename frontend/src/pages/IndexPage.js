@@ -83,24 +83,17 @@ export function IndexPage(){
     }
 
     const successGoogleLogin = (googleUser) => {
-        console.log("hi")
-        var profile = googleUser.getBasicProfile();
-        console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-        console.log('Name: ' + profile.getName());
-        console.log('Image URL: ' + profile.getImageUrl());
-        console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
-
         const googleToken = googleUser.getAuthResponse().id_token
-        console.log(googleToken)
         axios
-            .post("http://localhost:8001/api/users/auth/google", {
+            .post("http://localhost:8080/api/users/api/users/auth/google", {
                 token: googleToken,
             })
             .then(res => {
                 sessionStorage.setItem("username", res.data.username);
+                sessionStorage.setItem("isSSO", res.data.isSSO);
                 history.push({
                     pathname: '/home',
-                    state: { user:res.data, follow:false }
+                    state: { user: res.data, follow: false }
                 })
             })
             .catch(err => {

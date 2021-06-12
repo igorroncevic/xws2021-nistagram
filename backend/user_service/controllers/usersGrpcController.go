@@ -212,6 +212,7 @@ func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginReq
 		UserId:      user.Id,
 		Username:    user.Username,
 		Role:        user.Role.String(),
+		IsSSO:       false,
 	}, nil
 }
 
@@ -310,5 +311,6 @@ func (s *UserGrpcController) GoogleAuth (ctx context.Context, in *protopb.Google
 		UserId:      user.Id,
 		Username:    user.Username,
 		Role:        user.Role.String(),
+		IsSSO:       true,
 	}, nil
 }

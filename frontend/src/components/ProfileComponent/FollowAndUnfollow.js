@@ -16,12 +16,14 @@ function FollowAndUnfollow(props){
     function follow(){
         axios
             .post('http://localhost:8005/api/followers/create_connection', {
-                 UserId :loggedUser.id,
-                 FollowerId : user.id,
-                 IsMuted :false,
-                 IsCloseFriends :false,
-                 IsApprovedRequest :false,
-                 IsNotificationEnabled : true
+                 follower: {
+                    userId :loggedUser.id,
+                    followerId : user.id,
+                    isMuted :false,
+                    isCloseFriends :false,
+                    isApprovedRequest :true,
+                    isNotificationEnabled : true
+                 }
             })
             .then(res => {
               console.log("ZAPRACENO")
@@ -38,7 +40,7 @@ function FollowAndUnfollow(props){
                 FollowerId : user.id,
                 IsMuted :false,
                 IsCloseFriends :false,
-                IsApprovedRequest :false,
+                IsApprovedRequest :true,
                 IsNotificationEnabled : true
             })
             .then(res => {
