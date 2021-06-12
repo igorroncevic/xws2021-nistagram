@@ -41,12 +41,16 @@ func (s *UserGrpcController) CreateUser(ctx context.Context, in *protopb.CreateU
 
 	s.logger.ToStdoutAndFile("CreateUser", "User registration attempt: " + in.User.Email, logger.Info)
 
-	var user persistence.User
+	var user *persistence.User
 	var userAdditionalInfo persistence.UserAdditionalInfo
-	user = *user.ConvertFromGrpc(in.User)
+	user = user.ConvertFromGrpc(in.User)
+	if user == nil {
+		return &protopb.UsersDTO{}, status.Errorf(codes.Unknown, "cannot create user")
+	}
+
 	userAdditionalInfo = *userAdditionalInfo.ConvertFromGrpc(in.User)
 
-	userDomain, err := s.service.CreateUserWithAdditionalInfo(ctx, &user, &userAdditionalInfo)
+	userDomain, err := s.service.CreateUserWithAdditionalInfo(ctx, user, &userAdditionalInfo)
 	if err != nil {
 		s.logger.ToStdoutAndFile("CreateUser", "User registration failed: " + in.User.Email, logger.Error)
 		return &protopb.UsersDTO{}, status.Errorf(codes.Unknown, err.Error())
@@ -68,6 +72,10 @@ func (s *UserGrpcController) UpdateUserProfile(ctx context.Context, in *protopb.
 
 	var user domain.User
 	user = user.ConvertFromGrpc(in.User)
+	if user.Id == "" {
+		return &protopb.EmptyResponse{}, status.Errorf(codes.Unknown, "cannot convert user from grpc")
+	}
+
 	_, err := s.service.UpdateUserProfile(ctx, user)
 	if err != nil {
 		return &protopb.EmptyResponse{}, status.Errorf(codes.Unknown, "Could not create user")
@@ -85,6 +93,10 @@ func (s *UserGrpcController) UpdateUserPassword(ctx context.Context, in *protopb
 
 	var password domain.Password
 	password = password.ConvertFromGrpc(in.Password)
+	if password.Id == "" {
+		return &protopb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Could not create user")
+	}
+
 	_, err := s.service.UpdateUserPassword(ctx, password)
 	if err != nil {
 		s.logger.ToStdoutAndFile("UpdateUserPassword", "Updating password failed by user with id " + in.Password.Id, logger.Error)
@@ -255,6 +267,9 @@ func (s *UserGrpcController) ChangeForgottenPass(ctx context.Context, in *protop
 
 	var password domain.Password
 	password = password.ConvertFromGrpc(in.Password)
+	if password.Id == "" {
+		return &protopb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Could not create user")
+	}
 	_, err := s.service.ChangeForgottenPass(ctx, password)
 	if err != nil {
 		s.logger.ToStdoutAndFile("ChangeForgottenPass", "Password change failed: " + in.Password.Id, logger.Error)
@@ -274,6 +289,9 @@ func (s *UserGrpcController) ApproveAccount(ctx context.Context, in *protopb.Cre
 
 	var password domain.Password
 	password = password.ConvertFromGrpc(in.Password)
+	if password.Id == "" {
+		return &protopb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Could not create user")
+	}
 	_, err := s.service.ApproveAccount(ctx, password)
 	if err != nil {
 		s.logger.ToStdoutAndFile("ApproveAccount", "Account approval failed: " + in.Password.Id, logger.Error)

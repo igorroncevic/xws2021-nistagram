@@ -15,12 +15,17 @@ func (l LoginRequest) ConvertFromGrpc(request *protopb.LoginRequest) LoginReques
 }
 
 func (p Password) ConvertFromGrpc(pass *protopb.Password) Password {
-	return Password{
+	newPass := Password{
 		OldPassword:      pass.OldPassword,
 		NewPassword:      pass.NewPassword,
 		RepeatedPassword: pass.NewPassword,
 		Id:               pass.Id,
 	}
+
+	check, err := newPass.CheckAllFields()
+	if !check || err != nil { return Password{} }
+
+	return newPass
 }
 
 func (u User) ConvertToGrpc() *protopb.UsersDTO {
@@ -46,7 +51,7 @@ func (u User) ConvertToGrpc() *protopb.UsersDTO {
 }
 
 func (u User) ConvertFromGrpc(user *protopb.UsersDTO) User {
-	return User{
+	newUser := User{
 		Id:           user.Id,
 		FirstName:    user.FirstName,
 		LastName:     user.LastName,
@@ -65,6 +70,11 @@ func (u User) ConvertFromGrpc(user *protopb.UsersDTO) User {
 		ApprovedAccount: user.ApprovedAccount,
 		TokenEnd:  user.TokenEnd.AsTime(),
 	}
+
+	check, err := newUser.CheckAllFields()
+	if !check || err != nil { return User{} }
+
+	return newUser
 }
 
 func (u *User) GenerateUserDTO(user persistence.User, userAdditionalInfo persistence.UserAdditionalInfo) *User {

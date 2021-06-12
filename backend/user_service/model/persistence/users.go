@@ -46,7 +46,7 @@ func (u User) ConvertToGrpc() *protopb.User {
 }
 
 func (u *User) ConvertFromGrpc(user *protopb.User) *User {
-	return &User{
+	newUser := &User{
 		Id:           user.Id,
 		FirstName:    user.FirstName,
 		LastName:     user.LastName,
@@ -63,6 +63,11 @@ func (u *User) ConvertFromGrpc(user *protopb.User) *User {
 		ApprovedAccount: user.ApprovedAccount,
 		TokenEnd:     user.TokenEnd.AsTime(),
 	}
+
+	check, err := newUser.CheckAllFields()
+	if !check || err != nil { return nil }
+
+	return newUser
 }
 
 type UserAdditionalInfo struct {
