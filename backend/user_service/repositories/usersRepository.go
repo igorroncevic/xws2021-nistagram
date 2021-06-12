@@ -29,6 +29,7 @@ type UserRepository interface {
 	ChangeForgottenPass(ctx context.Context, password domain.Password) (bool, error)
 	ApproveAccount(ctx context.Context, password domain.Password) (bool, error)
 	GetUserById(context.Context, string) 	(persistence.User, error)
+	DoesUserExists(context.Context, string) (bool, error)
 }
 
 type userRepository struct {
@@ -265,9 +266,11 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 		return nil, resultUser.Error
 	}
 
-	_, err := repository.SaveUserProfilePhoto(ctx, user)
-	if err != nil {
-		return nil, err
+	if user.ProfilePhoto != ""{
+		_, err := repository.SaveUserProfilePhoto(ctx, user)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	userAdditionalInfo.Id = user.Id
@@ -285,13 +288,13 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 	privacy.IsProfilePublic = true
 	privacy.IsDMPublic = true
 	privacy.IsTagEnabled = true
-	_, err = repository.privacyRepository.CreatePrivacy(ctx, &privacy)
+	_, err := repository.privacyRepository.CreatePrivacy(ctx, &privacy)
 	if err != nil {
 		return nil, err
 	}
 
-	userReturn := &domain.User{}
-	userReturn.GenerateUserDTO(*user, *userAdditionalInfo)
+	var userReturn *domain.User
+	userReturn = userReturn.GenerateUserDTO(*user, *userAdditionalInfo)
 
 	return userReturn, nil
 }
@@ -424,6 +427,23 @@ func (repository *userRepository) ApproveAccount(ctx context.Context, password d
 	} else if db.RowsAffected == 0 {
 		return false, errors.New("rows affected is equal to zero")
 	}
+
+	return true, nil
+}
+
+func (repository *userRepository) DoesUserExists(ctx context.Context, email string) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "DoesUserExists")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var user *persistence.User
+	db := repository.DB.Model(&persistence.User{}).Where("email = ?", email).Find(&user)
+	if db.Error != nil {
+		return false, db.Error
+	} else if db.RowsAffected == 0 {
+		return false, nil
+	}
+
 
 	return true, nil
 }

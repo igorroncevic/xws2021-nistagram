@@ -26,11 +26,17 @@ type UsersClient interface {
 	UpdateUserProfile(ctx context.Context, in *CreateUserDTORequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	UpdateUserPassword(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	SearchUser(ctx context.Context, in *SearchUserDtoRequest, opts ...grpc.CallOption) (*UsersResponse, error)
+	// Svi
 	SendEmail(ctx context.Context, in *SendEmailDtoRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	// Svi
 	GetUserByEmail(ctx context.Context, in *RequestEmailUser, opts ...grpc.CallOption) (*UsersDTO, error)
+	// Svi
 	ValidateResetCode(ctx context.Context, in *RequestResetCode, opts ...grpc.CallOption) (*EmptyResponse, error)
+	// Svi
 	ChangeForgottenPass(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	// Samo ulogovani
 	ApproveAccount(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	GoogleAuth(ctx context.Context, in *GoogleAuthRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 }
 
 type usersClient struct {
@@ -158,6 +164,15 @@ func (c *usersClient) ApproveAccount(ctx context.Context, in *CreatePasswordRequ
 	return out, nil
 }
 
+func (c *usersClient) GoogleAuth(ctx context.Context, in *GoogleAuthRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
+	out := new(LoginResponse)
+	err := c.cc.Invoke(ctx, "/proto.Users/GoogleAuth", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UsersServer is the server API for Users service.
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
@@ -170,11 +185,17 @@ type UsersServer interface {
 	UpdateUserProfile(context.Context, *CreateUserDTORequest) (*EmptyResponse, error)
 	UpdateUserPassword(context.Context, *CreatePasswordRequest) (*EmptyResponse, error)
 	SearchUser(context.Context, *SearchUserDtoRequest) (*UsersResponse, error)
+	// Svi
 	SendEmail(context.Context, *SendEmailDtoRequest) (*EmptyResponse, error)
+	// Svi
 	GetUserByEmail(context.Context, *RequestEmailUser) (*UsersDTO, error)
+	// Svi
 	ValidateResetCode(context.Context, *RequestResetCode) (*EmptyResponse, error)
+	// Svi
 	ChangeForgottenPass(context.Context, *CreatePasswordRequest) (*EmptyResponse, error)
+	// Samo ulogovani
 	ApproveAccount(context.Context, *CreatePasswordRequest) (*EmptyResponse, error)
+	GoogleAuth(context.Context, *GoogleAuthRequest) (*LoginResponse, error)
 	mustEmbedUnimplementedUsersServer()
 }
 
@@ -220,6 +241,9 @@ func (UnimplementedUsersServer) ChangeForgottenPass(context.Context, *CreatePass
 }
 func (UnimplementedUsersServer) ApproveAccount(context.Context, *CreatePasswordRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ApproveAccount not implemented")
+}
+func (UnimplementedUsersServer) GoogleAuth(context.Context, *GoogleAuthRequest) (*LoginResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GoogleAuth not implemented")
 }
 func (UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}
 
@@ -468,6 +492,24 @@ func _Users_ApproveAccount_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_GoogleAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GoogleAuthRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).GoogleAuth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/GoogleAuth",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).GoogleAuth(ctx, req.(*GoogleAuthRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Users_ServiceDesc is the grpc.ServiceDesc for Users service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -526,6 +568,10 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ApproveAccount",
 			Handler:    _Users_ApproveAccount_Handler,
+		},
+		{
+			MethodName: "GoogleAuth",
+			Handler:    _Users_GoogleAuth_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

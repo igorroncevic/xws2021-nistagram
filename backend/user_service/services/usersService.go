@@ -6,10 +6,13 @@ import (
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/security"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
+	"github.com/david-drvar/xws2021-nistagram/user_service/model"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/user_service/repositories"
+	"github.com/david-drvar/xws2021-nistagram/user_service/util"
 	"github.com/david-drvar/xws2021-nistagram/user_service/util/encryption"
+	uuid "github.com/satori/go.uuid"
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
 	"log"
@@ -92,10 +95,14 @@ func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, us
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	if security.CheckBlacklistedPassword(user.Password) && user.Password != ""{
+		return nil, errors.New("password is among blacklisted passwords")
+	}
+
 	user.Password = encryption.HashAndSalt([]byte(user.Password))
 	userResult, err := service.userRepository.CreateUserWithAdditionalInfo(ctx, user, userAdditionalInfo)
 	if err != nil {
-		return nil, errors.New("Cannot create user!")
+		return nil, errors.New("cannot create user")
 	}
 
 	//todo create user node in graph database
@@ -107,7 +114,7 @@ func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, us
 	defer conn.Close()
 
 	c := protopb.NewFollowersClient(conn)
-	//print(c)
+
 	createUserRequest := protopb.CreateUserRequestFollowers{
 		User: &protopb.UserFollowers{
 			UserId: user.Id,
@@ -174,6 +181,7 @@ func (service *UserService) SearchUsersByUsernameAndName(ctx context.Context, us
 
 	return service.userRepository.SearchUsersByUsernameAndName(ctx, user)
 }
+
 func (service *UserService) GetUserByEmail(ctx context.Context, email string) (domain.User, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
 	defer span.Finish()
@@ -231,4 +239,34 @@ func (service *UserService) ApproveAccount(ctx context.Context, password domain.
 	}
 
 	return true, nil
+}
+
+func (service *UserService) GoogleSignIn(ctx context.Context, token string) (*domain.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GoogleSignIn")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	claims, err := util.ValidateGoogleJWT(token)
+	if err != nil { return &domain.User{}, err }
+
+	exists, err := service.userRepository.DoesUserExists(ctx, claims.Email)
+	if err != nil { return &domain.User{}, err }
+
+	if !exists {
+		newUser := &persistence.User{
+			FirstName:       claims.FirstName,
+			LastName:        claims.LastName,
+			Email:           claims.Email,
+			Username:        claims.FirstName + "_" + claims.LastName + "_" + uuid.NewV4().String(),
+			Password:        "",	// Google will handle password
+			Role:            model.Basic,
+		}
+		dbUser, err := service.CreateUserWithAdditionalInfo(ctx, newUser, &persistence.UserAdditionalInfo{})
+		if err != nil { return &domain.User{}, errors.New("unable to create user") }
+		return dbUser, nil
+	}else{
+		dbUser, err := service.userRepository.GetUserByEmail(claims.Email)
+		if err != nil { return &domain.User{}, errors.New("unable to create user") }
+		return &dbUser, nil
+	}
 }

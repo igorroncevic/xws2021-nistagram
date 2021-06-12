@@ -99,6 +99,13 @@ service Users {
       body: "*"
     };
   }
+
+  rpc GoogleAuth (GoogleAuthRequest) returns (LoginResponse) {
+    option(google.api.http) = {
+      post: "/api/users/auth/google"
+      body: "*"
+    };
+  }
 }
 
 message Password {
@@ -204,6 +211,10 @@ message RequestChangeForgottenPass {
 
 message RequestIdUsers {
   string id = 1;
+}
+
+message GoogleAuthRequest {
+  string token = 1;
 }
 
 message EmptyRequest {}

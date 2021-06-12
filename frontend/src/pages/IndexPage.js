@@ -3,6 +3,7 @@ import {Button, Form, Modal} from "react-bootstrap";
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from "axios";
 import { useHistory } from 'react-router-dom';
+import GoogleLogin from 'react-google-login';
 
 import RegistrationPage from "./RegistrationPage";
 const TEST_SITE_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
@@ -81,6 +82,43 @@ export function IndexPage(){
         setShowModal(!showModal)
     }
 
+    const successGoogleLogin = (googleUser) => {
+        console.log("hi")
+        var profile = googleUser.getBasicProfile();
+        console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+        console.log('Name: ' + profile.getName());
+        console.log('Image URL: ' + profile.getImageUrl());
+        console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+
+        const googleToken = googleUser.getAuthResponse().id_token
+        console.log(googleToken)
+        axios
+            .post("http://localhost:8001/api/users/auth/google", {
+                token: googleToken,
+            })
+            .then(res => {
+                sessionStorage.setItem("username", res.data.username);
+                history.push({
+                    pathname: '/home',
+                    state: { user:res.data, follow:false }
+                })
+            })
+            .catch(err => {
+                if (reCaptcha >= 2) {
+                    setCaptcha(reCaptcha+1);
+                    setLogInDisabled(true);
+                    setCredentials(false);
+                } else {
+                    setCaptcha(reCaptcha+1);
+                    setCredentials(false);
+                }
+            });
+    }
+
+    const errorGoogleLogin = (err) => {
+        console.log(err)
+    }
+
     return (
         <div style={{ padding: '60px 0', margin: '0 auto', maxWidth: '320px' }}>
             <br />
@@ -110,6 +148,12 @@ export function IndexPage(){
                 />
                 }
                 <Button disabled={logInDisabled} block size="lg" onClick={submitHandler}>Login </Button>
+                <GoogleLogin
+                    clientId="1033035332377-1qa39htnroucmro5bpmghhm797ldljrl.apps.googleusercontent.com"
+                    buttonText="Login"
+                    onSuccess={successGoogleLogin}
+                    onFailure={errorGoogleLogin}
+                />
             </Form>
             <br />
             <div style={{ display: " table" }}>

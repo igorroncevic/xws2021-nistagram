@@ -105,17 +105,25 @@ func (s *Server) LoginUser(ctx context.Context, in *protopb.LoginRequest) (*prot
 }
 
 func (s *Server) SendEmail(ctx context.Context, in *protopb.SendEmailDtoRequest) (*protopb.EmptyResponse, error) {
-	return s.emailController.SendEmail(ctx,in)
+	return s.emailController.SendEmail(ctx, in)
 }
+
 func (s *Server) GetUserByEmail(ctx context.Context, in *protopb.RequestEmailUser) (*protopb.UsersDTO, error) {
-	return s.userController.GetUserByEmail(ctx,in)
+	return s.userController.GetUserByEmail(ctx, in)
 }
+
 func (s *Server) ValidateResetCode(ctx context.Context, in *protopb.RequestResetCode) (*protopb.EmptyResponse, error) {
-	return s.userController.ValidateResetCode(ctx,in)
+	return s.userController.ValidateResetCode(ctx, in)
 }
+
 func (s *Server) ChangeForgottenPass(ctx context.Context, in *protopb.CreatePasswordRequest) (*protopb.EmptyResponse, error) {
-	return s.userController.ChangeForgottenPass(ctx,in)
+	return s.userController.ChangeForgottenPass(ctx, in)
 }
+
 func (s *Server) ApproveAccount(ctx context.Context, in *protopb.CreatePasswordRequest) (*protopb.EmptyResponse, error) {
-	return s.userController.ApproveAccount(ctx,in)
+	return s.userController.ApproveAccount(ctx, in)
+}
+
+func (s *Server) GoogleAuth(ctx context.Context, in *protopb.GoogleAuthRequest) (*protopb.LoginResponse, error) {
+	return s.userController.GoogleAuth(ctx, in)
 }

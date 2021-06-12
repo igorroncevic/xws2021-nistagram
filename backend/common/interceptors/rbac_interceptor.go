@@ -8,7 +8,6 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/common/logger"
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
-	"log"
 	"strings"
 )
 
@@ -27,7 +26,7 @@ func NewRBACInterceptor(db *gorm.DB, jwtManager *common.JWTManager, logger *logg
 var (
 	alwaysAllowedEndpoints = []string{
 		"LoginUser", "CreateUser", "CreatePrivacy", "SendEmail", "GetUserByEmail",
-		"ValidateResetCode", "ChangeForgottenPass",
+		"ValidateResetCode", "ChangeForgottenPass", "GoogleAuth",
 	}
 )
 
@@ -40,10 +39,11 @@ func contains(slice []string, searchterm string) bool {
 
 func (interceptor *RBACInterceptor) Authorize() grpc.UnaryServerInterceptor{
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error){
-		log.Println("---> RBAC interceptor: ", info.FullMethod)
+		interceptor.logger.ToStdout("RBAC Interceptor", "Attempting to access " + info.FullMethod, logger.Info)
 
 		methodParts := strings.Split(info.FullMethod, "/")
 		if len(methodParts) != 3 {
+			interceptor.logger.ToStdout("RBAC Interceptor", "Failed to access " + info.FullMethod, logger.Error)
 			return nil, errors.New("something went wrong")
 		}
 
@@ -60,7 +60,7 @@ func (interceptor *RBACInterceptor) Authorize() grpc.UnaryServerInterceptor{
 			return nil, err
 		}
 		if !isAllowed {
-			interceptor.logger.ToStdoutAndFile("RBAC Interceptor", "No permission to access " + permissionToCheck, logger.Warn)
+			interceptor.logger.ToStdoutAndFile("RBAC Interceptor", "No permission to access " + permissionToCheck + ", not allowed", logger.Warn)
 			return nil, nil
 		}
 
@@ -71,7 +71,7 @@ func (interceptor *RBACInterceptor) Authorize() grpc.UnaryServerInterceptor{
 		if methodParts[1] == "proto.Content" {
 			ctx, err = interceptor.auth.authorize(ctx)
 			if err != nil {
-				interceptor.logger.ToStdoutAndFile("RBAC Interceptor", "No permission to access " + permissionToCheck, logger.Warn)
+				interceptor.logger.ToStdoutAndFile("RBAC Interceptor", "No permission to access " + permissionToCheck + ", auth failed", logger.Warn)
 				return nil, err
 			}
 		}

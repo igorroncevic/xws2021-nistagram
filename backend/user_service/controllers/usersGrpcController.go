@@ -282,3 +282,33 @@ func (s *UserGrpcController) ApproveAccount(ctx context.Context, in *protopb.Cre
 	s.logger.ToStdoutAndFile("ApproveAccount", "Account approval success: " + in.Password.Id, logger.Info)
 	return &protopb.EmptyResponse{}, nil
 }
+
+func (s *UserGrpcController) GoogleAuth (ctx context.Context, in *protopb.GoogleAuthRequest) (*protopb.LoginResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GoogleAuth")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	s.logger.ToStdoutAndFile("GoogleAuth", "Google SSO attempt", logger.Info)
+
+	googleToken := in.Token
+
+	user, err := s.service.GoogleSignIn(ctx, googleToken)
+	if err != nil {
+		s.logger.ToStdoutAndFile("GoogleAuth", "Google SSO attempt failed", logger.Error)
+		return &protopb.LoginResponse{}, status.Errorf(codes.InvalidArgument, "could not create user")
+	}
+
+	token, err := s.jwtManager.GenerateJwt(user.Id, user.Role.String())
+	if err != nil {
+		s.logger.ToStdoutAndFile("GoogleAuth", "JWT generate failed", logger.Error)
+		return &protopb.LoginResponse{}, err
+	}
+
+	s.logger.ToStdoutAndFile("GoogleAuth", "Google SSO attempt success by " + user.Email, logger.Info)
+	return &protopb.LoginResponse {
+		AccessToken: token,
+		UserId:      user.Id,
+		Username:    user.Username,
+		Role:        user.Role.String(),
+	}, nil
+}
