@@ -92,7 +92,7 @@ func (controller *FollowersGrpcController) GetAllFollowers(ctx context.Context, 
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	var user = model.User{}
+	var user model.User
 	user = *user.ConvertFromGrpc(in.User)
 	users, err := controller.service.GetAllFollowers(ctx, user.UserId)
 	if err != nil {

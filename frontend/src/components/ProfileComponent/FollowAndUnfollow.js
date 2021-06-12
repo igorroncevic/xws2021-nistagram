@@ -14,6 +14,15 @@ function FollowAndUnfollow(props){
     }, [followers])
 
     function follow(){
+        console.log({
+            userId :loggedUser.id,
+            followerId : user.id,
+            isMuted :false,
+            isCloseFriends :false,
+            isApprovedRequest :true,
+            isNotificationEnabled : true
+         })
+
         axios
             .post('http://localhost:8005/api/followers/create_connection', {
                  follower: {
@@ -36,12 +45,14 @@ function FollowAndUnfollow(props){
     function unfollow(){
         axios
             .post('http://localhost:8005/api/followers/delete_directed', {
-                UserId :loggedUser.id,
-                FollowerId : user.id,
-                IsMuted :false,
-                IsCloseFriends :false,
-                IsApprovedRequest :true,
-                IsNotificationEnabled : true
+                follower: {
+                    UserId :loggedUser.id,
+                    FollowerId : user.id,
+                    IsMuted :false,
+                    IsCloseFriends :false,
+                    IsApprovedRequest :true,
+                    IsNotificationEnabled : true
+                }
             })
             .then(res => {
                 console.log("otpratio")

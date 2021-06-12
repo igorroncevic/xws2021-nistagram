@@ -69,17 +69,18 @@ func GRPCServer(driver neo4j.Driver) {
 	gwServer := &http.Server{
 		Addr:    grpc_common.Recommendation_gateway_address,
 		Handler: tracer.TracingWrapper(c.Handler(gatewayMux)),
-/*		TLSConfig: &tls.Config{
+		/*TLSConfig: &tls.Config{
 			ClientCAs: pool,
 			ClientAuth:  tls.RequireAndVerifyClientCert,
 		},*/
 	}
 
 	customLogger.ToStdoutAndFile("Recommendation GRPC Server", "Serving gRPC-Gateway on " + grpc_common.Recommendation_gateway_address, logger.Info)
-	log.Fatalln(gwServer.ListenAndServeTLS("./../common/sslFile/gateway.crt", "./../common/sslFile/gateway.key"))
+	//log.Fatalln(gwServer.ListenAndServeTLS("./../common/sslFile/gateway.crt", "./../common/sslFile/gateway.key"))
+	log.Fatalln(gwServer.ListenAndServe())
 }
 
-func addTrust(pool*x509.CertPool, path string) {
+func addTrust(pool *x509.CertPool, path string) {
 	aCrt, err := ioutil.ReadFile(path)
 	if err!= nil {
 		fmt.Println("ReadFile err:",err)

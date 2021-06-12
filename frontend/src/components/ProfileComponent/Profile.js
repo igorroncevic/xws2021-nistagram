@@ -84,11 +84,10 @@ function Profile(props) {
     function getFollowing(){
         axios
             .post('http://localhost:8005/api/followers/get_followings', {
-                UserId:user.id
+                user: { UserId: user.id }
             })
             .then(res => {
                 console.log("following radi")
-              //  console.log(res.data.users)
                 setFollowings(res.data.users);
 
             }).catch(res => {
@@ -99,11 +98,10 @@ function Profile(props) {
     function getFollowers(){
         axios
             .post('http://localhost:8005/api/followers/get_followers', {
-                UserId: user.id
+                user: { UserId: user.id }
             })
             .then(res => {
                 console.log("followers radi")
-                console.log(res.data.users)
                 setFollowers(res.data.users);
 
             }).catch(res => {

@@ -14,13 +14,6 @@ service Followers {
         };
     }
 
-    rpc GetAllFollowers (CreateUserRequestFollowers) returns (CreateUserResponse) {
-        option(google.api.http) = {
-            post: "/api/followers/get_followers",
-            body: "*"
-        };
-    }
-
     rpc CreateUser (CreateUserRequestFollowers) returns (EmptyResponseFollowers){
         option(google.api.http) = {
             post: "/api/followers",
@@ -42,10 +35,17 @@ service Followers {
         };
     }
 
+    rpc GetAllFollowers (CreateUserRequestFollowers) returns (CreateUserResponse) {
+        option(google.api.http) = {
+            post: "/api/followers/get_followers",
+            body: "*"
+        };
+    }
+
     rpc GetAllFollowing (CreateUserRequestFollowers) returns (CreateUserResponse) {
         option(google.api.http) = {
             post: "/api/followers/get_followings",
-            body: "user"
+            body: "*"
         };
     }
 
