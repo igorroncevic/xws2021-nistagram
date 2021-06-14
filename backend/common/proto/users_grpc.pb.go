@@ -11,7 +11,6 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-// Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
 // UsersClient is the client API for Users service.
@@ -37,6 +36,8 @@ type UsersClient interface {
 	// Samo ulogovani
 	ApproveAccount(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GoogleAuth(ctx context.Context, in *GoogleAuthRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	//samo ulogovani basic korisnici
+	SubmitVerificationRequest(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 }
 
 type usersClient struct {
@@ -173,6 +174,15 @@ func (c *usersClient) GoogleAuth(ctx context.Context, in *GoogleAuthRequest, opt
 	return out, nil
 }
 
+func (c *usersClient) SubmitVerificationRequest(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Users/SubmitVerificationRequest", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UsersServer is the server API for Users service.
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
@@ -196,6 +206,8 @@ type UsersServer interface {
 	// Samo ulogovani
 	ApproveAccount(context.Context, *CreatePasswordRequest) (*EmptyResponse, error)
 	GoogleAuth(context.Context, *GoogleAuthRequest) (*LoginResponse, error)
+	//samo ulogovani basic korisnici
+	SubmitVerificationRequest(context.Context, *VerificationRequest) (*EmptyResponse, error)
 	mustEmbedUnimplementedUsersServer()
 }
 
@@ -245,6 +257,9 @@ func (UnimplementedUsersServer) ApproveAccount(context.Context, *CreatePasswordR
 func (UnimplementedUsersServer) GoogleAuth(context.Context, *GoogleAuthRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GoogleAuth not implemented")
 }
+func (UnimplementedUsersServer) SubmitVerificationRequest(context.Context, *VerificationRequest) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubmitVerificationRequest not implemented")
+}
 func (UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}
 
 // UnsafeUsersServer may be embedded to opt out of forward compatibility for this service.
@@ -254,8 +269,8 @@ type UnsafeUsersServer interface {
 	mustEmbedUnimplementedUsersServer()
 }
 
-func RegisterUsersServer(s grpc.ServiceRegistrar, srv UsersServer) {
-	s.RegisterService(&Users_ServiceDesc, srv)
+func RegisterUsersServer(s *grpc.Server, srv UsersServer) {
+	s.RegisterService(&_Users_serviceDesc, srv)
 }
 
 func _Users_LoginUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -510,10 +525,25 @@ func _Users_GoogleAuth_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-// Users_ServiceDesc is the grpc.ServiceDesc for Users service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var Users_ServiceDesc = grpc.ServiceDesc{
+func _Users_SubmitVerificationRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerificationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).SubmitVerificationRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/SubmitVerificationRequest",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).SubmitVerificationRequest(ctx, req.(*VerificationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _Users_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.Users",
 	HandlerType: (*UsersServer)(nil),
 	Methods: []grpc.MethodDesc{
@@ -572,6 +602,10 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GoogleAuth",
 			Handler:    _Users_GoogleAuth_Handler,
+		},
+		{
+			MethodName: "SubmitVerificationRequest",
+			Handler:    _Users_SubmitVerificationRequest_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
