@@ -15,7 +15,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 		permissions := []Permission{
 			getUserById, getUsernameById, getAllUsers,
 			updateUserPassword, updateUserProfile, searchUser,
-			updatePrivacy, blockUser, unBlockUser, checkIfBlocked, checkUserProfilePublic, getAllPublicUsers, approveAccount,
+			updatePrivacy, blockUser, unBlockUser, checkIfBlocked, checkUserProfilePublic, getAllPublicUsers, approveAccount,checkIsApproved,
 		}
 		result = db.Create(&permissions)
 		if result.Error != nil { return result.Error }
@@ -33,7 +33,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			basicCheckIfBlocked, agentCheckIfBlocked, adminCheckIfBlocked, verifiedCheckIfBlocked, nonregisteredCheckIfBlocked,
 			basicCheckUserProfilePublic, agentCheckUserProfilePublic, adminCheckUserProfilePublic, verifiedCheckUserProfilePublic, nonregisteredCheckUserProfilePublic,
 			basicGetAllPublicUsers, agentGetAllPublicUsers, adminGetAllPublicUsers, verifiedGetAllPublicUsers, nonregisteredGetAllPublicUsers,
-			basicApproveAccount, adminApproveAccount, agentApproveAccount,
+			basicApproveAccount, adminApproveAccount, agentApproveAccount,basicCheckIsApproved, adminCheckIsApproved, agentCheckIsApproved,
 		}
 		result = db.Create(&rolePermissions)
 		if result.Error != nil { return result.Error }
@@ -58,7 +58,7 @@ var (
 	updateUserPassword 		= Permission{ Id: "50db6a87-483e-4d97-b320-9ff68235280a",  Name: "UpdateUserPassword" }
 	searchUser 				= Permission{ Id: "afbbf68f-ad1d-45db-8345-37ab619eea33",  Name: "SearchUser" }
 	approveAccount 			= Permission{ Id: "15e9a950-8581-4aa6-81c1-ae722c527051",  Name: "ApproveAccount" }
-
+	checkIsApproved			= Permission{ Id: "c7f5bfa5-9749-4be3-a6bb-451a5acbd1b0",  Name: "CheckIsApproved"  }
 	updatePrivacy 			= Permission{ Id: "3ce13d71-30e2-4cca-8a48-8a5ee1b6a42e",  Name: "UpdatePrivacy" }
 	blockUser 				= Permission{ Id: "9ec3fb89-28d6-4789-82b8-f247706cb6a0",  Name: "BlockUser" }
 	unBlockUser 			= Permission{ Id: "bf4632b1-e3ae-41d5-a04a-4bac73b7a2ef",  Name: "UnBlockUser" }
@@ -83,6 +83,10 @@ var (
 	basicApproveAccount 	= RolePermission{ RoleId: basic.Id, PermissionId: approveAccount.Id }
 	agentApproveAccount 	= RolePermission{ RoleId: agent.Id, PermissionId: approveAccount.Id }
 	adminApproveAccount 	= RolePermission{ RoleId: admin.Id, PermissionId: approveAccount.Id }
+
+	basicCheckIsApproved	= RolePermission{ RoleId: basic.Id, PermissionId: checkIsApproved.Id }
+	agentCheckIsApproved	= RolePermission{ RoleId: agent.Id, PermissionId: checkIsApproved.Id }
+	adminCheckIsApproved	= RolePermission{ RoleId: admin.Id, PermissionId: checkIsApproved.Id }
 
 	basicUpdateUserProfile 	= RolePermission{ RoleId: basic.Id, PermissionId: updateUserProfile.Id }
 	agentUpdateUserProfile 	= RolePermission{ RoleId: agent.Id, PermissionId: updateUserProfile.Id }

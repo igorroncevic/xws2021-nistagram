@@ -30,6 +30,7 @@ type UserRepository interface {
 	ApproveAccount(ctx context.Context, password domain.Password) (bool, error)
 	GetUserById(context.Context, string) 	(persistence.User, error)
 	DoesUserExists(context.Context, string) (bool, error)
+	CheckIsApproved(ctx context.Context, id string) (bool, error)
 }
 
 type userRepository struct {
@@ -453,4 +454,15 @@ func (repository *userRepository) DoesUserExists(ctx context.Context, email stri
 
 
 	return true, nil
+}
+func (repository *userRepository) CheckIsApproved(ctx context.Context, id string) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	user,err :=repository.GetUserById(ctx,id)
+	if err != nil {
+		return false, err
+	}
+	return user.ApprovedAccount, nil
 }

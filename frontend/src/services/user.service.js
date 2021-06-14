@@ -7,7 +7,7 @@ class UserService {
         })
     }
 
-    setupHeaders(jwt){
+     setupHeaders(jwt){
         return {
             Accept: 'application/json',
             Authorization: 'Bearer ' + jwt,
@@ -19,6 +19,39 @@ class UserService {
         const response = this.apiClient.post('/login', {
             email,
             password
+        }).then(res => {
+            return res
+        }).catch(err => {
+            console.error(err)
+            return err
+        })
+        return response
+    }
+
+    async checkIsApproved(data){
+        const { id,jwt} = data
+        const headers=this.setupHeaders(jwt)
+        const response = this.apiClient.post('/checkIsApproved', {
+            id
+        },{
+            headers:headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            console.error(err)
+            return err
+        })
+        return response
+    }
+
+
+    async approveAccount(data){
+        const { id,oldPassword,newPassword,repeatedPassword,jwt} = data
+        const headers=this.setupHeaders(jwt)
+        const response = this.apiClient.post('/approveAccount', {
+            password:{id,oldPassword,newPassword,repeatedPassword}
+        },{
+            headers:headers
         }).then(res => {
             return res
         }).catch(err => {

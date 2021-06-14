@@ -127,3 +127,7 @@ func (s *Server) ApproveAccount(ctx context.Context, in *protopb.CreatePasswordR
 func (s *Server) GoogleAuth(ctx context.Context, in *protopb.GoogleAuthRequest) (*protopb.LoginResponse, error) {
 	return s.userController.GoogleAuth(ctx, in)
 }
+
+func (s *Server) CheckIsApproved(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.BooleanResponseUsers, error) {
+	return s.userController.CheckIsApproved(ctx, in)
+}

@@ -92,6 +92,13 @@ service Users {
     };
   }
 
+  rpc CheckIsApproved (RequestIdUsers) returns (BooleanResponseUsers) {
+    option(google.api.http) = {
+      post: "/api/users/checkIsApproved"
+      body: "*"
+    };
+  }
+
   // Samo ulogovani
   rpc ApproveAccount (CreatePasswordRequest) returns (EmptyResponse) {
     option(google.api.http) = {
@@ -109,10 +116,10 @@ service Users {
 }
 
 message Password {
-  string OldPassword = 1;
-  string NewPassword = 2;
-  string RepeatedPassword = 3;
-  string Id = 4;
+  string oldPassword = 1;
+  string newPassword = 2;
+  string repeatedPassword = 3;
+  string id = 4;
 }
 
 message User {
@@ -217,6 +224,9 @@ message RequestIdUsers {
 
 message GoogleAuthRequest {
   string token = 1;
+}
+message BooleanResponseUsers {
+  bool response = 1;
 }
 
 message EmptyRequest {}

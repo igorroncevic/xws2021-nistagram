@@ -38,7 +38,7 @@ const IndexPage = () => {
                 jwt: response.data.accessToken,
                 id: response.data.userId,
                 role: response.data.role,
-                isSSO: response.data.isSSO
+                isSSO: response.data.isSSO,
             }))
             history.push({ pathname: '/home' })
         }else{

@@ -219,13 +219,13 @@ const RegistrationPage = () => {
                 'website' : website,
             })
             .then(res => {
-                dispatch(userActions.registerRequest(res.data.accessToken))
+                console.log(res.data)
                 setErrorMessage(false);
                 setSuccessfullyReg(true);
                 setDisabled(!disabled);
             }).catch(res => {
-                setErrorMessage(true);
-                console.log("NE RADI")
+            setErrorMessage(true);
+            console.log("NE RADI")
         })
     }
 

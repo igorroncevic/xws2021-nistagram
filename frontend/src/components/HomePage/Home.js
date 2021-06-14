@@ -3,13 +3,14 @@ import Sidebar from "./Sidebar";
 import Posts from "../PostComponent/Posts";
 import "../../style/home.css";
 import Stories from "../StoryCompoent/Stories";
-import axios from "axios";
 import React, {useEffect, useState} from "react";
 import {Button, Modal} from "react-bootstrap";
 import PasswordStrengthBar from "react-password-strength-bar";
 import { useDispatch, useSelector } from 'react-redux'
+import userService from "../../services/user.service";
+import {userActions} from "../../store/actions/user.actions";
 
-function Home(props) {
+function Home() {
     const [user,setUser]=useState();
     const [showModal,setModal]=useState(false);
     const [submitted,setSubmitted]=useState(false);
@@ -22,53 +23,49 @@ function Home(props) {
     const dispatch = useDispatch()
     const store = useSelector(state => state);
 
-    var isSSO = false;
-    /* async function getUser(){
-        const id = store.user.id;
-        console.log(id)
-        await axios
-            .get(`http://localhost:8080/api/users/api/users/${id}`)
-            .then(res => {
-                console.log("RADI get user")
-                console.log(res)
-                setUser(res.data.users[0])
-                console.log(res)
-                // checkIsApproved(res.data.users[0].approvedAccount);
-            }).catch(res => {
-            console.log("NE RADI get user")
+    useEffect(() => {
+        checkProfile();
+    },[]);
+
+    async function checkProfile() {
+        const response = await userService.checkIsApproved({
+            id: store.user.id,
+            jwt: store.user.jwt
         })
-    } */
 
-    function changePass(){
-        axios
-            .post('http://localhost:8080/api/users/api/users/approveAccount', {
-                password: {
-                    Id: user.id,
-                    OldPassword: passwords.oldPassword,
-                    NewPassword: passwords.newPassword,
-                    RepeatedPassword: passwords.repeatedPassword
-                }
-            })
-            .then(res => {
-                setOldErr('');
-                setModal(false);
-            }).catch(res => {
-            setOldErr('Please enter valid old password!');
-
-
-        })
+        if (response.status === 200) {
+            checkIsApproved(response.data.response)
+        } else {
+            console.log("NEJEJ")
+        }
     }
 
     function  checkIsApproved(value){
-        console.log(user)
-        if(isSSO) return
+        if(store.user.isSSO) return
         if(value === false){
             setModal(true)
         }else{
             setModal(false)
         }
     }
-    function    handleInputChange(event) {
+    async function approveAccount() {
+        const response = await userService.approveAccount({
+            id: store.user.id,
+            oldPassword: passwords.oldPassword,
+            newPassword: passwords.newPassword,
+            repeatedPassword: passwords.repeatedPassword,
+            jwt: store.user.jwt,
+        })
+
+        if (response.status === 200) {
+            setOldErr('');
+            setModal(false);
+        } else {
+            setOldErr('Please enter valid old password!');
+        }
+    }
+    
+    function  handleInputChange(event) {
         setPasswords({
             ...passwords,
             [event.target.name]: event.target.value,
@@ -81,7 +78,7 @@ function Home(props) {
         validatePasswords();
 
         if(newErr=='' &&  repErr==''){
-            changePass();
+            approveAccount();
         }
     }
 
