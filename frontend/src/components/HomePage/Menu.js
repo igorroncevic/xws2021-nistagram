@@ -8,29 +8,25 @@ import ProfileIcon from "../ProfileComponent/ProfileIcon";
 import {NavLink} from "react-router-dom";
 import NewPost from "../HomePageComponents/NewPost";
 
-function Menu(props) {
-    const{user}=props;
-
-    console.log("NAV")
-    console.log(user)
+function Menu() {
     return (
         <div className="menu">
-            <NavLink  to={{ pathname: "/home", state: { user:user}  }}  >
+            <NavLink  to={{ pathname: "/home" }}  >
                 <Home className="icon"/>
             </NavLink>
-            <NavLink  to={{ pathname: "/chats", state: { user:user}  }}  >
+            <NavLink  to={{ pathname: "/chats" }}  >
                 <Inbox className="icon" />
             </NavLink>
-            <NavLink  to={{ pathname: "/notifications", state: { user:user}  }}  >
+            <NavLink  to={{ pathname: "/notifications" }}  >
                 <Notifications className="icon" />
             </NavLink>
-            <NavLink  to={{ pathname: "/saved", state: { user:user}  }}  >
+            <NavLink  to={{ pathname: "/saved" }}  >
                 <Bookmark className="icon" />
             </NavLink>
-            <NavLink  to={{ pathname: "/newpost", state: { user:user}  }}  >
+            <NavLink  to={{ pathname: "/newpost" }}  >
                 <Plus className="icon" />
             </NavLink>
-            <NavLink  to={{ pathname: "/profile", state: { user:user, follow:false}  }}  >
+            <NavLink  to={{ pathname: "/profile", state: { follow: false } }}  >
                 <ProfileIcon iconSize="medium" image='https://i.pravatar.cc/150?img=1' />
             </NavLink>
             <a href='/' style={{marginLeft:'10px'}}>Log out</a>

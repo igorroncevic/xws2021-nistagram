@@ -22,7 +22,6 @@ function Profile(props) {
     const [posts, setPosts] = useState([]);
     const [loggedUser, setLoggedUser] = useState();
 
-
     var loggedUsername = sessionStorage.getItem("username");
     var isSSO = sessionStorage.getItem("isSSO")
 
@@ -128,13 +127,13 @@ function Profile(props) {
 
     return (
         <div>
-            <Navigation user={loggedUser}/>
+            <Navigation/>
             <div style={{marginLeft: '20%', marginRight: '20%',marginTop:'10%'}}>
                 <div style={{margin: "18px 0px", orderBottom: "1px solid "}}>
                     <div style={{display: "flex", justifyContent: "space-around",}}>
                         <div>
                             <img style={{width: "180px", height: "160px", borderRadius: "80px"}}
-                                 src={user.profilePhoto}/>
+                                 src={user.profilePhoto ? user.profilePhoto : ""}/>
                         </div>
                         <div>
                             <h4>{user.firstName} {user.lastName}</h4>

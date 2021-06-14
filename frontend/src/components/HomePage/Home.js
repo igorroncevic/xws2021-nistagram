@@ -7,6 +7,7 @@ import axios from "axios";
 import React, {useEffect, useState} from "react";
 import {Button, Modal} from "react-bootstrap";
 import PasswordStrengthBar from "react-password-strength-bar";
+import { useDispatch, useSelector } from 'react-redux'
 
 function Home(props) {
     const [user,setUser]=useState();
@@ -18,24 +19,26 @@ function Home(props) {
     const [newErr,setNewErr]=useState('');
     const [repErr,setRepErr]=useState('');
 
-    var isSSO = sessionStorage.getItem("isSSO")
+    const dispatch = useDispatch()
+    const store = useSelector(state => state);
+
+    var isSSO = false;
     useEffect(() => {
         if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
         getUser();
     }, [])
 
     async function getUser(){
+        const id = store.user.id;
+        console.log(id)
         await axios
-            .post('http://localhost:8080/api/users/api/users/searchByUser', {
-                username:props.location.state.user.username
-            })
+            .get(`http://localhost:8080/api/users/api/users/${id}`)
             .then(res => {
                 console.log("RADI get user")
+                console.log(res)
                 setUser(res.data.users[0])
-                console.log(user)
-                console.log(res.data.users[0])
-                checkIsApproved(res.data.users[0].approvedAccount);
-
+                console.log(res)
+                // checkIsApproved(res.data.users[0].approvedAccount);
             }).catch(res => {
             console.log("NE RADI get user")
         })

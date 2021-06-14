@@ -7,20 +7,12 @@ import Search from "../../pages/Search";
 import {useHistory} from "react-router-dom";
 
 
-function Navigation(props) {
-    const [user, setUser] = useState({...props.user});
-
-
+function Navigation() {
     const history = useHistory()
-
-    useEffect(() => {
-        setUser(props.user);
-    }, [props.user])
 
     function redirectToSearch(){
         history.push({
-            pathname: '/search',
-            state: { user:user }
+            pathname: '/search'
         })
     }
 
@@ -30,7 +22,7 @@ function Navigation(props) {
                 <font face = "Comic Sans MS" size = "5" style={{marginRight:'5em'}}>Ništagram</font>
                 <Button variant="outline-dark" style={{marginRight:'25em'}} onClick={redirectToSearch}>Search...</Button>
                 {/*<input type="text" placeholder="Search.." style={{marginRight:'25em'}} onClick={props.getUser}/>*/}
-                <Menu user={user} getUser={props.getUser}/>
+                <Menu/>
             </div>
         </div>
     );

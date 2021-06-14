@@ -1,9 +1,11 @@
 import React, {useEffect, useState} from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import PasswordStrengthBar from 'react-password-strength-bar';
 import {Alert, Button, FormControl} from "react-bootstrap";
 import axios from "axios";
+import { userActions } from './../store/actions/user.actions';
 
-export default function RegistrationPage() {
+const RegistrationPage = () => {
     // Declare a new state variable, which we'll call "count"
     const [password, setPassword] = useState("");
     const [passwordStrength, setPasswordStrength] = useState("");
@@ -35,6 +37,9 @@ export default function RegistrationPage() {
     const [blacklistedPasswords, setBlacklistedPasswords] = useState([]);
     const [website, setWebsite] = useState("");
     const [profilePhoto, setProfilePhoto] = useState("");
+
+    const dispatch = useDispatch();
+    const store = useSelector(state => state)
 
 
     useEffect(() => {
@@ -214,6 +219,7 @@ export default function RegistrationPage() {
                 'website' : website,
             })
             .then(res => {
+                dispatch(userActions.registerRequest(res.data.accessToken))
                 setErrorMessage(false);
                 setSuccessfullyReg(true);
                 setDisabled(!disabled);
@@ -385,3 +391,5 @@ export default function RegistrationPage() {
         </div>
     );
 }
+
+export default RegistrationPage;
