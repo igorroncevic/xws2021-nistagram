@@ -23,12 +23,7 @@ function Home(props) {
     const store = useSelector(state => state);
 
     var isSSO = false;
-    useEffect(() => {
-        if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
-        getUser();
-    }, [])
-
-    async function getUser(){
+    /* async function getUser(){
         const id = store.user.id;
         console.log(id)
         await axios
@@ -42,7 +37,7 @@ function Home(props) {
             }).catch(res => {
             console.log("NE RADI get user")
         })
-    }
+    } */
 
     function changePass(){
         axios
@@ -173,12 +168,12 @@ function Home(props) {
 
     return (
         <div className="App">
-            <Navigation user={user} getUser={getUser}/>
+            <Navigation/>
             <main>
                 <div>
                     <Stories/>
                     <div className="container">
-                        <Posts user={user}/>
+                        <Posts/>
                         <Sidebar/>
                     </div>
                 </div>

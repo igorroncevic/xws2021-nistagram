@@ -7,7 +7,7 @@ import { useHistory } from 'react-router-dom';
 import GoogleLogin from 'react-google-login';
 import { userActions } from './../store/actions/user.actions'
 
-import userService from './../services/auth.service'
+import userService from './../services/user.service'
 
 import RegistrationPage from "./RegistrationPage";
 const TEST_SITE_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
@@ -30,6 +30,8 @@ const IndexPage = () => {
             email: details.email,
             password: details.password
         })
+
+        console.log(response)
 
         if(response.status === 200) {
             dispatch(userActions.loginRequest({

@@ -3,7 +3,7 @@ import axios from 'axios';
 class UserService {
     constructor(){
         this.apiClient = axios.create({
-            baseURL: "http://localhost:8080/api/users/api/users"
+            baseURL: "http://localhost:8001/api/users"
         })
     }
 
@@ -21,9 +21,9 @@ class UserService {
             password
         }).then(res => {
             return res
-        }).then(err => {
+        }).catch(err => {
             console.error(err)
-            return {}
+            return err
         })
         return response
     }

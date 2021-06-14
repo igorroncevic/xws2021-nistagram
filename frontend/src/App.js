@@ -14,7 +14,7 @@ import ChangePassword from "./components/ProfileComponent/ChangePassword";
 import Notifications from "./components/HomePageComponents/Notifications";
 import UnauthorizedPage from "./helpers/UnauthorizedPage";
 
-function App () {
+const App = () => {
     return (
         <div className="App">
             <Router>
@@ -30,10 +30,9 @@ function App () {
                 <Route path='/chats' exact component={Chats} />
                 <Route path='/saved' exact component={Saved} />
                 <Route path='/notifications' exact component={Notifications} />
-
-
             </Router>
         </div>
     );
 }
+
 export default App
