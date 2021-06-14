@@ -60,6 +60,19 @@ class UserService {
         })
         return response
     }
+
+    async getUserByUsername(data){
+        const { username,jwt} = data
+        const headers=this.setupHeaders(jwt)
+        const response = this.apiClient.get('/getUserByUsername/'+username,{
+            headers:headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
 }
 
 const userService = new UserService()

@@ -30,6 +30,7 @@ type UsersClient interface {
 	SendEmail(ctx context.Context, in *SendEmailDtoRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	// Svi
 	GetUserByEmail(ctx context.Context, in *RequestEmailUser, opts ...grpc.CallOption) (*UsersDTO, error)
+	GetUserByUsername(ctx context.Context, in *RequestUsernameUser, opts ...grpc.CallOption) (*UsersDTO, error)
 	// Svi
 	ValidateResetCode(ctx context.Context, in *RequestResetCode, opts ...grpc.CallOption) (*EmptyResponse, error)
 	// Svi
@@ -138,6 +139,15 @@ func (c *usersClient) GetUserByEmail(ctx context.Context, in *RequestEmailUser, 
 	return out, nil
 }
 
+func (c *usersClient) GetUserByUsername(ctx context.Context, in *RequestUsernameUser, opts ...grpc.CallOption) (*UsersDTO, error) {
+	out := new(UsersDTO)
+	err := c.cc.Invoke(ctx, "/proto.Users/GetUserByUsername", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *usersClient) ValidateResetCode(ctx context.Context, in *RequestResetCode, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	out := new(EmptyResponse)
 	err := c.cc.Invoke(ctx, "/proto.Users/ValidateResetCode", in, out, opts...)
@@ -199,6 +209,7 @@ type UsersServer interface {
 	SendEmail(context.Context, *SendEmailDtoRequest) (*EmptyResponse, error)
 	// Svi
 	GetUserByEmail(context.Context, *RequestEmailUser) (*UsersDTO, error)
+	GetUserByUsername(context.Context, *RequestUsernameUser) (*UsersDTO, error)
 	// Svi
 	ValidateResetCode(context.Context, *RequestResetCode) (*EmptyResponse, error)
 	// Svi
@@ -243,6 +254,9 @@ func (UnimplementedUsersServer) SendEmail(context.Context, *SendEmailDtoRequest)
 }
 func (UnimplementedUsersServer) GetUserByEmail(context.Context, *RequestEmailUser) (*UsersDTO, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserByEmail not implemented")
+}
+func (UnimplementedUsersServer) GetUserByUsername(context.Context, *RequestUsernameUser) (*UsersDTO, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserByUsername not implemented")
 }
 func (UnimplementedUsersServer) ValidateResetCode(context.Context, *RequestResetCode) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ValidateResetCode not implemented")
@@ -452,6 +466,24 @@ func _Users_GetUserByEmail_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_GetUserByUsername_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestUsernameUser)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).GetUserByUsername(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/GetUserByUsername",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).GetUserByUsername(ctx, req.(*RequestUsernameUser))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Users_ValidateResetCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RequestResetCode)
 	if err := dec(in); err != nil {
@@ -588,6 +620,10 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserByEmail",
 			Handler:    _Users_GetUserByEmail_Handler,
+		},
+		{
+			MethodName: "GetUserByUsername",
+			Handler:    _Users_GetUserByUsername_Handler,
 		},
 		{
 			MethodName: "ValidateResetCode",

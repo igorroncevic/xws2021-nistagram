@@ -131,3 +131,6 @@ func (s *Server) GoogleAuth(ctx context.Context, in *protopb.GoogleAuthRequest) 
 func (s *Server) CheckIsApproved(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.BooleanResponseUsers, error) {
 	return s.userController.CheckIsApproved(ctx, in)
 }
+func (s *Server) GetUserByUsername(ctx context.Context, in *protopb.RequestUsernameUser) (*protopb.UsersDTO, error) {
+	return s.userController.GetUserByUsername(ctx, in)
+}

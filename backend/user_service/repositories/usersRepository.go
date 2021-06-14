@@ -31,6 +31,7 @@ type UserRepository interface {
 	GetUserById(context.Context, string) 	(persistence.User, error)
 	DoesUserExists(context.Context, string) (bool, error)
 	CheckIsApproved(ctx context.Context, id string) (bool, error)
+	GetUserByUsername(username string) (domain.User, error)
 }
 
 type userRepository struct {
@@ -128,7 +129,7 @@ func (repository *userRepository) GetUserByUsername(username string) (domain.Use
 	}
 	user := &domain.User{}
 
-	user.GenerateUserDTO(dbUser, dbUserAdditionalInfo)
+	user=user.GenerateUserDTO(dbUser, dbUserAdditionalInfo)
 
 	if user.ProfilePhoto != "" {
 		filename, err := images.LoadImageToBase64(user.ProfilePhoto)
@@ -391,7 +392,6 @@ func (repository *userRepository) SaveUserProfilePhoto(ctx context.Context, user
 	return true, nil
 }
 
-
 func (repository *userRepository) ChangeForgottenPass(ctx context.Context, password domain.Password) (bool, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserPassword")
 	defer span.Finish()
@@ -455,6 +455,7 @@ func (repository *userRepository) DoesUserExists(ctx context.Context, email stri
 
 	return true, nil
 }
+
 func (repository *userRepository) CheckIsApproved(ctx context.Context, id string) (bool, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
 	defer span.Finish()
@@ -466,3 +467,4 @@ func (repository *userRepository) CheckIsApproved(ctx context.Context, id string
 	}
 	return user.ApprovedAccount, nil
 }
+

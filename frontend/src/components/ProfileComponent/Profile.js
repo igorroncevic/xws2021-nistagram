@@ -6,11 +6,18 @@ import EditProfile from "./EditProfile";
 import ChangePassword from "./ChangePassword";
 import FollowAndUnfollow from "./FollowAndUnfollow";
 import Navigation from "../HomePage/Navigation";
+import {   useParams } from 'react-router-dom'
+import userService from "../../services/user.service";
+import {userActions} from "../../store/actions/user.actions";
 
 
-function Profile(props) {
-    const [user, setUser] =useState(props.location.state.user ? props.location.state.user : {});
-    const [follow,setFollow] =useState(props.location.state.follow ? props.location.state.follow : {});
+import {useDispatch, useSelector} from "react-redux";
+
+
+function Profile() {
+    const{username}=useParams()
+    const [user, setUser] =useState({});
+    const [follow,setFollow] =useState( {});
     const [publicProfile,setPublicProfile]=useState(false);
 
     const [image, setImage] = useState('');
@@ -24,12 +31,11 @@ function Profile(props) {
 
     var loggedUsername = sessionStorage.getItem("username");
     var isSSO = sessionStorage.getItem("isSSO")
+    const dispatch = useDispatch()
+    const store = useSelector(state => state);
 
     useEffect(() => {
-        if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
-
-        setUser(props.location.state.user);
-        setFollow(props.location.state.follow)
+     //   if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
         getUserByUsername();
         getUserPrivacy();
         getFollowers()
@@ -37,17 +43,20 @@ function Profile(props) {
         //getPosts()
     },[]);
 
-    function getUserByUsername(){
-        axios
-            .post('http://localhost:8080/api/users/api/users/searchByUser', {
-                username:loggedUsername
-            })
-            .then(res => {
-                setLoggedUser(res.data.users[0])
-                console.log(loggedUser)
-            }).catch(res => {
-            console.log("NE RADI get user")
+
+
+    async function getUserByUsername() {
+        const response = await userService.getUserByUsername({
+            username: username,
+            jwt: store.user.jwt,
         })
+        
+        if (response.status === 200) {
+            console.log("RADIS")
+            setUser(response.data)
+        } else {
+          console.log("NERADIS")
+        }
     }
 
     function  getUserPrivacy(){

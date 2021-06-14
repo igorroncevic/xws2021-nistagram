@@ -348,3 +348,20 @@ func (s *UserGrpcController) CheckIsApproved(ctx context.Context, in *protopb.Re
 		Response: isApproved,
 	}, nil
 }
+
+func (s *UserGrpcController) GetUserByUsername(ctx context.Context, in *protopb.RequestUsernameUser) (*protopb.UsersDTO, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserByEmail")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	user, err := s.service.GetUserByUsername(ctx,in.Username)
+
+	if err != nil{
+		return &protopb.UsersDTO{}, err
+	}
+
+	userResponse := user.ConvertToGrpc()
+
+	return userResponse, nil
+}
+

@@ -64,7 +64,7 @@ function Home() {
             setOldErr('Please enter valid old password!');
         }
     }
-    
+
     function  handleInputChange(event) {
         setPasswords({
             ...passwords,

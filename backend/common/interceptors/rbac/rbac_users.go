@@ -16,6 +16,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			getUserById, getUsernameById, getAllUsers,
 			updateUserPassword, updateUserProfile, searchUser,
 			updatePrivacy, blockUser, unBlockUser, checkIfBlocked, checkUserProfilePublic, getAllPublicUsers, approveAccount,checkIsApproved,
+			getUserByUsername,
 		}
 		result = db.Create(&permissions)
 		if result.Error != nil { return result.Error }
@@ -34,6 +35,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			basicCheckUserProfilePublic, agentCheckUserProfilePublic, adminCheckUserProfilePublic, verifiedCheckUserProfilePublic, nonregisteredCheckUserProfilePublic,
 			basicGetAllPublicUsers, agentGetAllPublicUsers, adminGetAllPublicUsers, verifiedGetAllPublicUsers, nonregisteredGetAllPublicUsers,
 			basicApproveAccount, adminApproveAccount, agentApproveAccount,basicCheckIsApproved, adminCheckIsApproved, agentCheckIsApproved,
+			basicGetUserByUsername, agentGetUserByUsername, adminGetUserByUsername, verifiedGetUserByUsername, nonregisteredGetUserByUsername,
 		}
 		result = db.Create(&rolePermissions)
 		if result.Error != nil { return result.Error }
@@ -55,16 +57,18 @@ var (
 	getUsernameById 		= Permission{ Id: "c9295278-8fe8-40e6-9c9d-75543d48fa94",  Name: "GetUsernameById" }
 	getAllUsers 			= Permission{ Id: "26e41719-e309-4591-bb7e-3291b59c6dd4",  Name: "GetAllUsers" }
 	updateUserProfile 		= Permission{ Id: "48719e11-38de-4935-a93a-a61886c9303e",  Name: "UpdateUserProfile" }
-	updateUserPassword 		= Permission{ Id: "50db6a87-483e-4d97-b320-9ff68235280a",  Name: "UpdateUserPassword" }
-	searchUser 				= Permission{ Id: "afbbf68f-ad1d-45db-8345-37ab619eea33",  Name: "SearchUser" }
-	approveAccount 			= Permission{ Id: "15e9a950-8581-4aa6-81c1-ae722c527051",  Name: "ApproveAccount" }
-	checkIsApproved			= Permission{ Id: "c7f5bfa5-9749-4be3-a6bb-451a5acbd1b0",  Name: "CheckIsApproved"  }
-	updatePrivacy 			= Permission{ Id: "3ce13d71-30e2-4cca-8a48-8a5ee1b6a42e",  Name: "UpdatePrivacy" }
-	blockUser 				= Permission{ Id: "9ec3fb89-28d6-4789-82b8-f247706cb6a0",  Name: "BlockUser" }
-	unBlockUser 			= Permission{ Id: "bf4632b1-e3ae-41d5-a04a-4bac73b7a2ef",  Name: "UnBlockUser" }
-	checkIfBlocked 			= Permission{ Id: "ce7b4f42-02ce-4c92-bcc4-529972173a4b",  Name: "CheckIfBlocked" }
-	checkUserProfilePublic 	= Permission{ Id: "f2d282a9-c171-47f4-935d-32875fa61c8a",  Name: "CheckUserProfilePublic" }
-	getAllPublicUsers 		= Permission{ Id: "a30c3350-4b8f-4773-bd90-32c17e88d221",  Name: "GetAllPublicUsers" }
+	updateUserPassword     = Permission{ Id: "50db6a87-483e-4d97-b320-9ff68235280a",  Name: "UpdateUserPassword" }
+	searchUser             = Permission{ Id: "afbbf68f-ad1d-45db-8345-37ab619eea33",  Name: "SearchUser" }
+	approveAccount         = Permission{ Id: "15e9a950-8581-4aa6-81c1-ae722c527051",  Name: "ApproveAccount" }
+	checkIsApproved        = Permission{ Id: "c7f5bfa5-9749-4be3-a6bb-451a5acbd1b0",  Name: "CheckIsApproved"  }
+	updatePrivacy          = Permission{ Id: "3ce13d71-30e2-4cca-8a48-8a5ee1b6a42e",  Name: "UpdatePrivacy" }
+	blockUser              = Permission{ Id: "9ec3fb89-28d6-4789-82b8-f247706cb6a0",  Name: "BlockUser" }
+	unBlockUser            = Permission{ Id: "bf4632b1-e3ae-41d5-a04a-4bac73b7a2ef",  Name: "UnBlockUser" }
+	checkIfBlocked         = Permission{ Id: "ce7b4f42-02ce-4c92-bcc4-529972173a4b",  Name: "CheckIfBlocked" }
+	checkUserProfilePublic = Permission{ Id: "f2d282a9-c171-47f4-935d-32875fa61c8a",  Name: "CheckUserProfilePublic" }
+	getAllPublicUsers      = Permission{ Id: "a30c3350-4b8f-4773-bd90-32c17e88d221",  Name: "GetAllPublicUsers" }
+	getUserByUsername      = Permission{ Id: "aa3305b0-0b68-490f-b38e-5a0c1cf97a9e",  Name: "GetUserByUsername" }
+
 )
 
 var (
@@ -73,6 +77,12 @@ var (
 	adminGetUserById 	= RolePermission{ RoleId: admin.Id, PermissionId: getUserById.Id }
 	verifiedGetUserById 		= RolePermission{ RoleId: verified.Id, PermissionId: getUserById.Id }
 	nonregisteredGetUserById 	= RolePermission{ RoleId: nonregistered.Id, PermissionId: getUserById.Id }
+
+	basicGetUserByUsername	= RolePermission{ RoleId: basic.Id, PermissionId: getUserByUsername.Id }
+	agentGetUserByUsername	= RolePermission{ RoleId: agent.Id, PermissionId: getUserByUsername.Id }
+	adminGetUserByUsername	= RolePermission{ RoleId: admin.Id, PermissionId: getUserByUsername.Id }
+	verifiedGetUserByUsername 		= RolePermission{ RoleId: verified.Id, PermissionId: getUserByUsername.Id }
+	nonregisteredGetUserByUsername 		= RolePermission{ RoleId: nonregistered.Id, PermissionId: getUserByUsername.Id }
 
 	basicGetUsernameById 	= RolePermission{ RoleId: basic.Id, PermissionId: getUsernameById.Id }
 	agentGetUsernameById 	= RolePermission{ RoleId: agent.Id, PermissionId: getUsernameById.Id }

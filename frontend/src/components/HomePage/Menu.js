@@ -5,10 +5,12 @@ import { ReactComponent as Notifications } from "../../images/notifications.svg"
 import { ReactComponent as Bookmark } from "../../images/bookmark.svg";
 import { ReactComponent as Plus } from "../../images/plus.svg";
 import ProfileIcon from "../ProfileComponent/ProfileIcon";
-import {NavLink} from "react-router-dom";
-import NewPost from "../HomePageComponents/NewPost";
+import {NavLink, Route} from "react-router-dom";
+import Profile from "../ProfileComponent/Profile";
+import {useState} from "react";
 
 function Menu() {
+    const[username,setUsername]=useState("andja")
     return (
         <div className="menu">
             <NavLink  to={{ pathname: "/home" }}  >
@@ -26,9 +28,11 @@ function Menu() {
             <NavLink  to={{ pathname: "/newpost" }}  >
                 <Plus className="icon" />
             </NavLink>
-            <NavLink  to={{ pathname: "/profile", state: { follow: false } }}  >
+
+            <NavLink  to={"/profile/"+username }  >
                 <ProfileIcon iconSize="medium" image='https://i.pravatar.cc/150?img=1' />
             </NavLink>
+
             <a href='/' style={{marginLeft:'10px'}}>Log out</a>
 
         </div>

@@ -280,3 +280,11 @@ func (service *UserService) CheckIsApproved(ctx context.Context, id string) (boo
 
 	return service.userRepository.CheckIsApproved(ctx, id)
 }
+
+func (service *UserService) GetUserByUsername(ctx context.Context, username string) (domain.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.userRepository.GetUserByUsername(username)
+}

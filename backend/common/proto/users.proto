@@ -72,7 +72,12 @@ service Users {
   // Svi
   rpc GetUserByEmail (RequestEmailUser) returns (UsersDTO) {
     option(google.api.http) = {
-      get: "/api/users/getByEmail/{email}"
+      get: "/api/users/getUserByEmail/{email}"
+    };
+  }
+  rpc GetUserByUsername (RequestUsernameUser) returns (UsersDTO) {
+    option(google.api.http) = {
+      get: "/api/users/getUserByUsername/{username}"
     };
   }
 
@@ -206,6 +211,10 @@ message SendEmailDtoRequest {
 
 message RequestEmailUser {
   string email = 1;
+}
+
+message RequestUsernameUser {
+  string username = 1;
 }
 
 message RequestResetCode {
