@@ -85,16 +85,16 @@ func (user *User) checkRegexValidation() (bool, error){
 	if !match { return false, err }
 
 	//match, err = regexp.MatchString("^[a-zA-Z ,.'-]+$", user.Username)
-	match, err = regexp.MatchString("[A-Z0-9.%+-][A-Z0-9.-][A-Z]{0,500}$", user.Biography)
+	match, err = regexp.MatchString("[A-Za-z0-9.%+-][A-Za-z0-9.-][A-Za-z]{0,500}$", user.Biography)
 	if !match { return false, err }
 
-	match, err = regexp.MatchString("[A-Z0-9.%+-][A-Z0-9.-][A-Z]{0,300}$", user.Website)
+	match, err = regexp.MatchString("[A-Za-z0-9.%+-][A-Za-z0-9.-][A-Za-z]{0,300}$", user.Website)
 	if !match { return false, err }
 
 	match, err = regexp.MatchString("^[a-zA-Z]+$", user.Sex)
 	if !match { return false, err }
 
-	match, err = regexp.MatchString("^[A-Z0-9.%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,64}$", user.Email)
+	match, err = regexp.MatchString("^[a-z0-9.%+-]+@[a-z0-9.-]+\\.[a-z]{2,64}$", user.Email)
 	if !match { return false, err }
 
 	match, err = regexp.MatchString("^[+]?[0-9]{8,12}$", user.PhoneNumber)

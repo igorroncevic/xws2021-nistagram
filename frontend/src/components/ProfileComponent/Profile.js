@@ -37,7 +37,7 @@ function Profile() {
 
     useEffect(() => {
      //   if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
-        getUserByUsername();
+        getUserById();
         getUserPrivacy();
         getFollowers()
         getFollowing()
@@ -46,9 +46,9 @@ function Profile() {
 
 
 
-    async function getUserByUsername() {
-        const response = await userService.getUserByUsername({
-            username: username,
+    async function getUserById() {
+        const response = await userService.getUserById({
+            id: store.user.id,
             jwt: store.user.jwt,
         })
 
@@ -175,7 +175,7 @@ function Profile() {
                         <Modal.Title>Edit profile</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <EditProfile updateUser={getUserByUsername}/>
+                        <EditProfile updateUser={getUserById}/>
                     </Modal.Body>
                     <Modal.Footer>
 
@@ -186,7 +186,7 @@ function Profile() {
                     <Modal.Header closeButton>
                     </Modal.Header>
                     <Modal.Body>
-                        <ChangePassword user={user}/>
+                        <ChangePassword/>
                     </Modal.Body>
                     <Modal.Footer>
 

@@ -87,10 +87,26 @@ class UserService {
     }
 
     async editProfile(data){
-        const { id,firstname,lastName,email,phoneNumber,username,profilePhoto,sex,website,biography,jwt} = data
+        const { id,firstName,lastName,email,phoneNumber,username,profilePhoto,sex,website,biography,jwt} = data
         const headers=this.setupHeaders(jwt)
         const response = this.apiClient.post('/update_profile',{
-            id,firstname,lastName,email,phoneNumber,username,profilePhoto,sex,website,biography
+            user:{id,firstName,lastName,email,phoneNumber,username,profilePhoto,sex,website,biography}
+        },{
+            headers:headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
+
+    async changePassword(data){
+        console.log(data)
+        const {id,oldPassword,newPassword,repeatedPassword,jwt} = data
+        const headers=this.setupHeaders(jwt)
+        const response = this.apiClient.post('/update_password',{
+            password:{id,oldPassword,newPassword,repeatedPassword}
         },{
             headers:headers
         }).then(res => {
