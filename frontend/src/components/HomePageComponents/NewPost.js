@@ -6,9 +6,11 @@ import RegistrationPage from "../../pages/RegistrationPage";
 import UserAutocomplete from "../PostComponent/UserAutocomplete";
 import ProfileForAutocomplete from "../PostComponent/ProfileForAutocomplete";
 import AutocompleteHashtags from "../PostComponent/AutocompleteHashtags";
+import userService from "../../services/user.service";
+import {useDispatch, useSelector} from "react-redux";
 
 function NewPost(props) {
-    const [user,setUser] =useState(props.location.state.user);
+    // const [user,setUser] =useState(props.location.state.user);
     const [user,setUser] =useState({});
 
     const[description,setDescription]=useState('');
@@ -25,19 +27,52 @@ function NewPost(props) {
     const [allUsers, setAllUsers] = useState([]);
     const [allHashtags, setAllHashtags] = useState([]);
 
+    const dispatch = useDispatch()
+    const store = useSelector(state => state);
+
     useEffect(() => {
-        if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
-        setUser(props.location.state.user);
+        //if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
+        console.log(props);
+        //setUser(props.location.state.user);
+        getUserInfo();
         getAllUsers();
         getAllHashtags();
+        console.log("all users:")
+        console.log(allUsers)
     }, []);
 
+    async function getUserInfo() {
+        const response = await userService.getUserById({
+            id: store.user.id,
+            jwt: store.user.jwt,
+        })
+
+        if (response.status === 200) {
+            setUser(response.data)
+        } else {
+            console.log("getuser error")
+        }
+    }
+
+
+    function setupHeaders(){
+        return {
+            Accept: 'application/json',
+            Authorization: 'Bearer ' + store.user.jwt,
+        }
+    }
+
     function getAllUsers() {
-        axios.get("http://localhost:8080/api/users/api/users").then(res => setAllUsers(res.data.users));
+        console.log(setupHeaders())
+        axios.get("http://localhost:8080/api/users/api/users", {
+            headers : setupHeaders()
+        }).then(res => setAllUsers(res.data.users));
     }
 
     function getAllHashtags() {
-        axios.get("http://localhost:8080/api/content/hashtag/get-all").then(res => setAllHashtags(res.data.hashtags));
+        axios.get("http://localhost:8080/api/content/hashtag/get-all", {
+            headers : setupHeaders()
+        }).then(res => setAllHashtags(res.data.hashtags));
     }
 
     //todo hashtag list
@@ -102,6 +137,9 @@ function NewPost(props) {
                 likes : [],
                 dislikes : [],
                 hashtags : hashtagList
+            }, {
+                headers : setupHeaders()
+
             })
             .then(res => {
                 alert("Post created successfully!");

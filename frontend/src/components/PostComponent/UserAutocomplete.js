@@ -61,7 +61,7 @@ function UserAutocomplete(props) {
                     {filteredSuggestions.map((suggestion, index) => {
                         return (
                             <li  key={suggestion} onClick={() => onClick(suggestion)}>
-                                <ProfileForAutocomplete username={suggestion.username} firstName={suggestion.firstName} lastName={suggestion.lastName}  caption={suggestion.biography} urlText="Follow" iconSize="medium" captionSize="small" storyBorder={true} />
+                                <ProfileForAutocomplete image={suggestion.profilePhoto} username={suggestion.username} firstName={suggestion.firstName} lastName={suggestion.lastName}  caption={suggestion.biography} urlText="Follow" iconSize="medium" captionSize="small" storyBorder={true} />
                                 {/*{suggestion}*/}
                             </li>
                         );
