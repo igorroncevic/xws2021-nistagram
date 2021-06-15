@@ -55,7 +55,6 @@ class UserService {
         }).then(res => {
             return res
         }).catch(err => {
-            console.error(err)
             return err
         })
         return response
@@ -73,6 +72,37 @@ class UserService {
         })
         return response
     }
+
+    async getUserById(data){
+        const { id,jwt} = data
+        const headers=this.setupHeaders(jwt)
+        const response = this.apiClient.get('/'+id,{
+            headers:headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
+
+    async editProfile(data){
+        const { id,firstname,lastName,email,phoneNumber,username,profilePhoto,sex,website,biography,jwt} = data
+        const headers=this.setupHeaders(jwt)
+        const response = this.apiClient.post('/update_profile',{
+            id,firstname,lastName,email,phoneNumber,username,profilePhoto,sex,website,biography
+        },{
+            headers:headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
+
+
+
 }
 
 const userService = new UserService()

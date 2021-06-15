@@ -1,9 +1,11 @@
 import {Alert, Button, FormControl, Table} from "react-bootstrap";
 import React, {useEffect, useState} from "react";
 import axios from "axios";
+import userService from "../../services/user.service";
+import {useDispatch, useSelector} from "react-redux";
 
-const EditProfile = props => {
-    const [user, setUser] = useState(props.user);
+function EditProfile (props) {
+    const [user, setUser] = useState({});
     const[edit,setEdit]=useState(false)
     const[success,setSuccess]=useState(false)
     const[firstNameErr,setFirstNameErr]=useState('');
@@ -15,37 +17,50 @@ const EditProfile = props => {
     const[phoneNumErr,setPhoneErr]=useState('');
     const [submitted, setSubmitted] = useState(false);
 
-       console.log("EDITTTTTT");
-       console.log(user);
-    console.log(user.biography);
-    console.log(user.website);
+    const dispatch = useDispatch()
+    const store = useSelector(state => state);
 
+    useEffect(() => {
+        //   if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
+        getUserInfo();
+    },[]);
 
-    function sendParams(){
-        axios
-            .post('http://localhost:8080/api/users/api/users/update_profile', {
-                user:{
-                    id: user.id,
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    email: user.email,
-                    phoneNumber: user.phoneNumber,
-                    username: user.username,
-                    profilePhoto: 'idk',
-                    sex: user.sex,
-                    website:user.website,
-                    biography:user.biography,
-                }
-            })
-            .then(res => {
-                console.log("RADI")
-                props.updateUser()
-                setSuccess(true);
-                sessionStorage.setItem("username",user.username);
-
-            }).catch(res => {
-            console.log("NE RADIs")
+    async function getUserInfo() {
+        const response = await userService.getUserById({
+            id: store.user.id,
+            jwt: store.user.jwt,
         })
+
+        if (response.status === 200) {
+            setUser(response.data)
+        } else {
+            console.log("getuser error")
+        }
+    }
+
+    async function sendParams() {
+        const response = await userService.getUserById({
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            phoneNumber: user.phoneNumber,
+            username: user.username,
+            profilePhoto: 'idk',
+            sex: user.sex,
+            website: user.website,
+            biography: user.biography,
+            jwt: store.user.jwt,
+        })
+
+        if (response.status === 200) {
+            console.log("RADI")
+            props.updateUser()
+            setSuccess(true);
+        } else {
+            console.log("NE RADIs")
+        }
+
     }
     async function handleInputChange(event) {
         setUser({
