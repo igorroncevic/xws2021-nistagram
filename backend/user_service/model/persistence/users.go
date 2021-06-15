@@ -125,7 +125,8 @@ type Followers struct {
 }
 
 type VerificationRequest struct {
-	UserId        string `gorm:"primaryKey"`
+	Id            string `gorm:"primaryKey"`
+	UserId        string
 	DocumentPhoto string
 	Status        model.RequestStatus
 	CreatedAt     time.Time

@@ -10,6 +10,7 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/user_service/util"
 	"github.com/david-drvar/xws2021-nistagram/user_service/util/images"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"time"
 )
@@ -55,7 +56,15 @@ func (repository *verificationRepository) CreateVerificationRequest(ctx context.
 			return errors.New("cannot decode document photo")
 		}
 
-		var verificationRequestPersistence = persistence.VerificationRequest{
+		//provera da li postoji vec neki pending od tog usera
+		var verificationRequestPersistence = persistence.VerificationRequest{}
+		repository.DB.Where("user_id = ? AND status = 'Pending'", verificationRequest.UserId).Find(&verificationRequestPersistence)
+		if verificationRequestPersistence.UserId != "" {
+			return errors.New("cannot create verification request")
+		}
+
+		verificationRequestPersistence = persistence.VerificationRequest{
+			Id:            uuid.New().String(),
 			UserId:        verificationRequest.UserId,
 			DocumentPhoto: documentPhotoDecoded,
 			Status:        model.Pending,
@@ -124,6 +133,7 @@ func (repository *verificationRepository) GetPendingVerificationRequests(ctx con
 			return nil, err
 		}
 		verificationRequestsDomain = append(verificationRequestsDomain, domain.VerificationRequest{
+			Id:            verificationRequest.Id,
 			UserId:        verificationRequest.UserId,
 			DocumentPhoto: imageBase64,
 			Status:        verificationRequest.Status,
@@ -143,8 +153,17 @@ func (repository *verificationRepository) ChangeVerificationRequestStatus(ctx co
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	err := repository.DB.Transaction(func(tx *gorm.DB) error {
+		//ne dozvoljava se menjanje ako je status vec promenjen (!= pending)
+		var verificationRequestPersistence = persistence.VerificationRequest{}
+		if verificationRequest.Id == "" {
+			return errors.New("id cannot be empty")
+		}
+		result := repository.DB.Where("id = ?", verificationRequest.Id).Find(&verificationRequestPersistence)
+		if verificationRequestPersistence.Status != "Pending" || result.Error != nil {
+			return errors.New("cannot change verification request status")
+		}
 
-		result := repository.DB.Where("user_id = ?", verificationRequest.UserId).Updates(persistence.VerificationRequest{Status: verificationRequest.Status})
+		result = repository.DB.Where("id = ?", verificationRequest.Id).Updates(persistence.VerificationRequest{Status: verificationRequest.Status})
 		if result.Error != nil || result.RowsAffected != 1 {
 			return errors.New("cannot change verification request status")
 		}

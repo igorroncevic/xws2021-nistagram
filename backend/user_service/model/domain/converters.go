@@ -108,6 +108,7 @@ func (u *User) GenerateUserDTO(user persistence.User, userAdditionalInfo persist
 
 func (u VerificationRequest) ConvertFromGrpc(verificationRequest *protopb.VerificationRequest) VerificationRequest {
 	newVerificationRequest := VerificationRequest{
+		Id:            verificationRequest.Id,
 		UserId:        verificationRequest.UserId,
 		FirstName:     verificationRequest.FirstName,
 		LastName:      verificationRequest.LastName,
@@ -122,6 +123,7 @@ func (u VerificationRequest) ConvertFromGrpc(verificationRequest *protopb.Verifi
 
 func (verificationRequest VerificationRequest) ConvertToGrpc() *protopb.VerificationRequest {
 	return &protopb.VerificationRequest{
+		Id:            verificationRequest.Id,
 		UserId:        verificationRequest.UserId,
 		DocumentPhoto: verificationRequest.DocumentPhoto,
 		Category:      model.GetUserCategoriesString(verificationRequest.Category),

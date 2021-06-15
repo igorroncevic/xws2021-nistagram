@@ -245,13 +245,14 @@ message VerificationRequestsArray {
 }
 
 message VerificationRequest {
-  string userId = 1;
-  string documentPhoto = 2;
-  string category = 3;
-  string firstName = 4;
-  string lastName = 5;
-  string status = 6;
-  google.protobuf.Timestamp createdAt = 7;
+  string id = 1;
+  string userId = 2;
+  string documentPhoto = 3;
+  string category = 4;
+  string firstName = 5;
+  string lastName = 6;
+  string status = 7;
+  google.protobuf.Timestamp createdAt = 8;
 }
 
 message EmptyRequest {}
