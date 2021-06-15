@@ -14,35 +14,45 @@ type Password struct {
 }
 
 type User struct {
-	Id           string
-	FirstName    string
-	LastName     string
-	Email        string
-	Username     string
-	Role         model.UserRole
-	BirthDate    time.Time
-	ProfilePhoto string
-	PhoneNumber  string
-	Sex          string
-	IsActive     bool
-	Biography    string
-	Website      string
-	Category     model.UserCategory
-	ResetCode    string
+	Id              string
+	FirstName       string
+	LastName        string
+	Email           string
+	Username        string
+	Role            model.UserRole
+	BirthDate       time.Time
+	ProfilePhoto    string
+	PhoneNumber     string
+	Sex             string
+	IsActive        bool
+	Biography       string
+	Website         string
+	Category        model.UserCategory
+	ResetCode       string
 	ApprovedAccount bool
-	TokenEnd    time.Time
+	TokenEnd        time.Time
 }
 
-type LoginRequest struct{
-	Email	 string
+type LoginRequest struct {
+	Email    string
 	Password string
 }
 
-func (user *User) CheckValidation() (bool, error){
+func (user *User) CheckValidation() (bool, error) {
 	match, err := regexp.MatchString("^[a-zA-Z ,.'-]+$", user.FirstName)
 	if !match {
 		return false, err
 	}
 
 	return true, nil
+}
+
+type VerificationRequest struct {
+	UserId        string
+	DocumentPhoto string
+	Status        model.RequestStatus
+	CreatedAt     time.Time
+	Category      model.UserCategory
+	FirstName     string
+	LastName      string
 }

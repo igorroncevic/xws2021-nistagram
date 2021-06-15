@@ -6,7 +6,10 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/common/logger"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
+	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/user_service/services"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
 
@@ -37,6 +40,13 @@ func (s *VerificationGrpcController) SubmitVerificationRequest(ctx context.Conte
 	s.logger.ToStdoutAndFile("CreateUser", "User registration attempt: ", logger.Info)
 
 	//todo - napravi konvertor u domenski ili persistence, napisi u user additional info category, dekodiraj sliku, upisi verification request
+	var verificationRequest domain.VerificationRequest
+	verificationRequest = verificationRequest.ConvertFromGrpc(in)
+
+	err := s.service.CreateVerificationRequest(ctx, verificationRequest)
+	if err != nil {
+		return &protopb.EmptyResponse{}, status.Errorf(codes.Unknown, "Could not create verification request")
+	}
 
 	return &protopb.EmptyResponse{}, nil
 }

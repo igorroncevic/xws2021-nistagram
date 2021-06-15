@@ -231,6 +231,10 @@ message VerificationRequest {
   string userId = 1;
   string documentPhoto = 2;
   string category = 3;
+  string firstName = 4;
+  string lastName = 5;
+  string status = 6;
+  google.protobuf.Timestamp createdAt = 7;
 }
 
 message EmptyRequest {}
