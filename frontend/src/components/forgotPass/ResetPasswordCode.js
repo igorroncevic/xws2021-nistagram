@@ -2,9 +2,10 @@ import {useEffect, useState} from "react";
 import {Alert, Button, Container, Form, Table} from "react-bootstrap";
 import axios from "axios";
 
-export function ResetPasswordCode(props,onChangeValue) {
+export function ResetPasswordCode(props) {
+
     const [resetCode, setResetCode] = useState('');
-    const [email, setEmail] = useState(props);
+    const [email, setEmail] = useState(props.email);
     const [wrongEmail, setWrongEmail] = useState(false);
     const [errorResetCode, setErrorResetCode] = useState('');
     const [submitted, setSubmitted] = useState(false);
@@ -12,39 +13,42 @@ export function ResetPasswordCode(props,onChangeValue) {
 
     useEffect(() => {
          axios
-            .get('http://localhost:8080/api/users/getUserByEmail/' + email, {
-                headers: {"Access-Control-Allow-Origin": "*"}
-            })
+            .get('http://localhost:8080/api/users/api/users/getByEmail/' + email)
             .then(res => {
                 setUser(res.data)
             }).catch(res => {
-                setWrongEmail(true);
+             setWrongEmail(true);
             })
-    });
+    },[]);
 
 
     function handleInputChange(event){
         setResetCode(event.target.value);
-        isValidResetCode(event.target.value);
     }
 
     function submitResetCode(){
         setSubmitted(true);
-        if (isValidResetCode(resetCode)) {
-            onChangeValue();
-        }
+        validateResetCode();
+
     }
 
-    function isValidResetCode(value){
-        if (value === user.resetCode) {
-            setErrorResetCode('');
-            return true;
-        } else {
+    function validateResetCode(){
+        console.log(user)
+        axios
+            .post('http://localhost:8080/api/users/api/users/validateResetCode',{
+                resetCode:resetCode,
+                email: user.email
+            })
+            .then(res => {
+                setErrorResetCode('');
+                props.onChangeValue(user);
+
+            }).catch(res => {
             setErrorResetCode('Please enter valid reset code!');
-            return false;
-        }
-    }
 
+            console.log("BLAAAA")
+        })
+    }
     return (
         <div>
             {!wrongEmail ?

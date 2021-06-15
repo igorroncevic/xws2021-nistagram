@@ -12,11 +12,13 @@ type FollowersRepository interface {
 	CreateUserConnection(context.Context, model.Follower) (bool, error)
 	GetAllFollowers(context.Context, string) ([]model.User, error)
 	GetAllFollowing(context.Context, string) ([]model.User, error)
+	GetAllFollowingsForHomepage(context.Context, string) ([]model.User, error)
 	CreateUser(context.Context, model.User) (bool, error)
 	DeleteDirectedConnection(context.Context, model.Follower) (bool, error)
 	DeleteBiDirectedConnection (context.Context, model.Follower) (bool, error)
 	UpdateUserConnection(context.Context, model.Follower) (*model.Follower,error)
 	GetFollowersConnection(context.Context, model.Follower) (*model.Follower, error)
+	GetCloseFriends(context.Context, string) ([]model.User, error)
 }
 
 type followersRepository struct {
@@ -66,12 +68,22 @@ func (repository *followersRepository) GetUsers(ctx context.Context, userId stri
 }
 
 func (repository *followersRepository) GetAllFollowing(ctx context.Context, userId string) ([]model.User, error){
-	query := "MATCH (a:User {id : $UserId})-[r:Follows]->(b:User) RETURN b.id"
+	query := "MATCH (a:User {id : $UserId})-[r:Follows]->(b:User) WHERE r.IsApprovedRequest = true RETURN b.id"
 	return repository.GetUsers(ctx, userId, query)
 }
 
+func (repository *followersRepository) GetAllFollowingsForHomepage(ctx context.Context, userId string) ([]model.User, error){
+	query := "MATCH (a:User {id : $UserId})-[r:Follows]->(b:User) WHERE r.IsApprovedRequest = true AND r.IsMuted = false RETURN b.id"
+	return repository.GetUsers(ctx, userId, query)
+}
+
+func (repository *followersRepository) GetCloseFriends(ctx context.Context, id string) ([]model.User, error){
+	query := "MATCH (a:User {id : $UserId})-[r:Follows]->(b:User) WHERE r.IsApprovedRequest = true AND r.IsMuted = false AND r.IsCloseFriend = true RETURN b.id"
+	return repository.GetUsers(ctx, id, query)
+}
+
 func (repository *followersRepository) GetAllFollowers(ctx context.Context, userId string) ([]model.User, error){
-	query := "MATCH (b:User)-[r:Follows]->(a:User {id : $UserId}) RETURN b.id"
+	query := "MATCH (b:User)-[r:Follows]->(a:User {id : $UserId}) WHERE r.IsApprovedRequest = true RETURN b.id"
 	return repository.GetUsers(ctx, userId, query)
 }
 
@@ -190,7 +202,7 @@ func (repository *followersRepository) GetFollowersConnection(ctx context.Contex
 			}
 			return nil, nil
 		}
-		return nil, errors.New("error: can not get users connection ")
+		return &model.Follower{}, nil
 	})
 	if err != nil{
 		return nil, err

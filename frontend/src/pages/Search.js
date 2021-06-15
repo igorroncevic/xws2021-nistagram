@@ -8,7 +8,7 @@ import Navigation from "../components/HomePage/Navigation";
 
 export default function Search(props) {
     console.log(props);
-    const [user,setUser] =useState(props.location.state.user);
+    const [user,setUser] =useState({});
     // Declare a new state variable, which we'll call "count"
     const [searchCategory, setSearchCategory] = useState("Search category");
     const [input, setInput] = useState("");
@@ -19,6 +19,11 @@ export default function Search(props) {
     const [searchPlaceholder, setSearchPlaceholder] = useState("search value");
     const history = useHistory()
 
+    useEffect(() => {
+        if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
+
+        setUser(props.location.state.user);
+    },[])
 
     function searchByUser() {
         axios
@@ -63,6 +68,24 @@ export default function Search(props) {
             setInputErr("Enter search value")
             return
         }
+
+        if(!/^[a-zA-Z ,.'-]+$/.test(input) && searchCategory !== "User"){
+            setInputErr("Enter valid search value")
+            return
+        }
+        else if ( searchCategory === "User") {
+            if( input!="" && !/^[a-zA-Z ,.'-]+$/.test(input)) {
+                setInputErr("Enter valid search value")
+                return
+            }else  if( firstName!="" && !/^[a-zA-Z ,.'-]+$/.test(firstName)) {
+                setInputErr("Enter valid search value")
+                return
+            }else  if( lastName!="" && !/^[a-zA-Z ,.'-]+$/.test(lastName)) {
+                setInputErr("Enter valid search value")
+                return
+            }
+        }
+
         switch (searchCategory) {
             case "User" :
                 searchByUser();

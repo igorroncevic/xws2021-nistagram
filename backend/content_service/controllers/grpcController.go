@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"github.com/david-drvar/xws2021-nistagram/common"
+	"github.com/david-drvar/xws2021-nistagram/common/logger"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	otgo "github.com/opentracing/opentracing-go"
@@ -23,14 +24,14 @@ type Server struct {
 	closer              io.Closer
 }
 
-func NewServer(db *gorm.DB, manager *common.JWTManager) (*Server, error) {
-	postController, _ := NewPostController(db, manager)
-	storyController, _ := NewStoryController(db)
-	commentController, _ := NewCommentController(db)
-	likeController, _ := NewLikeController(db)
-	favoritesController, _ := NewFavoritesController(db)
+func NewServer(db *gorm.DB, manager *common.JWTManager, logger *logger.Logger) (*Server, error) {
+	postController, _ := NewPostController(db, manager, logger)
+	storyController, _ := NewStoryController(db, manager, logger)
+	commentController, _ := NewCommentController(db, manager)
+	likeController, _ := NewLikeController(db, manager)
+	favoritesController, _ := NewFavoritesController(db, manager)
 	hashtagController, _ := NewHashtagController(db)
-	highlightController, _ := NewHighlightController(db)
+	highlightController, _ := NewHighlightController(db, manager)
 	tracer, closer := tracer.Init("global_ContentGrpcController")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
@@ -63,6 +64,10 @@ func (s *Server) GetAllPosts(ctx context.Context, in *protopb.EmptyRequestConten
 	return s.postController.GetAllPosts(ctx, in)
 }
 
+func (s *Server) GetPostsForUser(ctx context.Context, in *protopb.RequestId) (*protopb.ReducedPostArray, error) {
+	return s.postController.GetPostsForUser(ctx, in)
+}
+
 func (s *Server) GetPostById(ctx context.Context, in *protopb.RequestId) (*protopb.Post, error) {
 	return s.postController.GetPostById(ctx, in.Id)
 }
@@ -80,8 +85,12 @@ func (s *Server) CreateStory(ctx context.Context, in *protopb.Story) (*protopb.E
 	return s.storyController.CreateStory(ctx, in)
 }
 
-func (s *Server) GetAllStories(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.StoriesArray, error) {
-	return s.storyController.GetAllHomeStories(ctx, in)
+func (s *Server) GetAllStories(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.StoriesHome, error) {
+	return s.storyController.GetAllStories(ctx, in)
+}
+
+func (s *Server) GetStoriesForUser(ctx context.Context, in *protopb.RequestId) (*protopb.StoriesArray, error) {
+	return s.storyController.GetStoriesForUser(ctx, in)
 }
 
 func (s *Server) GetStoryById(ctx context.Context, in *protopb.RequestId) (*protopb.Story, error) {

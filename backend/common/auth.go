@@ -113,24 +113,28 @@ func (manager *JWTManager) ValidateJWT(jwtString string) (*Claims, error){
 func (manager *JWTManager) ExtractClaimsFromMetadata(ctx context.Context) (*Claims, error) {
 	contextMetadata, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, status.Errorf(codes.Unauthenticated, "metadata is not provided")
+		return &Claims{}, status.Errorf(codes.Unauthenticated, "metadata is not provided")
 	}
 
 	values := contextMetadata["authorization"]
 	if len(values) == 0 {
-		return nil, status.Errorf(codes.Unauthenticated, "authorization token is not provided")
+		return &Claims{}, status.Errorf(codes.Unauthenticated, "authorization token is not provided")
 	}
 
 	authorizationHeader := values[0]
 	headerParts := strings.Split(authorizationHeader, " ")
 	if len(headerParts) != 2 {
-		return nil, status.Errorf(codes.Unauthenticated, "authorization token is not in valid format")
+		return &Claims{}, status.Errorf(codes.Unauthenticated, "authorization token is not in valid format")
 	}
 	accessToken := headerParts[1]
 
-	claims, err := manager.ValidateJWT(accessToken)
-	if err != nil {
-		return nil,  status.Errorf(codes.Unauthenticated, "authorization token is not valid")
+	token, _ := jwt.ParseWithClaims(accessToken, &Claims{}, func(token *jwt.Token)(interface{}, error){
+		return []byte(manager.secretKey), nil
+	})
+
+	claims, ok := token.Claims.(*Claims)
+	if !ok {
+		return &Claims{}, errors.New("invalid token claims")
 	}
 
 	return claims, nil

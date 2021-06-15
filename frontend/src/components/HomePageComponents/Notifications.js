@@ -1,18 +1,14 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import Navigation from "../HomePage/Navigation";
 
 
-function Notifications(props) {
-    console.log("chats")
-    console.log(props)
-    const [user,setUser] =useState(props.location.state.user);
+function Notifications() {
     return (
         <div style={{marginTop:'5%'}}>
-            <Navigation user={user}/>
-
+            <Navigation/>
             <h1>Notifikacije</h1>
         </div>
-
     );
+}
 
-}export default Notifications;
+export default Notifications;

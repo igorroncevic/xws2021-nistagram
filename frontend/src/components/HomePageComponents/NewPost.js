@@ -9,6 +9,8 @@ import AutocompleteHashtags from "../PostComponent/AutocompleteHashtags";
 
 function NewPost(props) {
     const [user,setUser] =useState(props.location.state.user);
+    const [user,setUser] =useState({});
+
     const[description,setDescription]=useState('');
     const[location,setLocation]=useState('');
     const[image,setImage]=useState('');
@@ -24,6 +26,8 @@ function NewPost(props) {
     const [allHashtags, setAllHashtags] = useState([]);
 
     useEffect(() => {
+        if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
+        setUser(props.location.state.user);
         getAllUsers();
         getAllHashtags();
     }, []);

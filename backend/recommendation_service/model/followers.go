@@ -41,7 +41,7 @@ func (follower *Follower) ConvertToGrpc() *protopb.Follower {
 }
 
 func (user *User) ConvertAllToGrpc(users []User) []*protopb.UserFollowers {
-	var protoUsers []*protopb.UserFollowers
+	protoUsers := []*protopb.UserFollowers{}
 	for _, s := range users {
 		protoUsers = append(protoUsers, s.ConvertToGrpc())
 	}

@@ -3,11 +3,9 @@ package interceptors
 import (
 	"context"
 	"github.com/david-drvar/xws2021-nistagram/common"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"log"
 	"strings"
 )
 
@@ -19,9 +17,14 @@ func NewAuthInterceptor(jwtManager *common.JWTManager) *AuthInterceptor {
 	return &AuthInterceptor{jwtManager}
 }
 
-func (interceptor *AuthInterceptor) Unary() grpc.UnaryServerInterceptor{
+/* func (interceptor *AuthInterceptor) Unary() grpc.UnaryServerInterceptor{
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error){
 		log.Println("---> unary interceptor: ", info.FullMethod)
+
+		methodParts := strings.Split(info.FullMethod, "/")
+		if len(methodParts) != 3 {
+			return nil, errors.New("something went wrong")
+		}
 
 		ctx, err := interceptor.authorize(ctx)
 		if err != nil {
@@ -30,8 +33,9 @@ func (interceptor *AuthInterceptor) Unary() grpc.UnaryServerInterceptor{
 
 		return handler(ctx, req)
 	}
-}
+}*/
 
+// TODO Add intraservice authentication
 func (interceptor *AuthInterceptor) authorize(ctx context.Context) (context.Context, error) {
 	contextMetadata, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
@@ -54,8 +58,6 @@ func (interceptor *AuthInterceptor) authorize(ctx context.Context) (context.Cont
 	if err != nil {
 		return ctx, status.Errorf(codes.Unauthenticated, "access token is invalid: %v", err)
 	}
-
-	// RBAC Authentication goes here
 
 	return ctx, nil
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
+	"github.com/david-drvar/xws2021-nistagram/common/logger"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
@@ -11,15 +12,15 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
-	"log"
 )
 
 type PostGrpcController struct {
 	service    *services.PostService
 	jwtManager *common.JWTManager
+	logger	   *logger.Logger
 }
 
-func NewPostController(db *gorm.DB, jwtManager *common.JWTManager) (*PostGrpcController, error) {
+func NewPostController(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger) (*PostGrpcController, error) {
 	service, err := services.NewPostService(db)
 	if err != nil {
 		return nil, err
@@ -28,57 +29,100 @@ func NewPostController(db *gorm.DB, jwtManager *common.JWTManager) (*PostGrpcCon
 	return &PostGrpcController{
 		service,
 		jwtManager,
+		logger,
 	}, nil
 }
 
-func (s *PostGrpcController) CreatePost(ctx context.Context, in *protopb.Post) (*protopb.EmptyResponseContent, error) {
+func (c *PostGrpcController) CreatePost(ctx context.Context, in *protopb.Post) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreatePost")
 	defer span.Finish()
+	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt by " + in.UserId, logger.Info)
+
+	if err != nil {
+		c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by " + in.UserId + ", invalid JWT", logger.Error)
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
+	}  else if claims.UserId == "" {
+		c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by, invalid JWT format", logger.Error)
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "no user id provided")
+	}  else if claims.UserId != in.UserId {
+		c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by " + claims.UserId + " tried creating post for " + in.UserId, logger.Error)
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot create post for another user")
+	}
 
 	var post *domain.Post
 	post = post.ConvertFromGrpc(in)
 
-	err := s.service.CreatePost(ctx, post)
-	if err != nil {
-		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create post")
+	for _, media := range post.Media{
+		for _, tag := range media.Tags {
+			following, err := grpc_common.CheckFollowInteraction(ctx, tag.UserId, post.UserId)
+			if err != nil {
+				c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by " + claims.UserId + ", cannot tag " + tag.UserId, logger.Error)
+				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
+			}
+
+			isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
+			if err != nil {
+				c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by " + claims.UserId + ", cannot tag " + tag.UserId, logger.Error)
+				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
+			}
+
+			isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.Id, claims.UserId)
+			if err != nil {
+				c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by " + claims.UserId + ", cannot tag " + tag.UserId, logger.Error)
+				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
+			}
+
+			// If used is blocked or his profile is private and did not approve your request
+			if isBlocked || (!isPublic && !following.IsApprovedRequest ) {
+				c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by " + claims.UserId + ", cannot tag " + tag.UserId, logger.Error)
+				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
+			}
+
+			username, err := grpc_common.GetUsernameById(ctx, tag.UserId)
+			if username == "" || err != nil {
+				c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by " + claims.UserId + ", cannot tag " + tag.UserId, logger.Error)
+				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
+			}
+		}
 	}
 
+	err = c.service.CreatePost(ctx, post)
+	if err != nil {
+		c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by " + claims.UserId + ", due to server error", logger.Error)
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	c.logger.ToStdoutAndFile("CreatePost", "Post creation successful by " + claims.UserId, logger.Info)
 	return &protopb.EmptyResponseContent{}, nil
 }
 
-func (s *PostGrpcController) GetAllPosts(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.ReducedPostArray, error) {
+func (c *PostGrpcController) GetAllPosts(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.ReducedPostArray, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPosts")
 	defer span.Finish()
+	claims, _ := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	claims, err := s.jwtManager.ExtractClaimsFromMetadata(ctx)
-	if err != nil {
-		return &protopb.ReducedPostArray{
-			Posts: []*protopb.ReducedPost{},
-		}, status.Errorf(codes.Unknown, err.Error())
+	userIds := []string{}
+	if claims.UserId == "" {
+		publicIds, err := grpc_common.GetPublicUsers(ctx)
+		if err != nil { return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error()) }
+		for _, id := range publicIds {
+			userIds = append(userIds, id)
+		}
+	}else{
+		homepageIds, err := grpc_common.GetHomepageUsers(ctx, claims.UserId)
+		if err != nil { return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error()) }
+		for _, id := range homepageIds {
+			userIds = append(userIds, id)
+		}
 	}
 
-	userId := claims.UserId
-	conn, err := grpc_common.CreateGrpcConnection(grpc_common.Recommendation_service_address)
-	if err != nil{
-		return &protopb.ReducedPostArray{
-			Posts: []*protopb.ReducedPost{},
-		}, status.Errorf(codes.Unknown, err.Error())
-	}
-	client := grpc_common.GetFollowersClient(conn)
-	response, err := client.GetAllFollowing(ctx, &protopb.CreateUserRequestFollowers{
-		User: &protopb.UserFollowers{ UserId: userId },
-	})
-
-	log.Println(response)
-
-	posts, err := s.service.GetAllPosts(ctx)
-
+	posts, err := c.service.GetAllPosts(ctx, userIds)
 	if err != nil {
-		return &protopb.ReducedPostArray{
-			Posts: []*protopb.ReducedPost{},
-		}, status.Errorf(codes.Unknown, err.Error())
+		return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
 	responsePosts := []*protopb.ReducedPost{}
@@ -91,44 +135,119 @@ func (s *PostGrpcController) GetAllPosts(ctx context.Context, in *protopb.EmptyR
 	}, nil
 }
 
-func (s *PostGrpcController) GetPostById(ctx context.Context, id string) (*protopb.Post, error) {
-	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostById")
+func (c *PostGrpcController) GetPostsForUser(ctx context.Context, in *protopb.RequestId) (*protopb.ReducedPostArray, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostsForUser")
 	defer span.Finish()
+	claims, _ := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	post, err := s.service.GetPostById(ctx, id)
+	if claims.Id == ""{
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
+		if err != nil { return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error()) }
+		if !isPublic{
+			return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, "this user is not public")
+		}
+	}else if in.Id != claims.UserId{
+		followConnection, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
+		if err != nil { return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error()) }
 
-	if err != nil {
-		return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error())
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
+		if err != nil { return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error()) }
+
+		isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.Id, claims.UserId)
+		if err != nil { return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error()) }
+
+		// If used is blocked or his profile is private and did not approve your request
+		if isBlocked || (!isPublic && !followConnection.IsApprovedRequest) {
+			return &protopb.ReducedPostArray{}, nil
+		}
+	}
+
+	posts, err := c.service.GetPostsForUser(ctx, in.Id)
+	if err != nil{
+		return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	responsePosts := domain.ConvertMultipleReducedPostsToGrpc(posts)
+
+	return &protopb.ReducedPostArray{ Posts: responsePosts }, nil
+}
+
+func (c *PostGrpcController) GetPostById(ctx context.Context, id string) (*protopb.Post, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostById")
+	defer span.Finish()
+	claims, _ := c.jwtManager.ExtractClaimsFromMetadata(ctx)
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if id == "" { return &protopb.Post{}, status.Errorf(codes.InvalidArgument, "cannot retrieve non-existing posts") }
+
+	post, err := c.service.GetPostById(ctx, id)
+	if err != nil { return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error()) }
+
+	if claims.UserId == "" {
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, post.UserId)
+		if err != nil { return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error()) }
+		if !isPublic {
+			return &protopb.Post{}, status.Errorf(codes.Unknown, "this post is not public")
+		}
+	} else if post.UserId != claims.UserId{
+		following, err := grpc_common.CheckFollowInteraction(ctx, post.UserId, claims.UserId)
+		if err != nil { return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error()) }
+
+		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, post.UserId)
+		if err != nil { return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error()) }
+
+		isBlocked, err := grpc_common.CheckIfBlocked(ctx, post.UserId, claims.UserId)
+		if err != nil {
+			return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error())
+		}
+
+		if (!following.IsApprovedRequest && !isPublic) || isBlocked {
+			return &protopb.Post{}, status.Errorf(codes.PermissionDenied, "cannot retrieve this post")
+		}
 	}
 
 	grpcPost := post.ConvertToGrpc()
-
 	return grpcPost, nil
 }
 
-func (s *PostGrpcController) RemovePost(ctx context.Context, id string) (*protopb.EmptyResponseContent, error) {
+func (c *PostGrpcController) RemovePost(ctx context.Context, id string) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemovePost")
 	defer span.Finish()
+	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	err := s.service.RemovePost(ctx, id)
+	c.logger.ToStdoutAndFile("RemovePost", "Post removal attempt by " + claims.UserId, logger.Info)
 
 	if err != nil {
+		c.logger.ToStdoutAndFile("RemovePost", "Post removal attempt failed by " + claims.UserId + ", invalid JWT", logger.Error)
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
+	}else if claims.UserId == ""{
+		c.logger.ToStdoutAndFile("RemovePost", "Post removal attempt failed by " + claims.UserId + ", invalid JWT", logger.Error)
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot remove other people's posts")
+	}else if id == "" {
+		c.logger.ToStdoutAndFile("RemovePost", "Post removal attempt failed by " + claims.UserId + ", no post id provided", logger.Error)
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot remove non-existing posts")
+	}
+
+	err = c.service.RemovePost(ctx, id, claims.UserId)
+	if err != nil {
+		c.logger.ToStdoutAndFile("RemovePost", "Post removal attempt failed by " + claims.UserId + ", server error", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
+	c.logger.ToStdoutAndFile("RemovePost", "Post removal attempt successful by " + claims.UserId, logger.Info)
 	return &protopb.EmptyResponseContent{}, nil
 }
 
-func (s *PostGrpcController) SearchContentByLocation(ctx context.Context, in *protopb.SearchLocationRequest) (*protopb.ReducedPostArray, error) {
+func (c *PostGrpcController) SearchContentByLocation(ctx context.Context, in *protopb.SearchLocationRequest) (*protopb.ReducedPostArray, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreatePost")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	var location string = in.Location
+	location := in.Location
 
-	posts, err := s.service.SearchContentByLocation(ctx, location)
+	posts, err := c.service.SearchContentByLocation(ctx, location)
 	if err != nil {
 		return &protopb.ReducedPostArray{
 			Posts: []*protopb.ReducedPost{},
@@ -145,12 +264,12 @@ func (s *PostGrpcController) SearchContentByLocation(ctx context.Context, in *pr
 	}, nil
 }
 
-func (s *PostGrpcController) GetPostsByHashtag(ctx context.Context, in *protopb.Hashtag) (*protopb.ReducedPostArray, error) {
+func (c *PostGrpcController) GetPostsByHashtag(ctx context.Context, in *protopb.Hashtag) (*protopb.ReducedPostArray, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostsByHashtag")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	posts, err := s.service.GetPostsByHashtag(ctx, in.Text)
+	posts, err := c.service.GetPostsByHashtag(ctx, in.Text)
 	if err != nil {
 		return &protopb.ReducedPostArray{
 			Posts: []*protopb.ReducedPost{},

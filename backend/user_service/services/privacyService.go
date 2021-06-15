@@ -60,6 +60,31 @@ func (service *PrivacyService) CheckUserProfilePublic(ctx context.Context, userI
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	var privacy, _ = service.repository.GetUserPrivacy(ctx, userId)
+	privacy, _ := service.repository.GetUserPrivacy(ctx, userId)
 	return privacy.IsProfilePublic == true
+}
+
+func (service *PrivacyService) GetAllPublicUsers(ctx context.Context) []string {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPublicUsers")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	privacies, _ := service.repository.GetAlLPublicUsers(ctx)
+
+	publicUsers := []string{}
+	for _, privacy := range privacies {
+		if privacy.IsProfilePublic {
+			publicUsers = append(publicUsers, privacy.UserId)
+		}
+	}
+
+	return publicUsers
+}
+
+func (service *PrivacyService) CheckIfBlocked(ctx context.Context, userId string, blockedUserId string) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPublicUsers")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.CheckIfBlocked(ctx, userId, blockedUserId)
 }

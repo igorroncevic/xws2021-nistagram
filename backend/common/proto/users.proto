@@ -22,6 +22,18 @@ service Users {
     };
   }
 
+  rpc GetUserById (RequestIdUsers) returns (UsersDTO) {
+    option(google.api.http) = {
+      get: "/api/users/{id}"
+    };
+  }
+
+  rpc GetUsernameById (RequestIdUsers) returns (UsersDTO) {
+    option(google.api.http) = {
+      get: "/api/users/username/{id}"
+    };
+  }
+
   rpc GetAllUsers (EmptyRequest) returns (UsersResponse) {
     option(google.api.http) = {
       get: "/api/users"
@@ -49,13 +61,91 @@ service Users {
     };
   }
 
+  // Svi
+  rpc SendEmail (SendEmailDtoRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/sendEmail"
+      body: "*"
+    };
+  }
+
+  // Svi
+  rpc GetUserByEmail (RequestEmailUser) returns (UsersDTO) {
+    option(google.api.http) = {
+      get: "/api/users/getUserByEmail/{email}"
+    };
+  }
+  rpc GetUserByUsername (RequestUsernameUser) returns (UsersDTO) {
+    option(google.api.http) = {
+      get: "/api/users/getUserByUsername/{username}"
+    };
+  }
+
+  // Svi
+  rpc ValidateResetCode (RequestResetCode) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/validateResetCode"
+      body: "*"
+    };
+  }
+
+  // Svi
+  rpc ChangeForgottenPass (CreatePasswordRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/changeForgottenPass"
+      body: "*"
+    };
+  }
+
+  rpc CheckIsApproved (RequestIdUsers) returns (BooleanResponseUsers) {
+    option(google.api.http) = {
+      post: "/api/users/checkIsApproved"
+      body: "*"
+    };
+  }
+
+  // Samo ulogovani
+  rpc ApproveAccount (CreatePasswordRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/approveAccount"
+      body: "*"
+    };
+  }
+
+  rpc GoogleAuth (GoogleAuthRequest) returns (LoginResponse) {
+    option(google.api.http) = {
+      post: "/api/users/auth/google"
+      body: "*"
+    };
+  }
+
+  //* Verification requests *
+  rpc SubmitVerificationRequest (VerificationRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/submit-verification-request",
+      body: "*"
+    };
+  }
+
+  rpc GetPendingVerificationRequests (EmptyRequest) returns (VerificationRequestsArray) {
+    option(google.api.http) = {
+      get: "/api/users/get-pending-verification-requests",
+    };
+  }
+
+  rpc ChangeVerificationRequestStatus (VerificationRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/change-verification-request-status",
+      body: "*"
+    };
+  }
 }
 
 message Password {
-  string OldPassword = 1;
-  string NewPassword = 2;
-  string RepeatedPassword = 3;
-  string Id = 4;
+  string oldPassword = 1;
+  string newPassword = 2;
+  string repeatedPassword = 3;
+  string id = 4;
 }
 
 message User {
@@ -73,6 +163,9 @@ message User {
   bool isActive = 12;
   string biography = 13;
   string website = 14;
+  string resetCode=15;
+  bool approvedAccount=16;
+  google.protobuf.Timestamp tokenEnd=17;
 }
 
 message UsersDTO {
@@ -90,6 +183,9 @@ message UsersDTO {
   string biography = 12;
   string website = 13;
   string category = 14;
+  string resetCode=15;
+  bool approvedAccount=16;
+  google.protobuf.Timestamp tokenEnd=17;
 }
 
 //TODO ne treba da vracamo usera vec usera bez sifre i sa biografijom i website-om
@@ -100,6 +196,7 @@ message UsersResponse {
 message UserResponse {
   UsersDTO users = 1;
 }
+
 message CreateUserRequest {
   User user = 1;
 }
@@ -126,8 +223,56 @@ message LoginResponse {
   string userId = 2;
   string role = 3;
   string username = 4;
+  bool   isSSO = 5;
 }
 
+message SendEmailDtoRequest {
+  string to = 1;
+}
+
+message RequestEmailUser {
+  string email = 1;
+}
+
+message RequestUsernameUser {
+  string username = 1;
+}
+
+message RequestResetCode {
+  string resetCode = 1;
+  string email = 2;
+}
+
+message RequestChangeForgottenPass {
+  string password = 1;
+  string rePassword = 2;
+}
+
+message RequestIdUsers {
+  string id = 1;
+}
+
+message GoogleAuthRequest {
+  string token = 1;
+}
+message BooleanResponseUsers {
+  bool response = 1;
+}
+
+message VerificationRequestsArray {
+  repeated VerificationRequest verificationRequests = 1;
+}
+
+message VerificationRequest {
+  string id = 1;
+  string userId = 2;
+  string documentPhoto = 3;
+  string category = 4;
+  string firstName = 5;
+  string lastName = 6;
+  string status = 7;
+  google.protobuf.Timestamp createdAt = 8;
+}
 
 message EmptyRequest {}
 message EmptyResponse {}

@@ -11,12 +11,13 @@ import (
 )
 
 type PostRepository interface {
-	GetAllPosts(context.Context) ([]persistence.Post, error)
+	GetAllPosts(context.Context, []string) ([]persistence.Post, error)
 	CreatePost(context.Context, *domain.Post) error
 	GetPostById(context.Context, string) (*persistence.Post, error)
-	RemovePost(context.Context, string) error
+	RemovePost(context.Context, string, string) error
 	GetPostsByLocation(ctx context.Context, location string) ([]persistence.Post, error)
 	GetCollectionsPosts(context.Context, string) ([]persistence.Post, error)
+	GetPostsForUser(context.Context, string) ([]persistence.Post, error)
 }
 
 type postRepository struct {
@@ -43,13 +44,27 @@ func NewPostRepo(db *gorm.DB) (*postRepository, error) {
 	}, nil
 }
 
-func (repository *postRepository) GetAllPosts(ctx context.Context) ([]persistence.Post, error) {
+func (repository *postRepository) GetAllPosts(ctx context.Context, followings []string) ([]persistence.Post, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPosts")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	posts := []persistence.Post{}
-	result := repository.DB.Order("created_at desc").Find(&posts)
+	result := repository.DB.Order("created_at desc").Where("user_id IN (?)", followings).Find(&posts)
+	if result.Error != nil {
+		return posts, result.Error
+	}
+
+	return posts, nil
+}
+
+func (repository *postRepository) GetPostsForUser(ctx context.Context, id string) ([]persistence.Post, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostsForUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	posts := []persistence.Post{}
+	result := repository.DB.Order("created_at desc").Where("user_id = ?", id).Find(&posts)
 	if result.Error != nil {
 		return posts, result.Error
 	}
@@ -127,13 +142,13 @@ func (repository *postRepository) CreatePost(ctx context.Context, post *domain.P
 	return nil
 }
 
-func (repository *postRepository) RemovePost(ctx context.Context, postId string) error {
+func (repository *postRepository) RemovePost(ctx context.Context, postId string, userId string) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemovePost")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	err := repository.DB.Transaction(func(tx *gorm.DB) error {
-		post := &persistence.Post{Id: postId}
+		post := &persistence.Post{Id: postId, UserId: userId}
 		result := repository.DB.First(&post)
 
 		if result.Error != nil || result.RowsAffected != 1 {

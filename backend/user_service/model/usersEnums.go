@@ -3,6 +3,7 @@ package model
 import "fmt"
 
 type UserRole string
+
 const (
 	Basic    UserRole = "Basic"
 	Admin             = "Admin"
@@ -10,7 +11,7 @@ const (
 	Agent             = "Agent"
 )
 
-func (r UserRole) String() string{
+func (r UserRole) String() string {
 	switch r {
 	case Basic:
 		return "Basic"
@@ -25,7 +26,7 @@ func (r UserRole) String() string{
 	}
 }
 
-func GetUserRole(r string) UserRole{
+func GetUserRole(r string) UserRole {
 	switch r {
 	case "Basic":
 		return Basic
@@ -41,6 +42,7 @@ func GetUserRole(r string) UserRole{
 }
 
 type UserCategory string
+
 const (
 	Sports       UserCategory = "Sports"
 	Influencer                = "Influencer"
@@ -52,7 +54,7 @@ const (
 	NoCategory                = "NoCategory"
 )
 
-func  ToString(c UserCategory) string{
+func ToString(c UserCategory) string {
 	switch c {
 	case Sports:
 		return "Sports"
@@ -75,7 +77,7 @@ func  ToString(c UserCategory) string{
 	}
 }
 
-func  GetCategory(s string) UserCategory{
+func GetCategory(s string) UserCategory {
 	switch s {
 	case "Sports":
 		return Sports
@@ -93,6 +95,40 @@ func  GetCategory(s string) UserCategory{
 		return Government
 	case "NoCategory":
 		return NoCategory
+	default:
+		return ""
+	}
+}
+
+type RequestStatus string
+
+const (
+	Pending  RequestStatus = "Pending"
+	Accepted               = "Accepted"
+	Refused                = "Refused"
+)
+
+func ToStringRequestStatus(c RequestStatus) string {
+	switch c {
+	case Pending:
+		return "Pending"
+	case Accepted:
+		return "Accepted"
+	case Refused:
+		return "Refused"
+	default:
+		return fmt.Sprintf("%s", string(c))
+	}
+}
+
+func GetRequestStatus(requestStatus string) RequestStatus {
+	switch requestStatus {
+	case "Pending":
+		return Pending
+	case "Accepted":
+		return Accepted
+	case "Refused":
+		return Refused
 	default:
 		return ""
 	}

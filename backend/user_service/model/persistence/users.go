@@ -8,52 +8,68 @@ import (
 )
 
 type User struct {
-	Id           string `gorm:"primaryKey"`
-	FirstName    string
-	LastName     string
-	Email        string `gorm:"unique"`
-	Username     string `gorm:"unique"`
-	Password     string
-	Role         model.UserRole
-	BirthDate    time.Time
-	ProfilePhoto string
-	PhoneNumber  string
-	Sex          string
-	IsActive     bool
+	Id              string `gorm:"primaryKey"`
+	FirstName       string
+	LastName        string
+	Email           string `gorm:"unique"`
+	Username        string `gorm:"unique"`
+	Password        string
+	Role            model.UserRole
+	BirthDate       time.Time
+	ProfilePhoto    string
+	PhoneNumber     string
+	Sex             string
+	IsActive        bool
+	ResetCode       string
+	ApprovedAccount bool
+	TokenEnd        time.Time
 }
 
 func (u User) ConvertToGrpc() *protopb.User {
 	return &protopb.User{
-		Id:           u.Id,
-		FirstName:    u.FirstName,
-		LastName:     u.LastName,
-		Email:        u.Email,
-		Username:     u.Username,
-		Password:     u.Password,
-		Role:         u.Role.String(),
-		Birthdate:    timestamppb.New(u.BirthDate),
-		ProfilePhoto: u.ProfilePhoto,
-		PhoneNumber:  u.PhoneNumber,
-		Sex:          u.Sex,
-		IsActive:     u.IsActive,
+		Id:              u.Id,
+		FirstName:       u.FirstName,
+		LastName:        u.LastName,
+		Email:           u.Email,
+		Username:        u.Username,
+		Password:        u.Password,
+		Role:            u.Role.String(),
+		Birthdate:       timestamppb.New(u.BirthDate),
+		ProfilePhoto:    u.ProfilePhoto,
+		PhoneNumber:     u.PhoneNumber,
+		Sex:             u.Sex,
+		IsActive:        u.IsActive,
+		ResetCode:       u.ResetCode,
+		ApprovedAccount: u.ApprovedAccount,
+		TokenEnd:        timestamppb.New(u.TokenEnd),
 	}
 }
 
 func (u *User) ConvertFromGrpc(user *protopb.User) *User {
-	return &User{
-		Id:           user.Id,
-		FirstName:    user.FirstName,
-		LastName:     user.LastName,
-		Email:        user.Email,
-		Username:     user.Username,
-		Password:     user.Password,
-		Role:         model.GetUserRole(user.Role),
-		BirthDate:    user.Birthdate.AsTime(),
-		ProfilePhoto: user.ProfilePhoto,
-		PhoneNumber:  user.PhoneNumber,
-		Sex:          user.Sex,
-		IsActive:     user.IsActive,
+	newUser := &User{
+		Id:              user.Id,
+		FirstName:       user.FirstName,
+		LastName:        user.LastName,
+		Email:           user.Email,
+		Username:        user.Username,
+		Password:        user.Password,
+		Role:            model.GetUserRole(user.Role),
+		BirthDate:       user.Birthdate.AsTime(),
+		ProfilePhoto:    user.ProfilePhoto,
+		PhoneNumber:     user.PhoneNumber,
+		Sex:             user.Sex,
+		IsActive:        user.IsActive,
+		ResetCode:       user.ResetCode,
+		ApprovedAccount: user.ApprovedAccount,
+		TokenEnd:        user.TokenEnd.AsTime(),
 	}
+
+	check, err := newUser.CheckAllFields()
+	if !check || err != nil {
+		return nil
+	}
+
+	return newUser
 }
 
 type UserAdditionalInfo struct {
@@ -109,11 +125,10 @@ type Followers struct {
 }
 
 type VerificationRequest struct {
-	UserId        string `gorm:"primaryKey"`
-	FirstName     string
-	LastName      string
+	Id            string `gorm:"primaryKey"`
+	UserId        string
 	DocumentPhoto string
-	IsApproved    bool
+	Status        model.RequestStatus
 	CreatedAt     time.Time
 }
 

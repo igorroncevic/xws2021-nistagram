@@ -6,14 +6,22 @@ import EditProfile from "./EditProfile";
 import ChangePassword from "./ChangePassword";
 import FollowAndUnfollow from "./FollowAndUnfollow";
 import Navigation from "../HomePage/Navigation";
+import {   useParams } from 'react-router-dom'
+import userService from "../../services/user.service";
+import {userActions} from "../../store/actions/user.actions";
 
 
-function Profile(props) {
-    const [user,setUser] =useState(props.location.state.user);
-    const [follow,setFollow] =useState(props.location.state.follow);
-    const[publicProfile,setPublicProfile]=useState(false);
+import {useDispatch, useSelector} from "react-redux";
+import privacyService from "../../services/privacy.service";
+import followersService from "../../services/followers.service";
 
-    const [image, setImage] = useState('');
+
+function Profile() {
+    const{username}=useParams()
+    const [user, setUser] =useState({});
+    const [follow,setFollow] =useState( {});
+    const [publicProfile,setPublicProfile]=useState(false);
+
     const [showModal, setModal] = useState(false);
     const [showModalPass, setModalPass] = useState(false);
 
@@ -22,9 +30,13 @@ function Profile(props) {
     const [posts, setPosts] = useState([]);
     const [loggedUser, setLoggedUser] = useState();
 
-    var loggedUsername = sessionStorage.getItem("username");
+    const dispatch = useDispatch()
+    const store = useSelector(state => state);
+    const [isSSO,setIsSSO] =useState( store.user.isSSO);
+
 
     useEffect(() => {
+     //   if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
         getUserByUsername();
         getUserPrivacy();
         getFollowers()
@@ -32,86 +44,85 @@ function Profile(props) {
         //getPosts()
     },[]);
 
-    function getUserByUsername(){
-        axios
-            .post('http://localhost:8080/api/users/api/users/searchByUser', {
-                username:loggedUsername
-            })
-            .then(res => {
-                setLoggedUser(res.data.users[0])
-            }).catch(res => {
-            console.log("NE RADI get user")
+
+
+    async function getUserByUsername() {
+        const response = await userService.getUserByUsername({
+            username: username,
+            jwt: store.user.jwt,
         })
+
+        if (response.status === 200) {
+            setUser(response.data)
+            checkUser(response.data.id);
+        } else {
+            console.log("getuserbyusername error")
+        }
+    }
+    async function getUserById() {
+        const response = await userService.getUserById({
+            id: store.user.id,
+            jwt: store.user.jwt,
+        })
+
+        if (response.status === 200) {
+            setUser(response.data)
+            checkUser(response.data.id);
+        } else {
+            console.log("getuserbyusername error")
+        }
+    }
+    function   checkUser(value){
+        if(value===store.user.id){
+            setFollow(false)
+        }else{
+            setFollow(true)
+
+        }
     }
 
-    function  getUserPrivacy(){
-        axios
-            .post('http://localhost:8080/api/users/api/privacy/isProfilePublic', {
-                userId:user.id
-            })
-            .then(res => {
-                setPublicProfile(res.data.response)
-               // console.log("privacy radi")
-            }).catch(res => {
+    async function getUserPrivacy() {
+        const response = await privacyService.getUserPrivacy({
+            userId: store.user.id,
+            jwt: store.user.jwt,
+        })
+
+        if (response.status === 200) {
+            setPublicProfile(response.data.response)
+        } else {
             console.log("privacy ne radi")
+        }
+    }
+
+    async function getFollowing() {
+        const response = await followersService.getFollowing({
+            userId: store.user.id,
+            jwt: store.user.jwt,
         })
+
+        if (response.status === 200) {
+            setFollowers(response.data.users);
+        } else {
+            console.log("followings ne radi")
+        }
     }
 
-    function getUser(){ //zbog azuriranja podataka nakon izmene profila! mora ovako jer navigation link ne moze da salje funkciju
-        axios
-            .post('http://localhost:8080/api/users/api/users/searchByUser', {
-                username:user.username
-            })
-            .then(res => {
-              //  console.log("RADI get user")
-                setUser(res.data.users[0])
-            }).catch(res => {
-            console.log("NE RADI get user")
+    async function getFollowers() {
+        const response = await followersService.getFollowers({
+            userId: store.user.id,
+            jwt: store.user.jwt,
         })
-    }
 
-    const updatePhoto = (file) => {
-        setImage(file)
-    }
-
-    function getFollowing(){
-        axios
-            .post('http://localhost:8005/api/followers/get_followings', {
-                UserId:user.id
-            })
-            .then(res => {
-                console.log("following radi")
-              //  console.log(res.data.users)
-                setFollowings(res.data.users);
-
-            }).catch(res => {
-            console.log("following ne radi")
-        })
-    }
-
-    function getFollowers(){
-        axios
-            .post('http://localhost:8005/api/followers/get_followers', {
-                UserId:user.id
-            })
-            .then(res => {
-                console.log("followers radi")
-
-                setFollowers(res.data.users);
-
-            }).catch(res => {
+        if (response.status === 200) {
+            setFollowers(response.data.users);
+        } else {
             console.log("followers ne radi")
-        })
+        }
+
     }
 
     function getPosts(){
-        axios
-            .get('http://localhost:8080/api/content/api/posts',+user.id)
-            .then(res => {
-                setPosts(res);
-            }).catch(res => {
-            console.log("NE RADIs")
-        })
+
     }
 
     function handleModal() {
@@ -123,13 +134,13 @@ function Profile(props) {
 
     return (
         <div>
-            <Navigation user={loggedUser}/>
+            <Navigation/>
             <div style={{marginLeft: '20%', marginRight: '20%',marginTop:'10%'}}>
                 <div style={{margin: "18px 0px", orderBottom: "1px solid "}}>
                     <div style={{display: "flex", justifyContent: "space-around",}}>
                         <div>
                             <img style={{width: "180px", height: "160px", borderRadius: "80px"}}
-                                 src={user.profilePhoto}/>
+                                 src={user.profilePhoto ? user.profilePhoto : ""}/>
                         </div>
                         <div>
                             <h4>{user.firstName} {user.lastName}</h4>
@@ -140,11 +151,11 @@ function Profile(props) {
                                 <h6 style={{marginLeft:'13px'}}> {following.length} following </h6>
                             </div>
                             {follow ?
-                                <FollowAndUnfollow user={user} loggedUser={loggedUser} followers={followers} getFollowers={getFollowers}/>
+                                <FollowAndUnfollow user={user} followers={followers} getFollowers={getFollowers}/>
 :
                                 <div>
-                                    <Button variant="link" style={{marginTop:'2em', borderTop: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModal}>Update profile info?</Button>
-                                    <Button variant="link" style={{borderBottom: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModalPass}>Change password?</Button>
+                                    <Button variant="link" style={{marginTop:'2em', borderTop: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModal}>Update profile info</Button>
+                                    { !isSSO && <Button variant="link" style={{borderBottom: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModalPass}>Change password</Button> }
                                 </div>
 
                             }
@@ -177,7 +188,7 @@ function Profile(props) {
                         <Modal.Title>Edit profile</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <EditProfile user={user} updateUser={getUser}/>
+                        <EditProfile updateUser={getUserById}/>
                     </Modal.Body>
                     <Modal.Footer>
 

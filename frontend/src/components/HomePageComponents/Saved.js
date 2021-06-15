@@ -1,17 +1,14 @@
-import React, {useState} from 'react';
+import React from 'react';
 import Navigation from "../HomePage/Navigation";
 
 
-function Saved(props) {
-    const [user,setUser] =useState(props.location.state.user);
-
+function Saved() {
     return (
         <div style={{marginTop:'5%'}}>
-            <Navigation user={user}/>
-
+            <Navigation/>
             <h1>Saved</h1>
         </div>
-
     );
+}
 
-}export default Saved;
+export default Saved;

@@ -10,14 +10,7 @@ service Followers {
     rpc CreateUserConnection (CreateFollowerRequest) returns (EmptyResponseFollowers) {
         option(google.api.http) = {
             post: "/api/followers/create_connection",
-            body: "follower"
-        };
-    }
-
-    rpc GetAllFollowers (CreateUserRequestFollowers) returns (CreateUserResponse) {
-        option(google.api.http) = {
-            post: "/api/followers/get_followers",
-            body: "user"
+            body: "*"
         };
     }
 
@@ -42,10 +35,30 @@ service Followers {
         };
     }
 
+    rpc GetAllFollowers (CreateUserRequestFollowers) returns (CreateUserResponse) {
+        option(google.api.http) = {
+            post: "/api/followers/get_followers",
+            body: "*"
+        };
+    }
+
     rpc GetAllFollowing (CreateUserRequestFollowers) returns (CreateUserResponse) {
         option(google.api.http) = {
             post: "/api/followers/get_followings",
+            body: "*"
+        };
+    }
+
+    rpc GetAllFollowingsForHomepage (CreateUserRequestFollowers) returns (CreateUserResponse) {
+        option(google.api.http) = {
+            post: "/api/followers/get_followingss", // TODO
             body: "user"
+        };
+    }
+
+    rpc GetCloseFriends (RequestIdFollowers) returns (CreateUserResponse) {
+        option(google.api.http) = {
+            get: "/api/followers/close/{id}",
         };
     }
 
@@ -56,21 +69,21 @@ service Followers {
         };
     }
 
-    rpc GetFollowersConnection (CreateFollowerRequest) returns (CreateFollowerResponse) {
+    rpc GetFollowersConnection (Follower) returns (Follower) {
         option(google.api.http) = {
-            post: "/api/followers/get_follower",
-            body: "follower"
+            post: "/api/followers/connection",
+            body: "*"
         };
     }
 }
 
 message Follower {
-    string UserId = 1;
-    string FollowerId = 2;
-    bool IsMuted = 3;
-    bool IsCloseFriends = 4;
-    bool IsApprovedRequest = 5;
-    bool IsNotificationEnabled = 6;
+    string userId = 1;
+    string followerId = 2;
+    bool isMuted = 3;
+    bool isCloseFriends = 4;
+    bool isApprovedRequest = 5;
+    bool isNotificationEnabled = 6;
 }
 
 message UserFollowers {
@@ -89,8 +102,12 @@ message CreateFollowerResponse {
     Follower follower = 1;
 }
 
-message  CreateFollowerRequest {
+message CreateFollowerRequest {
     Follower follower = 1;
+}
+
+message RequestIdFollowers{
+    string id = 1;
 }
 
 message EmptyResponseFollowers {}

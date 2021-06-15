@@ -1,27 +1,46 @@
 package main
 
 import (
+	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/recommendation_service/util/setup"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
+	"log"
+	"os"
+	"time"
 )
 
 func main(){
-	driver, _ := setup.CreateConnection("bolt://localhost:7687", "neo4j", "root")
+	if os.Getenv("Docker_env") == "" {
+		SetupEnvVariables()
+	}
+
+	time.Sleep(30*time.Second)
+
+	driver, _ := setup.CreateConnection(os.Getenv("DB_HOST"), os.Getenv("DB_NAME"), os.Getenv("DB_PW"))
 	defer setup.CloseConnection(driver)
-
-	err := CreateUniqueConstraint(driver)
-
-	if err != nil {
-		panic("Could not create unique constraint!")
+	for  i := 1; i < 5; i++ {
+		duration := 2 << i - 1
+		time.Sleep(time.Duration(duration)*time.Second)
+		err := CreateUniqueConstraint(driver)
+		if err != nil {
+			log.Println("Retrying to connect to Neo4j...")
+			continue
+		}else {
+			log.Println("Successfully connected to Neo4j!")
+		}
+		break
 	}
 
 	setup.GRPCServer(driver)
-
 }
 
+func SetupEnvVariables() {
+	os.Setenv("DB_HOST", "bolt://localhost:7687")
+	os.Setenv("DB_NAME", common.RecommendationDatabaseName)
+	os.Setenv("DB_PW", "root")
+}
 
 func CreateUniqueConstraint(driver neo4j.Driver) error {
-
 	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
 	defer session.Close()
 	_, err := session.WriteTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
