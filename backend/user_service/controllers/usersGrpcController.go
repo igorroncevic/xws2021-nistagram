@@ -332,3 +332,16 @@ func (s *UserGrpcController) GoogleAuth (ctx context.Context, in *protopb.Google
 		IsSSO:       true,
 	}, nil
 }
+
+func (s *UserGrpcController) UpdateUserPhoto(ctx context.Context, in *protopb.UserPhotoRequest) (*protopb.EmptyResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserPhoto")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	err := s.service.UpdateUserPhoto(ctx, in.UserId, in.Photo)
+
+	if err != nil {
+		return &protopb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Bad request")
+	}
+	return &protopb.EmptyResponse{}, nil
+}

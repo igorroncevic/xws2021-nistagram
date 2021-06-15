@@ -47,6 +47,14 @@ service Users {
     };
   }
 
+  rpc UpdateUserPhoto (UserPhotoRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/update_photo"
+      body: "*"
+    };
+  }
+
+
   rpc UpdateUserPassword (CreatePasswordRequest) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/api/users/update_password"
@@ -158,6 +166,11 @@ message UsersDTO {
 //TODO ne treba da vracamo usera vec usera bez sifre i sa biografijom i website-om
 message UsersResponse {
   repeated UsersDTO users = 1;
+}
+
+message UserPhotoRequest {
+  string userId = 1;
+  string photo = 2;
 }
 
 message UserResponse {

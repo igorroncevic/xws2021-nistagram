@@ -30,6 +30,7 @@ type UserRepository interface {
 	ApproveAccount(ctx context.Context, password domain.Password) (bool, error)
 	GetUserById(context.Context, string) 	(persistence.User, error)
 	DoesUserExists(context.Context, string) (bool, error)
+	UpdateUserPhoto(ctx context.Context, userId string, photo string) error
 }
 
 type userRepository struct {
@@ -454,3 +455,20 @@ func (repository *userRepository) DoesUserExists(ctx context.Context, email stri
 
 	return true, nil
 }
+
+func (repository *userRepository) UpdateUserPhoto(ctx context.Context, userId string, photo string) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserPhoto")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	db := repository.DB.Model(&persistence.User{}).Where("id =?", userId).Updates(persistence.User{ProfilePhoto: photo})
+
+	if db.Error != nil {
+		return  db.Error
+	} else if db.RowsAffected == 0 {
+		return errors.New("Zero rows affected")
+	}
+
+	return nil
+}
+

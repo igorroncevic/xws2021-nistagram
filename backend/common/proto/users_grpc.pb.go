@@ -24,6 +24,7 @@ type UsersClient interface {
 	GetUsernameById(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*UsersDTO, error)
 	GetAllUsers(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*UsersResponse, error)
 	UpdateUserProfile(ctx context.Context, in *CreateUserDTORequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	UpdateUserPhoto(ctx context.Context, in *UserPhotoRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	UpdateUserPassword(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	SearchUser(ctx context.Context, in *SearchUserDtoRequest, opts ...grpc.CallOption) (*UsersResponse, error)
 	// Svi
@@ -95,6 +96,15 @@ func (c *usersClient) GetAllUsers(ctx context.Context, in *EmptyRequest, opts ..
 func (c *usersClient) UpdateUserProfile(ctx context.Context, in *CreateUserDTORequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	out := new(EmptyResponse)
 	err := c.cc.Invoke(ctx, "/proto.Users/UpdateUserProfile", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) UpdateUserPhoto(ctx context.Context, in *UserPhotoRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Users/UpdateUserPhoto", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -183,6 +193,7 @@ type UsersServer interface {
 	GetUsernameById(context.Context, *RequestIdUsers) (*UsersDTO, error)
 	GetAllUsers(context.Context, *EmptyRequest) (*UsersResponse, error)
 	UpdateUserProfile(context.Context, *CreateUserDTORequest) (*EmptyResponse, error)
+	UpdateUserPhoto(context.Context, *UserPhotoRequest) (*EmptyResponse, error)
 	UpdateUserPassword(context.Context, *CreatePasswordRequest) (*EmptyResponse, error)
 	SearchUser(context.Context, *SearchUserDtoRequest) (*UsersResponse, error)
 	// Svi
@@ -220,6 +231,9 @@ func (UnimplementedUsersServer) GetAllUsers(context.Context, *EmptyRequest) (*Us
 }
 func (UnimplementedUsersServer) UpdateUserProfile(context.Context, *CreateUserDTORequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserProfile not implemented")
+}
+func (UnimplementedUsersServer) UpdateUserPhoto(context.Context, *UserPhotoRequest) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserPhoto not implemented")
 }
 func (UnimplementedUsersServer) UpdateUserPassword(context.Context, *CreatePasswordRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserPassword not implemented")
@@ -362,6 +376,24 @@ func _Users_UpdateUserProfile_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UsersServer).UpdateUserProfile(ctx, req.(*CreateUserDTORequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_UpdateUserPhoto_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserPhotoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).UpdateUserPhoto(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/UpdateUserPhoto",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).UpdateUserPhoto(ctx, req.(*UserPhotoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -540,6 +572,10 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateUserProfile",
 			Handler:    _Users_UpdateUserProfile_Handler,
+		},
+		{
+			MethodName: "UpdateUserPhoto",
+			Handler:    _Users_UpdateUserPhoto_Handler,
 		},
 		{
 			MethodName: "UpdateUserPassword",
