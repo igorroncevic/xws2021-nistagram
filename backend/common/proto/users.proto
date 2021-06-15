@@ -107,7 +107,7 @@ service Users {
     };
   }
 
-  //samo ulogovani basic korisnici
+  //* Verification requests *
   rpc SubmitVerificationRequest (VerificationRequest) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/api/users/submit-verification-request",
@@ -118,6 +118,13 @@ service Users {
   rpc GetPendingVerificationRequests (EmptyRequest) returns (VerificationRequestsArray) {
     option(google.api.http) = {
       get: "/api/users/get-pending-verification-requests",
+    };
+  }
+
+  rpc ChangeVerificationRequestStatus (VerificationRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/change-verification-request-status",
+      body: "*"
     };
   }
 }

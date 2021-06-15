@@ -18,6 +18,7 @@ type VerificationRepository interface {
 	CreateVerificationRequest(context.Context, domain.VerificationRequest) error
 	SaveUserDocumentPhoto(ctx context.Context, verificationRequest domain.VerificationRequest) (string, error)
 	GetPendingVerificationRequests(ctx context.Context) ([]domain.VerificationRequest, error)
+	ChangeVerificationRequestStatus(ctx context.Context, request domain.VerificationRequest) error
 }
 
 type verificationRepository struct {
@@ -134,4 +135,31 @@ func (repository *verificationRepository) GetPendingVerificationRequests(ctx con
 	}
 
 	return verificationRequestsDomain, nil
+}
+
+func (repository *verificationRepository) ChangeVerificationRequestStatus(ctx context.Context, verificationRequest domain.VerificationRequest) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "ChangeVerificationRequestStatus")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	err := repository.DB.Transaction(func(tx *gorm.DB) error {
+
+		result := repository.DB.Where("user_id = ?", verificationRequest.UserId).Updates(persistence.VerificationRequest{Status: verificationRequest.Status})
+		if result.Error != nil || result.RowsAffected != 1 {
+			return errors.New("cannot change verification request status")
+		}
+
+		if verificationRequest.Status == model.Accepted {
+			result := repository.DB.Where("id = ?", verificationRequest.UserId).Updates(persistence.User{Role: model.Verified})
+			if result.Error != nil || result.RowsAffected != 1 {
+				return errors.New("cannot change user role")
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+	return nil
 }

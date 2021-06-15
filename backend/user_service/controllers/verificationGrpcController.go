@@ -39,7 +39,6 @@ func (s *VerificationGrpcController) SubmitVerificationRequest(ctx context.Conte
 
 	s.logger.ToStdoutAndFile("SubmitVerificationRequest", "User verification request submit attempt: "+in.UserId, logger.Info)
 
-	//todo - napravi konvertor u domenski ili persistence, napisi u user additional info category, dekodiraj sliku, upisi verification request
 	var verificationRequest domain.VerificationRequest
 	verificationRequest = verificationRequest.ConvertFromGrpc(in)
 
@@ -71,4 +70,22 @@ func (s *VerificationGrpcController) GetPendingVerificationRequests(ctx context.
 	return &protopb.VerificationRequestsArray{
 		VerificationRequests: responseVerificationRequests,
 	}, nil
+}
+
+func (s *VerificationGrpcController) ChangeVerificationRequestStatus(ctx context.Context, in *protopb.VerificationRequest) (*protopb.EmptyResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "ChangeVerificationRequestStatus")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	s.logger.ToStdoutAndFile("ChangeVerificationRequestStatus", "Verification request status change attempt: "+in.UserId, logger.Info)
+
+	var verificationRequest domain.VerificationRequest
+	verificationRequest = verificationRequest.ConvertFromGrpc(in)
+
+	err := s.service.ChangeVerificationRequestStatus(ctx, verificationRequest)
+	if err != nil {
+		return &protopb.EmptyResponse{}, status.Errorf(codes.Unknown, "Could not change verification request status")
+	}
+
+	return &protopb.EmptyResponse{}, nil
 }

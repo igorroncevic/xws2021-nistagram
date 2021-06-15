@@ -48,3 +48,16 @@ func (service *VerificationService) GetPendingVerificationRequests(ctx context.C
 
 	return verificationRequests, nil
 }
+
+func (service *VerificationService) ChangeVerificationRequestStatus(ctx context.Context, verificationRequest domain.VerificationRequest) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "ChangeVerificationRequestStatus")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	err := service.verificationRepository.ChangeVerificationRequestStatus(ctx, verificationRequest)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
