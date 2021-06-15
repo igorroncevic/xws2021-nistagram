@@ -138,9 +138,7 @@ const IndexPage = () => {
                     <Form.Control  name="password" type="password" onChange={handleChange} value={details.password}/>
                 </Form.Group>
                 <p hidden={badCredentials} style={{ color: "red" }}> Invalid username or password!</p>
-                <div style={{display : "flex"}}>
-                    <a href={'/forgotten'} style={{'color': '#089A87',float : "right"}}> Forgot password?</a>
-                </div>
+
                 {reCaptcha >= 3 &&
                 <ReCAPTCHA
                     style={{ display: "inline-block" }}
@@ -163,6 +161,9 @@ const IndexPage = () => {
             <div style={{ display: " table" }}>
                 <p style={{ display: "table-cell" }}>Don't have account?</p>
                 <a style={{ display: "table-cell" }} className="nav-link" style={{ 'color': '#00d8fe', 'fontWeight': 'bold' }} href='#' name="workHours" onClick={handleModal}>Register</a>
+            </div>
+            <div style={{ display: " table" }}>
+                <a href={'/forgotten'} style={{'color': '#089A87',float : "right"}}> Forgot password?</a>
             </div>
 
             <Modal show={showModal} onHide={closeModal} style={{ 'height': 650 }} >

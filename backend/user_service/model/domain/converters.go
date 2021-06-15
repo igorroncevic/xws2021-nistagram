@@ -73,10 +73,10 @@ func (u User) ConvertFromGrpc(user *protopb.UsersDTO) User {
 		TokenEnd:        user.TokenEnd.AsTime(),
 	}
 
-	check, err := newUser.CheckAllFields()
-	if !check || err != nil {
-		return User{}
-	}
+	//check, err := newUser.CheckAllFields()
+	//if !check || err != nil {
+	//	return User{}
+	//}
 
 	return newUser
 }

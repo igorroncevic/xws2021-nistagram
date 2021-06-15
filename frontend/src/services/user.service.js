@@ -130,6 +130,21 @@ class UserService {
         return response
     }
 
+    async searchByUser(data){
+        const { username,firstName,lastName,jwt} = data
+        const headers=this.setupHeaders(jwt)
+        const response = this.apiClient.post('/searchByUser',{
+            username,firstName,lastName
+        },{
+            headers:headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
+
 
 
 }
