@@ -11,7 +11,6 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-// Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
 // ContentClient is the client API for Content service.
@@ -26,6 +25,7 @@ type ContentClient interface {
 	GetPostById(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Post, error)
 	SearchContentByLocation(ctx context.Context, in *SearchLocationRequest, opts ...grpc.CallOption) (*ReducedPostArray, error)
 	GetPostsByHashtag(ctx context.Context, in *Hashtag, opts ...grpc.CallOption) (*ReducedPostArray, error)
+	GetAllHashtags(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*Hashtags, error)
 	//    Stories
 	CreateStory(ctx context.Context, in *Story, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetAllStories(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*StoriesHome, error)
@@ -123,6 +123,15 @@ func (c *contentClient) SearchContentByLocation(ctx context.Context, in *SearchL
 func (c *contentClient) GetPostsByHashtag(ctx context.Context, in *Hashtag, opts ...grpc.CallOption) (*ReducedPostArray, error) {
 	out := new(ReducedPostArray)
 	err := c.cc.Invoke(ctx, "/proto.Content/GetPostsByHashtag", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) GetAllHashtags(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*Hashtags, error) {
+	out := new(Hashtags)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetAllHashtags", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -357,6 +366,7 @@ type ContentServer interface {
 	GetPostById(context.Context, *RequestId) (*Post, error)
 	SearchContentByLocation(context.Context, *SearchLocationRequest) (*ReducedPostArray, error)
 	GetPostsByHashtag(context.Context, *Hashtag) (*ReducedPostArray, error)
+	GetAllHashtags(context.Context, *EmptyRequestContent) (*Hashtags, error)
 	//    Stories
 	CreateStory(context.Context, *Story) (*EmptyResponseContent, error)
 	GetAllStories(context.Context, *EmptyRequestContent) (*StoriesHome, error)
@@ -414,6 +424,9 @@ func (UnimplementedContentServer) SearchContentByLocation(context.Context, *Sear
 }
 func (UnimplementedContentServer) GetPostsByHashtag(context.Context, *Hashtag) (*ReducedPostArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPostsByHashtag not implemented")
+}
+func (UnimplementedContentServer) GetAllHashtags(context.Context, *EmptyRequestContent) (*Hashtags, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllHashtags not implemented")
 }
 func (UnimplementedContentServer) CreateStory(context.Context, *Story) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateStory not implemented")
@@ -496,8 +509,8 @@ type UnsafeContentServer interface {
 	mustEmbedUnimplementedContentServer()
 }
 
-func RegisterContentServer(s grpc.ServiceRegistrar, srv ContentServer) {
-	s.RegisterService(&Content_ServiceDesc, srv)
+func RegisterContentServer(s *grpc.Server, srv ContentServer) {
+	s.RegisterService(&_Content_serviceDesc, srv)
 }
 
 func _Content_CreatePost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -622,6 +635,24 @@ func _Content_GetPostsByHashtag_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).GetPostsByHashtag(ctx, req.(*Hashtag))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_GetAllHashtags_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EmptyRequestContent)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetAllHashtags(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetAllHashtags",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetAllHashtags(ctx, req.(*EmptyRequestContent))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1058,10 +1089,7 @@ func _Content_RemoveHighlightStory_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-// Content_ServiceDesc is the grpc.ServiceDesc for Content service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var Content_ServiceDesc = grpc.ServiceDesc{
+var _Content_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.Content",
 	HandlerType: (*ContentServer)(nil),
 	Methods: []grpc.MethodDesc{
@@ -1092,6 +1120,10 @@ var Content_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPostsByHashtag",
 			Handler:    _Content_GetPostsByHashtag_Handler,
+		},
+		{
+			MethodName: "GetAllHashtags",
+			Handler:    _Content_GetAllHashtags_Handler,
 		},
 		{
 			MethodName: "CreateStory",

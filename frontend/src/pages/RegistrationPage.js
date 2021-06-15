@@ -239,7 +239,6 @@ const RegistrationPage = () => {
             setProfilePhoto(upload.target.result)
         };
         reader.readAsDataURL(file);
-
     }
 
     return (

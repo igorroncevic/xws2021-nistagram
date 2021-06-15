@@ -25,6 +25,7 @@ func (p *Post) ConvertFromGrpc(post *protopb.Post) *Post {
 		Comments: ConvertMultipleCommentsFromGrpc(post.Comments),
 		Likes:    ConvertMultipleLikesFromGrpc(post.Likes),
 		Dislikes: ConvertMultipleLikesFromGrpc(post.Dislikes),
+		Hashtags: ConvertMultipleHashtagFromGrpc(post.Hashtags),
 	}
 }
 
@@ -56,30 +57,32 @@ func ConvertMultiplePostsToGrpc(posts []Post) []*protopb.Post {
 // Story Converters
 func (s Story) ConvertToGrpc() *protopb.Story {
 	return &protopb.Story{
-		Id:          s.Id,
-		UserId:      s.UserId,
-		IsAd:        s.IsAd,
-		Type:        s.Type.String(),
-		Description: s.Description,
-		Location:    s.Location,
-		CreatedAt:   timestamppb.New(s.CreatedAt),
-		Media: 		 ConvertMultipleMediaToGrpc(s.Media),
+		Id:             s.Id,
+		UserId:         s.UserId,
+		IsAd:           s.IsAd,
+		Type:           s.Type.String(),
+		Description:    s.Description,
+		Location:       s.Location,
+		CreatedAt:      timestamppb.New(s.CreatedAt),
+		Media:          ConvertMultipleMediaToGrpc(s.Media),
 		IsCloseFriends: s.IsCloseFriends,
 	}
 }
 
 func (s *Story) ConvertFromGrpc(story *protopb.Story) *Story {
-	if story == nil { story = &protopb.Story{} }
+	if story == nil {
+		story = &protopb.Story{}
+	}
 	return &Story{
 		Objava: Objava{
-			Id: 		 story.Id,
+			Id:          story.Id,
 			UserId:      story.UserId,
 			IsAd:        story.IsAd,
 			Type:        model.GetPostType(story.Type),
 			Description: story.Description,
 			Location:    story.Location,
 			CreatedAt:   story.CreatedAt.AsTime(),
-			Media: 		 ConvertMultipleMediaFromGrpc(story.Media),
+			Media:       ConvertMultipleMediaFromGrpc(story.Media),
 		},
 		IsCloseFriends: story.IsCloseFriends,
 	}
@@ -108,7 +111,9 @@ func (hr HighlightRequest) ConvertToGrpc() *protopb.HighlightRequest {
 }
 
 func (hr *HighlightRequest) ConvertFromGrpc(request *protopb.HighlightRequest) *HighlightRequest {
-	if request == nil { request = &protopb.HighlightRequest{} }
+	if request == nil {
+		request = &protopb.HighlightRequest{}
+	}
 	return &HighlightRequest{
 		UserId:      request.UserId,
 		HighlightId: request.HighlightId,
@@ -127,7 +132,9 @@ func (h Highlight) ConvertToGrpc() *protopb.Highlight {
 }
 
 func (h *Highlight) ConvertFromGrpc(request *protopb.Highlight) *Highlight {
-	if request == nil { request = &protopb.Highlight{} }
+	if request == nil {
+		request = &protopb.Highlight{}
+	}
 	return &Highlight{
 		Id:      request.Id,
 		Name:    request.Name,
@@ -148,7 +155,7 @@ func ConvertMultipleStoriesFromGrpc(stories []*protopb.Story) []Story {
 	return convertedStories
 }
 
-func ConvertMultipleStoriesToGrpc(stories []Story) []*protopb.Story{
+func ConvertMultipleStoriesToGrpc(stories []Story) []*protopb.Story {
 	grpcStories := []*protopb.Story{}
 	for _, story := range stories {
 		grpcStories = append(grpcStories, story.ConvertToGrpc())
@@ -462,4 +469,17 @@ func (h *Hashtag) ConvertFromGrpc(hashtag *protopb.Hashtag) *Hashtag {
 		Id:   hashtag.Id,
 		Text: hashtag.Text,
 	}
+}
+
+func ConvertMultipleHashtagFromGrpc(t []*protopb.Hashtag) []Hashtag {
+	hashtags := []Hashtag{}
+	if t != nil {
+		for _, protoTag := range t {
+			var domainHashtag *Hashtag
+			domainHashtag = domainHashtag.ConvertFromGrpc(protoTag)
+			hashtags = append(hashtags, *domainHashtag)
+		}
+	}
+
+	return hashtags
 }
