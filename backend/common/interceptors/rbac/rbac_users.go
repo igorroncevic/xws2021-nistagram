@@ -5,21 +5,27 @@ import "gorm.io/gorm"
 func SetupUsersRBAC(db *gorm.DB) error {
 	dropUsersTables(db)
 	err := db.AutoMigrate(&UserRole{}, Permission{}, RolePermission{})
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	err = db.Transaction(func(tx *gorm.DB) error {
-		userRoles := []UserRole{ basic, admin, verified, agent, nonregistered }
+		userRoles := []UserRole{basic, admin, verified, agent, nonregistered}
 		result := db.Create(&userRoles)
-		if result.Error != nil { return result.Error }
+		if result.Error != nil {
+			return result.Error
+		}
 
 		permissions := []Permission{
 			getUserById, getUsernameById, getAllUsers,
 			updateUserPassword, updateUserProfile, searchUser,
 			updatePrivacy, blockUser, unBlockUser, checkIfBlocked, checkUserProfilePublic, getAllPublicUsers, approveAccount,checkIsApproved,
-			getUserByUsername,
+			getUserByUsername,submitVerificationRequest,
 		}
 		result = db.Create(&permissions)
-		if result.Error != nil { return result.Error }
+		if result.Error != nil {
+			return result.Error
+		}
 
 		rolePermissions := []RolePermission{
 			basicGetUserById, agentGetUserById, adminGetUserById, verifiedGetUserById, nonregisteredGetUserById,
@@ -36,9 +42,12 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			basicGetAllPublicUsers, agentGetAllPublicUsers, adminGetAllPublicUsers, verifiedGetAllPublicUsers, nonregisteredGetAllPublicUsers,
 			basicApproveAccount, adminApproveAccount, agentApproveAccount,basicCheckIsApproved, adminCheckIsApproved, agentCheckIsApproved,
 			basicGetUserByUsername, agentGetUserByUsername, adminGetUserByUsername, verifiedGetUserByUsername, nonregisteredGetUserByUsername,
+			basicSubmitVerificationRequest, agentSubmitVerificationRequest,
 		}
 		result = db.Create(&rolePermissions)
-		if result.Error != nil { return result.Error }
+		if result.Error != nil {
+			return result.Error
+		}
 
 		return nil
 	})
@@ -47,9 +56,15 @@ func SetupUsersRBAC(db *gorm.DB) error {
 }
 
 func dropUsersTables(db *gorm.DB) {
-	if db.Migrator().HasTable(&UserRole{}){ db.Migrator().DropTable(&UserRole{}) }
-	if db.Migrator().HasTable(&Permission{}){ db.Migrator().DropTable(&Permission{}) }
-	if db.Migrator().HasTable(&RolePermission{}){ db.Migrator().DropTable(&RolePermission{}) }
+	if db.Migrator().HasTable(&UserRole{}) {
+		db.Migrator().DropTable(&UserRole{})
+	}
+	if db.Migrator().HasTable(&Permission{}) {
+		db.Migrator().DropTable(&Permission{})
+	}
+	if db.Migrator().HasTable(&RolePermission{}) {
+		db.Migrator().DropTable(&RolePermission{})
+	}
 }
 
 var (
@@ -68,6 +83,7 @@ var (
 	checkUserProfilePublic = Permission{ Id: "f2d282a9-c171-47f4-935d-32875fa61c8a",  Name: "CheckUserProfilePublic" }
 	getAllPublicUsers      = Permission{ Id: "a30c3350-4b8f-4773-bd90-32c17e88d221",  Name: "GetAllPublicUsers" }
 	getUserByUsername      = Permission{ Id: "aa3305b0-0b68-490f-b38e-5a0c1cf97a9e",  Name: "GetUserByUsername" }
+	submitVerificationRequest = Permission{Id: "1d867c15-595b-4a69-b8ad-7135457bc402", Name: "SubmitVerificationRequest"}
 
 )
 
@@ -147,4 +163,10 @@ var (
 	adminGetAllPublicUsers 	= RolePermission{ RoleId: admin.Id, PermissionId: getAllPublicUsers.Id }
 	verifiedGetAllPublicUsers 		= RolePermission{ RoleId: verified.Id, PermissionId: getAllPublicUsers.Id }
 	nonregisteredGetAllPublicUsers 	= RolePermission{ RoleId: nonregistered.Id, PermissionId: getAllPublicUsers.Id }
+
+
+
+	basicSubmitVerificationRequest = RolePermission{RoleId: basic.Id, PermissionId: submitVerificationRequest.Id}
+	agentSubmitVerificationRequest = RolePermission{RoleId: agent.Id, PermissionId: submitVerificationRequest.Id}
 )
+

@@ -14,25 +14,28 @@ import (
 type Server struct {
 	protopb.UnimplementedUsersServer
 	protopb.UnimplementedPrivacyServer
-	userController    *UserGrpcController
-	privacyController *PrivacyGrpcController
-	emailController   *EmailGrpcController
-	tracer            otgo.Tracer
-	closer            io.Closer
+	userController         *UserGrpcController
+	privacyController      *PrivacyGrpcController
+	emailController        *EmailGrpcController
+	verificationController *VerificationGrpcController
+	tracer                 otgo.Tracer
+	closer                 io.Closer
 }
 
 func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger) (*Server, error) {
 	newUserController, _ := NewUserController(db, jwtManager, logger)
 	newPrivacyController, _ := NewPrivacyController(db)
 	newEmailController, _ := NewEmailController(db)
+	newVerificationController, _ := NewVerificationController(db, jwtManager, logger)
 	tracer, closer := tracer.Init("userService")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
-		userController:     newUserController,
-		privacyController:  newPrivacyController,
-		emailController:    newEmailController,
-		tracer:             tracer,
-		closer:             closer,
+		userController:         newUserController,
+		privacyController:      newPrivacyController,
+		emailController:        newEmailController,
+		verificationController: newVerificationController,
+		tracer:                 tracer,
+		closer:                 closer,
 	}, nil
 }
 
@@ -127,10 +130,12 @@ func (s *Server) ApproveAccount(ctx context.Context, in *protopb.CreatePasswordR
 func (s *Server) GoogleAuth(ctx context.Context, in *protopb.GoogleAuthRequest) (*protopb.LoginResponse, error) {
 	return s.userController.GoogleAuth(ctx, in)
 }
-
 func (s *Server) CheckIsApproved(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.BooleanResponseUsers, error) {
 	return s.userController.CheckIsApproved(ctx, in)
 }
 func (s *Server) GetUserByUsername(ctx context.Context, in *protopb.RequestUsernameUser) (*protopb.UsersDTO, error) {
 	return s.userController.GetUserByUsername(ctx, in)
+}
+func (s *Server) SubmitVerificationRequest(ctx context.Context, in *protopb.VerificationRequest) (*protopb.EmptyResponse, error) {
+	return s.verificationController.SubmitVerificationRequest(ctx, in)
 }
