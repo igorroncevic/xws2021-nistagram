@@ -60,7 +60,7 @@ func (s *PrivacyGrpcController) BlockUser(ctx context.Context, in *protopb.Creat
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var block *persistence.BlockedUsers
-	block.ConvertFromGrpc(in.Block)
+	block = block.ConvertFromGrpc(in.Block)
 	_, err := s.service.BlockUser(ctx, block)
 	if err != nil {
 		return &protopb.EmptyResponsePrivacy{}, err
@@ -75,7 +75,7 @@ func (s *PrivacyGrpcController) UnBlockUser(ctx context.Context, in *protopb.Cre
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var block *persistence.BlockedUsers
-	block.ConvertFromGrpc(in.Block)
+	block = block.ConvertFromGrpc(in.Block)
 	_, err := s.service.UnBlockUser(ctx, block)
 	if err != nil {
 		return &protopb.EmptyResponsePrivacy{}, err
