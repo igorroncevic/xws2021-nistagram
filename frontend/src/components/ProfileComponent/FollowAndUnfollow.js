@@ -14,7 +14,6 @@ function FollowAndUnfollow(props){
 
     useEffect(() => {
         setFollows(followers.some(item=>item.UserId===store.user.id))
-        console.log(follows)
     }, [followers])
 
     async function follow() {

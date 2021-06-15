@@ -117,6 +117,19 @@ class UserService {
         return response
     }
 
+    async getUsernameById(data){
+        const { id,jwt} = data
+        const headers=this.setupHeaders(jwt)
+        const response = this.apiClient.get('/username/'+id,{
+            headers:headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
+
 
 
 }

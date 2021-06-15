@@ -7,10 +7,32 @@ import { ReactComponent as Plus } from "../../images/plus.svg";
 import ProfileIcon from "../ProfileComponent/ProfileIcon";
 import {NavLink, Route} from "react-router-dom";
 import Profile from "../ProfileComponent/Profile";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import userService from "../../services/user.service";
+import {useDispatch, useSelector} from "react-redux";
 
 function Menu() {
-    const[username,setUsername]=useState("andja")
+    const[username,setUsername]=useState('')
+    const dispatch = useDispatch()
+    const store = useSelector(state => state);
+
+    useEffect(() => {
+        //   if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
+        getUsernameById();
+    }, []);
+
+    async function getUsernameById() {
+        const response = await userService.getUsernameById({
+            id: store.user.id,
+            jwt: store.user.jwt,
+        })
+
+        if (response.status === 200) {
+            setUsername(response.data.username)
+        } else {
+            console.log("getuserbyusername error")
+        }
+    }
     return (
         <div className="menu">
             <NavLink  to={{ pathname: "/home" }}  >
