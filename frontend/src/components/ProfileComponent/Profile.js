@@ -14,6 +14,8 @@ import {userActions} from "../../store/actions/user.actions";
 import {useDispatch, useSelector} from "react-redux";
 import privacyService from "../../services/privacy.service";
 import followersService from "../../services/followers.service";
+import ProfileForSug from "../HomePage/ProfileForSug";
+import FollowersAndFollowings from "./FollowersAndFollowings";
 
 
 function Profile() {
@@ -24,6 +26,8 @@ function Profile() {
 
     const [showModal, setModal] = useState(false);
     const [showModalPass, setModalPass] = useState(false);
+    const [showModalFollowers, setModalFollowers] = useState(false);
+    const [showModalFollowings, setModalFollowings] = useState(false);
 
     const [followers, setFollowers] = useState([]);
     const [following, setFollowings] = useState([]);
@@ -42,7 +46,7 @@ function Profile() {
         getFollowers()
         getFollowing()
         //getPosts()
-    },[]);
+    },[username]);
 
 
 
@@ -80,7 +84,10 @@ function Profile() {
             setFollow(false)
         }else{
             setFollow(true)
-
+            dispatch(userActions.followRequest({
+                userId: store.user.id,
+                followerId: value,
+            }))
         }
     }
 
@@ -134,6 +141,12 @@ function Profile() {
     function handleModalPass() {
         setModalPass(!showModalPass)
     }
+    function handleModalFollowers() {
+        setModalFollowers(!showModalFollowers)
+    }
+    function handleModalFollowings() {
+        setModalFollowings(!showModalFollowings)
+    }
 
     return (
         <div>
@@ -149,12 +162,13 @@ function Profile() {
                             <h4>{user.firstName} {user.lastName}</h4>
                             <h4>{user.username}</h4>
                             <div style={{display: "flex"}}>
-                                <h6> 15 posts </h6>
-                                <h6 style={{marginLeft:'13px'}}> {followers.length} followers </h6>
-                                <h6 style={{marginLeft:'13px'}}> {following.length} following </h6>
+                                <h6 style={{marginTop:'9px'}}> 15 posts </h6>
+                                <Button variant="link"  onClick={handleModalFollowers}>{followers.length} followers</Button>
+                                <Button variant="link"  onClick={handleModalFollowings}> {following.length} following </Button>
+
                             </div>
                             {follow ?
-                                <FollowAndUnfollow user={user} getFollowers={getFollowers}/>
+                                <FollowAndUnfollow user={user} followers={followers} getFollowers={getFollowers}/>
 :
                                 <div>
                                     <Button variant="link" style={{marginTop:'2em', borderTop: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModal}>Update profile info</Button>
@@ -203,6 +217,26 @@ function Profile() {
                     </Modal.Header>
                     <Modal.Body>
                         <ChangePassword user={user}/>
+                    </Modal.Body>
+                    <Modal.Footer>
+
+                    </Modal.Footer>
+                </Modal>
+                <Modal show={showModalFollowers} onHide={handleModalFollowers}>
+                    <Modal.Header closeButton>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <FollowersAndFollowings ids={followers} handleModal={handleModalFollowers}/>
+                    </Modal.Body>
+                    <Modal.Footer>
+
+                    </Modal.Footer>
+                </Modal>
+                <Modal show={showModalFollowings} onHide={handleModalFollowings}>
+                    <Modal.Header closeButton>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <FollowersAndFollowings ids={following} handleModal={handleModalFollowings}/>
                     </Modal.Body>
                     <Modal.Footer>
 

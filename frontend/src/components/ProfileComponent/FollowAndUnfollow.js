@@ -6,7 +6,7 @@ import followersService from "../../services/followers.service";
 import {useDispatch, useSelector} from "react-redux";
 //treba srediti da ne moze da zaprati sam sebe i da salje zahtev za pracenje drugima
 function FollowAndUnfollow(props){
-    const{user,getFollowers}=props;
+    const{user,followers,getFollowers}=props;
     const[follows,setFollows]=useState(false);
 
     const dispatch = useDispatch()
@@ -17,10 +17,15 @@ function FollowAndUnfollow(props){
         getFollowersConnection()
     }, [])
 
+    useEffect(() => {
+        setFollows(followers.some(item=>item.UserId===store.user.id))
+    }, [followers])
+
+
     async function getFollowersConnection() {
         const response = await followersService.getFollowersConnection({
-             userId : store.user.id,
-             followerId : user.id,
+             userId : store.followers.userId,
+             followerId :store.followers.followerId,
         })
 
         if (response.status === 200) {
@@ -34,8 +39,8 @@ function FollowAndUnfollow(props){
 
     async function follow() {
         const response = await followersService.follow({
-            userId: store.user.id,
-            followerId: user.id,
+            userId : store.followers.userId,
+            followerId :store.followers.followerId,
             isApprovedRequest: true,
             jwt: store.user.jwt,
         })
@@ -50,8 +55,8 @@ function FollowAndUnfollow(props){
 
     async function unfollow() {
         const response = await followersService.unfollow({
-            userId: store.user.id,
-            followerId: user.id,
+            userId : store.followers.userId,
+            followerId :store.followers.followerId,
             isApprovedRequest: true,
             jwt: store.user.jwt,
         })
