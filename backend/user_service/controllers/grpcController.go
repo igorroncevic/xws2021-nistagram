@@ -134,3 +134,7 @@ func (s *Server) GoogleAuth(ctx context.Context, in *protopb.GoogleAuthRequest) 
 func (s *Server) SubmitVerificationRequest(ctx context.Context, in *protopb.VerificationRequest) (*protopb.EmptyResponse, error) {
 	return s.verificationController.SubmitVerificationRequest(ctx, in)
 }
+
+func (s *Server) GetPendingVerificationRequests(ctx context.Context, in *protopb.EmptyRequest) (*protopb.VerificationRequestsArray, error) {
+	return s.verificationController.GetPendingVerificationRequests(ctx, in)
+}

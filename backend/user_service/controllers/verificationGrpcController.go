@@ -37,7 +37,7 @@ func (s *VerificationGrpcController) SubmitVerificationRequest(ctx context.Conte
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	s.logger.ToStdoutAndFile("CreateUser", "User registration attempt: ", logger.Info)
+	s.logger.ToStdoutAndFile("SubmitVerificationRequest", "User verification request submit attempt: "+in.UserId, logger.Info)
 
 	//todo - napravi konvertor u domenski ili persistence, napisi u user additional info category, dekodiraj sliku, upisi verification request
 	var verificationRequest domain.VerificationRequest
@@ -49,4 +49,26 @@ func (s *VerificationGrpcController) SubmitVerificationRequest(ctx context.Conte
 	}
 
 	return &protopb.EmptyResponse{}, nil
+}
+
+func (s *VerificationGrpcController) GetPendingVerificationRequests(ctx context.Context, in *protopb.EmptyRequest) (*protopb.VerificationRequestsArray, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetPendingVerificationRequests")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	s.logger.ToStdoutAndFile("GetPendingVerificationRequests", "Get pending requests attempt", logger.Info)
+
+	verificationRequests, err := s.service.GetPendingVerificationRequests(ctx)
+	if err != nil {
+		return &protopb.VerificationRequestsArray{}, status.Errorf(codes.Unknown, "Could not get pending verification requests")
+	}
+
+	responseVerificationRequests := []*protopb.VerificationRequest{}
+	for _, verificationRequest := range verificationRequests {
+		responseVerificationRequests = append(responseVerificationRequests, verificationRequest.ConvertToGrpc())
+	}
+
+	return &protopb.VerificationRequestsArray{
+		VerificationRequests: responseVerificationRequests,
+	}, nil
 }

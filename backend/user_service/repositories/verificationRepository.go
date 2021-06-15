@@ -17,6 +17,7 @@ import (
 type VerificationRepository interface {
 	CreateVerificationRequest(context.Context, domain.VerificationRequest) error
 	SaveUserDocumentPhoto(ctx context.Context, verificationRequest domain.VerificationRequest) (string, error)
+	GetPendingVerificationRequests(ctx context.Context) ([]domain.VerificationRequest, error)
 }
 
 type verificationRepository struct {
@@ -93,4 +94,44 @@ func (repository *verificationRepository) SaveUserDocumentPhoto(ctx context.Cont
 
 	verificationRequest.DocumentPhoto = util.GetContentLocation(name)
 	return verificationRequest.DocumentPhoto, nil
+}
+
+func (repository *verificationRepository) GetPendingVerificationRequests(ctx context.Context) ([]domain.VerificationRequest, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetPendingVerificationRequests")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var verificationRequestsPersistence []persistence.VerificationRequest
+	result := repository.DB.Where("status = ?", model.Pending).Find(&verificationRequestsPersistence)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	var verificationRequestsDomain []domain.VerificationRequest
+
+	for _, verificationRequest := range verificationRequestsPersistence {
+		user, err := repository.userRepository.GetUserById(ctx, verificationRequest.UserId)
+		if err != nil {
+			return nil, err
+		}
+		userAdditionalInfo, err := repository.userRepository.GetUserAdditionalInfoById(ctx, verificationRequest.UserId)
+		if err != nil {
+			return nil, err
+		}
+		imageBase64, err := images.LoadImageToBase64(verificationRequest.DocumentPhoto)
+		if err != nil {
+			return nil, err
+		}
+		verificationRequestsDomain = append(verificationRequestsDomain, domain.VerificationRequest{
+			UserId:        verificationRequest.UserId,
+			DocumentPhoto: imageBase64,
+			Status:        verificationRequest.Status,
+			CreatedAt:     verificationRequest.CreatedAt,
+			Category:      userAdditionalInfo.Category,
+			FirstName:     user.FirstName,
+			LastName:      user.LastName,
+		})
+	}
+
+	return verificationRequestsDomain, nil
 }

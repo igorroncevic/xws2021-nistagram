@@ -20,6 +20,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			getUserById, getUsernameById, getAllUsers,
 			updateUserPassword, updateUserProfile, searchUser,
 			updatePrivacy, blockUser, unBlockUser, checkIfBlocked, checkUserProfilePublic, getAllPublicUsers, approveAccount, submitVerificationRequest,
+			getPendingVerificationRequests,
 		}
 		result = db.Create(&permissions)
 		if result.Error != nil {
@@ -41,6 +42,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			basicGetAllPublicUsers, agentGetAllPublicUsers, adminGetAllPublicUsers, verifiedGetAllPublicUsers, nonregisteredGetAllPublicUsers,
 			basicApproveAccount, adminApproveAccount, agentApproveAccount,
 			basicSubmitVerificationRequest, agentSubmitVerificationRequest,
+			basicGetPendingVerificationRequests, admitGetPendingVerificationRequests,
 		}
 		result = db.Create(&rolePermissions)
 		if result.Error != nil {
@@ -81,7 +83,8 @@ var (
 	checkUserProfilePublic = Permission{Id: "f2d282a9-c171-47f4-935d-32875fa61c8a", Name: "CheckUserProfilePublic"}
 	getAllPublicUsers      = Permission{Id: "a30c3350-4b8f-4773-bd90-32c17e88d221", Name: "GetAllPublicUsers"}
 
-	submitVerificationRequest = Permission{Id: "1d867c15-595b-4a69-b8ad-7135457bc402", Name: "SubmitVerificationRequest"}
+	submitVerificationRequest      = Permission{Id: "1d867c15-595b-4a69-b8ad-7135457bc402", Name: "SubmitVerificationRequest"}
+	getPendingVerificationRequests = Permission{Id: "56a15e9b-3522-4d32-a11a-2fd869a41489", Name: "GetPendingVerificationRequests"}
 )
 
 var (
@@ -153,4 +156,7 @@ var (
 
 	basicSubmitVerificationRequest = RolePermission{RoleId: basic.Id, PermissionId: submitVerificationRequest.Id}
 	agentSubmitVerificationRequest = RolePermission{RoleId: agent.Id, PermissionId: submitVerificationRequest.Id}
+
+	basicGetPendingVerificationRequests = RolePermission{RoleId: basic.Id, PermissionId: getPendingVerificationRequests.Id}
+	admitGetPendingVerificationRequests = RolePermission{RoleId: admin.Id, PermissionId: getPendingVerificationRequests.Id}
 )

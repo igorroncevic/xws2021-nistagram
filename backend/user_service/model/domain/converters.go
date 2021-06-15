@@ -119,3 +119,15 @@ func (u VerificationRequest) ConvertFromGrpc(verificationRequest *protopb.Verifi
 
 	return newVerificationRequest
 }
+
+func (verificationRequest VerificationRequest) ConvertToGrpc() *protopb.VerificationRequest {
+	return &protopb.VerificationRequest{
+		UserId:        verificationRequest.UserId,
+		DocumentPhoto: verificationRequest.DocumentPhoto,
+		Category:      model.GetUserCategoriesString(verificationRequest.Category),
+		FirstName:     verificationRequest.FirstName,
+		LastName:      verificationRequest.LastName,
+		Status:        model.ToStringRequestStatus(verificationRequest.Status),
+		CreatedAt:     timestamppb.New(verificationRequest.CreatedAt),
+	}
+}

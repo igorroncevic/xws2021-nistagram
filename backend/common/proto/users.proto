@@ -114,6 +114,12 @@ service Users {
       body: "*"
     };
   }
+
+  rpc GetPendingVerificationRequests (EmptyRequest) returns (VerificationRequestsArray) {
+    option(google.api.http) = {
+      get: "/api/users/get-pending-verification-requests",
+    };
+  }
 }
 
 message Password {
@@ -225,6 +231,10 @@ message RequestIdUsers {
 
 message GoogleAuthRequest {
   string token = 1;
+}
+
+message VerificationRequestsArray {
+  repeated VerificationRequest verificationRequests = 1;
 }
 
 message VerificationRequest {

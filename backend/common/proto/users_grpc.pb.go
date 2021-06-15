@@ -38,6 +38,7 @@ type UsersClient interface {
 	GoogleAuth(ctx context.Context, in *GoogleAuthRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	//samo ulogovani basic korisnici
 	SubmitVerificationRequest(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	GetPendingVerificationRequests(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*VerificationRequestsArray, error)
 }
 
 type usersClient struct {
@@ -183,6 +184,15 @@ func (c *usersClient) SubmitVerificationRequest(ctx context.Context, in *Verific
 	return out, nil
 }
 
+func (c *usersClient) GetPendingVerificationRequests(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*VerificationRequestsArray, error) {
+	out := new(VerificationRequestsArray)
+	err := c.cc.Invoke(ctx, "/proto.Users/GetPendingVerificationRequests", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UsersServer is the server API for Users service.
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
@@ -208,6 +218,7 @@ type UsersServer interface {
 	GoogleAuth(context.Context, *GoogleAuthRequest) (*LoginResponse, error)
 	//samo ulogovani basic korisnici
 	SubmitVerificationRequest(context.Context, *VerificationRequest) (*EmptyResponse, error)
+	GetPendingVerificationRequests(context.Context, *EmptyRequest) (*VerificationRequestsArray, error)
 	mustEmbedUnimplementedUsersServer()
 }
 
@@ -259,6 +270,9 @@ func (UnimplementedUsersServer) GoogleAuth(context.Context, *GoogleAuthRequest) 
 }
 func (UnimplementedUsersServer) SubmitVerificationRequest(context.Context, *VerificationRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitVerificationRequest not implemented")
+}
+func (UnimplementedUsersServer) GetPendingVerificationRequests(context.Context, *EmptyRequest) (*VerificationRequestsArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPendingVerificationRequests not implemented")
 }
 func (UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}
 
@@ -543,6 +557,24 @@ func _Users_SubmitVerificationRequest_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_GetPendingVerificationRequests_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EmptyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).GetPendingVerificationRequests(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/GetPendingVerificationRequests",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).GetPendingVerificationRequests(ctx, req.(*EmptyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Users_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.Users",
 	HandlerType: (*UsersServer)(nil),
@@ -606,6 +638,10 @@ var _Users_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SubmitVerificationRequest",
 			Handler:    _Users_SubmitVerificationRequest_Handler,
+		},
+		{
+			MethodName: "GetPendingVerificationRequests",
+			Handler:    _Users_GetPendingVerificationRequests_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
