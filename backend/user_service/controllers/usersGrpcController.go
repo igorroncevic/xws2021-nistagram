@@ -332,3 +332,36 @@ func (s *UserGrpcController) GoogleAuth (ctx context.Context, in *protopb.Google
 		IsSSO:       true,
 	}, nil
 }
+
+func (s *UserGrpcController) CheckIsApproved(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.BooleanResponseUsers, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUsernameById")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	isApproved, err := s.service.CheckIsApproved(ctx, in.Id)
+
+	if err != nil {
+		return &protopb.BooleanResponseUsers{Response: true}, nil
+	}
+
+	return &protopb.BooleanResponseUsers{
+		Response: isApproved,
+	}, nil
+}
+
+func (s *UserGrpcController) GetUserByUsername(ctx context.Context, in *protopb.RequestUsernameUser) (*protopb.UsersDTO, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserByEmail")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	user, err := s.service.GetUserByUsername(ctx,in.Username)
+
+	if err != nil{
+		return &protopb.UsersDTO{}, err
+	}
+
+	userResponse := user.ConvertToGrpc()
+
+	return userResponse, nil
+}
+

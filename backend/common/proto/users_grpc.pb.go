@@ -11,6 +11,7 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
+// Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
 // UsersClient is the client API for Users service.
@@ -29,17 +30,17 @@ type UsersClient interface {
 	SendEmail(ctx context.Context, in *SendEmailDtoRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	// Svi
 	GetUserByEmail(ctx context.Context, in *RequestEmailUser, opts ...grpc.CallOption) (*UsersDTO, error)
+	GetUserByUsername(ctx context.Context, in *RequestUsernameUser, opts ...grpc.CallOption) (*UsersDTO, error)
 	// Svi
 	ValidateResetCode(ctx context.Context, in *RequestResetCode, opts ...grpc.CallOption) (*EmptyResponse, error)
 	// Svi
 	ChangeForgottenPass(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	CheckIsApproved(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*BooleanResponseUsers, error)
 	// Samo ulogovani
 	ApproveAccount(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GoogleAuth(ctx context.Context, in *GoogleAuthRequest, opts ...grpc.CallOption) (*LoginResponse, error)
-	//* Verification requests *
+	//samo ulogovani basic korisnici
 	SubmitVerificationRequest(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
-	GetPendingVerificationRequests(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*VerificationRequestsArray, error)
-	ChangeVerificationRequestStatus(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 }
 
 type usersClient struct {
@@ -140,6 +141,15 @@ func (c *usersClient) GetUserByEmail(ctx context.Context, in *RequestEmailUser, 
 	return out, nil
 }
 
+func (c *usersClient) GetUserByUsername(ctx context.Context, in *RequestUsernameUser, opts ...grpc.CallOption) (*UsersDTO, error) {
+	out := new(UsersDTO)
+	err := c.cc.Invoke(ctx, "/proto.Users/GetUserByUsername", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *usersClient) ValidateResetCode(ctx context.Context, in *RequestResetCode, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	out := new(EmptyResponse)
 	err := c.cc.Invoke(ctx, "/proto.Users/ValidateResetCode", in, out, opts...)
@@ -152,6 +162,15 @@ func (c *usersClient) ValidateResetCode(ctx context.Context, in *RequestResetCod
 func (c *usersClient) ChangeForgottenPass(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	out := new(EmptyResponse)
 	err := c.cc.Invoke(ctx, "/proto.Users/ChangeForgottenPass", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) CheckIsApproved(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*BooleanResponseUsers, error) {
+	out := new(BooleanResponseUsers)
+	err := c.cc.Invoke(ctx, "/proto.Users/CheckIsApproved", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -185,24 +204,6 @@ func (c *usersClient) SubmitVerificationRequest(ctx context.Context, in *Verific
 	return out, nil
 }
 
-func (c *usersClient) GetPendingVerificationRequests(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*VerificationRequestsArray, error) {
-	out := new(VerificationRequestsArray)
-	err := c.cc.Invoke(ctx, "/proto.Users/GetPendingVerificationRequests", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *usersClient) ChangeVerificationRequestStatus(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
-	out := new(EmptyResponse)
-	err := c.cc.Invoke(ctx, "/proto.Users/ChangeVerificationRequestStatus", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // UsersServer is the server API for Users service.
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
@@ -219,17 +220,17 @@ type UsersServer interface {
 	SendEmail(context.Context, *SendEmailDtoRequest) (*EmptyResponse, error)
 	// Svi
 	GetUserByEmail(context.Context, *RequestEmailUser) (*UsersDTO, error)
+	GetUserByUsername(context.Context, *RequestUsernameUser) (*UsersDTO, error)
 	// Svi
 	ValidateResetCode(context.Context, *RequestResetCode) (*EmptyResponse, error)
 	// Svi
 	ChangeForgottenPass(context.Context, *CreatePasswordRequest) (*EmptyResponse, error)
+	CheckIsApproved(context.Context, *RequestIdUsers) (*BooleanResponseUsers, error)
 	// Samo ulogovani
 	ApproveAccount(context.Context, *CreatePasswordRequest) (*EmptyResponse, error)
 	GoogleAuth(context.Context, *GoogleAuthRequest) (*LoginResponse, error)
-	//* Verification requests *
+	//samo ulogovani basic korisnici
 	SubmitVerificationRequest(context.Context, *VerificationRequest) (*EmptyResponse, error)
-	GetPendingVerificationRequests(context.Context, *EmptyRequest) (*VerificationRequestsArray, error)
-	ChangeVerificationRequestStatus(context.Context, *VerificationRequest) (*EmptyResponse, error)
 	mustEmbedUnimplementedUsersServer()
 }
 
@@ -267,11 +268,17 @@ func (UnimplementedUsersServer) SendEmail(context.Context, *SendEmailDtoRequest)
 func (UnimplementedUsersServer) GetUserByEmail(context.Context, *RequestEmailUser) (*UsersDTO, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserByEmail not implemented")
 }
+func (UnimplementedUsersServer) GetUserByUsername(context.Context, *RequestUsernameUser) (*UsersDTO, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserByUsername not implemented")
+}
 func (UnimplementedUsersServer) ValidateResetCode(context.Context, *RequestResetCode) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ValidateResetCode not implemented")
 }
 func (UnimplementedUsersServer) ChangeForgottenPass(context.Context, *CreatePasswordRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeForgottenPass not implemented")
+}
+func (UnimplementedUsersServer) CheckIsApproved(context.Context, *RequestIdUsers) (*BooleanResponseUsers, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckIsApproved not implemented")
 }
 func (UnimplementedUsersServer) ApproveAccount(context.Context, *CreatePasswordRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ApproveAccount not implemented")
@@ -282,12 +289,6 @@ func (UnimplementedUsersServer) GoogleAuth(context.Context, *GoogleAuthRequest) 
 func (UnimplementedUsersServer) SubmitVerificationRequest(context.Context, *VerificationRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitVerificationRequest not implemented")
 }
-func (UnimplementedUsersServer) GetPendingVerificationRequests(context.Context, *EmptyRequest) (*VerificationRequestsArray, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetPendingVerificationRequests not implemented")
-}
-func (UnimplementedUsersServer) ChangeVerificationRequestStatus(context.Context, *VerificationRequest) (*EmptyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeVerificationRequestStatus not implemented")
-}
 func (UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}
 
 // UnsafeUsersServer may be embedded to opt out of forward compatibility for this service.
@@ -297,8 +298,8 @@ type UnsafeUsersServer interface {
 	mustEmbedUnimplementedUsersServer()
 }
 
-func RegisterUsersServer(s *grpc.Server, srv UsersServer) {
-	s.RegisterService(&_Users_serviceDesc, srv)
+func RegisterUsersServer(s grpc.ServiceRegistrar, srv UsersServer) {
+	s.RegisterService(&Users_ServiceDesc, srv)
 }
 
 func _Users_LoginUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -481,6 +482,24 @@ func _Users_GetUserByEmail_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_GetUserByUsername_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestUsernameUser)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).GetUserByUsername(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/GetUserByUsername",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).GetUserByUsername(ctx, req.(*RequestUsernameUser))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Users_ValidateResetCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RequestResetCode)
 	if err := dec(in); err != nil {
@@ -513,6 +532,24 @@ func _Users_ChangeForgottenPass_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UsersServer).ChangeForgottenPass(ctx, req.(*CreatePasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_CheckIsApproved_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestIdUsers)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).CheckIsApproved(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/CheckIsApproved",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).CheckIsApproved(ctx, req.(*RequestIdUsers))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -571,43 +608,10 @@ func _Users_SubmitVerificationRequest_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Users_GetPendingVerificationRequests_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EmptyRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UsersServer).GetPendingVerificationRequests(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/proto.Users/GetPendingVerificationRequests",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UsersServer).GetPendingVerificationRequests(ctx, req.(*EmptyRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Users_ChangeVerificationRequestStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(VerificationRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UsersServer).ChangeVerificationRequestStatus(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/proto.Users/ChangeVerificationRequestStatus",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UsersServer).ChangeVerificationRequestStatus(ctx, req.(*VerificationRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-var _Users_serviceDesc = grpc.ServiceDesc{
+// Users_ServiceDesc is the grpc.ServiceDesc for Users service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Users_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.Users",
 	HandlerType: (*UsersServer)(nil),
 	Methods: []grpc.MethodDesc{
@@ -652,12 +656,20 @@ var _Users_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Users_GetUserByEmail_Handler,
 		},
 		{
+			MethodName: "GetUserByUsername",
+			Handler:    _Users_GetUserByUsername_Handler,
+		},
+		{
 			MethodName: "ValidateResetCode",
 			Handler:    _Users_ValidateResetCode_Handler,
 		},
 		{
 			MethodName: "ChangeForgottenPass",
 			Handler:    _Users_ChangeForgottenPass_Handler,
+		},
+		{
+			MethodName: "CheckIsApproved",
+			Handler:    _Users_CheckIsApproved_Handler,
 		},
 		{
 			MethodName: "ApproveAccount",
@@ -670,14 +682,6 @@ var _Users_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SubmitVerificationRequest",
 			Handler:    _Users_SubmitVerificationRequest_Handler,
-		},
-		{
-			MethodName: "GetPendingVerificationRequests",
-			Handler:    _Users_GetPendingVerificationRequests_Handler,
-		},
-		{
-			MethodName: "ChangeVerificationRequestStatus",
-			Handler:    _Users_ChangeVerificationRequestStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

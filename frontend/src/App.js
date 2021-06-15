@@ -1,5 +1,5 @@
 import  React from "react";
-import {IndexPage} from './pages/IndexPage.js'
+import IndexPage from './pages/IndexPage.js'
 import {ForgotPasswordPage} from './components/forgotPass/ForgotPasswordPage.js'
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -14,9 +14,7 @@ import ChangePassword from "./components/ProfileComponent/ChangePassword";
 import Notifications from "./components/HomePageComponents/Notifications";
 import UnauthorizedPage from "./helpers/UnauthorizedPage";
 
-
-
-function App () {
+const App = () => {
     return (
         <div className="App">
             <Router>
@@ -26,16 +24,15 @@ function App () {
                 <Route path='/registration' exact={true} component={RegistrationPage}/>
                 <Route path='/home' exact  component={Home}/>
                 <Route path='/search' exact={true} component={Search}/>
-                <Route path='/profile' exact component={Profile}/>
+                <Route path='/profile/:username' exact component={Profile}/>
 
                 <Route path='/newpost' exact component={NewPost} />
                 <Route path='/chats' exact component={Chats} />
                 <Route path='/saved' exact component={Saved} />
                 <Route path='/notifications' exact component={Notifications} />
-
-
             </Router>
         </div>
     );
 }
+
 export default App

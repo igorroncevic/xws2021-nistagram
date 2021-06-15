@@ -72,7 +72,12 @@ service Users {
   // Svi
   rpc GetUserByEmail (RequestEmailUser) returns (UsersDTO) {
     option(google.api.http) = {
-      get: "/api/users/getByEmail/{email}"
+      get: "/api/users/getUserByEmail/{email}"
+    };
+  }
+  rpc GetUserByUsername (RequestUsernameUser) returns (UsersDTO) {
+    option(google.api.http) = {
+      get: "/api/users/getUserByUsername/{username}"
     };
   }
 
@@ -88,6 +93,13 @@ service Users {
   rpc ChangeForgottenPass (CreatePasswordRequest) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/api/users/changeForgottenPass"
+      body: "*"
+    };
+  }
+
+  rpc CheckIsApproved (RequestIdUsers) returns (BooleanResponseUsers) {
+    option(google.api.http) = {
+      post: "/api/users/checkIsApproved"
       body: "*"
     };
   }
@@ -130,10 +142,10 @@ service Users {
 }
 
 message Password {
-  string OldPassword = 1;
-  string NewPassword = 2;
-  string RepeatedPassword = 3;
-  string Id = 4;
+  string oldPassword = 1;
+  string newPassword = 2;
+  string repeatedPassword = 3;
+  string id = 4;
 }
 
 message User {
@@ -222,6 +234,10 @@ message RequestEmailUser {
   string email = 1;
 }
 
+message RequestUsernameUser {
+  string username = 1;
+}
+
 message RequestResetCode {
   string resetCode = 1;
   string email = 2;
@@ -238,6 +254,9 @@ message RequestIdUsers {
 
 message GoogleAuthRequest {
   string token = 1;
+}
+message BooleanResponseUsers {
+  bool response = 1;
 }
 
 message VerificationRequestsArray {
