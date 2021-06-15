@@ -51,7 +51,7 @@ class FollowersService {
         const headers=this.setupHeaders(jwt)
 
         const response = this.apiClient.post('/create_connection',{
-            userId,followerId,isApprovedRequest,
+          follower:{  userId,followerId,isApprovedRequest}
         },{
             headers:headers
         }).then(res => {
@@ -67,7 +67,23 @@ class FollowersService {
         const headers=this.setupHeaders(jwt)
 
         const response = this.apiClient.post('/delete_directed',{
-            userId,followerId,isApprovedRequest,
+            follower:{  userId,followerId,isApprovedRequest}
+        },{
+            headers:headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
+
+    async getFollowersConnection(data){
+        const { userId,followerId,jwt} = data
+        const headers=this.setupHeaders(jwt)
+        console.log(data)
+        const response = this.apiClient.post('/connection',{
+             userId,followerId
         },{
             headers:headers
         }).then(res => {

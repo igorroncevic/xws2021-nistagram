@@ -54,6 +54,9 @@ function Profile() {
 
         if (response.status === 200) {
             setUser(response.data)
+            getUserPrivacy(response.data.id);
+            getFollowers(response.data.id)
+            getFollowing(response.data.id)
             checkUser(response.data.id);
         } else {
             console.log("getuserbyusername error")
@@ -81,9 +84,9 @@ function Profile() {
         }
     }
 
-    async function getUserPrivacy() {
+    async function getUserPrivacy(value) {
         const response = await privacyService.getUserPrivacy({
-            userId: store.user.id,
+            userId: value,
             jwt: store.user.jwt,
         })
 
@@ -94,22 +97,22 @@ function Profile() {
         }
     }
 
-    async function getFollowing() {
+    async function getFollowing(value) {
         const response = await followersService.getFollowing({
-            userId: store.user.id,
+            userId:value,
             jwt: store.user.jwt,
         })
 
         if (response.status === 200) {
-            setFollowers(response.data.users);
+            setFollowings(response.data.users);
         } else {
             console.log("followings ne radi")
         }
     }
 
-    async function getFollowers() {
+    async function getFollowers(value) {
         const response = await followersService.getFollowers({
-            userId: store.user.id,
+            userId: value,
             jwt: store.user.jwt,
         })
 
@@ -151,7 +154,7 @@ function Profile() {
                                 <h6 style={{marginLeft:'13px'}}> {following.length} following </h6>
                             </div>
                             {follow ?
-                                <FollowAndUnfollow user={user} followers={followers} getFollowers={getFollowers}/>
+                                <FollowAndUnfollow user={user} getFollowers={getFollowers}/>
 :
                                 <div>
                                     <Button variant="link" style={{marginTop:'2em', borderTop: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModal}>Update profile info</Button>

@@ -31,7 +31,7 @@ const IndexPage = () => {
             password: details.password
         })
 
-        console.log(response)
+        //console.log(response)
 
         if(response.status === 200) {
             dispatch(userActions.loginRequest({
