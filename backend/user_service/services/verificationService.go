@@ -61,3 +61,30 @@ func (service *VerificationService) ChangeVerificationRequestStatus(ctx context.
 
 	return nil
 }
+
+func (service *VerificationService) GetVerificationRequestsByUserId(ctx context.Context, userId string) ([]domain.VerificationRequest, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetVerificationRequestsByUserId")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	verificationRequests, err := service.verificationRepository.GetVerificationRequestsByUserId(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	return verificationRequests, nil
+
+}
+
+func (service *VerificationService) GetAllVerificationRequests(ctx context.Context) ([]domain.VerificationRequest, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllVerificationRequests")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	verificationRequests, err := service.verificationRepository.GetAllVerificationRequests(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return verificationRequests, nil
+}

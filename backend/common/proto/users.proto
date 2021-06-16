@@ -139,6 +139,19 @@ service Users {
       body: "*"
     };
   }
+
+  rpc GetVerificationRequestsByUserId (VerificationRequest) returns (VerificationRequestsArray) {
+    option(google.api.http) = {
+      post: "/api/users/get-verification-requests-by-user",
+      body : "*"
+    };
+  }
+
+  rpc GetAllVerificationRequests (EmptyRequest) returns (VerificationRequestsArray) {
+    option(google.api.http) = {
+      get: "/api/users/get-all-verification-requests",
+    };
+  }
 }
 
 message Password {
