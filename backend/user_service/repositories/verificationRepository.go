@@ -170,7 +170,7 @@ func (repository *verificationRepository) ChangeVerificationRequestStatus(ctx co
 		}
 
 		if verificationRequest.Status == model.Accepted {
-			result := repository.DB.Where("id = ?", verificationRequest.UserId).Updates(persistence.User{Role: model.Verified})
+			result := repository.DB.Where("id = ?", verificationRequestPersistence.UserId).Updates(persistence.User{Role: model.Verified})
 			if result.Error != nil || result.RowsAffected != 1 {
 				return errors.New("cannot change user role")
 			}

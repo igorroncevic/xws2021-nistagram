@@ -20,6 +20,7 @@ import Archived from "./components/UserData/Archived";
 import ProfileInfo from "./components/UserData/ProfileInfo";
 import SubmitVerificationRequest from "./components/VerificationRequest/SubmitVerificationRequest";
 import ViewMyVerificationRequests from "./components/VerificationRequest/ViewMyVerificationRequests";
+import ViewPendingVerificationRequests from "./components/VerificationRequest/ViewPendingVerificationRequests";
 
 
 const App = () => {
@@ -41,6 +42,7 @@ const App = () => {
                 <Route path='/notifications' exact component={Notifications} />
                 <Route path='/submit-verification-request' exact component={SubmitVerificationRequest} />
                 <Route path='/view-my-verification-request' exact component={ViewMyVerificationRequests} />
+                <Route path='/view-pending-verification-request' exact component={ViewPendingVerificationRequests} />
 
 
                 <Route path='/blocked' exact component={BlockedUsers} />

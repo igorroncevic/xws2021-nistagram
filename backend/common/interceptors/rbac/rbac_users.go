@@ -44,8 +44,8 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			basicApproveAccount, adminApproveAccount, agentApproveAccount, basicCheckIsApproved, adminCheckIsApproved, agentCheckIsApproved,
 			basicGetUserByUsername, agentGetUserByUsername, adminGetUserByUsername, verifiedGetUserByUsername, nonregisteredGetUserByUsername,
 			basicSubmitVerificationRequest, agentSubmitVerificationRequest, verifiedSubmitVerificationRequest,
-			basicGetPendingVerificationRequests, adminGetPendingVerificationRequests,
-			basicChangeVerificationRequestStatus, adminChangeVerificationRequestStatus,
+			basicGetPendingVerificationRequests, adminGetPendingVerificationRequests, verifiedGetPendingVerificationRequests,
+			basicChangeVerificationRequestStatus, adminChangeVerificationRequestStatus, verifiedChangeVerificationRequestStatus,
 			basicGetVerificationRequestsByUserId, verifiedGetVerificationRequestsByUserId, adminGetVerificationRequestsByUserId, agentGetVerificationRequestsByUserId,
 		}
 		result = db.Create(&rolePermissions)
@@ -177,11 +177,13 @@ var (
 	agentSubmitVerificationRequest    = RolePermission{RoleId: agent.Id, PermissionId: submitVerificationRequest.Id}
 	verifiedSubmitVerificationRequest = RolePermission{RoleId: verified.Id, PermissionId: submitVerificationRequest.Id}
 
-	basicGetPendingVerificationRequests = RolePermission{RoleId: basic.Id, PermissionId: getPendingVerificationRequests.Id}
-	adminGetPendingVerificationRequests = RolePermission{RoleId: admin.Id, PermissionId: getPendingVerificationRequests.Id}
+	basicGetPendingVerificationRequests    = RolePermission{RoleId: basic.Id, PermissionId: getPendingVerificationRequests.Id}
+	adminGetPendingVerificationRequests    = RolePermission{RoleId: admin.Id, PermissionId: getPendingVerificationRequests.Id}
+	verifiedGetPendingVerificationRequests = RolePermission{RoleId: verified.Id, PermissionId: getPendingVerificationRequests.Id}
 
-	basicChangeVerificationRequestStatus = RolePermission{RoleId: basic.Id, PermissionId: changeVerificationRequestStatus.Id}
-	adminChangeVerificationRequestStatus = RolePermission{RoleId: admin.Id, PermissionId: changeVerificationRequestStatus.Id}
+	basicChangeVerificationRequestStatus    = RolePermission{RoleId: basic.Id, PermissionId: changeVerificationRequestStatus.Id}
+	adminChangeVerificationRequestStatus    = RolePermission{RoleId: admin.Id, PermissionId: changeVerificationRequestStatus.Id}
+	verifiedChangeVerificationRequestStatus = RolePermission{RoleId: verified.Id, PermissionId: changeVerificationRequestStatus.Id}
 
 	basicGetVerificationRequestsByUserId    = RolePermission{RoleId: basic.Id, PermissionId: getVerificationRequestsByUserId.Id}
 	verifiedGetVerificationRequestsByUserId = RolePermission{RoleId: verified.Id, PermissionId: getVerificationRequestsByUserId.Id}
