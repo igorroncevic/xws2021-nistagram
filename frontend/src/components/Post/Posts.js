@@ -23,7 +23,7 @@ const Posts = (props) => {
         <div>
             {posts && posts.map((post) => {
                 return (
-                    <Post post={post} user={{ id: post.userId }}/>);
+                    <Post post={post} postUser={{ id: post.userId }}/>);
             })}
         </div>
 

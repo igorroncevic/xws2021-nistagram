@@ -20,26 +20,9 @@ function Post (props) {
     const [likesText, setLikesText] = useState("");
     const [dislikesText, setDislikesText] = useState("");
     const store = useSelector(state => state)
-    post["likes"] = [];
-    post["dislikes"] = [];
 
-    const commentsOne = [
-        {
-          username: "raffagrassetti",
-          text: "Woah dude, this is awesome! 🔥",
-          id: 1,
-        },
-        {
-          username: "therealadamsavage",
-          text: "Like!",
-          id: 2,
-        },
-        {
-          username: "mapvault",
-          text: "Niceeeee!",
-          id: 3,
-        },
-      ];
+    console.log(post);
+    console.log(postUser);
 
     useEffect(() => {
         getUserInfo()
@@ -63,15 +46,15 @@ function Post (props) {
     })
 
     const changeLikesText = () => {
-        if(post.likes.length === 0) setLikesText(" no one.")
-        if(post.likes.length === 1) setLikesText(" 1 person.")
-        if(post.likes.length >= 2) setLikesText(" " + post.likes.length + " people.")
+        if(post.likes.length === 0) setLikesText("no one")
+        if(post.likes.length === 1) setLikesText("1 person")
+        if(post.likes.length >= 2) setLikesText(post.likes.length + " people")
     }
 
     const changeDislikesText = () => {
-        if(post.dislikes.length === 0) setDislikesText(" no one.")
-        if(post.dislikes.length === 1) setDislikesText(" 1 person.")
-        if(post.dislikes.length >= 2) setDislikesText(" " + post.dislikes.length + " people.")
+        if(post.dislikes.length === 0) setDislikesText("no one")
+        if(post.dislikes.length === 1) setDislikesText("1 person")
+        if(post.dislikes.length >= 2) setDislikesText(post.dislikes.length + " people")
     }
 
     const getUserInfo = async () => {
@@ -81,7 +64,6 @@ function Post (props) {
             })
             
             if(response.status === 200){
-                console.log(response.data)
                 setUser(response.data)
             }else{
                 toastService.show("error", "Error retrieving info about user's creator.");
@@ -112,29 +94,32 @@ function Post (props) {
             <div className="slider">
                 <Slider media={post.media} />
             </div>
-            <PostMenu />
+            <PostMenu 
+                isLiked={post.likes.filter(like => like.userId === store.user.id).length === 1}
+                isDisliked={post.dislikes.filter(dislike => dislike.userId === store.user.id).length === 1}
+            />
             <div className="likes-dislikes">
                 <PostHeader 
                     hideAccountName={true} 
                     image={user.profilePhoto} 
                     captionSize="large"
                     iconSize="small" />
-                <span>Liked by {/*likesText*/0} and disliked by {/*dislikesText*/0}. </span>
+                <span>Liked by {likesText} and disliked by {dislikesText}. </span>
             </div>
             <div className="Post-caption">
                 <strong> {user.username} </strong> {post.description}
             </div>
             <div className="comments">
-                {/*post.comments*/commentsOne.map((comment) => {
+                {post.comments.length > 0 ? post.comments.map((comment) => {
                     return (
-                        <Comment key={comment.id} username={comment.username} comment={comment.text} />
+                        <Comment key={comment.id} username={comment.username} comment={comment.content} />
                     );
-                })}
+                }) : <p className="noComments">No comments yet...</p> }
             </div>
             <div className="timePosted">
                 { daysAgo < 1 ? (
-                    hoursAgo < 1 ? minutesAgo + " minutes ago." : hoursAgo + " hours ago." ) :  
-                    daysAgo + " days ago."
+                    hoursAgo < 1 ? minutesAgo + " minutes ago" : hoursAgo + " hours ago" ) :  
+                    daysAgo + " days ago"
                 }
             </div>
             <div className="addComment">

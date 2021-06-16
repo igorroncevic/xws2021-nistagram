@@ -16,7 +16,13 @@ service Content {
     };
   }
 
-  rpc GetAllPosts (EmptyRequestContent) returns (ReducedPostArray) {
+  rpc GetAllPostsReduced (EmptyRequestContent) returns (ReducedPostArray) {
+    option(google.api.http) = {
+      get: "/posts/reduced"
+    };
+  }
+
+  rpc GetAllPosts (EmptyRequestContent) returns (PostArray) {
     option(google.api.http) = {
       get: "/posts"
     };

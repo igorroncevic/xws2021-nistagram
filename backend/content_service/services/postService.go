@@ -3,6 +3,8 @@ package services
 import (
 	"context"
 	"errors"
+	"log"
+
 	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
@@ -11,7 +13,6 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/content_service/repositories"
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
-	"log"
 )
 
 type PostService struct {
@@ -64,8 +65,8 @@ func NewPostService(db *gorm.DB) (*PostService, error) {
 	}, err
 }
 
-func (service *PostService) GetAllPosts(ctx context.Context, followings []string) ([]domain.ReducedPost, error) {
-	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPosts")
+func (service *PostService) GetAllPostsReduced(ctx context.Context, followings []string) ([]domain.ReducedPost, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPostsReduced")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
@@ -76,11 +77,34 @@ func (service *PostService) GetAllPosts(ctx context.Context, followings []string
 		return posts, err
 	}
 
-	// TODO Retrieve all domain data
 	for _, post := range dbPosts {
 		converted, err := service.GetReducedPostData(ctx, post.Id)
 		if err != nil {
 			return []domain.ReducedPost{}, err
+		}
+
+		posts = append(posts, converted)
+	}
+
+	return posts, nil
+}
+
+func (service *PostService) GetAllPosts(ctx context.Context, followings []string) ([]domain.Post, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPosts")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	posts := []domain.Post{}
+
+	dbPosts, err := service.postRepository.GetAllPosts(ctx, followings)
+	if err != nil {
+		return posts, err
+	}
+
+	for _, post := range dbPosts {
+		converted, err := service.GetPostById(ctx, post.Id)
+		if err != nil {
+			return []domain.Post{}, err
 		}
 
 		posts = append(posts, converted)

@@ -2,13 +2,14 @@ package controllers
 
 import (
 	"context"
+	"io"
+
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/common/logger"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	otgo "github.com/opentracing/opentracing-go"
 	"gorm.io/gorm"
-	"io"
 )
 
 type Server struct {
@@ -18,10 +19,10 @@ type Server struct {
 	likeController      *LikeGrpcController
 	favoritesController *FavoritesGrpcController
 	hashtagController   *HashtagGrpcController
-	storyController		*StoryGrpcController
+	storyController     *StoryGrpcController
 	highlightController *HighlightGrpcController
-	tracer otgo.Tracer
-	closer io.Closer
+	tracer              otgo.Tracer
+	closer              io.Closer
 }
 
 func NewServer(db *gorm.DB, manager *common.JWTManager, logger *logger.Logger) (*Server, error) {
@@ -40,10 +41,10 @@ func NewServer(db *gorm.DB, manager *common.JWTManager, logger *logger.Logger) (
 		likeController:      likeController,
 		favoritesController: favoritesController,
 		hashtagController:   hashtagController,
-		storyController: 	 storyController,
+		storyController:     storyController,
 		highlightController: highlightController,
-		tracer: tracer,
-		closer: closer,
+		tracer:              tracer,
+		closer:              closer,
 	}, nil
 }
 
@@ -60,7 +61,11 @@ func (s *Server) CreatePost(ctx context.Context, in *protopb.Post) (*protopb.Emp
 	return s.postController.CreatePost(ctx, in)
 }
 
-func (s *Server) GetAllPosts(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.ReducedPostArray, error) {
+func (s *Server) GetAllPostsReduced(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.ReducedPostArray, error) {
+	return s.postController.GetAllPostsReduced(ctx, in)
+}
+
+func (s *Server) GetAllPosts(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.PostArray, error) {
 	return s.postController.GetAllPosts(ctx, in)
 }
 
@@ -147,7 +152,6 @@ func (s *Server) CreateFavorite(ctx context.Context, in *protopb.FavoritesReques
 func (s *Server) RemoveFavorite(ctx context.Context, in *protopb.FavoritesRequest) (*protopb.EmptyResponseContent, error) {
 	return s.favoritesController.RemoveFavorite(ctx, in)
 }
-
 
 func (s *Server) SearchContentByLocation(ctx context.Context, in *protopb.SearchLocationRequest) (*protopb.ReducedPostArray, error) {
 	return s.postController.SearchContentByLocation(ctx, in)
