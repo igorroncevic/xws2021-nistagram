@@ -1,0 +1,17 @@
+.Slide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-repeat: no-repeat;
+}
+
+.Slide img{
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+}
+
+.Arrow{
+    font-size: 2em;
+    margin: 0px 12px;
+}

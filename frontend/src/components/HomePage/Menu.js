@@ -1,9 +1,9 @@
 import "../../style/menu.css";
-import { ReactComponent as Home } from "../../images/home.svg";
-import { ReactComponent as Inbox } from "../../images/inbox.svg";
-import { ReactComponent as Notifications } from "../../images/notifications.svg";
-import { ReactComponent as Bookmark } from "../../images/bookmark.svg";
-import { ReactComponent as Plus } from "../../images/plus.svg";
+import { ReactComponent as Home } from "../../images/icons/home.svg";
+import { ReactComponent as Inbox } from "../../images/icons/inbox.svg";
+import { ReactComponent as Notifications } from "../../images/icons/notifications.svg";
+import { ReactComponent as Bookmark } from "../../images/icons/bookmark.svg";
+import { ReactComponent as Plus } from "../../images/icons/plus.svg";
 import ProfileIcon from "../ProfileComponent/ProfileIcon";
 import {NavLink, Route} from "react-router-dom";
 import Profile from "../ProfileComponent/Profile";
