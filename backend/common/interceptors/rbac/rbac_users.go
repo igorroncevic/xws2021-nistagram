@@ -43,7 +43,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			basicGetAllPublicUsers, agentGetAllPublicUsers, adminGetAllPublicUsers, verifiedGetAllPublicUsers, nonregisteredGetAllPublicUsers,
 			basicApproveAccount, adminApproveAccount, agentApproveAccount, basicCheckIsApproved, adminCheckIsApproved, agentCheckIsApproved,
 			basicGetUserByUsername, agentGetUserByUsername, adminGetUserByUsername, verifiedGetUserByUsername, nonregisteredGetUserByUsername,
-			basicSubmitVerificationRequest, agentSubmitVerificationRequest,
+			basicSubmitVerificationRequest, agentSubmitVerificationRequest, verifiedSubmitVerificationRequest,
 			basicGetPendingVerificationRequests, adminGetPendingVerificationRequests,
 			basicChangeVerificationRequestStatus, adminChangeVerificationRequestStatus,
 		}
@@ -171,8 +171,9 @@ var (
 	verifiedGetAllPublicUsers      = RolePermission{RoleId: verified.Id, PermissionId: getAllPublicUsers.Id}
 	nonregisteredGetAllPublicUsers = RolePermission{RoleId: nonregistered.Id, PermissionId: getAllPublicUsers.Id}
 
-	basicSubmitVerificationRequest = RolePermission{RoleId: basic.Id, PermissionId: submitVerificationRequest.Id}
-	agentSubmitVerificationRequest = RolePermission{RoleId: agent.Id, PermissionId: submitVerificationRequest.Id}
+	basicSubmitVerificationRequest    = RolePermission{RoleId: basic.Id, PermissionId: submitVerificationRequest.Id}
+	agentSubmitVerificationRequest    = RolePermission{RoleId: agent.Id, PermissionId: submitVerificationRequest.Id}
+	verifiedSubmitVerificationRequest = RolePermission{RoleId: verified.Id, PermissionId: submitVerificationRequest.Id}
 
 	basicGetPendingVerificationRequests = RolePermission{RoleId: basic.Id, PermissionId: getPendingVerificationRequests.Id}
 	adminGetPendingVerificationRequests = RolePermission{RoleId: admin.Id, PermissionId: getPendingVerificationRequests.Id}

@@ -18,6 +18,9 @@ import Liked from "./components/UserData/Liked";
 import Disliked from "./components/UserData/Disliked";
 import Archived from "./components/UserData/Archived";
 import ProfileInfo from "./components/UserData/ProfileInfo";
+import SubmitVerificationRequest from "./components/VerificationRequest/SubmitVerificationRequest";
+import ViewMyVerificationRequests from "./components/VerificationRequest/ViewMyVerificationRequests";
+
 
 const App = () => {
     return (
@@ -36,6 +39,9 @@ const App = () => {
                 <Route path='/chats' exact component={Chats} />
                 <Route path='/saved' exact component={Saved} />
                 <Route path='/notifications' exact component={Notifications} />
+                <Route path='/submit-verification-request' exact component={SubmitVerificationRequest} />
+                <Route path='/view-my-verification-request' exact component={ViewMyVerificationRequests} />
+
 
                 <Route path='/blocked' exact component={BlockedUsers} />
                 <Route path='/closefriends' exact component={CloseFriends} />
