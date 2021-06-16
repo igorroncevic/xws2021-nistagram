@@ -10,6 +10,15 @@ const (
 	Agent             = "Agent"
 )
 
+type UserNotification string
+const (
+	Message = "Message"
+	Follow  = "Follow"
+	Like = "Like"
+	Dislike = "Dislike"
+	Comment = "Comment"
+)
+
 func (r UserRole) String() string{
 	switch r {
 	case Basic:

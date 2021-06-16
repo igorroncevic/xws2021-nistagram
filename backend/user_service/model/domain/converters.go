@@ -99,3 +99,12 @@ func (u *User) GenerateUserDTO(user persistence.User, userAdditionalInfo persist
 		TokenEnd: user.TokenEnd,
 	}
 }
+
+func (n *UserNotification) ConvertFromGrpc(notification protopb.CreateNotificationRequest) *UserNotification {
+	if n == nil { n = &UserNotification{} }
+	return &UserNotification{
+		UserId: notification.UserId,
+		CreatorId: notification.CreatorId,
+		NotificationType: notification.Type,
+	}
+}

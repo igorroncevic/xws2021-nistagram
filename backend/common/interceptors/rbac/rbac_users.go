@@ -16,6 +16,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			getUserById, getUsernameById, getAllUsers,
 			updateUserPassword, updateUserProfile, searchUser,
 			updatePrivacy, blockUser, unBlockUser, checkIfBlocked, checkUserProfilePublic, getAllPublicUsers, approveAccount,
+			createNotification,
 		}
 		result = db.Create(&permissions)
 		if result.Error != nil { return result.Error }
@@ -34,6 +35,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			basicCheckUserProfilePublic, agentCheckUserProfilePublic, adminCheckUserProfilePublic, verifiedCheckUserProfilePublic, nonregisteredCheckUserProfilePublic,
 			basicGetAllPublicUsers, agentGetAllPublicUsers, adminGetAllPublicUsers, verifiedGetAllPublicUsers, nonregisteredGetAllPublicUsers,
 			basicApproveAccount, adminApproveAccount, agentApproveAccount,
+			basicCreateNotification, adminCreateNotification, agentCreateNotification, verifiedCreateNotification,
 		}
 		result = db.Create(&rolePermissions)
 		if result.Error != nil { return result.Error }
@@ -65,7 +67,8 @@ var (
 	checkIfBlocked 			= Permission{ Id: "ce7b4f42-02ce-4c92-bcc4-529972173a4b",  Name: "CheckIfBlocked" }
 	checkUserProfilePublic 	= Permission{ Id: "f2d282a9-c171-47f4-935d-32875fa61c8a",  Name: "CheckUserProfilePublic" }
 	getAllPublicUsers 		= Permission{ Id: "a30c3350-4b8f-4773-bd90-32c17e88d221",  Name: "GetAllPublicUsers" }
-)
+	createNotification      = Permission{ Id: "c6b63d7c-8344-43f4-b7c0-fb5e353aa2ae", Name: "CreateNotification"}
+	)
 
 var (
 	basicGetUserById 	= RolePermission{ RoleId: basic.Id, PermissionId: getUserById.Id }
@@ -133,4 +136,9 @@ var (
 	adminGetAllPublicUsers 	= RolePermission{ RoleId: admin.Id, PermissionId: getAllPublicUsers.Id }
 	verifiedGetAllPublicUsers 		= RolePermission{ RoleId: verified.Id, PermissionId: getAllPublicUsers.Id }
 	nonregisteredGetAllPublicUsers 	= RolePermission{ RoleId: nonregistered.Id, PermissionId: getAllPublicUsers.Id }
-)
+
+	basicCreateNotification = RolePermission{ RoleId: basic.Id, PermissionId: createNotification.Id }
+	adminCreateNotification = RolePermission{ RoleId: admin.Id, PermissionId: createNotification.Id }
+	agentCreateNotification = RolePermission{ RoleId: agent.Id, PermissionId: createNotification.Id }
+	verifiedCreateNotification = RolePermission{ RoleId: verified.Id, PermissionId: createNotification.Id }
+	)

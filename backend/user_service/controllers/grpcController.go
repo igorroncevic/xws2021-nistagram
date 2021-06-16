@@ -14,9 +14,10 @@ import (
 type Server struct {
 	protopb.UnimplementedUsersServer
 	protopb.UnimplementedPrivacyServer
-	userController    *UserGrpcController
-	privacyController *PrivacyGrpcController
-	emailController   *EmailGrpcController
+	userController         *UserGrpcController
+	privacyController      *PrivacyGrpcController
+	emailController   	   *EmailGrpcController
+	notificationController *NotificationGrpcController
 	tracer            otgo.Tracer
 	closer            io.Closer
 }
@@ -25,12 +26,14 @@ func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger
 	newUserController, _ := NewUserController(db, jwtManager, logger)
 	newPrivacyController, _ := NewPrivacyController(db)
 	newEmailController, _ := NewEmailController(db)
+	notificationController, _ := NewNotificationController(db)
 	tracer, closer := tracer.Init("userService")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
 		userController:     newUserController,
 		privacyController:  newPrivacyController,
 		emailController:    newEmailController,
+		notificationController: notificationController,
 		tracer:             tracer,
 		closer:             closer,
 	}, nil
@@ -130,4 +133,8 @@ func (s *Server) GoogleAuth(ctx context.Context, in *protopb.GoogleAuthRequest) 
 
 func (s *Server) UpdateUserPhoto(ctx context.Context, in *protopb.UserPhotoRequest) (*protopb.EmptyResponse, error) {
 	return s.userController.UpdateUserPhoto(ctx, in)
+}
+
+func (s *Server) CreateNotification(ctx context.Context, in *protopb.CreateNotificationRequest) (*protopb.EmptyResponse, error) {
+	return s.notificationController.CreateNotification(ctx, in)
 }

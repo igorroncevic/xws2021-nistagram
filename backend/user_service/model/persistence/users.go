@@ -135,3 +135,11 @@ type APIKeys struct {
 	UserId string `gorm:"primaryKey"`
 	APIKey string
 }
+
+type UserNotification struct {
+	NotificationId string `gorm:"primaryKey"`
+	UserId string
+	CreatorId string
+	Text string
+	Type string
+}

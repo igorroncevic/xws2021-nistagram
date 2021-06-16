@@ -114,6 +114,19 @@ service Users {
       body: "*"
     };
   }
+
+  rpc CreateNotification(CreateNotificationRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/create_notification"
+      body: "*"
+    };
+  }
+}
+
+message CreateNotificationRequest {
+  string userId = 1;
+  string creatorId = 2;
+  string type = 3;
 }
 
 message Password {
