@@ -35,7 +35,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			basicCheckUserProfilePublic, agentCheckUserProfilePublic, adminCheckUserProfilePublic, verifiedCheckUserProfilePublic, nonregisteredCheckUserProfilePublic,
 			basicGetAllPublicUsers, agentGetAllPublicUsers, adminGetAllPublicUsers, verifiedGetAllPublicUsers, nonregisteredGetAllPublicUsers,
 			basicApproveAccount, adminApproveAccount, agentApproveAccount,
-			basicCreateNotification, adminCreateNotification, agentCreateNotification, verifiedCreateNotification,
+			basicCreateNotification, adminCreateNotification, agentCreateNotification, verifiedCreateNotification, nonregisteredCreateNotification,
 		}
 		result = db.Create(&rolePermissions)
 		if result.Error != nil { return result.Error }
@@ -141,4 +141,5 @@ var (
 	adminCreateNotification = RolePermission{ RoleId: admin.Id, PermissionId: createNotification.Id }
 	agentCreateNotification = RolePermission{ RoleId: agent.Id, PermissionId: createNotification.Id }
 	verifiedCreateNotification = RolePermission{ RoleId: verified.Id, PermissionId: createNotification.Id }
+	nonregisteredCreateNotification = RolePermission{ RoleId: nonregistered.Id, PermissionId: createNotification.Id }
 	)
