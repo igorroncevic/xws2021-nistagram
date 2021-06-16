@@ -10,6 +10,7 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/user_service/util"
 	"github.com/david-drvar/xws2021-nistagram/user_service/util/images"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"time"
 )
@@ -17,6 +18,8 @@ import (
 type VerificationRepository interface {
 	CreateVerificationRequest(context.Context, domain.VerificationRequest) error
 	SaveUserDocumentPhoto(ctx context.Context, verificationRequest domain.VerificationRequest) (string, error)
+	GetPendingVerificationRequests(ctx context.Context) ([]domain.VerificationRequest, error)
+	ChangeVerificationRequestStatus(ctx context.Context, request domain.VerificationRequest) error
 }
 
 type verificationRepository struct {
@@ -53,7 +56,15 @@ func (repository *verificationRepository) CreateVerificationRequest(ctx context.
 			return errors.New("cannot decode document photo")
 		}
 
-		var verificationRequestPersistence = persistence.VerificationRequest{
+		//provera da li postoji vec neki pending od tog usera
+		var verificationRequestPersistence = persistence.VerificationRequest{}
+		repository.DB.Where("user_id = ? AND status = 'Pending'", verificationRequest.UserId).Find(&verificationRequestPersistence)
+		if verificationRequestPersistence.UserId != "" {
+			return errors.New("cannot create verification request")
+		}
+
+		verificationRequestPersistence = persistence.VerificationRequest{
+			Id:            uuid.New().String(),
 			UserId:        verificationRequest.UserId,
 			DocumentPhoto: documentPhotoDecoded,
 			Status:        model.Pending,
@@ -93,4 +104,81 @@ func (repository *verificationRepository) SaveUserDocumentPhoto(ctx context.Cont
 
 	verificationRequest.DocumentPhoto = util.GetContentLocation(name)
 	return verificationRequest.DocumentPhoto, nil
+}
+
+func (repository *verificationRepository) GetPendingVerificationRequests(ctx context.Context) ([]domain.VerificationRequest, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetPendingVerificationRequests")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var verificationRequestsPersistence []persistence.VerificationRequest
+	result := repository.DB.Where("status = ?", model.Pending).Find(&verificationRequestsPersistence)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	var verificationRequestsDomain []domain.VerificationRequest
+
+	for _, verificationRequest := range verificationRequestsPersistence {
+		user, err := repository.userRepository.GetUserById(ctx, verificationRequest.UserId)
+		if err != nil {
+			return nil, err
+		}
+		userAdditionalInfo, err := repository.userRepository.GetUserAdditionalInfoById(ctx, verificationRequest.UserId)
+		if err != nil {
+			return nil, err
+		}
+		imageBase64, err := images.LoadImageToBase64(verificationRequest.DocumentPhoto)
+		if err != nil {
+			return nil, err
+		}
+		verificationRequestsDomain = append(verificationRequestsDomain, domain.VerificationRequest{
+			Id:            verificationRequest.Id,
+			UserId:        verificationRequest.UserId,
+			DocumentPhoto: imageBase64,
+			Status:        verificationRequest.Status,
+			CreatedAt:     verificationRequest.CreatedAt,
+			Category:      userAdditionalInfo.Category,
+			FirstName:     user.FirstName,
+			LastName:      user.LastName,
+		})
+	}
+
+	return verificationRequestsDomain, nil
+}
+
+func (repository *verificationRepository) ChangeVerificationRequestStatus(ctx context.Context, verificationRequest domain.VerificationRequest) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "ChangeVerificationRequestStatus")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	err := repository.DB.Transaction(func(tx *gorm.DB) error {
+		//ne dozvoljava se menjanje ako je status vec promenjen (!= pending)
+		var verificationRequestPersistence = persistence.VerificationRequest{}
+		if verificationRequest.Id == "" {
+			return errors.New("id cannot be empty")
+		}
+		result := repository.DB.Where("id = ?", verificationRequest.Id).Find(&verificationRequestPersistence)
+		if verificationRequestPersistence.Status != "Pending" || result.Error != nil {
+			return errors.New("cannot change verification request status")
+		}
+
+		result = repository.DB.Where("id = ?", verificationRequest.Id).Updates(persistence.VerificationRequest{Status: verificationRequest.Status})
+		if result.Error != nil || result.RowsAffected != 1 {
+			return errors.New("cannot change verification request status")
+		}
+
+		if verificationRequest.Status == model.Accepted {
+			result := repository.DB.Where("id = ?", verificationRequest.UserId).Updates(persistence.User{Role: model.Verified})
+			if result.Error != nil || result.RowsAffected != 1 {
+				return errors.New("cannot change user role")
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+	return nil
 }

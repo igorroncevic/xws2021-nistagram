@@ -41,3 +41,22 @@ func (s *HashtagGrpcController) CreateHashtag(ctx context.Context, in *protopb.H
 
 	return &protopb.Hashtag{Id: hashtag.Id, Text: hashtag.Text}, nil
 }
+
+func (s *HashtagGrpcController) GetAllHashtags(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.Hashtags, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllHashtags")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	hashtags, err := s.service.GetAllHashtags(ctx)
+	if err != nil {
+		return &protopb.Hashtags{}, status.Errorf(codes.Unknown, "could not get hashtags")
+	}
+
+	responseHashtags := []*protopb.Hashtag{}
+
+	for _, hashtag := range hashtags {
+		responseHashtags = append(responseHashtags, &protopb.Hashtag{Id: hashtag.Id, Text: hashtag.Text})
+	}
+
+	return &protopb.Hashtags{Hashtags: responseHashtags}, nil
+}

@@ -139,3 +139,11 @@ func (s *Server) GetUserByUsername(ctx context.Context, in *protopb.RequestUsern
 func (s *Server) SubmitVerificationRequest(ctx context.Context, in *protopb.VerificationRequest) (*protopb.EmptyResponse, error) {
 	return s.verificationController.SubmitVerificationRequest(ctx, in)
 }
+
+func (s *Server) GetPendingVerificationRequests(ctx context.Context, in *protopb.EmptyRequest) (*protopb.VerificationRequestsArray, error) {
+	return s.verificationController.GetPendingVerificationRequests(ctx, in)
+}
+
+func (s *Server) ChangeVerificationRequestStatus(ctx context.Context, in *protopb.VerificationRequest) (*protopb.EmptyResponse, error) {
+	return s.verificationController.ChangeVerificationRequestStatus(ctx, in)
+}

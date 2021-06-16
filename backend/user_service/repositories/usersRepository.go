@@ -16,7 +16,7 @@ import (
 )
 
 type UserRepository interface {
-	GetAllUsers(context.Context) ([]persistence.User, error)
+	GetAllUsers(context.Context) ([]domain.User, error)
 	CreateUser(context.Context, *persistence.User) error
 	CreateUserWithAdditionalInfo(context.Context, *persistence.User, *persistence.UserAdditionalInfo) (*domain.User, error)
 	UpdateUserProfile(ctx context.Context, dto domain.User) (bool, error)
@@ -28,7 +28,7 @@ type UserRepository interface {
 	GetUserByEmail(email string) (domain.User, error)
 	ChangeForgottenPass(ctx context.Context, password domain.Password) (bool, error)
 	ApproveAccount(ctx context.Context, password domain.Password) (bool, error)
-	GetUserById(context.Context, string) 	(persistence.User, error)
+	GetUserById(context.Context, string) (persistence.User, error)
 	DoesUserExists(context.Context, string) (bool, error)
 	CheckIsApproved(ctx context.Context, id string) (bool, error)
 	GetUserByUsername(username string) (domain.User, error)
@@ -86,7 +86,7 @@ func (repository *userRepository) UpdateUserProfile(ctx context.Context, userDTO
 	var userAdditionalInfo persistence.UserAdditionalInfo
 
 	db := repository.DB.Model(&user).Where("id = ?", userDTO.Id).Updates(persistence.User{FirstName: userDTO.FirstName, LastName: userDTO.LastName, Email: userDTO.Email, Username: userDTO.Username, BirthDate: userDTO.BirthDate,
-		PhoneNumber: userDTO.PhoneNumber, Sex: userDTO.Sex,ResetCode: userDTO.ResetCode, ApprovedAccount: userDTO.ApprovedAccount, TokenEnd: userDTO.TokenEnd})
+		PhoneNumber: userDTO.PhoneNumber, Sex: userDTO.Sex, ResetCode: userDTO.ResetCode, ApprovedAccount: userDTO.ApprovedAccount, TokenEnd: userDTO.TokenEnd})
 
 	fmt.Println(db.RowsAffected)
 
@@ -129,7 +129,7 @@ func (repository *userRepository) GetUserByUsername(username string) (domain.Use
 	}
 	user := &domain.User{}
 
-	user=user.GenerateUserDTO(dbUser, dbUserAdditionalInfo)
+	user = user.GenerateUserDTO(dbUser, dbUserAdditionalInfo)
 
 	if user.ProfilePhoto != "" {
 		filename, err := images.LoadImageToBase64(user.ProfilePhoto)
@@ -159,7 +159,7 @@ func (repository *userRepository) GetUserByEmail(email string) (domain.User, err
 	var user *domain.User
 	user = user.GenerateUserDTO(dbUser, dbUserAdditionalInfo)
 
-	if user.ProfilePhoto != ""{
+	if user.ProfilePhoto != "" {
 		filename, err := images.LoadImageToBase64(user.ProfilePhoto)
 		if err != nil {
 			return domain.User{}, err
@@ -170,12 +170,38 @@ func (repository *userRepository) GetUserByEmail(email string) (domain.User, err
 	return *user, nil
 }
 
-func (repository *userRepository) GetAllUsers(ctx context.Context) ([]persistence.User, error) {
+func (repository *userRepository) GetAllUsers(ctx context.Context) ([]domain.User, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllUsers")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var users []persistence.User
+	var dbUserAdditionalInfo persistence.UserAdditionalInfo
+	var usersDomain []domain.User
+
+	result := repository.DB.Find(&users)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	for _, user := range users {
+		result = repository.DB.Where("id = ?", user.Id).Find(&dbUserAdditionalInfo)
+		if result.Error != nil {
+			return nil, result.Error
+		}
+
+		userDomain := &domain.User{}
+		userDomain = userDomain.GenerateUserDTO(user, dbUserAdditionalInfo)
+		imageBase64, err := images.LoadImageToBase64(userDomain.ProfilePhoto)
+		if err != nil {
+			return nil, err
+		}
+		userDomain.ProfilePhoto = imageBase64
+
+		usersDomain = append(usersDomain, *userDomain)
+	}
+
+	return usersDomain, nil
 
 	/*query := "select u.id, u.first_name, u.last_name, u.email from registered_users u"
 	rows, err := repository.DB.Query(context.Background(), query)
@@ -192,8 +218,6 @@ func (repository *userRepository) GetAllUsers(ctx context.Context) ([]persistenc
 		}
 		users = append(users, user)
 	}*/
-
-	return users, nil
 }
 
 func (repository *userRepository) LoginUser(ctx context.Context, request domain.LoginRequest) (persistence.User, error) {
@@ -226,7 +250,7 @@ func (repository *userRepository) CreateUser(ctx context.Context, user *persiste
 	return result.Error
 }
 
-func (repository *userRepository) GetUserById(ctx context.Context, id string) (persistence.User, error){
+func (repository *userRepository) GetUserById(ctx context.Context, id string) (persistence.User, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -272,7 +296,7 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 		return nil, resultUser.Error
 	}
 
-	if user.ProfilePhoto != ""{
+	if user.ProfilePhoto != "" {
 		_, err := repository.SaveUserProfilePhoto(ctx, user)
 		if err != nil {
 			return nil, err
@@ -452,7 +476,6 @@ func (repository *userRepository) DoesUserExists(ctx context.Context, email stri
 		return false, nil
 	}
 
-
 	return true, nil
 }
 
@@ -461,10 +484,9 @@ func (repository *userRepository) CheckIsApproved(ctx context.Context, id string
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	user,err :=repository.GetUserById(ctx,id)
+	user, err := repository.GetUserById(ctx, id)
 	if err != nil {
 		return false, err
 	}
 	return user.ApprovedAccount, nil
 }
-

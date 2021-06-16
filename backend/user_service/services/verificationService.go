@@ -35,3 +35,29 @@ func (service *VerificationService) CreateVerificationRequest(ctx context.Contex
 
 	return nil
 }
+
+func (service *VerificationService) GetPendingVerificationRequests(ctx context.Context) ([]domain.VerificationRequest, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetPendingVerificationRequests")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	verificationRequests, err := service.verificationRepository.GetPendingVerificationRequests(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return verificationRequests, nil
+}
+
+func (service *VerificationService) ChangeVerificationRequestStatus(ctx context.Context, verificationRequest domain.VerificationRequest) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "ChangeVerificationRequestStatus")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	err := service.verificationRepository.ChangeVerificationRequestStatus(ctx, verificationRequest)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

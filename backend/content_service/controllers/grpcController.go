@@ -18,10 +18,10 @@ type Server struct {
 	likeController      *LikeGrpcController
 	favoritesController *FavoritesGrpcController
 	hashtagController   *HashtagGrpcController
-	storyController		*StoryGrpcController
+	storyController     *StoryGrpcController
 	highlightController *HighlightGrpcController
-	tracer otgo.Tracer
-	closer io.Closer
+	tracer              otgo.Tracer
+	closer              io.Closer
 }
 
 func NewServer(db *gorm.DB, manager *common.JWTManager, logger *logger.Logger) (*Server, error) {
@@ -40,10 +40,10 @@ func NewServer(db *gorm.DB, manager *common.JWTManager, logger *logger.Logger) (
 		likeController:      likeController,
 		favoritesController: favoritesController,
 		hashtagController:   hashtagController,
-		storyController: 	 storyController,
+		storyController:     storyController,
 		highlightController: highlightController,
-		tracer: tracer,
-		closer: closer,
+		tracer:              tracer,
+		closer:              closer,
 	}, nil
 }
 
@@ -148,7 +148,6 @@ func (s *Server) RemoveFavorite(ctx context.Context, in *protopb.FavoritesReques
 	return s.favoritesController.RemoveFavorite(ctx, in)
 }
 
-
 func (s *Server) SearchContentByLocation(ctx context.Context, in *protopb.SearchLocationRequest) (*protopb.ReducedPostArray, error) {
 	return s.postController.SearchContentByLocation(ctx, in)
 }
@@ -156,6 +155,10 @@ func (s *Server) SearchContentByLocation(ctx context.Context, in *protopb.Search
 /*   Hashtags   */
 func (s *Server) CreateHashtag(ctx context.Context, in *protopb.Hashtag) (*protopb.Hashtag, error) {
 	return s.hashtagController.CreateHashtag(ctx, in)
+}
+
+func (s *Server) GetAllHashtags(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.Hashtags, error) {
+	return s.hashtagController.GetAllHashtags(ctx, in)
 }
 
 /*   Highlights   */

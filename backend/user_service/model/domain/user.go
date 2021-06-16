@@ -48,6 +48,7 @@ func (user *User) CheckValidation() (bool, error) {
 }
 
 type VerificationRequest struct {
+	Id            string
 	UserId        string
 	DocumentPhoto string
 	Status        model.RequestStatus

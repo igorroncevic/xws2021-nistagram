@@ -73,7 +73,7 @@ class UserService {
         return response
     }
 
-    async getUserById(data){
+    async getUserById(data) {
         const { id,jwt} = data
         const headers=this.setupHeaders(jwt)
         const response = this.apiClient.get('/'+id,{
