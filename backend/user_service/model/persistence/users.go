@@ -64,10 +64,10 @@ func (u *User) ConvertFromGrpc(user *protopb.User) *User {
 		TokenEnd:        user.TokenEnd.AsTime(),
 	}
 
-	check, err := newUser.CheckAllFields()
-	if !check || err != nil {
-		return nil
-	}
+	//check, err := newUser.CheckAllFields()
+	//if !check || err != nil {
+	//	return nil
+	//}
 
 	return newUser
 }
@@ -89,9 +89,9 @@ func (u UserAdditionalInfo) ConvertFromGrpc(user *protopb.User) *UserAdditionalI
 
 type Privacy struct {
 	UserId          string `gorm:"primaryKey"`
-	IsProfilePublic bool
-	IsDMPublic      bool
-	IsTagEnabled    bool
+	IsProfilePublic bool  `gorm:"type:boolean"`
+	IsDMPublic      bool	`gorm:"type:boolean"`
+	IsTagEnabled    bool	`gorm:"type:boolean"`
 }
 
 func (privacy *Privacy) ConvertFromGrpc(p *protopb.PrivacyMessage) *Privacy {

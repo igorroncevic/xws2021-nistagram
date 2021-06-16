@@ -31,7 +31,7 @@ function FollowAndUnfollow(props) {
         })
 
         if (response.status === 200) {
-            console.log(response.data)
+           // console.log(response.data)
             setFollows(response.data.isApprovedRequest)
             setCloseFriend(response.data.isCloseFriends)
             props.getFollowers(store.followers.followerId)
