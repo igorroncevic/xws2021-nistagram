@@ -97,7 +97,10 @@
     border: 0;
     background: none;
     box-shadow: none;
-    border-radius: 0px;
+}
+
+.Post .addComment .postText:disabled{
+    color: var(--link-color-secondary);
 }
 
 .Post .slider {

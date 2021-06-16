@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useSelector } from 'react-redux';
 import moment from 'moment';
+import { v4 as uuidv4 } from 'uuid';
 import "../../style/post.css";
 import Slider from './Slider'
 import Comment from "./Comment";
@@ -8,7 +9,8 @@ import PostHeader from './PostHeader';
 import { ReactComponent as CardButton } from './../../images/icons/cardButton.svg' 
 import userService from './../../services/user.service';
 import toastService from './../../services/toast.service';
-import likeService from './../../services/like.service'
+import likeService from './../../services/like.service';
+import commentService from './../../services/comment.service';
 import PostMenu from "./PostMenu";
 import Posts from "./Posts";
 
@@ -19,10 +21,17 @@ function Post (props) {
     const [hoursAgo, setHoursAgo] = useState(0)
     const [daysAgo, setDaysAgo] = useState(0);
     const [minutesAgo, setMinutesAgo] = useState(0)
+
     const [likesText, setLikesText] = useState("");
     const [dislikesText, setDislikesText] = useState("");
     const [isLiked, setIsLiked] = useState(false);
     const [isDisliked, setIsDisliked] = useState(false);
+    
+    const [newComment, setNewComment] = useState("");
+    const [isCommentDisabled, setIsCommentDisabled] = useState("disabled")
+
+    const commentInputRef = useRef()
+    
     const store = useSelector(state => state)
 
     useEffect(() => {
@@ -51,6 +60,10 @@ function Post (props) {
         setIsLiked(postLikes.filter(like => like.userId === store.user.id).length === 1)
         setIsDisliked(postDislikes.filter(dislike => dislike.userId === store.user.id).length === 1)
     }, [post])
+
+    useEffect(()=>{
+        setIsCommentDisabled(newComment.trim() === "" ? "disabled" : "")
+    }, [newComment])
 
     const changeLikesText = () => {
         if(post.likes.length === 0) setLikesText("no one")
@@ -108,6 +121,7 @@ function Post (props) {
                     changedPost.likes = changedPost.likes.filter(like => like.userId !== store.user.id)
                 }else{
                     changedPost.likes.push(newItem)
+                    // Remove existing dislike
                     if(isDisliked) changedPost.dislikes = changedPost.dislikes.filter(dislike => dislike.userId !== store.user.id)
                 }
             }else{
@@ -115,12 +129,46 @@ function Post (props) {
                     changedPost.dislikes = changedPost.dislikes.filter(dislike => dislike.userId !== store.user.id)
                 }else{
                     changedPost.dislikes.push(newItem)
+                    // Remove existing like
                     if(isLiked) changedPost.likes = changedPost.likes.filter(like => like.userId !== store.user.id)
                 }
             }
             setPost(changedPost);
         }else{
             toastService.show("error", "Could not " + (isLike ? "like" : "dislike") + " this post.")
+        }
+    }
+
+    const handleCommentInputChange = (e) => {
+        setNewComment(e.target.value)
+    }
+
+    const handleCommentClick = () => {
+        commentInputRef.current.focus()
+    }
+
+    const postNewComment = async () => {
+        const comment = {
+            userId: store.user.id,
+            postId: post.id,
+            content: newComment,
+            jwt: store.user.jwt
+        }
+        const response = await commentService.addComment(comment)
+        
+        if(response.status === 200){
+            const changedPost = {...post};
+            changedPost.comments.push({
+                userId: comment.userId,
+                postId: comment.postId,
+                content: comment.content,
+                username: store.user.username,
+                id: uuidv4()
+            })
+            setPost(changedPost)
+            setNewComment("");
+        }else{
+            toastService.show("error", "Could not comment this post.")
         }
     }
 
@@ -146,6 +194,7 @@ function Post (props) {
                 isDisliked={isDisliked}
                 likeClicked={handleLikeClick}
                 dislikeClicked={handleDislikeClick}
+                commentClicked={handleCommentClick}
                 postId={post.id}
             />
             <div className="likes-dislikes">
@@ -173,8 +222,14 @@ function Post (props) {
                 }
             </div>
             <div className="addComment">
-                <input className="commentInput" placeholder="Add a comment..." />
-                <button className="postText">Post</button>
+                <input 
+                    className="commentInput" 
+                    placeholder="Add a comment..." 
+                    value={newComment} 
+                    onChange={handleCommentInputChange}
+                    ref={commentInputRef}
+                />
+                <button className="postText" disabled={isCommentDisabled}  onClick={postNewComment}>Post</button>
             </div>
         </div>
     );
