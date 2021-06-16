@@ -15,7 +15,6 @@ import Switch from "react-switch";
 import {useDispatch, useSelector} from "react-redux";
 import privacyService from "../../services/privacy.service";
 import followersService from "../../services/followers.service";
-import ProfileForSug from "../HomePage/ProfileForSug";
 import FollowersAndFollowings from "./FollowersAndFollowings";
 import EditUserPrivacy from "./EditUserPrivacy";
 
@@ -172,7 +171,7 @@ function Profile() {
                             </div>
                             {follow ?
                                 <FollowAndUnfollow user={user} followers={followers} getFollowers={getFollowers}/>
-:
+                                :
                                 <div >
                                     <Button variant="link" style={{marginTop:'2em', borderTop: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModal}>Update profile info</Button>
                                     { !isSSO && <Button variant="link" style={{display: "flex",justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModalPass}>Change password</Button> }

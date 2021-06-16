@@ -46,12 +46,12 @@ class FollowersService {
         return response
     }
 
-    async follow(data){
-        const { userId,followerId,isApprovedRequest,jwt} = data
+    async createConnection(data){
+        const { userId,followerId,isApprovedRequest,isCloseFriends,isNotificationEnabled,jwt} = data
         const headers=this.setupHeaders(jwt)
 
         const response = this.apiClient.post('/create_connection',{
-          follower:{  userId,followerId,isApprovedRequest}
+          follower:{  userId,followerId,isApprovedRequest,isCloseFriends,isNotificationEnabled}
         },{
             headers:headers
         }).then(res => {
@@ -77,6 +77,22 @@ class FollowersService {
         })
         return response
     }
+    async updateUserConnection(data){
+        const { userId,followerId,isApprovedRequest,isCloseFriends,isNotificationEnabled,jwt} = data
+        const headers=this.setupHeaders(jwt)
+
+        const response = this.apiClient.post('/update_follower',{
+             userId,followerId,isApprovedRequest,isCloseFriends,isNotificationEnabled
+        },{
+            headers:headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
+
 
     async getFollowersConnection(data){
         const { userId,followerId,jwt} = data
