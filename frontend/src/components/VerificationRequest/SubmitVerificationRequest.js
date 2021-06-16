@@ -5,19 +5,44 @@ import Navigation from "../HomePage/Navigation";
 import {Button} from "react-bootstrap";
 import {user} from "../../store/reducers/user.reducer";
 import userService from "../../services/user.service";
+import {useHistory} from "react-router-dom";
 
 
 function SubmitVerificationRequest() {
     const categories = ["Sports", "Influencer", "News","Brand","Business","Organization","Government"]
     const [selectedCategory, setSelectedCategory] = useState("")
     const [image, setImage] = useState("")
+    const [categoryErr, setCategoryErr] = useState("Select category")
+    const [imageErr, setImageErr] = useState("Select document photo")
+    const [submitted, setSubmitted] = useState(false);
 
     const dispatch = useDispatch()
     const store = useSelector(state => state);
+    const history = useHistory()
+
+
+    useEffect(() => {
+        setImageErr( image !== "" ? '' : 'Select document photo')
+        setCategoryErr( selectedCategory !== "" ? '' : 'Select category')
+    }, [image,selectedCategory])
 
     const handleInputChange = (event) => {
         const target = event.target;
         setSelectedCategory(target.value)
+        validationErrorMessage(event);
+    }
+
+    function validationErrorMessage(event) {
+        const { name, value } = event.target;
+
+        switch (name) {
+            case 'category':
+                setCategoryErr(selectedCategory !== "" ? '' : 'Select category')
+                break;
+            case 'file':
+                setImageErr(image !== "" ? '' : 'Select document photo')
+                break;
+        }
     }
 
     function handleChangeImage(evt) {
@@ -30,24 +55,44 @@ function SubmitVerificationRequest() {
             setImage(upload.target.result)
         };
         reader.readAsDataURL(file);
+        validationErrorMessage(evt);
+
+    }
+
+    function createTarget (error) {
+        return {target : {value : error, name : error}}
+    }
+
+    function validateForm(errors) {
+        let valid = true;
+        for(const Error of errors) {
+            validationErrorMessage(createTarget(Error));
+        }
+        if(categoryErr !== "" || imageErr !== "")
+            return !valid;
+        return valid;
     }
 
     function submitVerificationRequest() {
-        console.log(store.user.id)
-        axios.post("http://localhost:8080/api/users/api/users/submit-verification-request", {
-            userId : store.user.id,
-            documentPhoto : image,
-            category : selectedCategory
-        }, {
-            headers: userService.setupHeaders(store.user.jwt)
-        }).then(res => {
-            alert("Verification request submitted successfully!")
-            history.push({
-                pathname: '/view-my-verification-request'
+        setSubmitted(true);
+
+        const errors = ['category', 'file'];
+        if (validateForm(errors)) {
+            axios.post("http://localhost:8080/api/users/api/users/submit-verification-request", {
+                userId: store.user.id,
+                documentPhoto: image,
+                category: selectedCategory
+            }, {
+                headers: userService.setupHeaders(store.user.jwt)
+            }).then(res => {
+                alert("Verification request submitted successfully!")
+                history.push({
+                    pathname: '/view-my-verification-request'
+                })
+            }).catch(err => {
+                alert("Error while submitting verification request")
             })
-        }) .catch(err => {
-            alert("Error while submitting verification request")
-        })
+        }
     }
 
     return (
@@ -67,6 +112,7 @@ function SubmitVerificationRequest() {
                                 )
                             })}
                         </select>
+                        {submitted && categoryErr.length > 0 && <span className="text-danger">{categoryErr}</span>}
                     </div>
                     <div className="col-sm-4">
                     </div>
@@ -81,7 +127,10 @@ function SubmitVerificationRequest() {
                                onChange={handleChangeImage}
                                formEncType="multipart/form-data"
                                required />
+                        {submitted && imageErr.length > 0 &&  <span className="text-danger">{imageErr}</span>}
+
                     </div>
+
                     <div className="col-sm-4">
                     </div>
                 </div>

@@ -12,7 +12,7 @@ function ViewMyVerificationRequests() {
 
     const dispatch = useDispatch()
     const store = useSelector(state => state);
-    
+
     return (
         <div style={{marginTop:'5%'}}>
             <Navigation/>
