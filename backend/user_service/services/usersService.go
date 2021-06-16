@@ -69,7 +69,7 @@ func (service *UserService) GetUser(ctx context.Context, requestedUserId string)
 	return *converted, nil
 }
 
-func (service *UserService) GetAllUsers(ctx context.Context) ([]persistence.User, error) {
+func (service *UserService) GetAllUsers(ctx context.Context) ([]domain.User, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -287,4 +287,19 @@ func (service *UserService) UpdateUserPhoto(ctx context.Context, userId string, 
 		return err
 	}
 	return nil
+}
+func (service *UserService) CheckIsApproved(ctx context.Context, id string) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPublicUsers")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.userRepository.CheckIsApproved(ctx, id)
+}
+
+func (service *UserService) GetUserByUsername(ctx context.Context, username string) (domain.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.userRepository.GetUserByUsername(username)
 }

@@ -9,8 +9,7 @@ function ProfileForSug(props) {
 
     function redirect(){
         history.push({
-            pathname: '/profile',
-            state: { user:user, follow:true }
+            pathname: '/profile/'+username,
         })
     }
     return (

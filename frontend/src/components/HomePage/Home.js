@@ -3,12 +3,14 @@ import Sidebar from "./Sidebar";
 import Posts from "../PostComponent/Posts";
 import "../../style/home.css";
 import Stories from "../StoryCompoent/Stories";
-import axios from "axios";
 import React, {useEffect, useState} from "react";
 import {Button, Modal} from "react-bootstrap";
 import PasswordStrengthBar from "react-password-strength-bar";
+import { useDispatch, useSelector } from 'react-redux'
+import userService from "../../services/user.service";
+import {userActions} from "../../store/actions/user.actions";
 
-function Home(props) {
+function Home() {
     const [user,setUser]=useState();
     const [showModal,setModal]=useState(false);
     const [submitted,setSubmitted]=useState(false);
@@ -18,59 +20,52 @@ function Home(props) {
     const [newErr,setNewErr]=useState('');
     const [repErr,setRepErr]=useState('');
 
-    var isSSO = sessionStorage.getItem("isSSO")
+    const dispatch = useDispatch()
+    const store = useSelector(state => state);
+
     useEffect(() => {
-        if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
-        getUser();
-    }, [])
+        checkProfile();
+    },[]);
 
-    async function getUser(){
-        await axios
-            .post('http://localhost:8080/api/users/api/users/searchByUser', {
-                username:props.location.state.user.username
-            })
-            .then(res => {
-                console.log("RADI get user")
-                setUser(res.data.users[0])
-                console.log(user)
-                console.log(res.data.users[0])
-                checkIsApproved(res.data.users[0].approvedAccount);
-
-            }).catch(res => {
-            console.log("NE RADI get user")
+    async function checkProfile() {
+        const response = await userService.checkIsApproved({
+            id: store.user.id,
+            jwt: store.user.jwt
         })
-    }
 
-    function changePass(){
-        axios
-            .post('http://localhost:8080/api/users/api/users/approveAccount', {
-                password: {
-                    Id: user.id,
-                    OldPassword: passwords.oldPassword,
-                    NewPassword: passwords.newPassword,
-                    RepeatedPassword: passwords.repeatedPassword
-                }
-            })
-            .then(res => {
-                setOldErr('');
-                setModal(false);
-            }).catch(res => {
-            setOldErr('Please enter valid old password!');
-
-
-        })
+        if (response.status === 200) {
+            checkIsApproved(response.data.response)
+        } else {
+            console.log("NEJEJ")
+        }
     }
 
     function  checkIsApproved(value){
-        console.log(user)
-        if(isSSO) return
+        if(store.user.isSSO) return
         if(value === false){
             setModal(true)
         }else{
             setModal(false)
         }
     }
-    function    handleInputChange(event) {
+    async function approveAccount() {
+        const response = await userService.approveAccount({
+            id: store.user.id,
+            oldPassword: passwords.oldPassword,
+            newPassword: passwords.newPassword,
+            repeatedPassword: passwords.repeatedPassword,
+            jwt: store.user.jwt,
+        })
+
+        if (response.status === 200) {
+            setOldErr('');
+            setModal(false);
+        } else {
+            setOldErr('Please enter valid old password!');
+        }
+    }
+
+    function  handleInputChange(event) {
         setPasswords({
             ...passwords,
             [event.target.name]: event.target.value,
@@ -83,7 +78,7 @@ function Home(props) {
         validatePasswords();
 
         if(newErr=='' &&  repErr==''){
-            changePass();
+            approveAccount();
         }
     }
 
@@ -170,12 +165,12 @@ function Home(props) {
 
     return (
         <div className="App">
-            <Navigation user={user} getUser={getUser}/>
+            <Navigation/>
             <main>
                 <div>
                     <Stories/>
                     <div className="container">
-                        <Posts user={user}/>
+                        <Posts/>
                         <Sidebar/>
                     </div>
                 </div>

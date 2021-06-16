@@ -6,118 +6,132 @@ import EditProfile from "./EditProfile";
 import ChangePassword from "./ChangePassword";
 import FollowAndUnfollow from "./FollowAndUnfollow";
 import Navigation from "../HomePage/Navigation";
+import {   useParams } from 'react-router-dom'
+import userService from "../../services/user.service";
+import {userActions} from "../../store/actions/user.actions";
+import Switch from "react-switch";
 
 
-function Profile(props) {
-    const [user, setUser] =useState(props.location.state.user ? props.location.state.user : {});
-    const [follow,setFollow] =useState(props.location.state.follow ? props.location.state.follow : {});
+import {useDispatch, useSelector} from "react-redux";
+import privacyService from "../../services/privacy.service";
+import followersService from "../../services/followers.service";
+import FollowersAndFollowings from "./FollowersAndFollowings";
+import EditUserPrivacy from "./EditUserPrivacy";
+
+
+function Profile() {
+    const{username}=useParams()
+    const [user, setUser] =useState({});
+    const [follow,setFollow] =useState( {});
     const [publicProfile,setPublicProfile]=useState(false);
 
-    const [image, setImage] = useState('');
     const [showModal, setModal] = useState(false);
     const [showModalPass, setModalPass] = useState(false);
+    const [showModalFollowers, setModalFollowers] = useState(false);
+    const [showModalFollowings, setModalFollowings] = useState(false);
+    const [showModalPrivacy, setModalPrivacy] = useState(false);
 
     const [followers, setFollowers] = useState([]);
     const [following, setFollowings] = useState([]);
     const [posts, setPosts] = useState([]);
-    const [loggedUser, setLoggedUser] = useState();
 
+    const dispatch = useDispatch()
+    const store = useSelector(state => state);
+    const [isSSO,setIsSSO] =useState( store.user.isSSO);
 
-    var loggedUsername = sessionStorage.getItem("username");
-    var isSSO = sessionStorage.getItem("isSSO")
 
     useEffect(() => {
-        if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
-
-        setUser(props.location.state.user);
-        setFollow(props.location.state.follow)
+     //   if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
         getUserByUsername();
         getUserPrivacy();
         getFollowers()
         getFollowing()
         //getPosts()
-    },[]);
+    },[username]);
 
-    function getUserByUsername(){
-        axios
-            .post('http://localhost:8080/api/users/api/users/searchByUser', {
-                username:loggedUsername
-            })
-            .then(res => {
-                setLoggedUser(res.data.users[0])
-                console.log(loggedUser)
-            }).catch(res => {
-            console.log("NE RADI get user")
+
+
+    async function getUserByUsername() {
+        const response = await userService.getUserByUsername({
+            username: username,
+            jwt: store.user.jwt,
         })
+
+        if (response.status === 200) {
+            setUser(response.data)
+            getUserPrivacy(response.data.id);
+            getFollowers(response.data.id)
+            getFollowing(response.data.id)
+            checkUser(response.data.id);
+        } else {
+            console.log("getuserbyusername error")
+        }
+    }
+    async function getUserById() {
+        const response = await userService.getUserById({
+            id: store.user.id,
+            jwt: store.user.jwt,
+        })
+
+        if (response.status === 200) {
+            setUser(response.data)
+            checkUser(response.data.id);
+        } else {
+            console.log("getuserbyusername error")
+        }
+    }
+    function   checkUser(value){
+        if(value===store.user.id){
+            setFollow(false)
+        }else{
+            setFollow(true)
+            dispatch(userActions.followRequest({
+                userId: store.user.id,
+                followerId: value,
+            }))
+        }
     }
 
-    function  getUserPrivacy(){
-        axios
-            .post('http://localhost:8080/api/users/api/privacy/isProfilePublic', {
-                userId: user.id
-            })
-            .then(res => {
-                setPublicProfile(res.data.response)
-               // console.log("privacy radi")
-            }).catch(res => {
+    async function getUserPrivacy(value) {
+        const response = await privacyService.getUserPrivacy({
+            userId: value,
+            jwt: store.user.jwt,
+        })
+
+        if (response.status === 200) {
+            setPublicProfile(response.data.response)
+        } else {
             console.log("privacy ne radi")
+        }
+    }
+
+    async function getFollowing(value) {
+        const response = await followersService.getFollowing({
+            userId:value,
+            jwt: store.user.jwt,
         })
+
+        if (response.status === 200) {
+            setFollowings(response.data.users);
+        } else {
+            console.log("followings ne radi")
+        }
     }
 
-    function getUser(){ //zbog azuriranja podataka nakon izmene profila! mora ovako jer navigation link ne moze da salje funkciju
-        axios
-            .post('http://localhost:8080/api/users/api/users/searchByUser', {
-                username:user.username
-            })
-            .then(res => {
-              //  console.log("RADI get user")
-                setUser(res.data.users[0])
-            }).catch(res => {
-            console.log("NE RADI get user")
+    async function getFollowers(value) {
+        const response = await followersService.getFollowers({
+            userId: value,
+            jwt: store.user.jwt,
         })
-    }
 
-    const updatePhoto = (file) => {
-        setImage(file)
-    }
-
-    function getFollowing(){
-        axios
-            .post('http://localhost:8005/api/followers/get_followings', {
-                user: { UserId: user.id }
-            })
-            .then(res => {
-                console.log("following radi")
-                setFollowings(res.data.users);
-
-            }).catch(res => {
-            console.log("following ne radi")
-        })
-    }
-
-    function getFollowers(){
-        axios
-            .post('http://localhost:8005/api/followers/get_followers', {
-                user: { UserId: user.id }
-            })
-            .then(res => {
-                console.log("followers radi")
-                setFollowers(res.data.users);
-
-            }).catch(res => {
+        if (response.status === 200) {
+            setFollowers(response.data.users);
+        } else {
             console.log("followers ne radi")
-        })
+        }
+
     }
 
-    function getPosts(){
-        axios
-            .get('http://localhost:8080/api/content/api/posts',+user.id)
-            .then(res => {
-                setPosts(res);
-            }).catch(res => {
-            console.log("NE RADIs")
-        })
-    }
 
     function handleModal() {
         setModal(!showModal)
@@ -125,31 +139,43 @@ function Profile(props) {
     function handleModalPass() {
         setModalPass(!showModalPass)
     }
+    function handleModalFollowers() {
+        setModalFollowers(!showModalFollowers)
+    }
+    function handleModalFollowings() {
+        setModalFollowings(!showModalFollowings)
+    }
+
+    function handleModalPrivacy() {
+        setModalPrivacy(!showModalPrivacy)
+    }
+
 
     return (
         <div>
-            <Navigation user={loggedUser}/>
+            <Navigation/>
             <div style={{marginLeft: '20%', marginRight: '20%',marginTop:'10%'}}>
                 <div style={{margin: "18px 0px", orderBottom: "1px solid "}}>
                     <div style={{display: "flex", justifyContent: "space-around",}}>
                         <div>
-                            <img style={{width: "180px", height: "160px", borderRadius: "80px"}}
-                                 src={user.profilePhoto}/>
+                            <img style={{width: "180px", height: "160px", borderRadius: "80px"}} src={user.profilePhoto ? user.profilePhoto : ""}/>
                         </div>
                         <div>
                             <h4>{user.firstName} {user.lastName}</h4>
                             <h4>{user.username}</h4>
                             <div style={{display: "flex"}}>
-                                <h6> 15 posts </h6>
-                                <h6 style={{marginLeft:'13px'}}> {followers.length} followers </h6>
-                                <h6 style={{marginLeft:'13px'}}> {following.length} following </h6>
+                                <h6 style={{marginTop:'9px'}}> 15 posts </h6>
+                                <Button variant="link" style={{color:'black'}} onClick={handleModalFollowers}>{followers.length} followers</Button>
+                                <Button variant="link"  style={{color:'black'}} onClick={handleModalFollowings}> {following.length} following </Button>
+
                             </div>
                             {follow ?
-                                <FollowAndUnfollow user={user} loggedUser={loggedUser} followers={followers} getFollowers={getFollowers}/>
-:
-                                <div>
+                                <FollowAndUnfollow user={user} followers={followers} getFollowers={getFollowers}/>
+                                :
+                                <div >
                                     <Button variant="link" style={{marginTop:'2em', borderTop: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModal}>Update profile info</Button>
-                                    { !isSSO && <Button variant="link" style={{borderBottom: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModalPass}>Change password</Button> }
+                                    { !isSSO && <Button variant="link" style={{display: "flex",justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModalPass}>Change password</Button> }
+                                    <Button variant="link" style={{ borderBottom: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModalPrivacy}>Update profile privacy</Button>
                                 </div>
 
                             }
@@ -182,7 +208,7 @@ function Profile(props) {
                         <Modal.Title>Edit profile</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <EditProfile user={user} updateUser={getUser}/>
+                        <EditProfile updateUser={getUserById}/>
                     </Modal.Body>
                     <Modal.Footer>
 
@@ -191,9 +217,45 @@ function Profile(props) {
 
                 <Modal show={showModalPass} onHide={handleModalPass}>
                     <Modal.Header closeButton>
+                        <Modal.Title>Change password</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <ChangePassword user={user}/>
+                    </Modal.Body>
+                    <Modal.Footer>
+
+                    </Modal.Footer>
+                </Modal>
+                <Modal show={showModalFollowers} onHide={handleModalFollowers}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Followers:</Modal.Title>
+
+                    </Modal.Header>
+                    <Modal.Body>
+                        <FollowersAndFollowings ids={followers} handleModal={handleModalFollowers}/>
+                    </Modal.Body>
+                    <Modal.Footer>
+
+                    </Modal.Footer>
+                </Modal>
+                <Modal show={showModalFollowings} onHide={handleModalFollowings}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Following:</Modal.Title>
+
+                    </Modal.Header>
+                    <Modal.Body>
+                        <FollowersAndFollowings ids={following} handleModal={handleModalFollowings}/>
+                    </Modal.Body>
+                    <Modal.Footer>
+
+                    </Modal.Footer>
+                </Modal>
+                <Modal show={showModalPrivacy} onHide={handleModalPrivacy}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Edit privacy</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <EditUserPrivacy/>
                     </Modal.Body>
                     <Modal.Footer>
 

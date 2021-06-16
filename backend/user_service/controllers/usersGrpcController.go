@@ -62,7 +62,25 @@ func (s *UserGrpcController) CreateUser(ctx context.Context, in *protopb.CreateU
 }
 
 func (s *UserGrpcController) GetAllUsers(ctx context.Context, in *protopb.EmptyRequest) (*protopb.UsersResponse, error) {
-	return &protopb.UsersResponse{}, nil
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllUsers")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	users, err := s.service.GetAllUsers(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var usersList []*protopb.UsersDTO
+	for _, user := range users {
+		usersList = append(usersList, user.ConvertToGrpc())
+	}
+
+	finalResponse := protopb.UsersResponse{
+		Users: usersList,
+	}
+
+	return &finalResponse, nil
 }
 
 func (s *UserGrpcController) UpdateUserProfile(ctx context.Context, in *protopb.CreateUserDTORequest) (*protopb.EmptyResponse, error) {
@@ -345,3 +363,35 @@ func (s *UserGrpcController) UpdateUserPhoto(ctx context.Context, in *protopb.Us
 	}
 	return &protopb.EmptyResponse{}, nil
 }
+func (s *UserGrpcController) CheckIsApproved(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.BooleanResponseUsers, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUsernameById")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	isApproved, err := s.service.CheckIsApproved(ctx, in.Id)
+
+	if err != nil {
+		return &protopb.BooleanResponseUsers{Response: true}, nil
+	}
+
+	return &protopb.BooleanResponseUsers{
+		Response: isApproved,
+	}, nil
+}
+
+func (s *UserGrpcController) GetUserByUsername(ctx context.Context, in *protopb.RequestUsernameUser) (*protopb.UsersDTO, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserByEmail")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	user, err := s.service.GetUserByUsername(ctx,in.Username)
+
+	if err != nil{
+		return &protopb.UsersDTO{}, err
+	}
+
+	userResponse := user.ConvertToGrpc()
+
+	return userResponse, nil
+}
+

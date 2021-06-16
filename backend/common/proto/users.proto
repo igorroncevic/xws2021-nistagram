@@ -80,7 +80,12 @@ service Users {
   // Svi
   rpc GetUserByEmail (RequestEmailUser) returns (UsersDTO) {
     option(google.api.http) = {
-      get: "/api/users/getByEmail/{email}"
+      get: "/api/users/getUserByEmail/{email}"
+    };
+  }
+  rpc GetUserByUsername (RequestUsernameUser) returns (UsersDTO) {
+    option(google.api.http) = {
+      get: "/api/users/getUserByUsername/{username}"
     };
   }
 
@@ -96,6 +101,13 @@ service Users {
   rpc ChangeForgottenPass (CreatePasswordRequest) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/api/users/changeForgottenPass"
+      body: "*"
+    };
+  }
+
+  rpc CheckIsApproved (RequestIdUsers) returns (BooleanResponseUsers) {
+    option(google.api.http) = {
+      post: "/api/users/checkIsApproved"
       body: "*"
     };
   }
@@ -121,6 +133,40 @@ service Users {
       body: "*"
     };
   }
+
+  //* Verification requests *
+  rpc SubmitVerificationRequest (VerificationRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/submit-verification-request",
+      body: "*"
+    };
+  }
+
+  rpc GetPendingVerificationRequests (EmptyRequest) returns (VerificationRequestsArray) {
+    option(google.api.http) = {
+      get: "/api/users/get-pending-verification-requests",
+    };
+  }
+
+  rpc ChangeVerificationRequestStatus (VerificationRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/change-verification-request-status",
+      body: "*"
+    };
+  }
+
+  rpc GetVerificationRequestsByUserId (VerificationRequest) returns (VerificationRequestsArray) {
+    option(google.api.http) = {
+      post: "/api/users/get-verification-requests-by-user",
+      body : "*"
+    };
+  }
+
+  rpc GetAllVerificationRequests (EmptyRequest) returns (VerificationRequestsArray) {
+    option(google.api.http) = {
+      get: "/api/users/get-all-verification-requests",
+    };
+  }
 }
 
 message CreateNotificationRequest {
@@ -128,12 +174,11 @@ message CreateNotificationRequest {
   string creatorId = 2;
   string type = 3;
 }
-
 message Password {
-  string OldPassword = 1;
-  string NewPassword = 2;
-  string RepeatedPassword = 3;
-  string Id = 4;
+  string oldPassword = 1;
+  string newPassword = 2;
+  string repeatedPassword = 3;
+  string id = 4;
 }
 
 message User {
@@ -227,6 +272,10 @@ message RequestEmailUser {
   string email = 1;
 }
 
+message RequestUsernameUser {
+  string username = 1;
+}
+
 message RequestResetCode {
   string resetCode = 1;
   string email = 2;
@@ -243,6 +292,24 @@ message RequestIdUsers {
 
 message GoogleAuthRequest {
   string token = 1;
+}
+message BooleanResponseUsers {
+  bool response = 1;
+}
+
+message VerificationRequestsArray {
+  repeated VerificationRequest verificationRequests = 1;
+}
+
+message VerificationRequest {
+  string id = 1;
+  string userId = 2;
+  string documentPhoto = 3;
+  string category = 4;
+  string firstName = 5;
+  string lastName = 6;
+  string status = 7;
+  google.protobuf.Timestamp createdAt = 8;
 }
 
 message EmptyRequest {}

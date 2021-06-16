@@ -20,6 +20,8 @@ type Server struct {
 	notificationController *NotificationGrpcController
 	tracer            otgo.Tracer
 	closer            io.Closer
+	verificationController *VerificationGrpcController
+
 }
 
 func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger) (*Server, error) {
@@ -27,15 +29,18 @@ func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger
 	newPrivacyController, _ := NewPrivacyController(db)
 	newEmailController, _ := NewEmailController(db)
 	notificationController, _ := NewNotificationController(db)
+	newVerificationController, _ := NewVerificationController(db, jwtManager, logger)
+
 	tracer, closer := tracer.Init("userService")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
-		userController:     newUserController,
-		privacyController:  newPrivacyController,
-		emailController:    newEmailController,
+		userController:         newUserController,
+		privacyController:      newPrivacyController,
+		emailController:        newEmailController,
 		notificationController: notificationController,
-		tracer:             tracer,
-		closer:             closer,
+		verificationController: newVerificationController,
+		tracer:                 tracer,
+		closer:                 closer,
 	}, nil
 }
 
@@ -137,4 +142,29 @@ func (s *Server) UpdateUserPhoto(ctx context.Context, in *protopb.UserPhotoReque
 
 func (s *Server) CreateNotification(ctx context.Context, in *protopb.CreateNotificationRequest) (*protopb.EmptyResponse, error) {
 	return s.notificationController.CreateNotification(ctx, in)
+}
+func (s *Server) CheckIsApproved(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.BooleanResponseUsers, error) {
+	return s.userController.CheckIsApproved(ctx, in)
+}
+func (s *Server) GetUserByUsername(ctx context.Context, in *protopb.RequestUsernameUser) (*protopb.UsersDTO, error) {
+	return s.userController.GetUserByUsername(ctx, in)
+}
+func (s *Server) SubmitVerificationRequest(ctx context.Context, in *protopb.VerificationRequest) (*protopb.EmptyResponse, error) {
+	return s.verificationController.SubmitVerificationRequest(ctx, in)
+}
+
+func (s *Server) GetPendingVerificationRequests(ctx context.Context, in *protopb.EmptyRequest) (*protopb.VerificationRequestsArray, error) {
+	return s.verificationController.GetPendingVerificationRequests(ctx, in)
+}
+
+func (s *Server) ChangeVerificationRequestStatus(ctx context.Context, in *protopb.VerificationRequest) (*protopb.EmptyResponse, error) {
+	return s.verificationController.ChangeVerificationRequestStatus(ctx, in)
+}
+
+func (s *Server) GetVerificationRequestsByUserId(ctx context.Context, in *protopb.VerificationRequest) (*protopb.VerificationRequestsArray, error) {
+	return s.verificationController.GetVerificationRequestsByUserId(ctx, in)
+}
+
+func (s *Server) GetAllVerificationRequests(ctx context.Context, in *protopb.EmptyRequest) (*protopb.VerificationRequestsArray, error) {
+	return s.verificationController.GetAllVerificationRequests(ctx, in)
 }

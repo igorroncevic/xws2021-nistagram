@@ -1,15 +1,15 @@
 import React, {useEffect, useState} from 'react';
 import {Alert, Button, Dropdown, DropdownButton, FormControl, InputGroup, Card} from "react-bootstrap";
 import axios from "axios";
-import ProfileIcon from "../components/ProfileComponent/ProfileIcon";
 import ProfileForSug from "../components/HomePage/ProfileForSug";
 import {useHistory} from "react-router-dom";
 import Navigation from "../components/HomePage/Navigation";
+import searchService from "../services/search.service";
+import {useSelector} from "react-redux";
+import userService from "../services/user.service";
 
-export default function Search(props) {
-    console.log(props);
+export default function Search() {
     const [user,setUser] =useState({});
-    // Declare a new state variable, which we'll call "count"
     const [searchCategory, setSearchCategory] = useState("Search category");
     const [input, setInput] = useState("");
     const [inputErr, setInputErr] = useState("");
@@ -17,47 +17,43 @@ export default function Search(props) {
     const [lastName, setLastName] = useState("");
     const [searchResult, setSearchResult] = useState([]);
     const [searchPlaceholder, setSearchPlaceholder] = useState("search value");
-    const history = useHistory()
+    const store = useSelector(state => state);
 
     useEffect(() => {
-        if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
+        //if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
 
-        setUser(props.location.state.user);
     },[])
 
-    function searchByUser() {
-        axios
-            .post('http://localhost:8080/api/users/api/users/searchByUser', {
-                'username' : input,
-                "firstName" : firstName,
-                "lastName" : lastName
-            })
-            .then(res => {
-                setSearchResult(res.data.users);
-                console.log(res.data.users);
-            }).catch(res => {
+    async function searchByUser() {
+        const response = await userService.searchByUser({
+            username: input,
+            firstName: firstName,
+            lastName: lastName,
+            jwt: store.user.jwt,
         })
+
+        if (response.status === 200)  setSearchResult(response.data.users);
+        else  console.log("search error")
     }
 
-    function searchByTag() {
-        axios
-            .post('http://localhost:8080/api/content/api/searchByLocation', {
-                'tag' : input,
-            })
-            .then(res => {
-            }).catch(res => {
+    async function searchByTag() {
+        const response = await searchService.searchByTag({
+            tag : input,
         })
+
+        if (response.status === 200)   console.log("search radi")
+        else  console.log("search error")
     }
 
-    function searchByLocation() {
-        axios
-            .post('http://localhost:8080/api/content/api/searchByLocation', {
-                'location' : input,
-            })
-            .then(res => {
-            }).catch(res => {
+    async function searchByLocation() {
+        const response = await searchService.searchByLocation({
+            location : input,
         })
+
+        if (response.status === 200) console.log("search radi")
+        else   console.log("search error")
     }
+
 
     function search() {
         if (input === "" && searchCategory !== "User") {
@@ -126,7 +122,7 @@ export default function Search(props) {
 
     return (
         <div  className="App">
-            <Navigation user={user}/>
+            <Navigation d/>
 
             <br/>
             <br/><br/>

@@ -1,14 +1,18 @@
 import React, {useEffect, useState} from 'react';
+import { useDispatch, useSelector } from 'react-redux'
 import {Button, Form, Modal} from "react-bootstrap";
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from "axios";
 import { useHistory } from 'react-router-dom';
 import GoogleLogin from 'react-google-login';
+import { userActions } from './../store/actions/user.actions'
+
+import userService from './../services/user.service'
 
 import RegistrationPage from "./RegistrationPage";
 const TEST_SITE_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
 
-export function IndexPage(){
+const IndexPage = () => {
     const[details,setDetails]=useState({email:"", password:""});
     const[badCredentials,setCredentials]=useState(true);
     const[badEmail,setEmailErr]=useState(true);
@@ -18,30 +22,37 @@ export function IndexPage(){
     const[showModal,setShowModal]=useState(false);
     const history = useHistory()
 
+    const dispatch = useDispatch();
+    const store = useSelector(state => state)
+
     async function sendParams(){
-        axios
-            .post("http://localhost:8080/api/users/api/users/login", {
-                email: details.email,
-                password: details.password
-            })
-            .then(res => {
-                sessionStorage.setItem("username", res.data.username);
-                history.push({
-                    pathname: '/home',
-                    state: { user:res.data, follow:false }
-                })
-            })
-            .catch(res => {
-                if (reCaptcha >= 2) {
-                    setCaptcha(reCaptcha+1);
-                    setLogInDisabled(true);
-                    setCredentials(false);
-                } else {
-                    setCaptcha(reCaptcha+1);
-                    setCredentials(false);
-                }
-            });
+        const response = await userService.login({
+            email: details.email,
+            password: details.password
+        })
+
+        //console.log(response)
+
+        if(response.status === 200) {
+            dispatch(userActions.loginRequest({
+                jwt: response.data.accessToken,
+                id: response.data.userId,
+                role: response.data.role,
+                isSSO: response.data.isSSO,
+            }))
+            history.push({ pathname: '/home' })
+        }else{
+            if (reCaptcha >= 2) {
+                setCaptcha(reCaptcha+1);
+                setLogInDisabled(true);
+                setCredentials(false);
+            } else {
+                setCaptcha(reCaptcha+1);
+                setCredentials(false);
+            }
+        }
     }
+
     function submitHandler(e){
         setSubmitted(true);
         e.preventDefault();
@@ -127,9 +138,7 @@ export function IndexPage(){
                     <Form.Control  name="password" type="password" onChange={handleChange} value={details.password}/>
                 </Form.Group>
                 <p hidden={badCredentials} style={{ color: "red" }}> Invalid username or password!</p>
-                <div style={{display : "flex"}}>
-                    <a href={'/forgotten'} style={{'color': '#089A87',float : "right"}}> Forgot password?</a>
-                </div>
+
                 {reCaptcha >= 3 &&
                 <ReCAPTCHA
                     style={{ display: "inline-block" }}
@@ -153,6 +162,9 @@ export function IndexPage(){
                 <p style={{ display: "table-cell" }}>Don't have account?</p>
                 <a style={{ display: "table-cell" }} className="nav-link" style={{ 'color': '#00d8fe', 'fontWeight': 'bold' }} href='#' name="workHours" onClick={handleModal}>Register</a>
             </div>
+            <div style={{ display: " table" }}>
+                <a href={'/forgotten'} style={{'color': '#089A87',float : "right"}}> Forgot password?</a>
+            </div>
 
             <Modal show={showModal} onHide={closeModal} style={{ 'height': 650 }} >
                 <Modal.Header closeButton style={{ 'background': 'silver' }}>
@@ -165,3 +177,5 @@ export function IndexPage(){
         </div>
     );
 }
+
+export default IndexPage;

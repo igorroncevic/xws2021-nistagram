@@ -2,10 +2,11 @@ import React, {useState} from "react";
 import {Alert, Col, Container, FormControl, Row} from "react-bootstrap";
 import axios from "axios";
 import PasswordStrengthBar from "react-password-strength-bar";
+import userService from "../../services/user.service";
+import {useDispatch, useSelector} from "react-redux";
 
-function ChangePassword(props) {
-    const[pass,setPass]=useState('bla')
-    const [user, setUser] = useState(props.user);
+function ChangePassword() {
+    const [user, setUser] = useState();
     const[passwords,setPasswords]=useState({oldPass:'',newPass:'',repPass:''})
     const[submitted,setSubmitted]=useState(false)
     const[oldErr,setOldErr]=useState('');
@@ -13,28 +14,25 @@ function ChangePassword(props) {
     const[repErr,setRepErr]=useState('');
     const [passwordStrength, setPasswordStrength] = useState("");
     const[success,setSuccess]=useState(false)
+    const dispatch = useDispatch()
+    const store = useSelector(state => state);
 
-    function changePass(){
-        axios
-            .post('http://localhost:8080/api/users/api/users/update_password', {
-                password: {
-                    Id: user.id,
-                    OldPassword: passwords.oldPass,
-                    NewPassword: passwords.newPass,
-                    RepeatedPassword: passwords.repPass
-
-                }
-            })
-            .then(res => {
-                setOldErr('');
-                setSuccess(true);
-
-            }).catch(res => {
-            console.log("NE RADI")
-            setOldErr('Please enter valid old password!');
-
+    async function changePass() {
+        const response = await userService.changePassword({
+            id: store.user.id,
+            oldPassword: passwords.oldPass,
+            newPassword: passwords.newPass,
+            repeatedPassword: passwords.repPass,
+            jwt: store.user.jwt,
 
         })
+
+        if (response.status === 200) {
+            setOldErr('');
+            setSuccess(true);
+        } else {
+            setOldErr('Please enter valid old password!');
+        }
     }
 
 
@@ -68,7 +66,7 @@ function ChangePassword(props) {
         setSubmitted(true);
         validatePasswords();
 
-        if(newErr=='' && oldErr=='' && repErr==''){
+        if(newErr=='' && repErr==''){
             changePass();
         }
     }
@@ -110,7 +108,6 @@ function ChangePassword(props) {
                         updated!</Alert>
                     :
             <div>
-                <h2 className="pt-4 pb-3">Change Password</h2>
                 <Row className="m-2">
                     <FormControl name="oldPass" type="password" placeholder="Please enter old password"  value={passwords.oldPass} onChange={handleChange}/>
                     {submitted &&  <label className="text-danger">{oldErr}</label>}

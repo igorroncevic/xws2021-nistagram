@@ -21,6 +21,7 @@ type Post struct {
 	Comments []Comment
 	Likes    []Like
 	Dislikes []Like
+	Hashtags []Hashtag
 }
 
 type ReducedPost struct {
@@ -101,16 +102,16 @@ type Comment struct {
 }
 
 type Highlight struct {
-	Id 		string
-	Name 	string
+	Id      string
+	Name    string
 	UserId  string
 	Stories []Story
 }
 
 type HighlightRequest struct {
 	UserId      string
-	HighlightId	string
-	StoryId	    string
+	HighlightId string
+	StoryId     string
 }
 
 /*
