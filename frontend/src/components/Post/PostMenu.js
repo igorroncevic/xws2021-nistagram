@@ -10,13 +10,19 @@ import { ReactComponent as BrokenHeart } from './../../images/icons/broken-heart
 import { ReactComponent as BrokenHeartFilled } from './../../images/icons/broken-heart-filled.svg'
 
 const PostMenu = (props) => {
-    const { isLiked, isDisliked, postId } = props;
+    const { isLiked, isDisliked, likeClicked, dislikeClicked } = props;
 
     return (
         <div className="postMenu">
             <div className="interactions">
-                { isLiked ? <HeartFilled fill="red" className="icon" /> : <Heart className="icon" /> }
-                { isDisliked ? <BrokenHeartFilled fill="red" className="icon" /> : <BrokenHeart className="icon" /> }
+                { isLiked ? 
+                    <HeartFilled onClick={likeClicked} fill="red" className="icon" /> : 
+                    <Heart onClick={likeClicked} className="icon" /> 
+                }
+                { isDisliked ? 
+                    <BrokenHeartFilled onClick={dislikeClicked} fill="red" className="icon" /> : 
+                    <BrokenHeart onClick={dislikeClicked} className="icon" /> 
+                }
                 <Comments className="icon" />
                 <Inbox className="icon" />
             </div>

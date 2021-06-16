@@ -6,23 +6,24 @@ import Slider from './Slider'
 import Comment from "./Comment";
 import PostHeader from './PostHeader';
 import { ReactComponent as CardButton } from './../../images/icons/cardButton.svg' 
-import LikesAndDislikes from "./LikesAndDislikes";
 import userService from './../../services/user.service';
 import toastService from './../../services/toast.service';
+import likeService from './../../services/like.service'
 import PostMenu from "./PostMenu";
+import Posts from "./Posts";
 
 function Post (props) {
-    const { postUser, post } = props;
+    const { postUser } = props;
+    const [post, setPost] = useState(props.post)
     const [user, setUser] = useState({});
     const [hoursAgo, setHoursAgo] = useState(0)
     const [daysAgo, setDaysAgo] = useState(0);
     const [minutesAgo, setMinutesAgo] = useState(0)
     const [likesText, setLikesText] = useState("");
     const [dislikesText, setDislikesText] = useState("");
+    const [isLiked, setIsLiked] = useState(false);
+    const [isDisliked, setIsDisliked] = useState(false);
     const store = useSelector(state => state)
-
-    console.log(post);
-    console.log(postUser);
 
     useEffect(() => {
         getUserInfo()
@@ -43,7 +44,13 @@ function Post (props) {
     useEffect(()=>{
         changeLikesText()
         changeDislikesText()
-    })
+
+        const postLikes = [...post.likes];
+        const postDislikes = [...post.dislikes];
+        
+        setIsLiked(postLikes.filter(like => like.userId === store.user.id).length === 1)
+        setIsDisliked(postDislikes.filter(dislike => dislike.userId === store.user.id).length === 1)
+    }, [post])
 
     const changeLikesText = () => {
         if(post.likes.length === 0) setLikesText("no one")
@@ -77,6 +84,46 @@ function Post (props) {
         }
     }
 
+    const handleLikeClick = async () => await _handleLikeDislikeClick(true)
+    const handleDislikeClick = async () => await _handleLikeDislikeClick(false)
+
+    const _handleLikeDislikeClick = async (isLike) => {
+        const response = await likeService.addLike({
+            userId: store.user.id,
+            postId: post.id,
+            isLike: isLike,
+            jwt: store.user.jwt,
+        })
+
+        if(response.status === 200){
+            const changedPost = {...post};
+            const newItem = {
+                userId: store.user.id,
+                postId: changedPost.id,
+                isLike: isLike
+            }
+            if(isLike) {
+                // If like already existed, remove it from the likes list. If it didn't add it there and remove dislike if it exists.
+                if(isLiked){
+                    changedPost.likes = changedPost.likes.filter(like => like.userId !== store.user.id)
+                }else{
+                    changedPost.likes.push(newItem)
+                    if(isDisliked) changedPost.dislikes = changedPost.dislikes.filter(dislike => dislike.userId !== store.user.id)
+                }
+            }else{
+                if(isDisliked) {
+                    changedPost.dislikes = changedPost.dislikes.filter(dislike => dislike.userId !== store.user.id)
+                }else{
+                    changedPost.dislikes.push(newItem)
+                    if(isLiked) changedPost.likes = changedPost.likes.filter(like => like.userId !== store.user.id)
+                }
+            }
+            setPost(changedPost);
+        }else{
+            toastService.show("error", "Could not " + (isLike ? "like" : "dislike") + " this post.")
+        }
+    }
+
     return(
         <div className="Post">
             <header>
@@ -95,8 +142,11 @@ function Post (props) {
                 <Slider media={post.media} />
             </div>
             <PostMenu 
-                isLiked={post.likes.filter(like => like.userId === store.user.id).length === 1}
-                isDisliked={post.dislikes.filter(dislike => dislike.userId === store.user.id).length === 1}
+                isLiked={isLiked}
+                isDisliked={isDisliked}
+                likeClicked={handleLikeClick}
+                dislikeClicked={handleDislikeClick}
+                postId={post.id}
             />
             <div className="likes-dislikes">
                 <PostHeader 
