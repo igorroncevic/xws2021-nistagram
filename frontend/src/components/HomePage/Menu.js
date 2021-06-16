@@ -4,6 +4,7 @@ import { ReactComponent as Inbox } from "../../images/inbox.svg";
 import { ReactComponent as Notifications } from "../../images/notifications.svg";
 import { ReactComponent as Bookmark } from "../../images/bookmark.svg";
 import { ReactComponent as Plus } from "../../images/plus.svg";
+import { ReactComponent as Explore } from "../../images/more.svg";
 import ProfileIcon from "../ProfileComponent/ProfileIcon";
 import {NavLink, Route} from "react-router-dom";
 import Profile from "../ProfileComponent/Profile";
@@ -53,6 +54,10 @@ function Menu() {
 
             <NavLink  to={"/profile/"+username }  >
                 <ProfileIcon iconSize="medium" image='https://i.pravatar.cc/150?img=1' />
+            </NavLink>
+
+            <NavLink  to={{ pathname: "/info" }} >
+                <Explore className="icon" />
             </NavLink>
 
             <a href='/' style={{marginLeft:'10px'}}>Log out</a>

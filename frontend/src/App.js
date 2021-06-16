@@ -10,9 +10,14 @@ import Search from "./pages/Search";
 import Profile from "./components/ProfileComponent/Profile";
 import NewPost from "./components/HomePageComponents/NewPost";
 import Home from "./components/HomePage/Home";
-import ChangePassword from "./components/ProfileComponent/ChangePassword";
 import Notifications from "./components/HomePageComponents/Notifications";
 import UnauthorizedPage from "./helpers/UnauthorizedPage";
+import BlockedUsers from "./components/UserData/BlockedUsers";
+import CloseFriends from "./components/UserData/CloseFriends";
+import Liked from "./components/UserData/Liked";
+import Disliked from "./components/UserData/Disliked";
+import Archived from "./components/UserData/Archived";
+import ProfileInfo from "./components/UserData/ProfileInfo";
 
 const App = () => {
     return (
@@ -25,11 +30,18 @@ const App = () => {
                 <Route path='/home' exact  component={Home}/>
                 <Route path='/search' exact={true} component={Search}/>
                 <Route path='/profile/:username' exact component={Profile}/>
+                <Route path='/info' exact component={ProfileInfo}/>
 
                 <Route path='/newpost' exact component={NewPost} />
                 <Route path='/chats' exact component={Chats} />
                 <Route path='/saved' exact component={Saved} />
                 <Route path='/notifications' exact component={Notifications} />
+
+                <Route path='/blocked' exact component={BlockedUsers} />
+                <Route path='/closefriends' exact component={CloseFriends} />
+                <Route path='/liked' exact component={Liked} />
+                <Route path='/disliked' exact component={Disliked} />
+                <Route path='/archive' exact component={Archived} />
             </Router>
         </div>
     );
