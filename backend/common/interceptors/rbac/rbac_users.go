@@ -21,7 +21,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			updateUserPassword, updateUserProfile, searchUser, checkIsApproved,
 			getUserByUsername, submitVerificationRequest,
 			updatePrivacy, blockUser, unBlockUser, checkIfBlocked, checkUserProfilePublic, getAllPublicUsers, approveAccount,
-			getPendingVerificationRequests, changeVerificationRequestStatus,
+			getPendingVerificationRequests, changeVerificationRequestStatus, getVerificationRequestsByUserId,
 		}
 		result = db.Create(&permissions)
 		if result.Error != nil {
@@ -46,6 +46,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			basicSubmitVerificationRequest, agentSubmitVerificationRequest, verifiedSubmitVerificationRequest,
 			basicGetPendingVerificationRequests, adminGetPendingVerificationRequests,
 			basicChangeVerificationRequestStatus, adminChangeVerificationRequestStatus,
+			basicGetVerificationRequestsByUserId, verifiedGetVerificationRequestsByUserId, adminGetVerificationRequestsByUserId, agentGetVerificationRequestsByUserId,
 		}
 		result = db.Create(&rolePermissions)
 		if result.Error != nil {
@@ -92,6 +93,7 @@ var (
 	submitVerificationRequest       = Permission{Id: "1d867c15-595b-4a69-b8ad-7135457bc402", Name: "SubmitVerificationRequest"}
 	getPendingVerificationRequests  = Permission{Id: "56a15e9b-3522-4d32-a11a-2fd869a41489", Name: "GetPendingVerificationRequests"}
 	changeVerificationRequestStatus = Permission{Id: "03ba51b7-7497-42b5-9a2f-3961c3f43f04", Name: "ChangeVerificationRequestStatus"}
+	getVerificationRequestsByUserId = Permission{Id: "63a03b3a-46d6-4780-8517-fa61fbf8feba", Name: "GetVerificationRequestsByUserId"}
 )
 
 var (
@@ -180,4 +182,9 @@ var (
 
 	basicChangeVerificationRequestStatus = RolePermission{RoleId: basic.Id, PermissionId: changeVerificationRequestStatus.Id}
 	adminChangeVerificationRequestStatus = RolePermission{RoleId: admin.Id, PermissionId: changeVerificationRequestStatus.Id}
+
+	basicGetVerificationRequestsByUserId    = RolePermission{RoleId: basic.Id, PermissionId: getVerificationRequestsByUserId.Id}
+	verifiedGetVerificationRequestsByUserId = RolePermission{RoleId: verified.Id, PermissionId: getVerificationRequestsByUserId.Id}
+	adminGetVerificationRequestsByUserId    = RolePermission{RoleId: admin.Id, PermissionId: getVerificationRequestsByUserId.Id}
+	agentGetVerificationRequestsByUserId    = RolePermission{RoleId: agent.Id, PermissionId: getVerificationRequestsByUserId.Id}
 )

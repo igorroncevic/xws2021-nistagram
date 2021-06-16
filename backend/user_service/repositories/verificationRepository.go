@@ -20,6 +20,7 @@ type VerificationRepository interface {
 	SaveUserDocumentPhoto(ctx context.Context, verificationRequest domain.VerificationRequest) (string, error)
 	GetPendingVerificationRequests(ctx context.Context) ([]domain.VerificationRequest, error)
 	ChangeVerificationRequestStatus(ctx context.Context, request domain.VerificationRequest) error
+	GetVerificationRequestsByUserId(ctx context.Context, userId string) ([]domain.VerificationRequest, error)
 }
 
 type verificationRepository struct {
@@ -181,4 +182,45 @@ func (repository *verificationRepository) ChangeVerificationRequestStatus(ctx co
 		return err
 	}
 	return nil
+}
+
+func (repository *verificationRepository) GetVerificationRequestsByUserId(ctx context.Context, userId string) ([]domain.VerificationRequest, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetVerificationRequestsByUserId")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var verificationRequestsPersistence []persistence.VerificationRequest
+	result := repository.DB.Where("user_id = ?", userId).Find(&verificationRequestsPersistence)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	var verificationRequestsDomain []domain.VerificationRequest
+
+	for _, verificationRequest := range verificationRequestsPersistence {
+		user, err := repository.userRepository.GetUserById(ctx, verificationRequest.UserId)
+		if err != nil {
+			return nil, err
+		}
+		userAdditionalInfo, err := repository.userRepository.GetUserAdditionalInfoById(ctx, verificationRequest.UserId)
+		if err != nil {
+			return nil, err
+		}
+		imageBase64, err := images.LoadImageToBase64(verificationRequest.DocumentPhoto)
+		if err != nil {
+			return nil, err
+		}
+		verificationRequestsDomain = append(verificationRequestsDomain, domain.VerificationRequest{
+			Id:            verificationRequest.Id,
+			UserId:        verificationRequest.UserId,
+			DocumentPhoto: imageBase64,
+			Status:        verificationRequest.Status,
+			CreatedAt:     verificationRequest.CreatedAt,
+			Category:      userAdditionalInfo.Category,
+			FirstName:     user.FirstName,
+			LastName:      user.LastName,
+		})
+	}
+
+	return verificationRequestsDomain, nil
 }

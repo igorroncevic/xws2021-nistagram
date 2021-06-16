@@ -139,6 +139,13 @@ service Users {
       body: "*"
     };
   }
+
+  rpc GetVerificationRequestsByUserId (VerificationRequest) returns (VerificationRequestsArray) {
+    option(google.api.http) = {
+      post: "/api/users/get-verification-requests-by-user",
+      body : "*"
+    };
+  }
 }
 
 message Password {

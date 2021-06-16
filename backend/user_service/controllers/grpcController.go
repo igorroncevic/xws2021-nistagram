@@ -147,3 +147,7 @@ func (s *Server) GetPendingVerificationRequests(ctx context.Context, in *protopb
 func (s *Server) ChangeVerificationRequestStatus(ctx context.Context, in *protopb.VerificationRequest) (*protopb.EmptyResponse, error) {
 	return s.verificationController.ChangeVerificationRequestStatus(ctx, in)
 }
+
+func (s *Server) GetVerificationRequestsByUserId(ctx context.Context, in *protopb.VerificationRequest) (*protopb.VerificationRequestsArray, error) {
+	return s.verificationController.GetVerificationRequestsByUserId(ctx, in)
+}
