@@ -21,6 +21,7 @@ import ProfileInfo from "./components/UserData/ProfileInfo";
 import SubmitVerificationRequest from "./components/VerificationRequest/SubmitVerificationRequest";
 import ViewMyVerificationRequests from "./components/VerificationRequest/ViewMyVerificationRequests";
 import ViewPendingVerificationRequests from "./components/VerificationRequest/ViewPendingVerificationRequests";
+import ViewAllVerificationRequests from "./components/VerificationRequest/ViewAllVerificationRequests";
 
 
 const App = () => {
@@ -43,6 +44,7 @@ const App = () => {
                 <Route path='/submit-verification-request' exact component={SubmitVerificationRequest} />
                 <Route path='/view-my-verification-request' exact component={ViewMyVerificationRequests} />
                 <Route path='/view-pending-verification-request' exact component={ViewPendingVerificationRequests} />
+                <Route path='/view-all-verification-request' exact component={ViewAllVerificationRequests} />
 
 
                 <Route path='/blocked' exact component={BlockedUsers} />

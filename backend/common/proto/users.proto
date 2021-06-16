@@ -146,6 +146,12 @@ service Users {
       body : "*"
     };
   }
+
+  rpc GetAllVerificationRequests (EmptyRequest) returns (VerificationRequestsArray) {
+    option(google.api.http) = {
+      get: "/api/users/get-all-verification-requests",
+    };
+  }
 }
 
 message Password {

@@ -21,6 +21,7 @@ type VerificationRepository interface {
 	GetPendingVerificationRequests(ctx context.Context) ([]domain.VerificationRequest, error)
 	ChangeVerificationRequestStatus(ctx context.Context, request domain.VerificationRequest) error
 	GetVerificationRequestsByUserId(ctx context.Context, userId string) ([]domain.VerificationRequest, error)
+	GetAllVerificationRequests(ctx context.Context) ([]domain.VerificationRequest, error)
 }
 
 type verificationRepository struct {
@@ -191,6 +192,47 @@ func (repository *verificationRepository) GetVerificationRequestsByUserId(ctx co
 
 	var verificationRequestsPersistence []persistence.VerificationRequest
 	result := repository.DB.Where("user_id = ?", userId).Find(&verificationRequestsPersistence)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	var verificationRequestsDomain []domain.VerificationRequest
+
+	for _, verificationRequest := range verificationRequestsPersistence {
+		user, err := repository.userRepository.GetUserById(ctx, verificationRequest.UserId)
+		if err != nil {
+			return nil, err
+		}
+		userAdditionalInfo, err := repository.userRepository.GetUserAdditionalInfoById(ctx, verificationRequest.UserId)
+		if err != nil {
+			return nil, err
+		}
+		imageBase64, err := images.LoadImageToBase64(verificationRequest.DocumentPhoto)
+		if err != nil {
+			return nil, err
+		}
+		verificationRequestsDomain = append(verificationRequestsDomain, domain.VerificationRequest{
+			Id:            verificationRequest.Id,
+			UserId:        verificationRequest.UserId,
+			DocumentPhoto: imageBase64,
+			Status:        verificationRequest.Status,
+			CreatedAt:     verificationRequest.CreatedAt,
+			Category:      userAdditionalInfo.Category,
+			FirstName:     user.FirstName,
+			LastName:      user.LastName,
+		})
+	}
+
+	return verificationRequestsDomain, nil
+}
+
+func (repository *verificationRepository) GetAllVerificationRequests(ctx context.Context) ([]domain.VerificationRequest, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllVerificationRequests")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var verificationRequestsPersistence []persistence.VerificationRequest
+	result := repository.DB.Find(&verificationRequestsPersistence)
 	if result.Error != nil {
 		return nil, result.Error
 	}

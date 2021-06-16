@@ -111,3 +111,25 @@ func (s *VerificationGrpcController) GetVerificationRequestsByUserId(ctx context
 		VerificationRequests: responseVerificationRequests,
 	}, nil
 }
+
+func (s *VerificationGrpcController) GetAllVerificationRequests(ctx context.Context, in *protopb.EmptyRequest) (*protopb.VerificationRequestsArray, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllVerificationRequests")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	s.logger.ToStdoutAndFile("GetAllVerificationRequests", "Get all requests attempt", logger.Info)
+
+	verificationRequests, err := s.service.GetAllVerificationRequests(ctx)
+	if err != nil {
+		return &protopb.VerificationRequestsArray{}, status.Errorf(codes.Unknown, "Could not get pending verification requests")
+	}
+
+	responseVerificationRequests := []*protopb.VerificationRequest{}
+	for _, verificationRequest := range verificationRequests {
+		responseVerificationRequests = append(responseVerificationRequests, verificationRequest.ConvertToGrpc())
+	}
+
+	return &protopb.VerificationRequestsArray{
+		VerificationRequests: responseVerificationRequests,
+	}, nil
+}

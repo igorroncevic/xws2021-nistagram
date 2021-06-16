@@ -75,3 +75,16 @@ func (service *VerificationService) GetVerificationRequestsByUserId(ctx context.
 	return verificationRequests, nil
 
 }
+
+func (service *VerificationService) GetAllVerificationRequests(ctx context.Context) ([]domain.VerificationRequest, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllVerificationRequests")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	verificationRequests, err := service.verificationRepository.GetAllVerificationRequests(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return verificationRequests, nil
+}

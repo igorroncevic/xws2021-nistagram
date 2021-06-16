@@ -64,6 +64,7 @@ function Menu() {
                         <Dropdown.Item href="/submit-verification-request">Submit verification request</Dropdown.Item>
                         <Dropdown.Item href="/view-my-verification-request">View my verification requests</Dropdown.Item>
                         <Dropdown.Item href="/view-pending-verification-request">View pending verification requests</Dropdown.Item>
+                        <Dropdown.Item href="/view-all-verification-request">View all verification requests</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             {/*</NavLink>*/}
