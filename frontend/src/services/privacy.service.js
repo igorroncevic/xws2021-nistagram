@@ -1,23 +1,14 @@
-import axios from 'axios';
+import RootService from './root.service'
 
-class PrivacyService {
+class PrivacyService extends RootService {
     constructor() {
-        this.apiClient = axios.create({
-            baseURL: "http://localhost:8001/api/privacy"
-        })
-    }
-
-    setupHeaders(jwt) {
-        return {
-            Accept: 'application/json',
-            Authorization: 'Bearer ' + jwt,
-        }
+        super("http://localhost:8001/api/privacy")
     }
 
     async getUserPrivacy(data){
-        const { userId,jwt} = data
-        const headers=this.setupHeaders(jwt)
-        const response = this.apiClient.post('/isProfilePublic',{
+        const { userId, jwt } = data
+        const headers = this.setupHeaders(jwt)
+        const response = this.apiClient.post('/isProfilePublic', {
             userId
         },{
             headers:headers

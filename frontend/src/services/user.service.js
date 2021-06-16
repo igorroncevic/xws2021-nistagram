@@ -1,17 +1,8 @@
-import axios from 'axios';
+import RootService from './root.service'
 
-class UserService {
+class UserService extends RootService {
     constructor(){
-        this.apiClient = axios.create({
-            baseURL: "http://localhost:8001/api/users"
-        })
-    }
-
-     setupHeaders(jwt){
-        return {
-            Accept: 'application/json',
-            Authorization: 'Bearer ' + jwt,
-        }
+        super("http://localhost:8001/api/users")
     }
 
     async login(data){
@@ -29,8 +20,8 @@ class UserService {
     }
 
     async checkIsApproved(data){
-        const { id,jwt} = data
-        const headers=this.setupHeaders(jwt)
+        const { id, jwt } = data
+        const headers = this.setupHeaders(jwt)
         const response = this.apiClient.post('/checkIsApproved', {
             id
         },{
@@ -46,10 +37,10 @@ class UserService {
 
 
     async approveAccount(data){
-        const { id,oldPassword,newPassword,repeatedPassword,jwt} = data
-        const headers=this.setupHeaders(jwt)
+        const { id, oldPassword, newPassword, repeatedPassword, jwt } = data
+        const headers = this.setupHeaders(jwt)
         const response = this.apiClient.post('/approveAccount', {
-            password:{id,oldPassword,newPassword,repeatedPassword}
+            password: { id, oldPassword, newPassword, repeatedPassword }
         },{
             headers:headers
         }).then(res => {
@@ -129,6 +120,7 @@ class UserService {
         })
         return response
     }
+<<<<<<< HEAD
 
     async searchByUser(data){
         const { username,firstName,lastName,jwt} = data
@@ -147,6 +139,8 @@ class UserService {
 
 
 
+=======
+>>>>>>> front/2.6_objavljivanje_sadrzaja
 }
 
 const userService = new UserService()

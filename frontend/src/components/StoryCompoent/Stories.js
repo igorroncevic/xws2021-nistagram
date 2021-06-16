@@ -1,34 +1,35 @@
+import React, { useState, useEffect } from 'react';
 import HorizontalScroll from "react-scroll-horizontal";
 import Story from "./Story";
 import '../../style/Stories.css';
+import { useSelector } from 'react-redux';
+import storyService from './../../services/story.service'
+import toastService from './../../services/toast.service'
 
-//iz baze iscupaj sve objavljene storije
-//Svakkom StoryCompoent-u proslediti usera koji ga je objavio i media
-function Stories() {
+const Stories = () => {
+    const [stories, setStories] = useState([]);
+    const store = useSelector(state => state);
+
+    useEffect(()=>{
+        storyService.getHomepageStories({ jwt: store.user.jwt })
+            .then(response => {
+                if(response.status === 200) setStories(response.data.stories)
+                console.log(stories)
+            })
+            .catch(err => {
+                toastService.show("error", "Could not retrieve homepage stories.")
+            })
+    }, [])
+
     return (
         <div className="stories">
             <HorizontalScroll className="scroll" reverseScroll={false}>
-                <Story />
-                <Story />
-                <Story />
-                <Story />
-                <Story />
-                <Story />
-                <Story />
-                <Story />
-                <Story />
-                <Story />
-                <Story />
-                <Story />
-                <Story />
-                <Story />
-                <Story />
-                <Story />
-                <Story />
-                <Story />
-                <Story />
-
+                {stories.forEach((story)=>{
+                    <Story story={story} />
+                })}
             </HorizontalScroll>
         </div>
     );
-}export default Stories;
+}
+
+export default Stories;

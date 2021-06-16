@@ -2,13 +2,14 @@ package controllers
 
 import (
 	"context"
+	"io"
+
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/david-drvar/xws2021-nistagram/common/logger"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	otgo "github.com/opentracing/opentracing-go"
 	"gorm.io/gorm"
-	"io"
 )
 
 type Server struct {
@@ -60,7 +61,11 @@ func (s *Server) CreatePost(ctx context.Context, in *protopb.Post) (*protopb.Emp
 	return s.postController.CreatePost(ctx, in)
 }
 
-func (s *Server) GetAllPosts(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.ReducedPostArray, error) {
+func (s *Server) GetAllPostsReduced(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.ReducedPostArray, error) {
+	return s.postController.GetAllPostsReduced(ctx, in)
+}
+
+func (s *Server) GetAllPosts(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.PostArray, error) {
 	return s.postController.GetAllPosts(ctx, in)
 }
 

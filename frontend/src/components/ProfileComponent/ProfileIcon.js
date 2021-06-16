@@ -1,8 +1,7 @@
+import React from 'react';
 import "../../style/ProfileIcon.css";
-import Profile from "./Profile";
-import { NavLink } from 'react-router-dom'
 
-function ProfileIcon(props) {
+const ProfileIcon = (props) => {
     const { iconSize, storyBorder, image } = props;
 
     function getRandomInt(min, max) {
@@ -19,7 +18,9 @@ function ProfileIcon(props) {
 
     return (
         <div className={storyBorder ? "storyBorder" : ""}>
-            <img  className={`profileIcon ${iconSize}`} src={profileImage}alt="profile"/>
+            <img className={`profileIcon ${iconSize}`} src={profileImage}alt="profile"/>
         </div>
     );
-}export default  ProfileIcon;
+}
+
+export default  ProfileIcon;
