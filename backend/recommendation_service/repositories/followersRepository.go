@@ -97,7 +97,7 @@ func (repository *followersRepository) CreateUserConnection(ctx context.Context,
 
 	result , err := session.WriteTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
 		result, err := transaction.Run(
-			"MATCH (a:User {id : $UserId}), (b:User {id : $FollowerId}) CREATE" +
+			"MATCH (a:User {id : $UserId}), (b:User {id : $FollowerId}) MERGE" +
 				"(a)-[:Follows {UserId : $UserId, FollowerId : $FollowerId ,IsMuted : $IsMuted," +
 				" IsCloseFriend : $IsCloseFriend, IsApprovedRequest : $IsApprovedRequest, " +
 				"IsNotificationEnabled : $IsNotificationEnabled}]->(b)" +
