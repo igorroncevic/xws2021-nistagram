@@ -186,22 +186,21 @@ function Profile() {
                     </div>
 
                 </div>
-                {publicProfile ?
-                    <div className="gallery">
-                        <img className="item"
-                             src='https://images.unsplash.com/photo-1522228115018-d838bcce5c3a?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
-                        <img className="item"
-                             src='https://images.unsplash.com/photo-1581882898166-634d30416957?ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
-                        <img className="item"
-                             src='https://images.unsplash.com/photo-1522228115018-d838bcce5c3a?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
-                    </div>
-                    :
+                {!follow &&
+                <div className="gallery">
+                    <img className="item"
+                         src='https://images.unsplash.com/photo-1522228115018-d838bcce5c3a?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
+                    <img className="item"
+                         src='https://images.unsplash.com/photo-1581882898166-634d30416957?ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
+                    <img className="item"
+                         src='https://images.unsplash.com/photo-1522228115018-d838bcce5c3a?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
+                </div>
+                }
+                {follow && !publicProfile &&
                     <div style={{ borderTop: '1px solid black'}}>
                         <p style={{textAlign: 'center',marginTop:'6%', fontWeight:'bold'}}> This Account is Private </p>
                         <p style={{textAlign: 'center',marginTop:'2%'}}>Follow to see their photos and videos!</p>
                     </div>
-
-
                 }
                 <Modal show={showModal} onHide={handleModal}>
                     <Modal.Header closeButton>

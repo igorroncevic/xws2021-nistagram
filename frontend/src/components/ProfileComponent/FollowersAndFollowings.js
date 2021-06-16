@@ -25,7 +25,7 @@ function FollowersAndFollowings(props) {
         if (response.status === 200) {
            setUsers(users=>[...users,response.data])
         } else {
-            console.log("getuserbyusername error")
+            console.log("getuserbyid error")
         }
     }
 

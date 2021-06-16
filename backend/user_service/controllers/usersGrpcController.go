@@ -165,15 +165,15 @@ func (s *UserGrpcController) GetUserById(ctx context.Context, in *protopb.Reques
 			return &protopb.UsersDTO{}, status.Errorf(codes.Unknown, "this user is private")
 		}
 	}else  if claims.UserId != in.Id{
-		following, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
-		if err != nil {
-			return &protopb.UsersDTO{}, status.Errorf(codes.Unknown, "cannot retrieve this user")
-		}
+		//following, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
+		//if err != nil {
+		//	return &protopb.UsersDTO{}, status.Errorf(codes.Unknown, "cannot retrieve this user")
+		//}
 
-		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
-		if err != nil {
-			return &protopb.UsersDTO{}, status.Errorf(codes.Unknown, err.Error())
-		}
+		//isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
+		//if err != nil {
+		//	return &protopb.UsersDTO{}, status.Errorf(codes.Unknown, err.Error())
+		//}
 
 		isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.Id, claims.UserId)
 		if err != nil {
@@ -181,7 +181,7 @@ func (s *UserGrpcController) GetUserById(ctx context.Context, in *protopb.Reques
 		}
 
 		// If used is blocked or his profile is private and did not approve your request
-		if isBlocked || (!isPublic && !following.IsApprovedRequest ) {
+		if isBlocked {//|| (!isPublic && !following.IsApprovedRequest ) {
 			return &protopb.UsersDTO{}, status.Errorf(codes.Unknown, "cannot retrieve this user, no connection available")
 		}
 	}
