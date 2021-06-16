@@ -3,9 +3,9 @@ import axios from "axios";
 import Navigation from "../HomePage/Navigation";
 import {Button, Modal} from "react-bootstrap";
 import RegistrationPage from "../../pages/RegistrationPage";
-import UserAutocomplete from "../PostComponent/UserAutocomplete";
-import ProfileForAutocomplete from "../PostComponent/ProfileForAutocomplete";
-import AutocompleteHashtags from "../PostComponent/AutocompleteHashtags";
+import UserAutocomplete from "../Post/UserAutocomplete";
+import ProfileForAutocomplete from "../Post/ProfileForAutocomplete";
+import AutocompleteHashtags from "../Post/AutocompleteHashtags";
 import userService from "../../services/user.service";
 import {useDispatch, useSelector} from "react-redux";
 

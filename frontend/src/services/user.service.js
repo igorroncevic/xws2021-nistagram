@@ -120,7 +120,6 @@ class UserService extends RootService {
         })
         return response
     }
-<<<<<<< HEAD
 
     async searchByUser(data){
         const { username,firstName,lastName,jwt} = data
@@ -136,11 +135,6 @@ class UserService extends RootService {
         })
         return response
     }
-
-
-
-=======
->>>>>>> front/2.6_objavljivanje_sadrzaja
 }
 
 const userService = new UserService()
