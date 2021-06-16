@@ -108,7 +108,6 @@ function ChangePassword() {
                         updated!</Alert>
                     :
             <div>
-                <h2 className="pt-4 pb-3">Change Password</h2>
                 <Row className="m-2">
                     <FormControl name="oldPass" type="password" placeholder="Please enter old password"  value={passwords.oldPass} onChange={handleChange}/>
                     {submitted &&  <label className="text-danger">{oldErr}</label>}

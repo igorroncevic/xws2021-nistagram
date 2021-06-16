@@ -45,7 +45,7 @@ func (s *PrivacyGrpcController) UpdatePrivacy(ctx context.Context, in *protopb.C
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var privacy *persistence.Privacy
-	privacy.ConvertFromGrpc(in.Privacy)
+	privacy=privacy.ConvertFromGrpc(in.Privacy)
 	_, err := s.service.UpdatePrivacy(ctx, privacy)
 	if err != nil {
 		return &protopb.EmptyResponsePrivacy{}, err

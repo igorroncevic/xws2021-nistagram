@@ -9,6 +9,7 @@ import Navigation from "../HomePage/Navigation";
 import {   useParams } from 'react-router-dom'
 import userService from "../../services/user.service";
 import {userActions} from "../../store/actions/user.actions";
+import Switch from "react-switch";
 
 
 import {useDispatch, useSelector} from "react-redux";
@@ -16,6 +17,7 @@ import privacyService from "../../services/privacy.service";
 import followersService from "../../services/followers.service";
 import ProfileForSug from "../HomePage/ProfileForSug";
 import FollowersAndFollowings from "./FollowersAndFollowings";
+import EditUserPrivacy from "./EditUserPrivacy";
 
 
 function Profile() {
@@ -28,11 +30,11 @@ function Profile() {
     const [showModalPass, setModalPass] = useState(false);
     const [showModalFollowers, setModalFollowers] = useState(false);
     const [showModalFollowings, setModalFollowings] = useState(false);
+    const [showModalPrivacy, setModalPrivacy] = useState(false);
 
     const [followers, setFollowers] = useState([]);
     const [following, setFollowings] = useState([]);
     const [posts, setPosts] = useState([]);
-    const [loggedUser, setLoggedUser] = useState();
 
     const dispatch = useDispatch()
     const store = useSelector(state => state);
@@ -131,9 +133,6 @@ function Profile() {
 
     }
 
-    function getPosts(){
-
-    }
 
     function handleModal() {
         setModal(!showModal)
@@ -148,6 +147,11 @@ function Profile() {
         setModalFollowings(!showModalFollowings)
     }
 
+    function handleModalPrivacy() {
+        setModalPrivacy(!showModalPrivacy)
+    }
+
+
     return (
         <div>
             <Navigation/>
@@ -155,24 +159,24 @@ function Profile() {
                 <div style={{margin: "18px 0px", orderBottom: "1px solid "}}>
                     <div style={{display: "flex", justifyContent: "space-around",}}>
                         <div>
-                            <img style={{width: "180px", height: "160px", borderRadius: "80px"}}
-                                 src={user.profilePhoto ? user.profilePhoto : ""}/>
+                            <img style={{width: "180px", height: "160px", borderRadius: "80px"}} src={user.profilePhoto ? user.profilePhoto : ""}/>
                         </div>
                         <div>
                             <h4>{user.firstName} {user.lastName}</h4>
                             <h4>{user.username}</h4>
                             <div style={{display: "flex"}}>
                                 <h6 style={{marginTop:'9px'}}> 15 posts </h6>
-                                <Button variant="link"  onClick={handleModalFollowers}>{followers.length} followers</Button>
-                                <Button variant="link"  onClick={handleModalFollowings}> {following.length} following </Button>
+                                <Button variant="link" style={{color:'black'}} onClick={handleModalFollowers}>{followers.length} followers</Button>
+                                <Button variant="link"  style={{color:'black'}} onClick={handleModalFollowings}> {following.length} following </Button>
 
                             </div>
                             {follow ?
                                 <FollowAndUnfollow user={user} followers={followers} getFollowers={getFollowers}/>
 :
-                                <div>
+                                <div >
                                     <Button variant="link" style={{marginTop:'2em', borderTop: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModal}>Update profile info</Button>
-                                    { !isSSO && <Button variant="link" style={{borderBottom: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModalPass}>Change password</Button> }
+                                    { !isSSO && <Button variant="link" style={{display: "flex",justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModalPass}>Change password</Button> }
+                                    <Button variant="link" style={{ borderBottom: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModalPrivacy}>Update profile privacy</Button>
                                 </div>
 
                             }
@@ -214,6 +218,7 @@ function Profile() {
 
                 <Modal show={showModalPass} onHide={handleModalPass}>
                     <Modal.Header closeButton>
+                        <Modal.Title>Change password</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <ChangePassword user={user}/>
@@ -224,6 +229,8 @@ function Profile() {
                 </Modal>
                 <Modal show={showModalFollowers} onHide={handleModalFollowers}>
                     <Modal.Header closeButton>
+                        <Modal.Title>Followers:</Modal.Title>
+
                     </Modal.Header>
                     <Modal.Body>
                         <FollowersAndFollowings ids={followers} handleModal={handleModalFollowers}/>
@@ -234,9 +241,22 @@ function Profile() {
                 </Modal>
                 <Modal show={showModalFollowings} onHide={handleModalFollowings}>
                     <Modal.Header closeButton>
+                        <Modal.Title>Following:</Modal.Title>
+
                     </Modal.Header>
                     <Modal.Body>
                         <FollowersAndFollowings ids={following} handleModal={handleModalFollowings}/>
+                    </Modal.Body>
+                    <Modal.Footer>
+
+                    </Modal.Footer>
+                </Modal>
+                <Modal show={showModalPrivacy} onHide={handleModalPrivacy}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Edit privacy</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <EditUserPrivacy/>
                     </Modal.Body>
                     <Modal.Footer>
 
