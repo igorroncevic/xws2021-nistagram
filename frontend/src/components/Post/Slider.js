@@ -1,38 +1,43 @@
 import React, { useState } from 'react'
 
 import './../../style/Slider.css';
-import faChevronRight from './../../images/icons/chevron-right-solid.svg';
-import faChevronLeft from './../../images/icons/chevron-left-solid.svg';
+import { ReactComponent as ChevronRight } from './../../images/icons/chevron-right-solid.svg';
+import { ReactComponent as ChevronLeft } from './../../images/icons/chevron-left-solid.svg';
+import { ReactComponent as Circle } from './../../images/icons/circle.svg';
 
 const Slider = (props) => {
     const { media } = props;
-    const [slideCount, setSlideCount] = useState(0)
+    const [slideCount, setSlideCount] = useState(1)
+
+    console.log(media);
 
     const nextImage = () => {
-        setSlideCount((slideCount + 1 <= media.length) ? slideCount + 1 : slideCount)
+      console.log("next clicked")
+      setSlideCount((slideCount + 1 <= media.length) ? slideCount + 1 : slideCount)
     }
 
     const previousImage = () => {
-        setSlideCount((slideCount - 1 >= 0) ? slideCount - 1 : slideCount)
+      console.log("previous clicked")
+      setSlideCount((slideCount - 1 >= 1) ? slideCount - 1 : slideCount)
     }
 
-    const BackArrow = (props) => (
-        <div onClick={props.previousImage} className="Arrow">
-           <img src={faChevronLeft} alt="left" />
-        </div>
-    )
-
-    const NextArrow = (props) => (
-        <div onClick={props.nextImage} className="Arrow">
-          <img src={faChevronRight} alt="right" />
-        </div>
+    const BackArrow = () => <ChevronLeft onClick={previousImage} className="Arrow-back" />
+    const NextArrow = () => <ChevronRight onClick={nextImage} className="Arrow-next" />
+    const CircleWrapper = () => (
+      <div className="CircleWrapper">
+        { media.map((photo, key) => {
+          const checkActive = photo.orderNum === slideCount ? "active" : "";
+          return (
+            <Circle className={`Circle ${checkActive}`} />
+          )
+        })}
+      </div>
     )
 
     return (
       <div className="Slide">
-        {slideCount !== 0 ? <BackArrow previousImage={previousImage}/> : ''}
         {media.map((photo, key) => {
-          if (media.indexOf(photo) === slideCount) {
+          if (photo.orderNum === slideCount) {
             return (
               <div key={photo.id}>
                 <img src={photo.content} alt=''/>
@@ -41,7 +46,9 @@ const Slider = (props) => {
           }
           return ''
         })}
-        {slideCount !== (media.length - 1) ? <NextArrow nextImage={nextImage}/> : ''}
+        <CircleWrapper />
+        {slideCount !== 1 ? <BackArrow /> : ''}
+        {slideCount !== media.length ? <NextArrow /> : ''}
       </div>
     );
 }

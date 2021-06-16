@@ -1,8 +1,11 @@
+@import url("./variables.css");
+
 .Slide {
     display: flex;
     align-items: center;
     justify-content: center;
     background-repeat: no-repeat;
+    position: relative;
 }
 
 .Slide img{
@@ -11,7 +14,39 @@
     display: block;
 }
 
-.Arrow{
-    font-size: 2em;
+.Arrow-next, .Arrow-back{
+    width: 25px;
     margin: 0px 12px;
+    color: var(--background-grey);
+    position: absolute;
+    opacity: 90%;
+}
+
+.Arrow-back{
+    left: 0%;
+}
+
+.Arrow-next{
+    right: 0%;
+}
+
+.Arrow-back:hover, .Arrow-next:hover {
+    cursor: pointer;
+}
+
+.CircleWrapper{
+    position: absolute;
+    display: flex;
+    justify-content: space-evenly;
+    bottom: 0%;
+}
+
+.Circle{
+    color: var(--font-color-secondary);
+    width: 7px;
+    margin: 0px 3px -40px;
+}
+
+.active{
+    color: var(--link-color);
 }
