@@ -82,7 +82,7 @@ func (service *UserService) CreateUser(ctx context.Context, user *persistence.Us
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	if security.CheckBlacklistedPassword(user.Password){
+	if security.CheckBlacklistedPassword(user.Password) {
 		return errors.New("password is among blacklisted passwords")
 	}
 
@@ -95,7 +95,7 @@ func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, us
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	if security.CheckBlacklistedPassword(user.Password) && user.Password != ""{
+	if security.CheckBlacklistedPassword(user.Password) && user.Password != "" {
 		return nil, errors.New("password is among blacklisted passwords")
 	}
 
@@ -162,7 +162,7 @@ func (service *UserService) UpdateUserPassword(ctx context.Context, password dom
 		return false, errors.New("Passwords do not match!")
 	}
 
-	if security.CheckBlacklistedPassword(password.NewPassword){
+	if security.CheckBlacklistedPassword(password.NewPassword) {
 		return false, errors.New("password is among blacklisted passwords")
 	}
 
@@ -174,12 +174,16 @@ func (service *UserService) UpdateUserPassword(ctx context.Context, password dom
 	return true, nil
 }
 
-func (service *UserService) SearchUsersByUsernameAndName(ctx context.Context, user *domain.User) ([]domain.User, error) {
-	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+func (service *UserService) SearchUsersByUsernameAndName(ctx context.Context, user *domain.User, userWhoSearchedId string) ([]domain.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "SearchUsersByUsernameAndName")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	return service.userRepository.SearchUsersByUsernameAndName(ctx, user)
+
+	//todo proveri da li su se useri blokirali medjusobno - ne moze u bilo kom smeru
+	//todo ako neregistrovan pretrazuje onda nemoj proveravati
+
 }
 
 func (service *UserService) GetUserByEmail(ctx context.Context, email string) (domain.User, error) {
@@ -196,13 +200,13 @@ func (service *UserService) ValidateResetCode(ctx context.Context, resetCode str
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var user domain.User
-	user, _ = service.GetUserByEmail(ctx,email)
-	if user.ResetCode != resetCode{
+	user, _ = service.GetUserByEmail(ctx, email)
+	if user.ResetCode != resetCode {
 		return false, errors.New("wrong reset code!")
 	}
 
 	today := time.Now()
-	if today.After(user.TokenEnd){
+	if today.After(user.TokenEnd) {
 		return false, errors.New("Reset code expired!")
 	}
 	return true, nil
@@ -247,10 +251,14 @@ func (service *UserService) GoogleSignIn(ctx context.Context, token string) (*do
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	claims, err := util.ValidateGoogleJWT(token)
-	if err != nil { return &domain.User{}, err }
+	if err != nil {
+		return &domain.User{}, err
+	}
 
 	exists, err := service.userRepository.DoesUserExists(ctx, claims.Email)
-	if err != nil { return &domain.User{}, err }
+	if err != nil {
+		return &domain.User{}, err
+	}
 
 	if !exists {
 		newUser := &persistence.User{
@@ -258,22 +266,26 @@ func (service *UserService) GoogleSignIn(ctx context.Context, token string) (*do
 			LastName:        claims.LastName,
 			Email:           claims.Email,
 			Username:        claims.FirstName + "_" + claims.LastName + "_" + uuid.NewV4().String(),
-			Password:        "",	// Google will handle password
+			Password:        "", // Google will handle password
 			Role:            model.Basic,
-			IsActive:		 true,
+			IsActive:        true,
 			ApprovedAccount: true,
 		}
 		dbUser, err := service.CreateUserWithAdditionalInfo(ctx, newUser, &persistence.UserAdditionalInfo{})
-		if err != nil { return &domain.User{}, errors.New("unable to create user") }
+		if err != nil {
+			return &domain.User{}, errors.New("unable to create user")
+		}
 		return dbUser, nil
-	}else{
+	} else {
 		dbUser, err := service.userRepository.GetUserByEmail(claims.Email)
-		if err != nil { return &domain.User{}, errors.New("unable to create user") }
+		if err != nil {
+			return &domain.User{}, errors.New("unable to create user")
+		}
 		return &dbUser, nil
 	}
 }
 
-func (service *UserService) UpdateUserPhoto(ctx context.Context, userId string, photo string) (error) {
+func (service *UserService) UpdateUserPhoto(ctx context.Context, userId string, photo string) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserPhoto")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)

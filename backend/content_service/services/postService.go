@@ -354,6 +354,9 @@ func (service *PostService) SearchContentByLocation(ctx context.Context, locatio
 		}
 	}
 
+	//todo proveri da li su se useri blokirali medjusobno - ne moze u bilo kom smeru
+	//todo ako neregistrovan pretrazuje onda nemoj proveravati
+
 	//get media for post
 	//todo fix smh
 	for _, post := range finalPosts {

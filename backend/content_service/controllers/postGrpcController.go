@@ -304,7 +304,7 @@ func (c *PostGrpcController) RemovePost(ctx context.Context, id string) (*protop
 }
 
 func (c *PostGrpcController) SearchContentByLocation(ctx context.Context, in *protopb.SearchLocationRequest) (*protopb.ReducedPostArray, error) {
-	span := tracer.StartSpanFromContextMetadata(ctx, "CreatePost")
+	span := tracer.StartSpanFromContextMetadata(ctx, "SearchContentByLocation")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
