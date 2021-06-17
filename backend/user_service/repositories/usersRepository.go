@@ -494,15 +494,6 @@ func (repository *userRepository) UpdateUserPhoto(ctx context.Context, userId st
 		return  err
 	}
 
-
-	//db := repository.DB.Model(&persistence.User{}).Where("id =?", userId).Updates(persistence.User{ProfilePhoto: photo})
-
-	//if db.Error != nil {
-	//	return  db.Error
-	//} else if db.RowsAffected == 0 {
-	//	return errors.New("Zero rows affected")
-	//}
-
 	return nil
 }
 
