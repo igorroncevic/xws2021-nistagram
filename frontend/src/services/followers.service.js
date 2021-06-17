@@ -109,6 +109,19 @@ class FollowersService {
         return response
     }
 
+    async getCloseFriends(data){
+        const { id,jwt} = data
+        const headers=this.setupHeaders(jwt)
+        const response = this.apiClient.get('/close/'+id,{
+            headers:headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
+
 
 }const followersService = new FollowersService()
 
