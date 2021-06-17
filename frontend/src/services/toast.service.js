@@ -1,7 +1,7 @@
 import { toast } from 'react-toastify';
 
 const defaultOptions = {
-    autoClose: 3000,
+    autoClose: 4000,
     hideProgressBar: true,
 }
 

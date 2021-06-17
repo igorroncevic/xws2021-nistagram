@@ -62,6 +62,26 @@ func (service *FavoritesService) GetAllCollections(ctx context.Context, userId s
 		collections = append(collections, collection)
 	}
 
+	dbUnclassified, err := service.favoritesRepository.GetUnclassifiedFavorites(ctx, userId)
+	if err != nil { return []domain.Collection{}, err }
+
+	unclassifiedPosts := []domain.ReducedPost{}
+	for _, unclassifiedPost := range dbUnclassified{
+		converted := domain.ReducedPost{
+			Objava: domain.Objava{ Id: unclassifiedPost.Id },
+		}
+		if err != nil { return []domain.Collection{}, err }
+
+		unclassifiedPosts = append(unclassifiedPosts, converted)
+	}
+
+	collections = append(collections, domain.Collection{
+		Id:     "1",
+		Name:   "No Collection",
+		UserId: userId,
+		Posts:  unclassifiedPosts,
+	})
+
 	return collections, nil
 }
 func (service *FavoritesService) GetCollection(ctx context.Context, collectionId string) (domain.Collection, error) {

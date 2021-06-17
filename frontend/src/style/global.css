@@ -26,10 +26,8 @@
 
 .Toastify__toast--success{
     background: green;
-    border: 1px solid black;
 }
 
 .Toastify__toast--error{
     background: red;
-    border: none;
 }

@@ -82,13 +82,8 @@ function Post (props) {
             jwt: store.user.jwt,
         }).then(response => {
             // Collection for posts that do not have any designated collection
-            const newCollections = response.data.collections;
-            newCollections.push({
-                id: "1",
-                name: "No Collection",
-                userId: store.user.id,
-            })
-            setCollections(response.data.collections)
+            const newCollections = [...response.data.collections];
+            setCollections(newCollections)
 
             // Check in which collection the post has been saved
             newCollections.forEach(collection => {
@@ -98,8 +93,6 @@ function Post (props) {
                     setSavedInCollections([...savedInCollections, collection.id])
                 };
             })
-
-            console.log(savedInCollections)
         }).catch(err => {
             toastService.show("error", "Could not load your collections. Please try again.")
         })

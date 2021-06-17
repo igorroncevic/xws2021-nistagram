@@ -46,11 +46,12 @@ const CollectionsModal = (props) => {
         const response = await favoritesService.createFavorite(newFavorite);
         
         if(response.status === 200){
-            toastService.show("success", "Successfully saved this post to " + selectedCollection.name);
+            toastService.show("success", "Successfully saved this post to " + selectedCollection.name + ".");
+            setSavedInCollections([...savedInCollections, selectedCollection.id])
             setSelectedCollection({});
             setShowModal(!showModal);
         }else{
-            toastService.show("error", "Could not save this post to " + selectedCollection.name);
+            toastService.show("error", "Could not save this post to " + selectedCollection.name + ".");
         }
     }
 
@@ -65,11 +66,11 @@ const CollectionsModal = (props) => {
         const response = await favoritesService.removeFavorite(removingFavorite);
         
         if(response.status === 200){
-            toastService.show("success", "Successfully removed this post from " + selectedCollection.name);
+            toastService.show("success", "Successfully removed this post from " + selectedCollection.name + ".");
             setSelectedCollection({});
             setShowModal(!showModal);
         }else{
-            toastService.show("error", "Could not remove this post from " + selectedCollection.name);
+            toastService.show("error", "Could not remove this post from " + selectedCollection.name + ".");
         }
     }
 
