@@ -346,7 +346,7 @@ func (service *PostService) SearchContentByLocation(ctx context.Context, locatio
 	return finalPosts, nil
 }
 
-func (service *PostService) GetPostsByHashtag(ctx context.Context, text string) ([]domain.ReducedPost, error) {
+func (service *PostService) GetPostsByHashtag(ctx context.Context, text string) ([]domain.Post, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostsByHashtag")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -356,18 +356,18 @@ func (service *PostService) GetPostsByHashtag(ctx context.Context, text string) 
 		log.Fatalf("Error when calling GetPostsByHashtag: %s", err)
 	}
 
-	var posts []domain.ReducedPost
+	var posts []domain.Post
 
 	postIds, _ := service.hashtagRepository.GetPostIdsByHashtag(ctx, persistence.Hashtag{Id: hashtag.Id, Text: hashtag.Text})
 	for _, postId := range postIds {
-		post, err := service.GetReducedPostData(ctx, postId)
+		post, err := service.GetPostById(ctx, postId)
 		if err != nil {
 			log.Fatalf("Error when calling GetPostById: %s", err)
 		}
 		posts = append(posts, post)
 	}
 
-	var postsWithPublicAccess []domain.ReducedPost
+	var postsWithPublicAccess []domain.Post
 
 	var conn *grpc.ClientConn
 	conn, err = grpc.Dial(":8091", grpc.WithInsecure())

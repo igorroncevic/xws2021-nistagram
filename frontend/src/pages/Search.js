@@ -39,10 +39,11 @@ export default function Search() {
 
     async function searchByTag() {
         const response = await searchService.searchByTag({
-            tag : input,
+            text : input,
+            jwt : store.user.jwt
         })
 
-        if (response.status === 200)   console.log("search radi")
+        if (response.status === 200)   setSearchResult(response.data.posts)
         else  console.log("search error")
     }
 
@@ -98,6 +99,8 @@ export default function Search() {
                 alert("Select search category");
                 return;
         }
+
+        console.log(searchResult)
     }
 
     function handleSearchCategoryChange(event) {
@@ -163,6 +166,13 @@ export default function Search() {
                         <Post post={post} postUser={{ id: post.userId }}/>
                     );
                 })
+            }
+            {searchResult.length > 0 && searchCategory === 'Tag' &&
+            searchResult.map((post) => {
+                return (
+                    <Post post={post} postUser={{ id: post.userId }}/>
+                );
+            })
             }
         </div>
     );

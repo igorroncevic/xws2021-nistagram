@@ -53,7 +53,7 @@ service Content {
     };
   }
 
-  rpc GetPostsByHashtag (Hashtag) returns (ReducedPostArray) {
+  rpc GetPostsByHashtag (Hashtag) returns (PostArray) {
     option(google.api.http) = {
       post: "/posts-by-hashtag",
       body: "*"

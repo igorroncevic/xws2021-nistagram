@@ -25,7 +25,7 @@ type ContentClient interface {
 	RemovePost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetPostById(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Post, error)
 	SearchContentByLocation(ctx context.Context, in *SearchLocationRequest, opts ...grpc.CallOption) (*PostArray, error)
-	GetPostsByHashtag(ctx context.Context, in *Hashtag, opts ...grpc.CallOption) (*ReducedPostArray, error)
+	GetPostsByHashtag(ctx context.Context, in *Hashtag, opts ...grpc.CallOption) (*PostArray, error)
 	GetAllHashtags(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*Hashtags, error)
 	//    Stories
 	CreateStory(ctx context.Context, in *Story, opts ...grpc.CallOption) (*EmptyResponseContent, error)
@@ -130,8 +130,8 @@ func (c *contentClient) SearchContentByLocation(ctx context.Context, in *SearchL
 	return out, nil
 }
 
-func (c *contentClient) GetPostsByHashtag(ctx context.Context, in *Hashtag, opts ...grpc.CallOption) (*ReducedPostArray, error) {
-	out := new(ReducedPostArray)
+func (c *contentClient) GetPostsByHashtag(ctx context.Context, in *Hashtag, opts ...grpc.CallOption) (*PostArray, error) {
+	out := new(PostArray)
 	err := c.cc.Invoke(ctx, "/proto.Content/GetPostsByHashtag", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -376,7 +376,7 @@ type ContentServer interface {
 	RemovePost(context.Context, *RequestId) (*EmptyResponseContent, error)
 	GetPostById(context.Context, *RequestId) (*Post, error)
 	SearchContentByLocation(context.Context, *SearchLocationRequest) (*PostArray, error)
-	GetPostsByHashtag(context.Context, *Hashtag) (*ReducedPostArray, error)
+	GetPostsByHashtag(context.Context, *Hashtag) (*PostArray, error)
 	GetAllHashtags(context.Context, *EmptyRequestContent) (*Hashtags, error)
 	//    Stories
 	CreateStory(context.Context, *Story) (*EmptyResponseContent, error)
@@ -436,7 +436,7 @@ func (UnimplementedContentServer) GetPostById(context.Context, *RequestId) (*Pos
 func (UnimplementedContentServer) SearchContentByLocation(context.Context, *SearchLocationRequest) (*PostArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchContentByLocation not implemented")
 }
-func (UnimplementedContentServer) GetPostsByHashtag(context.Context, *Hashtag) (*ReducedPostArray, error) {
+func (UnimplementedContentServer) GetPostsByHashtag(context.Context, *Hashtag) (*PostArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPostsByHashtag not implemented")
 }
 func (UnimplementedContentServer) GetAllHashtags(context.Context, *EmptyRequestContent) (*Hashtags, error) {

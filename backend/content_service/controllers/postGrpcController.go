@@ -325,24 +325,22 @@ func (c *PostGrpcController) SearchContentByLocation(ctx context.Context, in *pr
 	}, nil
 }
 
-func (c *PostGrpcController) GetPostsByHashtag(ctx context.Context, in *protopb.Hashtag) (*protopb.ReducedPostArray, error) {
+func (c *PostGrpcController) GetPostsByHashtag(ctx context.Context, in *protopb.Hashtag) (*protopb.PostArray, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostsByHashtag")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	posts, err := c.service.GetPostsByHashtag(ctx, in.Text)
 	if err != nil {
-		return &protopb.ReducedPostArray{
-			Posts: []*protopb.ReducedPost{},
-		}, status.Errorf(codes.Unknown, err.Error())
+		return &protopb.PostArray{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
-	responsePosts := []*protopb.ReducedPost{}
+	responsePosts := []*protopb.Post{}
 	for _, post := range posts {
 		responsePosts = append(responsePosts, post.ConvertToGrpc())
 	}
 
-	return &protopb.ReducedPostArray{
+	return &protopb.PostArray{
 		Posts: responsePosts,
 	}, nil
 }
