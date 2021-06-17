@@ -25,6 +25,7 @@ import SubmitVerificationRequest from "./components/VerificationRequest/SubmitVe
 import ViewMyVerificationRequests from "./components/VerificationRequest/ViewMyVerificationRequests";
 import ViewPendingVerificationRequests from "./components/VerificationRequest/ViewPendingVerificationRequests";
 import ViewAllVerificationRequests from "./components/VerificationRequest/ViewAllVerificationRequests";
+import EditProfileImage from "./components/UserData/EditProfileImage";
 
 
 const App = () => {
@@ -51,13 +52,14 @@ const App = () => {
 
 
                 <Route path='/blocked' exact component={BlockedUsers} />
-                <Route path='/closefriends' exact component={CloseFriends} />
+                <Route path='/close_friends' exact component={CloseFriends} />
                 <Route path='/liked' exact component={Liked} />
                 <Route path='/disliked' exact component={Disliked} />
                 <Route path='/archive' exact component={Archived} />
-                <Route path='/editProfile' exact component={EditProfile} />
+                <Route path='/edit_profile' exact component={EditProfile} />
                 <Route path='/password' exact component={ChangePassword} />
                 <Route path='/privacy' exact component={EditUserPrivacy} />
+                <Route path='/edit_photo' exact component={EditProfileImage} />
             </Router>
         </div>
     );

@@ -213,7 +213,6 @@ func (s *UserGrpcController) GetUsernameById(ctx context.Context, in *protopb.Re
 	return userResponse, nil
 }
 
-
 func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginRequest) (*protopb.LoginResponse, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "LoginUser")
 	defer span.Finish()

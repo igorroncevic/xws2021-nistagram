@@ -20,14 +20,14 @@ function  ProfileInfo(){
             <div style={{marginLeft: '5%', marginRight: '20%',marginTop:'4.2%',display: 'flex'}}>
                 <ProSidebar >
                     <Menu iconShape="square">
-                        <MenuItem icon={<FaGem/>}>Close friends  <Link to="/closefriends" /> </MenuItem>
+                        <MenuItem icon={<FaGem/>}>Close friends  <Link to="/close_friends" /> </MenuItem>
                         <MenuItem icon={<FaBan/>}>Blocked users <Link to="/blocked" /> </MenuItem>
                         <MenuItem icon={<FaHeart/>}>Liked posts <Link to="/liked" /> </MenuItem>
                         <MenuItem icon={<FaHeartBroken/>}>Disliked posts <Link to="/disliked" /> </MenuItem>
-                        <MenuItem icon={<IoMdSettings/>}>Edit profile info  <Link to="/editProfile" /> </MenuItem>
+                        <MenuItem icon={<IoMdSettings/>}>Edit profile info  <Link to="/edit_profile" /> </MenuItem>
                         <MenuItem icon={<RiLockPasswordLine/>}>Edit password  <Link to="/password" /> </MenuItem>
                         <MenuItem icon={<SiGnuprivacyguard/>}>Edit privacy  <Link to="/privacy" /> </MenuItem>
-                        <MenuItem icon={<HiOutlinePhotograph/>}>Edit profile photo  <Link to="/privacy" /> </MenuItem>
+                        <MenuItem icon={<HiOutlinePhotograph/>}>Edit profile photo  <Link to="/edit_photo" /> </MenuItem>
                     </Menu>
                 </ProSidebar>
             </div>
