@@ -4,6 +4,7 @@ import {Alert, Button} from "react-bootstrap";
 import privacyService from "../../services/privacy.service";
 import {useDispatch, useSelector} from "react-redux";
 import ProfileInfo from "./ProfileInfo";
+import toastService from "../../services/toast.service";
 
 function  EditUserPrivacy(){
     const[user,setUser]=useState({isProfilePublic:true, isTagEnabled:true,isDmPublic:true})
@@ -33,6 +34,8 @@ function  EditUserPrivacy(){
         })
 
         if (response.status === 200) {
+            toastService.show("success", "Successfully updated!");
+
             setSubmitted(true)
             console.log("bravo")
         } else {
@@ -45,11 +48,6 @@ function  EditUserPrivacy(){
         <div  style={{display: 'flex'}}>
             <ProfileInfo />
             <div style={{marginRight: '20%',marginTop:'5%',display: 'flex', flexDirection: 'column'}}>
-            {submitted ?
-                <Alert variant='success' show={true}  style={({textAlignVertical: "center", textAlign: "center"})}>
-                    Successfully updated!
-                </Alert>
-                :
                 <div style={{marginTop:'15'}}>
                 <tr>
                     <td>
@@ -85,7 +83,7 @@ function  EditUserPrivacy(){
                         </td>
                     </tr>
                     <Button style={{float: "right",marginRight:'130px', marginTop:'15px'}} variant="secondary" onClick={editPrivacy}>Save</Button>
-                </div>}
+                </div>
         </div>
         </div>
     );

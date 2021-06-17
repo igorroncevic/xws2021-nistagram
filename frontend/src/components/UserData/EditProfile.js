@@ -4,11 +4,11 @@ import axios from "axios";
 import userService from "../../services/user.service";
 import {useDispatch, useSelector} from "react-redux";
 import ProfileInfo from "./ProfileInfo";
+import toastService from "../../services/toast.service";
 
 function EditProfile () {
     const [user, setUser] = useState({});
     const [edit, setEdit] = useState(false)
-    const [success, setSuccess] = useState(false)
     const [firstNameErr, setFirstNameErr] = useState('');
     const [lastNameErr, setLastNameErr] = useState('');
     const [emailErr, setEmailErr] = useState('');
@@ -57,7 +57,7 @@ function EditProfile () {
         if (response.status === 200) {
             console.log("RADI")
           //  props.updateUser()
-            setSuccess(true);
+            toastService.show("success", "Successfully updated!");
         } else {
             console.log("NE RADIs")
         }
@@ -136,10 +136,6 @@ function EditProfile () {
         <div  style={{display: 'flex'}}>
             <ProfileInfo />
             <div style={{marginRight: '20%',marginTop:'5%',display: 'flex', flexDirection: 'column'}}>
-            {success ?
-                <Alert variant='success' show={true} style={({textAlignVertical: "center", textAlign: "center"})}>Successfully
-                    updated!</Alert>
-                :
                 <div>
 
                     <table className="table">
@@ -271,7 +267,6 @@ function EditProfile () {
                             className="btn btn-outline-danger" onClick={activateUpdateMode}>Edit profile</button>
                     }
                 </div>
-            }
             </div>
         </div>
     );

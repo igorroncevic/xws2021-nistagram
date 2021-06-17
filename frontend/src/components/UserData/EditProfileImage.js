@@ -3,6 +3,7 @@ import React, {useState} from "react";
 import {Button} from "react-bootstrap";
 import userService from "../../services/user.service";
 import {useSelector} from "react-redux";
+import toastService from "../../services/toast.service";
 
 function EditProfileImage(){
     const [profilePhoto, setProfilePhoto] = useState("");
@@ -30,8 +31,11 @@ function EditProfileImage(){
 
         if (response.status === 200) {
             console.log("BRAVO")
+            toastService.show("success", "Successfully updated!");
         } else {
             console.log("NE BRAVO")
+            toastService.show("error", "Could not update image!");
+
         }
     }
 

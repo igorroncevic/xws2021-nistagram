@@ -14,6 +14,7 @@ import likeService from './../../services/like.service';
 import commentService from './../../services/comment.service';
 import collectionsService from './../../services/collections.service';
 import PostMenu from "./PostMenu";
+import {Button, Dropdown, Modal} from "react-bootstrap";
 
 function Post (props) {
     const { postUser } = props;
@@ -35,6 +36,7 @@ function Post (props) {
     
     const [newComment, setNewComment] = useState("");
     const [isCommentDisabled, setIsCommentDisabled] = useState(true)
+    const [showReportModal, setReportModal] = useState(false);
 
     const commentInputRef = useRef()
     
@@ -208,6 +210,10 @@ function Post (props) {
     const handleSaveClick = () => {
        store.user.id && setShowSaveModal(!showSaveModal);
     }
+    const handleReportModal =()=>{
+        setReportModal(!showReportModal)
+    }
+
 
     return(
         <div className="Post">
@@ -220,7 +226,14 @@ function Post (props) {
                     image={user.profilePhoto}
                     iconSize="medium"
                     />
-                <CardButton className="cardButton" />
+                    <Dropdown>
+                        <Dropdown.Toggle variant="link" id="dropdown-basic">
+                            <CardButton className="cardButton" />
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            <Dropdown.Item onClick={handleReportModal}>Report</Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
             </header>
 
             <div className="slider">
@@ -283,6 +296,22 @@ function Post (props) {
                 isSaved={isSaved}
                 setIsSaved={setIsSaved}    
             />
+
+
+            <Modal show={showReportModal} onHide={setReportModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Report this post?</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p >Are you sure you want to report this post? </p>
+                <div style={{display:'flex',float:'right'}}>
+                    <Button variant="info" style={{marginRight:'10px'}} >Confirm</Button>
+                    <Button variant="secondary" >Cancel</Button>
+                </div>
+
+                </Modal.Body>
+            </Modal>
+
         </div>
     );
 }

@@ -5,6 +5,7 @@ import PasswordStrengthBar from "react-password-strength-bar";
 import userService from "../../services/user.service";
 import {useDispatch, useSelector} from "react-redux";
 import ProfileInfo from "./ProfileInfo";
+import toastService from "../../services/toast.service";
 
 function ChangePassword() {
     const [user, setUser] = useState();
@@ -14,7 +15,6 @@ function ChangePassword() {
     const[newErr,setNewErr]=useState('');
     const[repErr,setRepErr]=useState('');
     const [passwordStrength, setPasswordStrength] = useState("");
-    const[success,setSuccess]=useState(false)
     const dispatch = useDispatch()
     const store = useSelector(state => state);
 
@@ -30,7 +30,7 @@ function ChangePassword() {
 
         if (response.status === 200) {
             setOldErr('');
-            setSuccess(true);
+            toastService.show("success", "Successfully updated!");
         } else {
             setOldErr('Please enter valid old password!');
         }
@@ -106,10 +106,6 @@ function ChangePassword() {
         <div  style={{display: 'flex'}}>
             <ProfileInfo />
             <div style={{marginRight: '20%',marginTop:'5%',display: 'flex', flexDirection: 'column'}}>
-            {success ?
-                    <Alert variant='success' show={true} style={({textAlignVertical: "center", textAlign: "center"})}>Successfully
-                        updated!</Alert>
-                    :
             <div>
                 <Row className="m-2">
                     <FormControl name="oldPass" type="password" placeholder="Please enter old password"  value={passwords.oldPass} onChange={handleChange}/>
@@ -126,7 +122,7 @@ function ChangePassword() {
                     {submitted &&  <label className="text-danger">{repErr}</label>}
                 </Row>
                 <button  style={{marginRight:'100px', float:'right'}} type="button" className="btn btn-outline-danger" onClick={activateUpdateMode}>Edit password</button>
-            </div>}
+            </div>
         </div>
         </div>
     );
