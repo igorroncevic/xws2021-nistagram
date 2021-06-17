@@ -245,7 +245,8 @@ function Post (props) {
                 <span>Liked by {likesText} and disliked by {dislikesText}. </span>
             </div>
             <div className="Post-caption">
-                <strong> {user.username} </strong> {post.description}
+                <strong> {user.username} </strong> {post.description} 
+                {post.hashtags.map(hashtag => <span className="hashtag"> #{hashtag.text}</span> )}
             </div>
             <div className="comments">
                 {post.comments.length > 0 ? post.comments.map((comment) => {

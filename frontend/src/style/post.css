@@ -103,6 +103,15 @@
     color: var(--link-color-secondary);
 }
 
+.Post .hashtag {
+    color: var(--link-color);
+}
+
+
+.Post .hashtag:hover {
+    cursor: pointer;
+}
+
 .Post .slider {
     display: block;
     width: 100%;

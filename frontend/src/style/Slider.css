@@ -50,3 +50,42 @@
 .active{
     color: var(--link-color);
 }
+
+
+.Slide .tagWrapper{
+    position: absolute;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    bottom: 0.5%;
+    left: 1%;
+}
+
+.Slide .tagIcon{
+    width: 25px;
+    margin: 6px;
+    color: var(--font-color-primary);
+}
+
+.Slide .tagIcon:hover{
+    cursor: pointer;
+}
+
+.Slide .tags{
+    position: relative;
+}
+
+.Slide .tag{
+    display: inline-block;
+    background-color: var(--font-color-primary);
+    padding: 5px;
+    border-radius: 5px;
+    align-items: center;
+    margin-left: 5px;
+}
+
+.Slide .tagText {
+    color: white;
+    font-size: 0.9rem;
+}
+
