@@ -5,16 +5,18 @@ import {useDispatch, useSelector} from "react-redux";
 import Switch from "react-switch";
 
 function FollowAndUnfollow(props) {
-    const {user, followers, getFollowers} = props;
+    const {isCloseFriend, followers} = props;
     const [follows, setFollows] = useState(false);
-    const [closeFriend, setCloseFriend] = useState(false);
+    const [closeFriend, setCloseFriend] = useState({});
 
-    const dispatch = useDispatch()
     const store = useSelector(state => state);
+    useEffect(() => {
+        setCloseFriend(props.isCloseFriends)
+    }, [props.isCloseFriends])
 
     useEffect(() => {
-        props.getFollowers(store.followers.followerId)
         getFollowersConnection()
+        props.getFollowers(store.followers.followerId)
     }, [])
 
     useEffect(() => {
@@ -68,13 +70,12 @@ function FollowAndUnfollow(props) {
         }
     }
 
+
+
     function handleCloseFriends() {
         setCloseFriend(!closeFriend)
-        console.log(closeFriend)
-
         setCloseFriends()
     }
-
     async function setCloseFriends() {
         const response = await followersService.updateUserConnection({
             userId: store.followers.userId,
@@ -99,8 +100,8 @@ function FollowAndUnfollow(props) {
                 :
                 <div>
                     <div className='row'>
-                        <p  style={{ marginLeft:'15px',marginRight:'3em', color:'#64f427'}}  >Close friend: </p>
-                    <Switch onChange={handleCloseFriends} checked={closeFriend}/>
+                        <p style={{marginLeft: '15px', marginRight: '3em', color: '#64f427'}}>Close friend: </p>
+                        <Switch onChange={handleCloseFriends} checked={closeFriend}/>
                     </div>
                     <Button style={{margin: "10px", marginRight: '78px'}} onClick={unfollow}>UnFollow</Button>
 

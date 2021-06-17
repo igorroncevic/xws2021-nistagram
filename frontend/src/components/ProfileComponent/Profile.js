@@ -2,21 +2,17 @@ import React, {useEffect, useState} from "react";
 import axios from "axios";
 import '../../style/Profile.css';
 import {Button, Modal} from "react-bootstrap";
-import EditProfile from "../UserData/EditProfile";
-import ChangePassword from "../UserData/ChangePassword";
 import FollowAndUnfollow from "./FollowAndUnfollow";
 import Navigation from "../HomePage/Navigation";
 import {   useParams } from 'react-router-dom'
 import userService from "../../services/user.service";
 import {userActions} from "../../store/actions/user.actions";
-import Switch from "react-switch";
-
 
 import {useDispatch, useSelector} from "react-redux";
 import privacyService from "../../services/privacy.service";
 import followersService from "../../services/followers.service";
 import FollowersAndFollowings from "./FollowersAndFollowings";
-import EditUserPrivacy from "../UserData/EditUserPrivacy";
+import Switch from "react-switch";
 
 
 function Profile() {
@@ -31,6 +27,7 @@ function Profile() {
     const [followers, setFollowers] = useState([]);
     const [following, setFollowings] = useState([]);
     const [posts, setPosts] = useState([]);
+    const [closeFriend, setCloseFriend] = useState(false);
 
     const dispatch = useDispatch()
     const store = useSelector(state => state);
@@ -64,28 +61,29 @@ function Profile() {
             console.log("getuserbyusername error")
         }
     }
-    async function getUserById() {
-        const response = await userService.getUserById({
-            id: store.user.id,
-            jwt: store.user.jwt,
-        })
 
-        if (response.status === 200) {
-            setUser(response.data)
-            checkUser(response.data.id);
-        } else {
-            console.log("getuserbyusername error")
-        }
-    }
-    function   checkUser(value){
-        if(value===store.user.id){
+    async function checkUser(value) {
+        if (value === store.user.id) {
             setFollow(false)
-        }else{
+        } else {
             setFollow(true)
             dispatch(userActions.followRequest({
                 userId: store.user.id,
                 followerId: value,
             }))
+            isCloseFriend(value)
+        }
+    }
+
+    async function isCloseFriend(value) {
+        const response = await followersService.getFollowersConnection({
+            userId: store.user.id,
+            followerId: value,
+        })
+        if (response.status === 200) {
+            setCloseFriend(response.data.isCloseFriends)
+        } else {
+            console.log("followings ne radi")
         }
     }
 
@@ -137,6 +135,8 @@ function Profile() {
         setModalFollowings(!showModalFollowings)
     }
 
+
+
     return (
         <div>
             <Navigation/>
@@ -153,11 +153,13 @@ function Profile() {
                                 <h6 style={{marginTop:'9px'}}> 15 posts </h6>
                                 <Button variant="link" style={{color:'black'}} onClick={handleModalFollowers}>{followers.length} followers</Button>
                                 <Button variant="link"  style={{color:'black'}} onClick={handleModalFollowings}> {following.length} following </Button>
-
                             </div>
-                            {follow &&
-                                <FollowAndUnfollow user={user} followers={followers} getFollowers={getFollowers}/>
 
+                            {follow &&
+                                <div>
+
+                                <FollowAndUnfollow user={user} isCloseFriends={closeFriend} followers={followers} getFollowers={getFollowers}/>
+                                </div>
                             }
                         </div>
                         <div>
