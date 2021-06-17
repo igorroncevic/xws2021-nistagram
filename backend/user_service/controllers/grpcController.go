@@ -168,3 +168,7 @@ func (s *Server) GetVerificationRequestsByUserId(ctx context.Context, in *protop
 func (s *Server) GetAllVerificationRequests(ctx context.Context, in *protopb.EmptyRequest) (*protopb.VerificationRequestsArray, error) {
 	return s.verificationController.GetAllVerificationRequests(ctx, in)
 }
+
+func (s *Server) GetUserNotifications(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.CreateNotificationResponse, error) {
+	return s.notificationController.GetUserNotifications(ctx, in)
+}

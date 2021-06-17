@@ -34,6 +34,12 @@ service Users {
     };
   }
 
+  rpc GetUserNotifications (RequestIdUsers) returns (CreateNotificationResponse) {
+    option(google.api.http) = {
+      get: "/api/users/get_notifications/{id}"
+    };
+  }
+
   rpc GetAllUsers (EmptyRequest) returns (UsersResponse) {
     option(google.api.http) = {
       get: "/api/users"
@@ -174,6 +180,19 @@ message CreateNotificationRequest {
   string creatorId = 2;
   string type = 3;
 }
+
+message Notification {
+   string id = 1;
+   string userId = 2;
+   string creatorId = 3;
+   string text = 4;
+   string type = 5;
+}
+
+message CreateNotificationResponse {
+  repeated Notification notifications = 1;
+}
+
 message Password {
   string oldPassword = 1;
   string newPassword = 2;

@@ -11,6 +11,7 @@ import (
 
 type NotificationRepository interface {
 	CreateNotification(context.Context, *persistence.UserNotification) error
+	GetUserNotifications( context.Context,  string) ([]persistence.UserNotification, error)
 }
 type notificationRepository struct {
 	DB *gorm.DB
@@ -35,4 +36,18 @@ func (repository *notificationRepository) CreateNotification(ctx context.Context
 		return errors.New("Could not create notification in repository")
 	}
 	return nil
+}
+func (repository *notificationRepository) GetUserNotifications(ctx context.Context,userId string) ([]persistence.UserNotification, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserNotifications")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var userNotifications []persistence.UserNotification
+
+	result := repository.DB.Where("user_id = ?", userId).Find(&userNotifications)
+	if result.Error != nil {
+		return nil, errors.New("Error while loading notifications")
+	}
+
+	return userNotifications, nil
 }
