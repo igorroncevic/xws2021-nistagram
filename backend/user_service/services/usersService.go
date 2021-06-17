@@ -273,6 +273,21 @@ func (service *UserService) GoogleSignIn(ctx context.Context, token string) (*do
 	}
 }
 
+func (service *UserService) UpdateUserPhoto(ctx context.Context, userId string, photo string) (error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserPhoto")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if userId == "" || photo == "" {
+		return errors.New("Invalid arguments")
+	}
+
+	err := service.userRepository.UpdateUserPhoto(ctx, userId, photo)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func (service *UserService) CheckIsApproved(ctx context.Context, id string) (bool, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPublicUsers")
 	defer span.Finish()

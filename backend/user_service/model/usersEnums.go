@@ -11,7 +11,16 @@ const (
 	Agent             = "Agent"
 )
 
-func (r UserRole) String() string {
+type UserNotification string
+const (
+	Message = "Message"
+	Follow  = "Follow"
+	Like = "Like"
+	Dislike = "Dislike"
+	Comment = "Comment"
+)
+
+func (r UserRole) String() string{
 	switch r {
 	case Basic:
 		return "Basic"

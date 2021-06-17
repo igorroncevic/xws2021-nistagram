@@ -73,5 +73,13 @@ func (service *LikeService) CreateLike(ctx context.Context, like domain.Like) er
 		return errors.New("cannot like non-existing post")
 	}
 
-	return service.likeRepository.CreateLike(ctx, like)
+	err = service.likeRepository.CreateLike(ctx, like)
+	if err != nil {
+		return err
+	}
+
+	if like.IsLike {
+		return grpc_common.CreateNotification(ctx, post.UserId, like.UserId, "Like")
+	}
+	return grpc_common.CreateNotification(ctx, post.UserId, like.UserId, "Dislike")
 }

@@ -16,23 +16,28 @@ type Server struct {
 	protopb.UnimplementedPrivacyServer
 	userController         *UserGrpcController
 	privacyController      *PrivacyGrpcController
-	emailController        *EmailGrpcController
+	emailController   	   *EmailGrpcController
+	notificationController *NotificationGrpcController
+	tracer            otgo.Tracer
+	closer            io.Closer
 	verificationController *VerificationGrpcController
-	tracer                 otgo.Tracer
-	closer                 io.Closer
+
 }
 
 func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger) (*Server, error) {
 	newUserController, _ := NewUserController(db, jwtManager, logger)
 	newPrivacyController, _ := NewPrivacyController(db)
 	newEmailController, _ := NewEmailController(db)
+	notificationController, _ := NewNotificationController(db)
 	newVerificationController, _ := NewVerificationController(db, jwtManager, logger)
+
 	tracer, closer := tracer.Init("userService")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
 		userController:         newUserController,
 		privacyController:      newPrivacyController,
 		emailController:        newEmailController,
+		notificationController: notificationController,
 		verificationController: newVerificationController,
 		tracer:                 tracer,
 		closer:                 closer,
@@ -130,6 +135,14 @@ func (s *Server) ApproveAccount(ctx context.Context, in *protopb.CreatePasswordR
 func (s *Server) GoogleAuth(ctx context.Context, in *protopb.GoogleAuthRequest) (*protopb.LoginResponse, error) {
 	return s.userController.GoogleAuth(ctx, in)
 }
+
+func (s *Server) UpdateUserPhoto(ctx context.Context, in *protopb.UserPhotoRequest) (*protopb.EmptyResponse, error) {
+	return s.userController.UpdateUserPhoto(ctx, in)
+}
+
+func (s *Server) CreateNotification(ctx context.Context, in *protopb.CreateNotificationRequest) (*protopb.EmptyResponse, error) {
+	return s.notificationController.CreateNotification(ctx, in)
+}
 func (s *Server) CheckIsApproved(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.BooleanResponseUsers, error) {
 	return s.userController.CheckIsApproved(ctx, in)
 }
@@ -146,4 +159,12 @@ func (s *Server) GetPendingVerificationRequests(ctx context.Context, in *protopb
 
 func (s *Server) ChangeVerificationRequestStatus(ctx context.Context, in *protopb.VerificationRequest) (*protopb.EmptyResponse, error) {
 	return s.verificationController.ChangeVerificationRequestStatus(ctx, in)
+}
+
+func (s *Server) GetVerificationRequestsByUserId(ctx context.Context, in *protopb.VerificationRequest) (*protopb.VerificationRequestsArray, error) {
+	return s.verificationController.GetVerificationRequestsByUserId(ctx, in)
+}
+
+func (s *Server) GetAllVerificationRequests(ctx context.Context, in *protopb.EmptyRequest) (*protopb.VerificationRequestsArray, error) {
+	return s.verificationController.GetAllVerificationRequests(ctx, in)
 }

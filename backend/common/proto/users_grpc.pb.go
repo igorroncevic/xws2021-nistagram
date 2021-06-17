@@ -11,6 +11,7 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
+// Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
 // UsersClient is the client API for Users service.
@@ -23,6 +24,7 @@ type UsersClient interface {
 	GetUsernameById(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*UsersDTO, error)
 	GetAllUsers(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*UsersResponse, error)
 	UpdateUserProfile(ctx context.Context, in *CreateUserDTORequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	UpdateUserPhoto(ctx context.Context, in *UserPhotoRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	UpdateUserPassword(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	SearchUser(ctx context.Context, in *SearchUserDtoRequest, opts ...grpc.CallOption) (*UsersResponse, error)
 	// Svi
@@ -38,10 +40,13 @@ type UsersClient interface {
 	// Samo ulogovani
 	ApproveAccount(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GoogleAuth(ctx context.Context, in *GoogleAuthRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	CreateNotification(ctx context.Context, in *CreateNotificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	//* Verification requests *
 	SubmitVerificationRequest(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GetPendingVerificationRequests(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*VerificationRequestsArray, error)
 	ChangeVerificationRequestStatus(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	GetVerificationRequestsByUserId(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*VerificationRequestsArray, error)
+	GetAllVerificationRequests(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*VerificationRequestsArray, error)
 }
 
 type usersClient struct {
@@ -100,6 +105,15 @@ func (c *usersClient) GetAllUsers(ctx context.Context, in *EmptyRequest, opts ..
 func (c *usersClient) UpdateUserProfile(ctx context.Context, in *CreateUserDTORequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	out := new(EmptyResponse)
 	err := c.cc.Invoke(ctx, "/proto.Users/UpdateUserProfile", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) UpdateUserPhoto(ctx context.Context, in *UserPhotoRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Users/UpdateUserPhoto", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -196,6 +210,15 @@ func (c *usersClient) GoogleAuth(ctx context.Context, in *GoogleAuthRequest, opt
 	return out, nil
 }
 
+func (c *usersClient) CreateNotification(ctx context.Context, in *CreateNotificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Users/CreateNotification", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *usersClient) SubmitVerificationRequest(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	out := new(EmptyResponse)
 	err := c.cc.Invoke(ctx, "/proto.Users/SubmitVerificationRequest", in, out, opts...)
@@ -223,6 +246,24 @@ func (c *usersClient) ChangeVerificationRequestStatus(ctx context.Context, in *V
 	return out, nil
 }
 
+func (c *usersClient) GetVerificationRequestsByUserId(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*VerificationRequestsArray, error) {
+	out := new(VerificationRequestsArray)
+	err := c.cc.Invoke(ctx, "/proto.Users/GetVerificationRequestsByUserId", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) GetAllVerificationRequests(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*VerificationRequestsArray, error) {
+	out := new(VerificationRequestsArray)
+	err := c.cc.Invoke(ctx, "/proto.Users/GetAllVerificationRequests", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UsersServer is the server API for Users service.
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
@@ -233,6 +274,7 @@ type UsersServer interface {
 	GetUsernameById(context.Context, *RequestIdUsers) (*UsersDTO, error)
 	GetAllUsers(context.Context, *EmptyRequest) (*UsersResponse, error)
 	UpdateUserProfile(context.Context, *CreateUserDTORequest) (*EmptyResponse, error)
+	UpdateUserPhoto(context.Context, *UserPhotoRequest) (*EmptyResponse, error)
 	UpdateUserPassword(context.Context, *CreatePasswordRequest) (*EmptyResponse, error)
 	SearchUser(context.Context, *SearchUserDtoRequest) (*UsersResponse, error)
 	// Svi
@@ -248,10 +290,13 @@ type UsersServer interface {
 	// Samo ulogovani
 	ApproveAccount(context.Context, *CreatePasswordRequest) (*EmptyResponse, error)
 	GoogleAuth(context.Context, *GoogleAuthRequest) (*LoginResponse, error)
+	CreateNotification(context.Context, *CreateNotificationRequest) (*EmptyResponse, error)
 	//* Verification requests *
 	SubmitVerificationRequest(context.Context, *VerificationRequest) (*EmptyResponse, error)
 	GetPendingVerificationRequests(context.Context, *EmptyRequest) (*VerificationRequestsArray, error)
 	ChangeVerificationRequestStatus(context.Context, *VerificationRequest) (*EmptyResponse, error)
+	GetVerificationRequestsByUserId(context.Context, *VerificationRequest) (*VerificationRequestsArray, error)
+	GetAllVerificationRequests(context.Context, *EmptyRequest) (*VerificationRequestsArray, error)
 	mustEmbedUnimplementedUsersServer()
 }
 
@@ -276,6 +321,9 @@ func (UnimplementedUsersServer) GetAllUsers(context.Context, *EmptyRequest) (*Us
 }
 func (UnimplementedUsersServer) UpdateUserProfile(context.Context, *CreateUserDTORequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserProfile not implemented")
+}
+func (UnimplementedUsersServer) UpdateUserPhoto(context.Context, *UserPhotoRequest) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserPhoto not implemented")
 }
 func (UnimplementedUsersServer) UpdateUserPassword(context.Context, *CreatePasswordRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserPassword not implemented")
@@ -307,6 +355,9 @@ func (UnimplementedUsersServer) ApproveAccount(context.Context, *CreatePasswordR
 func (UnimplementedUsersServer) GoogleAuth(context.Context, *GoogleAuthRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GoogleAuth not implemented")
 }
+func (UnimplementedUsersServer) CreateNotification(context.Context, *CreateNotificationRequest) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateNotification not implemented")
+}
 func (UnimplementedUsersServer) SubmitVerificationRequest(context.Context, *VerificationRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitVerificationRequest not implemented")
 }
@@ -315,6 +366,12 @@ func (UnimplementedUsersServer) GetPendingVerificationRequests(context.Context, 
 }
 func (UnimplementedUsersServer) ChangeVerificationRequestStatus(context.Context, *VerificationRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeVerificationRequestStatus not implemented")
+}
+func (UnimplementedUsersServer) GetVerificationRequestsByUserId(context.Context, *VerificationRequest) (*VerificationRequestsArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetVerificationRequestsByUserId not implemented")
+}
+func (UnimplementedUsersServer) GetAllVerificationRequests(context.Context, *EmptyRequest) (*VerificationRequestsArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllVerificationRequests not implemented")
 }
 func (UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}
 
@@ -325,8 +382,8 @@ type UnsafeUsersServer interface {
 	mustEmbedUnimplementedUsersServer()
 }
 
-func RegisterUsersServer(s *grpc.Server, srv UsersServer) {
-	s.RegisterService(&_Users_serviceDesc, srv)
+func RegisterUsersServer(s grpc.ServiceRegistrar, srv UsersServer) {
+	s.RegisterService(&Users_ServiceDesc, srv)
 }
 
 func _Users_LoginUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -433,6 +490,24 @@ func _Users_UpdateUserProfile_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UsersServer).UpdateUserProfile(ctx, req.(*CreateUserDTORequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_UpdateUserPhoto_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserPhotoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).UpdateUserPhoto(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/UpdateUserPhoto",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).UpdateUserPhoto(ctx, req.(*UserPhotoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -617,6 +692,24 @@ func _Users_GoogleAuth_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_CreateNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateNotificationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).CreateNotification(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/CreateNotification",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).CreateNotification(ctx, req.(*CreateNotificationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Users_SubmitVerificationRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(VerificationRequest)
 	if err := dec(in); err != nil {
@@ -671,7 +764,46 @@ func _Users_ChangeVerificationRequestStatus_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
-var _Users_serviceDesc = grpc.ServiceDesc{
+func _Users_GetVerificationRequestsByUserId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerificationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).GetVerificationRequestsByUserId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/GetVerificationRequestsByUserId",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).GetVerificationRequestsByUserId(ctx, req.(*VerificationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_GetAllVerificationRequests_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EmptyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).GetAllVerificationRequests(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/GetAllVerificationRequests",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).GetAllVerificationRequests(ctx, req.(*EmptyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Users_ServiceDesc is the grpc.ServiceDesc for Users service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Users_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.Users",
 	HandlerType: (*UsersServer)(nil),
 	Methods: []grpc.MethodDesc{
@@ -698,6 +830,10 @@ var _Users_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateUserProfile",
 			Handler:    _Users_UpdateUserProfile_Handler,
+		},
+		{
+			MethodName: "UpdateUserPhoto",
+			Handler:    _Users_UpdateUserPhoto_Handler,
 		},
 		{
 			MethodName: "UpdateUserPassword",
@@ -740,6 +876,10 @@ var _Users_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Users_GoogleAuth_Handler,
 		},
 		{
+			MethodName: "CreateNotification",
+			Handler:    _Users_CreateNotification_Handler,
+		},
+		{
 			MethodName: "SubmitVerificationRequest",
 			Handler:    _Users_SubmitVerificationRequest_Handler,
 		},
@@ -750,6 +890,14 @@ var _Users_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ChangeVerificationRequestStatus",
 			Handler:    _Users_ChangeVerificationRequestStatus_Handler,
+		},
+		{
+			MethodName: "GetVerificationRequestsByUserId",
+			Handler:    _Users_GetVerificationRequestsByUserId_Handler,
+		},
+		{
+			MethodName: "GetAllVerificationRequests",
+			Handler:    _Users_GetAllVerificationRequests_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

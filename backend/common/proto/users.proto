@@ -47,6 +47,14 @@ service Users {
     };
   }
 
+  rpc UpdateUserPhoto (UserPhotoRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/update_photo"
+      body: "*"
+    };
+  }
+
+
   rpc UpdateUserPassword (CreatePasswordRequest) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/api/users/update_password"
@@ -119,6 +127,13 @@ service Users {
     };
   }
 
+  rpc CreateNotification(CreateNotificationRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/create_notification"
+      body: "*"
+    };
+  }
+
   //* Verification requests *
   rpc SubmitVerificationRequest (VerificationRequest) returns (EmptyResponse) {
     option(google.api.http) = {
@@ -139,8 +154,26 @@ service Users {
       body: "*"
     };
   }
+
+  rpc GetVerificationRequestsByUserId (VerificationRequest) returns (VerificationRequestsArray) {
+    option(google.api.http) = {
+      post: "/api/users/get-verification-requests-by-user",
+      body : "*"
+    };
+  }
+
+  rpc GetAllVerificationRequests (EmptyRequest) returns (VerificationRequestsArray) {
+    option(google.api.http) = {
+      get: "/api/users/get-all-verification-requests",
+    };
+  }
 }
 
+message CreateNotificationRequest {
+  string userId = 1;
+  string creatorId = 2;
+  string type = 3;
+}
 message Password {
   string oldPassword = 1;
   string newPassword = 2;
@@ -191,6 +224,11 @@ message UsersDTO {
 //TODO ne treba da vracamo usera vec usera bez sifre i sa biografijom i website-om
 message UsersResponse {
   repeated UsersDTO users = 1;
+}
+
+message UserPhotoRequest {
+  string userId = 1;
+  string photo = 2;
 }
 
 message UserResponse {

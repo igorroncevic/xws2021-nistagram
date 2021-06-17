@@ -46,7 +46,12 @@ func (service CommentService) CreateComment(ctx context.Context, comment *domain
 		return errors.New("post does not exist")
 	}
 
-	return service.commentRepository.CreateComment(ctx, *comment)
+	err = service.commentRepository.CreateComment(ctx, *comment)
+	if err != nil {
+		return err
+	}
+
+	return grpc_common.CreateNotification(ctx, post.UserId, comment.UserId, "Comment")
 }
 
 func (service CommentService) GetCommentsForPost(ctx context.Context, id string) ([]domain.Comment, error) {

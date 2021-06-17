@@ -2,10 +2,14 @@ package services
 
 import (
 	"context"
+	"errors"
+	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/user_service/repositories"
+	"google.golang.org/grpc"
 	"gorm.io/gorm"
+	"log"
 )
 
 type PrivacyService struct {
@@ -44,7 +48,33 @@ func (service *PrivacyService) BlockUser(ctx context.Context, block *persistence
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	return service.repository.BlockUser(ctx, block)
+	res, err := service.repository.BlockUser(ctx, block)
+	if !res || err != nil {
+		return false, errors.New("Could not block user in privacy service")
+	}
+
+	var conn *grpc.ClientConn
+	conn, err = grpc.Dial(":8095", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("did not connect: %s", err)
+	}
+	defer conn.Close()
+
+	c := protopb.NewFollowersClient(conn)
+
+	createFollowerRequest := protopb.CreateFollowerRequest{
+		Follower : &protopb.Follower{
+			UserId: block.UserId,
+			FollowerId: block.BlockedUserId,
+		},
+	}
+
+	_, err = c.DeleteBiDirectedConnection(context.Background(), &createFollowerRequest)
+	if err != nil {
+		log.Fatalf("Could not block user in followers service")
+	}
+
+	return true, nil
 }
 
 func (service *PrivacyService) UnBlockUser(ctx context.Context, block *persistence.BlockedUsers) (bool, error) {

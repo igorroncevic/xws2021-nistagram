@@ -28,7 +28,7 @@ func GRPCServer(db *gorm.DB) {
 		return
 	}
 
-	jwtManager := common.NewJWTManager("somesecretkey", 15 * time.Minute)
+	jwtManager := common.NewJWTManager("somesecretkey", 60 * time.Minute)
 	rbacInterceptor := interceptors.NewRBACInterceptor(db, jwtManager, customLogger)
 
 	// Create a gRPC server object

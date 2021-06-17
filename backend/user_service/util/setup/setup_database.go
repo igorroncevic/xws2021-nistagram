@@ -13,6 +13,7 @@ func FillDatabase(db *gorm.DB) error {
 		&persistence.Followers{},
 		&persistence.VerificationRequest{},
 		&persistence.APIKeys{},
+		&persistence.UserNotification{},
 		)
 
 	return err

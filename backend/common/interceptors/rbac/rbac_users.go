@@ -21,7 +21,9 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			updateUserPassword, updateUserProfile, searchUser, checkIsApproved,
 			getUserByUsername, submitVerificationRequest,
 			updatePrivacy, blockUser, unBlockUser, checkIfBlocked, checkUserProfilePublic, getAllPublicUsers, approveAccount,
-			getPendingVerificationRequests, changeVerificationRequestStatus,
+			createNotification,
+			getPendingVerificationRequests, changeVerificationRequestStatus, getVerificationRequestsByUserId, getAllVerificationRequests,
+
 		}
 		result = db.Create(&permissions)
 		if result.Error != nil {
@@ -41,11 +43,15 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			basicCheckIfBlocked, agentCheckIfBlocked, adminCheckIfBlocked, verifiedCheckIfBlocked, nonregisteredCheckIfBlocked,
 			basicCheckUserProfilePublic, agentCheckUserProfilePublic, adminCheckUserProfilePublic, verifiedCheckUserProfilePublic, nonregisteredCheckUserProfilePublic,
 			basicGetAllPublicUsers, agentGetAllPublicUsers, adminGetAllPublicUsers, verifiedGetAllPublicUsers, nonregisteredGetAllPublicUsers,
+			basicCreateNotification, adminCreateNotification, agentCreateNotification, verifiedCreateNotification, nonregisteredCreateNotification,
 			basicApproveAccount, adminApproveAccount, agentApproveAccount, basicCheckIsApproved, adminCheckIsApproved, agentCheckIsApproved,
 			basicGetUserByUsername, agentGetUserByUsername, adminGetUserByUsername, verifiedGetUserByUsername, nonregisteredGetUserByUsername,
-			basicSubmitVerificationRequest, agentSubmitVerificationRequest,
-			basicGetPendingVerificationRequests, adminGetPendingVerificationRequests,
-			basicChangeVerificationRequestStatus, adminChangeVerificationRequestStatus,
+			basicSubmitVerificationRequest, agentSubmitVerificationRequest, verifiedSubmitVerificationRequest,
+			basicGetPendingVerificationRequests, adminGetPendingVerificationRequests, verifiedGetPendingVerificationRequests,
+			basicChangeVerificationRequestStatus, adminChangeVerificationRequestStatus, verifiedChangeVerificationRequestStatus,
+			basicGetVerificationRequestsByUserId, verifiedGetVerificationRequestsByUserId, adminGetVerificationRequestsByUserId, agentGetVerificationRequestsByUserId,
+			basicGetAllVerificationRequests, adminGetAllVerificationRequests, verifiedGetAllVerificationRequests,
+
 		}
 		result = db.Create(&rolePermissions)
 		if result.Error != nil {
@@ -91,7 +97,12 @@ var (
 
 	submitVerificationRequest       = Permission{Id: "1d867c15-595b-4a69-b8ad-7135457bc402", Name: "SubmitVerificationRequest"}
 	getPendingVerificationRequests  = Permission{Id: "56a15e9b-3522-4d32-a11a-2fd869a41489", Name: "GetPendingVerificationRequests"}
+	getAllVerificationRequests      = Permission{Id: "201569e4-b294-4b20-93f9-cd9d41e433bf", Name: "GetAllVerificationRequests"}
 	changeVerificationRequestStatus = Permission{Id: "03ba51b7-7497-42b5-9a2f-3961c3f43f04", Name: "ChangeVerificationRequestStatus"}
+	getVerificationRequestsByUserId = Permission{Id: "63a03b3a-46d6-4780-8517-fa61fbf8feba", Name: "GetVerificationRequestsByUserId"}
+	createNotification      = Permission{ Id: "c6b63d7c-8344-43f4-b7c0-fb5e353aa2ae", Name: "CreateNotification"}
+
+
 )
 
 var (
@@ -171,12 +182,30 @@ var (
 	verifiedGetAllPublicUsers      = RolePermission{RoleId: verified.Id, PermissionId: getAllPublicUsers.Id}
 	nonregisteredGetAllPublicUsers = RolePermission{RoleId: nonregistered.Id, PermissionId: getAllPublicUsers.Id}
 
-	basicSubmitVerificationRequest = RolePermission{RoleId: basic.Id, PermissionId: submitVerificationRequest.Id}
-	agentSubmitVerificationRequest = RolePermission{RoleId: agent.Id, PermissionId: submitVerificationRequest.Id}
+	basicSubmitVerificationRequest    = RolePermission{RoleId: basic.Id, PermissionId: submitVerificationRequest.Id}
+	agentSubmitVerificationRequest    = RolePermission{RoleId: agent.Id, PermissionId: submitVerificationRequest.Id}
+	verifiedSubmitVerificationRequest = RolePermission{RoleId: verified.Id, PermissionId: submitVerificationRequest.Id}
 
-	basicGetPendingVerificationRequests = RolePermission{RoleId: basic.Id, PermissionId: getPendingVerificationRequests.Id}
-	adminGetPendingVerificationRequests = RolePermission{RoleId: admin.Id, PermissionId: getPendingVerificationRequests.Id}
+	basicGetPendingVerificationRequests    = RolePermission{RoleId: basic.Id, PermissionId: getPendingVerificationRequests.Id}
+	adminGetPendingVerificationRequests    = RolePermission{RoleId: admin.Id, PermissionId: getPendingVerificationRequests.Id}
+	verifiedGetPendingVerificationRequests = RolePermission{RoleId: verified.Id, PermissionId: getPendingVerificationRequests.Id}
 
-	basicChangeVerificationRequestStatus = RolePermission{RoleId: basic.Id, PermissionId: changeVerificationRequestStatus.Id}
-	adminChangeVerificationRequestStatus = RolePermission{RoleId: admin.Id, PermissionId: changeVerificationRequestStatus.Id}
+	basicChangeVerificationRequestStatus    = RolePermission{RoleId: basic.Id, PermissionId: changeVerificationRequestStatus.Id}
+	adminChangeVerificationRequestStatus    = RolePermission{RoleId: admin.Id, PermissionId: changeVerificationRequestStatus.Id}
+	verifiedChangeVerificationRequestStatus = RolePermission{RoleId: verified.Id, PermissionId: changeVerificationRequestStatus.Id}
+
+	basicGetVerificationRequestsByUserId    = RolePermission{RoleId: basic.Id, PermissionId: getVerificationRequestsByUserId.Id}
+	verifiedGetVerificationRequestsByUserId = RolePermission{RoleId: verified.Id, PermissionId: getVerificationRequestsByUserId.Id}
+	adminGetVerificationRequestsByUserId    = RolePermission{RoleId: admin.Id, PermissionId: getVerificationRequestsByUserId.Id}
+	agentGetVerificationRequestsByUserId    = RolePermission{RoleId: agent.Id, PermissionId: getVerificationRequestsByUserId.Id}
+
+	basicGetAllVerificationRequests    = RolePermission{RoleId: basic.Id, PermissionId: getAllVerificationRequests.Id}
+	adminGetAllVerificationRequests    = RolePermission{RoleId: admin.Id, PermissionId: getAllVerificationRequests.Id}
+	verifiedGetAllVerificationRequests = RolePermission{RoleId: verified.Id, PermissionId: getAllVerificationRequests.Id}
+
+	basicCreateNotification = RolePermission{ RoleId: basic.Id, PermissionId: createNotification.Id }
+	adminCreateNotification = RolePermission{ RoleId: admin.Id, PermissionId: createNotification.Id }
+	agentCreateNotification = RolePermission{ RoleId: agent.Id, PermissionId: createNotification.Id }
+	verifiedCreateNotification = RolePermission{ RoleId: verified.Id, PermissionId: createNotification.Id }
+	nonregisteredCreateNotification = RolePermission{ RoleId: nonregistered.Id, PermissionId: createNotification.Id }
 )

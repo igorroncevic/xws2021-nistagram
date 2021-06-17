@@ -1,17 +1,8 @@
-import axios from 'axios';
+import RootService from './root.service'
 
-class FollowersService {
+class FollowersService extends RootService {
     constructor() {
-        this.apiClient = axios.create({
-            baseURL: "http://localhost:8005/api/followers"
-        })
-    }
-
-    setupHeaders(jwt) {
-        return {
-            Accept: 'application/json',
-            Authorization: 'Bearer ' + jwt,
-        }
+        super("http://localhost:8005/api/followers")
     }
 
     async getFollowers(data){

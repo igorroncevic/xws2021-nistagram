@@ -21,6 +21,11 @@ import ProfileInfo from "./components/UserData/ProfileInfo";
 import EditProfile from "./components/UserData/EditProfile";
 import ChangePassword from "./components/UserData/ChangePassword";
 import EditUserPrivacy from "./components/UserData/EditUserPrivacy";
+import SubmitVerificationRequest from "./components/VerificationRequest/SubmitVerificationRequest";
+import ViewMyVerificationRequests from "./components/VerificationRequest/ViewMyVerificationRequests";
+import ViewPendingVerificationRequests from "./components/VerificationRequest/ViewPendingVerificationRequests";
+import ViewAllVerificationRequests from "./components/VerificationRequest/ViewAllVerificationRequests";
+
 
 const App = () => {
     return (
@@ -39,6 +44,11 @@ const App = () => {
                 <Route path='/chats' exact component={Chats} />
                 <Route path='/saved' exact component={Saved} />
                 <Route path='/notifications' exact component={Notifications} />
+                <Route path='/submit-verification-request' exact component={SubmitVerificationRequest} />
+                <Route path='/view-my-verification-request' exact component={ViewMyVerificationRequests} />
+                <Route path='/view-pending-verification-request' exact component={ViewPendingVerificationRequests} />
+                <Route path='/view-all-verification-request' exact component={ViewAllVerificationRequests} />
+
 
                 <Route path='/blocked' exact component={BlockedUsers} />
                 <Route path='/closefriends' exact component={CloseFriends} />

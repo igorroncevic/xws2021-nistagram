@@ -1,10 +1,11 @@
 import { userConstants } from "../constants";
 
 const initialState = {
-    user: {},
+    user: {},   // Remove?
     jwt: "",
     id: "",
     role: "",
+    username: "",
     isSSO: false,
 }
 
@@ -24,7 +25,8 @@ export const user = (state = initialState, action) => {
                 jwt: action.data.jwt,
                 id: action.data.id,
                 role: action.data.role,
-                isSSO: action.data.isSSO
+                isSSO: action.data.isSSO,
+                username: action.data.username,
         }
         default: 
             return state;

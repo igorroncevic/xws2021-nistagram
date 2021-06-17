@@ -1,24 +1,20 @@
 import Navigation from "./Navigation";
-import Sidebar from "./Sidebar";
-import Posts from "../PostComponent/Posts";
-import "../../style/home.css";
-import Stories from "../StoryCompoent/Stories";
-import React, {useEffect, useState} from "react";
-import {Button, Modal} from "react-bootstrap";
+import Feed from './Feed';
+import React, { useEffect, useState } from "react";
+import { Button, Modal } from "react-bootstrap";
 import PasswordStrengthBar from "react-password-strength-bar";
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux';
 import userService from "../../services/user.service";
-import {userActions} from "../../store/actions/user.actions";
+import "../../style/home.css";
 
-function Home() {
-    const [user,setUser]=useState();
-    const [showModal,setModal]=useState(false);
-    const [submitted,setSubmitted]=useState(false);
-    const [passwordStrength,setPasswordStrength]=useState('');
-    const [passwords,setPasswords]=useState({oldPassword:'',newPassword:'',repeatedPassword:'' });
-    const [oldErr,setOldErr]=useState('');
-    const [newErr,setNewErr]=useState('');
-    const [repErr,setRepErr]=useState('');
+const Home = () => {
+    const [showModal, setModal] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+    const [passwordStrength, setPasswordStrength] = useState('');
+    const [passwords, setPasswords] = useState({ oldPassword: '', newPassword: '', repeatedPassword: '' });
+    const [oldErr, setOldErr] = useState('');
+    const [newErr, setNewErr] = useState('');
+    const [repErr, setRepErr] = useState('');
 
     const dispatch = useDispatch()
     const store = useSelector(state => state);
@@ -48,6 +44,7 @@ function Home() {
             setModal(false)
         }
     }
+
     async function approveAccount() {
         const response = await userService.approveAccount({
             id: store.user.id,
@@ -77,22 +74,21 @@ function Home() {
         setSubmitted(true)
         validatePasswords();
 
-        if(newErr=='' &&  repErr==''){
+        if(newErr === '' &&  repErr === ''){
             approveAccount();
         }
     }
 
     function validatePasswords(){
-        if(passwords.newPassword=="" && oldErr==""  ){
+        if(passwords.newPassword == "" && oldErr == ""  ){
             setNewErr('Please enter new password.')
         }else if(checkPassword(passwords.newPassword)){
             setNewErr('Password must contains at least 8 characters (lowercase letter, capital letter, number and special character) or not be a common password!')
-
         }else{
             setNewErr('')
         }
 
-        if(passwords.newPassword!=passwords.repeatedPassword && oldErr==""){
+        if(passwords.newPassword !== passwords.repeatedPassword && oldErr === ""){
             setRepErr('This password must match the previous.')
         }else{
             setRepErr('')
@@ -114,6 +110,7 @@ function Home() {
         }
 
     }
+
     function checkPassword (password){
         console.log("Checking")
         if(/^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*])[\w!@#$%^&*]{8,}$/.test(password)){
@@ -124,7 +121,6 @@ function Home() {
             return true;
         }
     }
-
 
     function isValidRepeatedPassword (){
         if(passwords.newPassword !== passwords.repeatedPassword) {
@@ -167,18 +163,11 @@ function Home() {
         <div className="App">
             <Navigation/>
             <main>
-                <div>
-                    <Stories/>
-                    <div className="container">
-                        <Posts/>
-                        <Sidebar/>
-                    </div>
-                </div>
-                {showModalDialog()}
+                <Feed />
+                { /*showModalDialog()*/ }
             </main>
-
-
         </div>
-
     );
-}export default Home;
+}
+
+export default Home;

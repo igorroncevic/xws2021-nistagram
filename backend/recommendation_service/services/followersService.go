@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/recommendation_service/model"
 	"github.com/david-drvar/xws2021-nistagram/recommendation_service/repositories"
@@ -20,12 +21,17 @@ func NewFollowersService(driver neo4j.Driver) (*FollowersService, error) {
 	}, err
 }
 
-func (service *FollowersService) CreateUserConnection(ctx context.Context, follower model.Follower) (bool, error){
+func (service *FollowersService) CreateUserConnection(ctx context.Context, follower model.Follower)  error{
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateFollowersConnection")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	return service.repository.CreateUserConnection(ctx, follower)
+	res, err := service.repository.CreateUserConnection(ctx, follower)
+	if err != nil || res == false {
+		return err
+	}
+	return grpc_common.CreateNotification(ctx, follower.UserId, follower.FollowerId, "Follow")
+
 }
 
 func (service *FollowersService) GetAllFollowers(ctx context.Context, userId string) ([]model.User, error) {

@@ -38,7 +38,14 @@ type LoginRequest struct {
 	Password string
 }
 
-func (user *User) CheckValidation() (bool, error) {
+type UserNotification struct {
+	UserId            string
+	CreatorId 		  string
+	NotificationType  string
+}
+
+func (user *User) CheckValidation() (bool, error){
+
 	match, err := regexp.MatchString("^[a-zA-Z ,.'-]+$", user.FirstName)
 	if !match {
 		return false, err

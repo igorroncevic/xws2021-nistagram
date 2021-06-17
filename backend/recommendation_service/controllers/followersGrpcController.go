@@ -35,9 +35,9 @@ func (controller *FollowersGrpcController) CreateUserConnection(ctx context.Cont
 
 	var follower = model.Follower{}
 	follower = *follower.ConvertFromGrpc(in.Follower)
-	result, err := controller.service.CreateUserConnection(ctx, follower)
+	err := controller.service.CreateUserConnection(ctx, follower)
 
-	if !result || err != nil {
+	if err != nil {
 		return &protopb.EmptyResponseFollowers{}, errors.New("Could not make follow!")
 	}
 	return &protopb.EmptyResponseFollowers{}, nil

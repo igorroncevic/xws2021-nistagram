@@ -39,6 +39,7 @@ const IndexPage = () => {
                 id: response.data.userId,
                 role: response.data.role,
                 isSSO: response.data.isSSO,
+                username: response.data.username,
             }))
             history.push({ pathname: '/home' })
         }else{

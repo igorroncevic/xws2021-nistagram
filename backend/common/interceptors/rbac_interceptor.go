@@ -68,13 +68,13 @@ func (interceptor *RBACInterceptor) Authorize() grpc.UnaryServerInterceptor{
 		if isAllowed && role == rbac.Nonregistered { return handler(ctx, req) }
 
 		// Intraservice authorization is not working, so only the most robust service, Content, will validate JWT
-		if methodParts[1] == "proto.Content" {
+	/*	if methodParts[1] == "proto.Content" {
 			ctx, err = interceptor.auth.authorize(ctx)
 			if err != nil {
 				interceptor.logger.ToStdoutAndFile("RBAC Interceptor", "No permission to access " + permissionToCheck + ", auth failed", logger.Warn)
 				return nil, err
 			}
-		}
+		}*/
 
 		return handler(ctx, req)
 	}

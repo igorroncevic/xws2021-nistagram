@@ -11,6 +11,7 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
+// Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
 // ContentClient is the client API for Content service.
@@ -19,7 +20,8 @@ const _ = grpc.SupportPackageIsVersion7
 type ContentClient interface {
 	//    Posts
 	CreatePost(ctx context.Context, in *Post, opts ...grpc.CallOption) (*EmptyResponseContent, error)
-	GetAllPosts(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*ReducedPostArray, error)
+	GetAllPostsReduced(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*ReducedPostArray, error)
+	GetAllPosts(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*PostArray, error)
 	GetPostsForUser(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*ReducedPostArray, error)
 	RemovePost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetPostById(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Post, error)
@@ -75,8 +77,17 @@ func (c *contentClient) CreatePost(ctx context.Context, in *Post, opts ...grpc.C
 	return out, nil
 }
 
-func (c *contentClient) GetAllPosts(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*ReducedPostArray, error) {
+func (c *contentClient) GetAllPostsReduced(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*ReducedPostArray, error) {
 	out := new(ReducedPostArray)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetAllPostsReduced", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) GetAllPosts(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*PostArray, error) {
+	out := new(PostArray)
 	err := c.cc.Invoke(ctx, "/proto.Content/GetAllPosts", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -360,7 +371,8 @@ func (c *contentClient) RemoveHighlightStory(ctx context.Context, in *HighlightR
 type ContentServer interface {
 	//    Posts
 	CreatePost(context.Context, *Post) (*EmptyResponseContent, error)
-	GetAllPosts(context.Context, *EmptyRequestContent) (*ReducedPostArray, error)
+	GetAllPostsReduced(context.Context, *EmptyRequestContent) (*ReducedPostArray, error)
+	GetAllPosts(context.Context, *EmptyRequestContent) (*PostArray, error)
 	GetPostsForUser(context.Context, *RequestId) (*ReducedPostArray, error)
 	RemovePost(context.Context, *RequestId) (*EmptyResponseContent, error)
 	GetPostById(context.Context, *RequestId) (*Post, error)
@@ -407,7 +419,10 @@ type UnimplementedContentServer struct {
 func (UnimplementedContentServer) CreatePost(context.Context, *Post) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePost not implemented")
 }
-func (UnimplementedContentServer) GetAllPosts(context.Context, *EmptyRequestContent) (*ReducedPostArray, error) {
+func (UnimplementedContentServer) GetAllPostsReduced(context.Context, *EmptyRequestContent) (*ReducedPostArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllPostsReduced not implemented")
+}
+func (UnimplementedContentServer) GetAllPosts(context.Context, *EmptyRequestContent) (*PostArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllPosts not implemented")
 }
 func (UnimplementedContentServer) GetPostsForUser(context.Context, *RequestId) (*ReducedPostArray, error) {
@@ -509,8 +524,8 @@ type UnsafeContentServer interface {
 	mustEmbedUnimplementedContentServer()
 }
 
-func RegisterContentServer(s *grpc.Server, srv ContentServer) {
-	s.RegisterService(&_Content_serviceDesc, srv)
+func RegisterContentServer(s grpc.ServiceRegistrar, srv ContentServer) {
+	s.RegisterService(&Content_ServiceDesc, srv)
 }
 
 func _Content_CreatePost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -527,6 +542,24 @@ func _Content_CreatePost_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).CreatePost(ctx, req.(*Post))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_GetAllPostsReduced_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EmptyRequestContent)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetAllPostsReduced(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetAllPostsReduced",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetAllPostsReduced(ctx, req.(*EmptyRequestContent))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1089,13 +1122,20 @@ func _Content_RemoveHighlightStory_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-var _Content_serviceDesc = grpc.ServiceDesc{
+// Content_ServiceDesc is the grpc.ServiceDesc for Content service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Content_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.Content",
 	HandlerType: (*ContentServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "CreatePost",
 			Handler:    _Content_CreatePost_Handler,
+		},
+		{
+			MethodName: "GetAllPostsReduced",
+			Handler:    _Content_GetAllPostsReduced_Handler,
 		},
 		{
 			MethodName: "GetAllPosts",
