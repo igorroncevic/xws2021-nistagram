@@ -4,6 +4,7 @@ import axios from "axios";
 import PasswordStrengthBar from "react-password-strength-bar";
 import userService from "../../services/user.service";
 import {useDispatch, useSelector} from "react-redux";
+import ProfileInfo from "./ProfileInfo";
 
 function ChangePassword() {
     const [user, setUser] = useState();
@@ -102,7 +103,9 @@ function ChangePassword() {
         }
     }
     return (
-        <div>
+        <div  style={{display: 'flex'}}>
+            <ProfileInfo />
+            <div style={{marginRight: '20%',marginTop:'5%',display: 'flex', flexDirection: 'column'}}>
             {success ?
                     <Alert variant='success' show={true} style={({textAlignVertical: "center", textAlign: "center"})}>Successfully
                         updated!</Alert>
@@ -124,6 +127,7 @@ function ChangePassword() {
                 </Row>
                 <button  style={{marginRight:'100px', float:'right'}} type="button" className="btn btn-outline-danger" onClick={activateUpdateMode}>Edit password</button>
             </div>}
+        </div>
         </div>
     );
 }

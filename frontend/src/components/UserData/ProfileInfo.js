@@ -1,13 +1,33 @@
 import Navigation from "../HomePage/Navigation";
 import React from "react";
+import {ProSidebar, Menu, MenuItem, SubMenu, SidebarHeader, SidebarContent, SidebarFooter} from 'react-pro-sidebar';
+import {
+    FaBan,
+    FaGem,
+    FaHeart,
+    FaHeartBroken,
+    IoMdSettings, RiLockPasswordLine, SiGnuprivacyguard,
+} from "react-icons/all";
+import 'react-pro-sidebar/dist/css/styles.css';
+import {Link} from "react-router-dom";
+import CloseFriends from "./CloseFriends";
 
 function  ProfileInfo(){
     return(
-        <div>
+        <div  style={{display: 'grid', gridTemplateColumns: '200px auto',marginLeft: '5%', marginRight: '20%',marginTop:'4.2%'}}>
             <Navigation/>
-            <div style={{marginLeft: '20%', marginRight: '20%',marginTop:'10%'}}>
-            BLA
-            ovde da budu blokirani korisnici, bliski prijatelji, lajkovani i dislajkovani postovi
+            <div style={{marginLeft: '5%', marginRight: '20%',marginTop:'4.2%',display: 'flex'}}>
+                <ProSidebar >
+                    <Menu iconShape="square">
+                        <MenuItem icon={<FaGem/>}>Close friends  <Link to="/closefriends" /> </MenuItem>
+                        <MenuItem icon={<FaBan/>}>Blocked users <Link to="/blocked" /> </MenuItem>
+                        <MenuItem icon={<FaHeart/>}>Liked posts <Link to="/liked" /> </MenuItem>
+                        <MenuItem icon={<FaHeartBroken/>}>Disliked posts <Link to="/disliked" /> </MenuItem>
+                        <MenuItem icon={<IoMdSettings/>}>Edit profile info  <Link to="/editProfile" /> </MenuItem>
+                        <MenuItem icon={<RiLockPasswordLine/>}>Edit password  <Link to="/password" /> </MenuItem>
+                        <MenuItem icon={<SiGnuprivacyguard/>}>Edit privacy  <Link to="/privacy" /> </MenuItem>
+                    </Menu>
+                </ProSidebar>
             </div>
         </div>
     );

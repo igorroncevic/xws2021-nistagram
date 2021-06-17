@@ -3,6 +3,7 @@ import React, {useState} from "react";
 import {Alert, Button} from "react-bootstrap";
 import privacyService from "../../services/privacy.service";
 import {useDispatch, useSelector} from "react-redux";
+import ProfileInfo from "./ProfileInfo";
 
 function  EditUserPrivacy(){
     const[user,setUser]=useState({isProfilePublic:true, isTagEnabled:true,isDmPublic:true})
@@ -41,16 +42,18 @@ function  EditUserPrivacy(){
     }
     return(
 
-        <div>
+        <div  style={{display: 'flex'}}>
+            <ProfileInfo />
+            <div style={{marginRight: '20%',marginTop:'5%',display: 'flex', flexDirection: 'column'}}>
             {submitted ?
                 <Alert variant='success' show={true}  style={({textAlignVertical: "center", textAlign: "center"})}>
                     Successfully updated!
                 </Alert>
                 :
-                <div>
+                <div style={{marginTop:'15'}}>
                 <tr>
                     <td>
-                        <p style={{marginRight:'12px', fontWeight:'bold'}}>User privacy:</p>
+                        <p style={{marginRight:'38px', fontWeight:'bold'}}>User privacy:</p>
                     </td>
                     <td >
                         <Switch  onChange={handlePrivacyChange} checked={checkedPrivacy}/>
@@ -61,7 +64,7 @@ function  EditUserPrivacy(){
                 </tr>
                     <tr>
                         <td>
-                            <p style={{marginRight:'12px', fontWeight:'bold'}}>Dm privacy:</p>
+                            <p style={{marginRight:'28px', fontWeight:'bold'}}>Dm privacy:</p>
                         </td>
                         <td >
                             <Switch  onChange={handleDmChange} checked={checkedDm}/>
@@ -72,7 +75,7 @@ function  EditUserPrivacy(){
                     </tr>
                     <tr>
                         <td>
-                            <p style={{marginRight:'12px', fontWeight:'bold'}}>Tag privacy:</p>
+                            <p style={{marginRight:'28px', fontWeight:'bold'}}>Tag privacy:</p>
                         </td>
                         <td >
                             <Switch  onChange={handleTagChange} checked={checkedTag}/>
@@ -81,8 +84,9 @@ function  EditUserPrivacy(){
                             {checkedTag ? <p style={{marginLeft:'12px', color:'red'}} >private</p> :<p style={{marginLeft:'12px', color:'red'}} >public</p>}
                         </td>
                     </tr>
-                    <Button style={{float: "right",marginRight:'130px'}} variant="secondary" onClick={editPrivacy}>Save</Button>
+                    <Button style={{float: "right",marginRight:'130px', marginTop:'15px'}} variant="secondary" onClick={editPrivacy}>Save</Button>
                 </div>}
+        </div>
         </div>
     );
 }export default EditUserPrivacy;

@@ -18,6 +18,9 @@ import Liked from "./components/UserData/Liked";
 import Disliked from "./components/UserData/Disliked";
 import Archived from "./components/UserData/Archived";
 import ProfileInfo from "./components/UserData/ProfileInfo";
+import EditProfile from "./components/UserData/EditProfile";
+import ChangePassword from "./components/UserData/ChangePassword";
+import EditUserPrivacy from "./components/UserData/EditUserPrivacy";
 
 const App = () => {
     return (
@@ -42,6 +45,9 @@ const App = () => {
                 <Route path='/liked' exact component={Liked} />
                 <Route path='/disliked' exact component={Disliked} />
                 <Route path='/archive' exact component={Archived} />
+                <Route path='/editProfile' exact component={EditProfile} />
+                <Route path='/password' exact component={ChangePassword} />
+                <Route path='/privacy' exact component={EditUserPrivacy} />
             </Router>
         </div>
     );

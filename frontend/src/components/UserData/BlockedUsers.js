@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
+import ProfileInfo from "./ProfileInfo";
 
 function BlockedUsers() {
     return (
-        <div >
-            <div style={{margin:'20em'}}>
-            <p>Blocked</p>
-            <p>Blocked</p>
-            <p>Blocked</p>
-            <p>Blocked</p>
+        <div  style={{display: 'flex'}}>
+            <ProfileInfo />
+            <div style={{marginRight: '20%',marginTop:'5%',display: 'flex', flexDirection: 'column'}}>
+
             </div>
         </div>
     );

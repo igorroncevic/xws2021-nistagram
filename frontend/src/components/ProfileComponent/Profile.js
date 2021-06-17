@@ -2,8 +2,8 @@ import React, {useEffect, useState} from "react";
 import axios from "axios";
 import '../../style/Profile.css';
 import {Button, Modal} from "react-bootstrap";
-import EditProfile from "./EditProfile";
-import ChangePassword from "./ChangePassword";
+import EditProfile from "../UserData/EditProfile";
+import ChangePassword from "../UserData/ChangePassword";
 import FollowAndUnfollow from "./FollowAndUnfollow";
 import Navigation from "../HomePage/Navigation";
 import {   useParams } from 'react-router-dom'
@@ -16,7 +16,7 @@ import {useDispatch, useSelector} from "react-redux";
 import privacyService from "../../services/privacy.service";
 import followersService from "../../services/followers.service";
 import FollowersAndFollowings from "./FollowersAndFollowings";
-import EditUserPrivacy from "./EditUserPrivacy";
+import EditUserPrivacy from "../UserData/EditUserPrivacy";
 
 
 function Profile() {
@@ -25,11 +25,8 @@ function Profile() {
     const [follow,setFollow] =useState( {});
     const [publicProfile,setPublicProfile]=useState(false);
 
-    const [showModal, setModal] = useState(false);
-    const [showModalPass, setModalPass] = useState(false);
     const [showModalFollowers, setModalFollowers] = useState(false);
     const [showModalFollowings, setModalFollowings] = useState(false);
-    const [showModalPrivacy, setModalPrivacy] = useState(false);
 
     const [followers, setFollowers] = useState([]);
     const [following, setFollowings] = useState([]);
@@ -132,24 +129,13 @@ function Profile() {
 
     }
 
-
-    function handleModal() {
-        setModal(!showModal)
-    }
-    function handleModalPass() {
-        setModalPass(!showModalPass)
-    }
     function handleModalFollowers() {
         setModalFollowers(!showModalFollowers)
     }
+
     function handleModalFollowings() {
         setModalFollowings(!showModalFollowings)
     }
-
-    function handleModalPrivacy() {
-        setModalPrivacy(!showModalPrivacy)
-    }
-
 
     return (
         <div>
@@ -169,14 +155,8 @@ function Profile() {
                                 <Button variant="link"  style={{color:'black'}} onClick={handleModalFollowings}> {following.length} following </Button>
 
                             </div>
-                            {follow ?
+                            {follow &&
                                 <FollowAndUnfollow user={user} followers={followers} getFollowers={getFollowers}/>
-                                :
-                                <div >
-                                    <Button variant="link" style={{marginTop:'2em', borderTop: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModal}>Update profile info</Button>
-                                    { !isSSO && <Button variant="link" style={{display: "flex",justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModalPass}>Change password</Button> }
-                                    <Button variant="link" style={{ borderBottom: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModalPrivacy}>Update profile privacy</Button>
-                                </div>
 
                             }
                         </div>
@@ -202,29 +182,7 @@ function Profile() {
                         <p style={{textAlign: 'center',marginTop:'2%'}}>Follow to see their photos and videos!</p>
                     </div>
                 }
-                <Modal show={showModal} onHide={handleModal}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Edit profile</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <EditProfile updateUser={getUserById}/>
-                    </Modal.Body>
-                    <Modal.Footer>
 
-                    </Modal.Footer>
-                </Modal>
-
-                <Modal show={showModalPass} onHide={handleModalPass}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Change password</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <ChangePassword user={user}/>
-                    </Modal.Body>
-                    <Modal.Footer>
-
-                    </Modal.Footer>
-                </Modal>
                 <Modal show={showModalFollowers} onHide={handleModalFollowers}>
                     <Modal.Header closeButton>
                         <Modal.Title>Followers:</Modal.Title>
@@ -249,17 +207,7 @@ function Profile() {
 
                     </Modal.Footer>
                 </Modal>
-                <Modal show={showModalPrivacy} onHide={handleModalPrivacy}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Edit privacy</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <EditUserPrivacy/>
-                    </Modal.Body>
-                    <Modal.Footer>
 
-                    </Modal.Footer>
-                </Modal>
             </div>
         </div>
     );
