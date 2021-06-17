@@ -34,6 +34,12 @@ service Users {
     };
   }
 
+  rpc GetBlockedUsers (RequestIdUsers) returns (ResponseIdUsers) {
+    option(google.api.http) = {
+      get: "/api/users/get_blocked/{id}"
+    };
+  }
+
   rpc GetUserNotifications (RequestIdUsers) returns (CreateNotificationResponse) {
     option(google.api.http) = {
       get: "/api/users/get_notifications/{id}"
@@ -307,6 +313,10 @@ message RequestChangeForgottenPass {
 
 message RequestIdUsers {
   string id = 1;
+}
+
+message ResponseIdUsers {
+  repeated string id = 1;
 }
 
 message GoogleAuthRequest {

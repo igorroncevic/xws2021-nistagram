@@ -16,6 +16,7 @@ type PrivacyRepository interface {
 	CheckIfBlocked(context.Context, string, string) 		(bool, error)
 	GetUserPrivacy(context.Context, string) 				(*persistence.Privacy, error)
 	GetAlLPublicUsers(context.Context) 						([]persistence.Privacy, error)
+	GetBlockedUsers(context.Context, string)     ([]persistence.BlockedUsers, error)
 }
 
 type privacyRepository struct {
@@ -43,6 +44,21 @@ func (repository *privacyRepository) BlockUser(ctx context.Context, b *persisten
 	}
 
 	return true, nil
+}
+
+func (repository *privacyRepository) GetBlockedUsers(ctx context.Context, userId string) ([]persistence.BlockedUsers, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetBlockedUsers")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var blockedUsers []persistence.BlockedUsers
+
+	db := repository.DB.Where("user_id = ?", userId).Find(&blockedUsers)
+	if db.Error != nil {
+		return nil, errors.New("Could not find blocked users")
+	}
+
+	return blockedUsers, nil
 }
 
 func (repository *privacyRepository) UnBlockUser(ctx context.Context, b *persistence.BlockedUsers) (bool, error) {

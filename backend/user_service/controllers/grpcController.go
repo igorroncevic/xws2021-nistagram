@@ -172,3 +172,7 @@ func (s *Server) GetAllVerificationRequests(ctx context.Context, in *protopb.Emp
 func (s *Server) GetUserNotifications(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.CreateNotificationResponse, error) {
 	return s.notificationController.GetUserNotifications(ctx, in)
 }
+
+func (s *Server) GetBlockedUsers(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.ResponseIdUsers, error) {
+	return s.privacyController.GetBlockedUsers(ctx, in)
+}
