@@ -58,7 +58,7 @@ func (repository *postRepository) GetAllPosts(ctx context.Context, followings []
 	return posts, nil
 }
 
-func (repository *postRepository) GetPostsForUser(ctx context.Context, id string) ([]persistence.Post, error){
+func (repository *postRepository) GetPostsForUser(ctx context.Context, id string) ([]persistence.Post, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostsForUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -112,9 +112,11 @@ func (repository *postRepository) CreatePost(ctx context.Context, post *domain.P
 		}
 
 		//bind post with hashtags
-		err := repository.hashtagRepository.BindPostWithHashtags(ctx, &postToSave, finalHashtags)
-		if err != nil {
-			return errors.New("cannot bind post with hashtags")
+		if len(post.Hashtags) != 0 {
+			err := repository.hashtagRepository.BindPostWithHashtags(ctx, &postToSave, finalHashtags)
+			if err != nil {
+				return errors.New("cannot bind post with hashtags")
+			}
 		}
 
 		for _, media := range post.Media {

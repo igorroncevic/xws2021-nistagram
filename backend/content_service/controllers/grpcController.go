@@ -81,10 +81,6 @@ func (s *Server) RemovePost(ctx context.Context, in *protopb.RequestId) (*protop
 	return s.postController.RemovePost(ctx, in.Id)
 }
 
-func (s *Server) GetPostsByHashtag(ctx context.Context, in *protopb.Hashtag) (*protopb.ReducedPostArray, error) {
-	return s.postController.GetPostsByHashtag(ctx, in)
-}
-
 /*   Stories   */
 func (s *Server) CreateStory(ctx context.Context, in *protopb.Story) (*protopb.EmptyResponseContent, error) {
 	return s.storyController.CreateStory(ctx, in)
@@ -153,7 +149,7 @@ func (s *Server) RemoveFavorite(ctx context.Context, in *protopb.FavoritesReques
 	return s.favoritesController.RemoveFavorite(ctx, in)
 }
 
-func (s *Server) SearchContentByLocation(ctx context.Context, in *protopb.SearchLocationRequest) (*protopb.ReducedPostArray, error) {
+func (s *Server) SearchContentByLocation(ctx context.Context, in *protopb.SearchLocationRequest) (*protopb.PostArray, error) {
 	return s.postController.SearchContentByLocation(ctx, in)
 }
 
@@ -164,6 +160,10 @@ func (s *Server) CreateHashtag(ctx context.Context, in *protopb.Hashtag) (*proto
 
 func (s *Server) GetAllHashtags(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.Hashtags, error) {
 	return s.hashtagController.GetAllHashtags(ctx, in)
+}
+
+func (s *Server) GetPostsByHashtag(ctx context.Context, in *protopb.Hashtag) (*protopb.PostArray, error) {
+	return s.postController.GetPostsByHashtag(ctx, in)
 }
 
 /*   Highlights   */
