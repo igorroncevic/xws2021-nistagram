@@ -486,13 +486,22 @@ func (repository *userRepository) UpdateUserPhoto(ctx context.Context, userId st
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	db := repository.DB.Model(&persistence.User{}).Where("id =?", userId).Updates(persistence.User{ProfilePhoto: photo})
-
-	if db.Error != nil {
-		return  db.Error
-	} else if db.RowsAffected == 0 {
-		return errors.New("Zero rows affected")
+	var user persistence.User
+	user, _ = repository.GetUserById(ctx,userId)
+	user.ProfilePhoto=photo
+	_, err := repository.SaveUserProfilePhoto(ctx, &user)
+	if err != nil {
+		return  err
 	}
+
+
+	//db := repository.DB.Model(&persistence.User{}).Where("id =?", userId).Updates(persistence.User{ProfilePhoto: photo})
+
+	//if db.Error != nil {
+	//	return  db.Error
+	//} else if db.RowsAffected == 0 {
+	//	return errors.New("Zero rows affected")
+	//}
 
 	return nil
 }

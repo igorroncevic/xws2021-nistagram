@@ -43,7 +43,9 @@ function EditProfileImage(){
                     <div className="col-sm-6 mb-2">
                         <input type="file" name="file"  className="upload-file" id="file"  onChange={handleChangeImage} formEncType="multipart/form-data" required />
                     </div>
-                <Button variant="secondary" onClick={updatePhoto}>Update</Button>
+                       <img src={profilePhoto}/>
+
+                <Button style={{marginTop:'10px'}}variant="secondary" onClick={updatePhoto}>Update</Button>
 
             </div>
         </div>
