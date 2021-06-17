@@ -2,7 +2,7 @@ import RootService from './root.service'
 
 class PrivacyService extends RootService {
     constructor() {
-        super("http://localhost:8001/api/privacy")
+        super(process.env.REACT_APP_USER_SERVICE + "/api/privacy")
     }
 
     async getUserPrivacy(data){

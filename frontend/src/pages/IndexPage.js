@@ -150,6 +150,7 @@ const IndexPage = () => {
                     // asyncScriptOnLoad={asyncScriptOnLoad}
                 />
                 }
+                <p>{process.env.REACT_APP_CHECK}</p>
                 <Button disabled={logInDisabled} block size="lg" onClick={submitHandler}>Login </Button>
                 <GoogleLogin
                     clientId="1033035332377-1qa39htnroucmro5bpmghhm797ldljrl.apps.googleusercontent.com"

@@ -2,7 +2,7 @@ import RootService from './root.service'
 
 class StoryService extends RootService {
     constructor(){
-        super("http://localhost:8002/stories")
+        super(process.env.REACT_APP_CONTENT_SERVICE + "/stories")
     }
 
     async getHomepageStories(data){

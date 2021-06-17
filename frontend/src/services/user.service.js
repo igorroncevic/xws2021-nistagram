@@ -2,7 +2,7 @@ import RootService from './root.service'
 
 class UserService extends RootService {
     constructor(){
-        super("http://localhost:8001/api/users")
+        super(process.env.REACT_APP_USER_SERVICE + "/api/users")
     }
 
     async login(data){

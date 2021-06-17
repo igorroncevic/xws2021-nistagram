@@ -10,9 +10,24 @@ services:
       - 8080:8080
     environment: 
       USER_SERVICE : http://user_service:8001
-      CONTENT_SERVICE : content_service:8002
+      CONTENT_SERVICE : http://content_service:8002
       RECOMMENDATION_SERVICE : http://recommendation_service:8005
   
+  frontend:
+    image: frontend
+    container_name: frontend
+    ports:
+      - 3000:3000
+    environment: 
+      REACT_APP_CHECK: docker-compose
+      REACT_APP_USER_SERVICE: http://localhost:8080/api/users
+      REACT_APP_CONTENT_SERVICE: http://localhost:8080/api/content
+      REACT_APP_CHAT_SERVICE: http://localhost:8080/api/chat
+      REACT_APP_AGENT_SERVICE: http://localhost:8080/api/agent
+      REACT_APP_RECOMMENDATION_SERVICE: http://localhost:8080/api/followers
+    depends_on: 
+      - gateway
+      
   neo4j:
     image: neo4j
     container_name: neo4j
@@ -43,18 +58,16 @@ services:
   postgres:
     image: postgres
     container_name: postgres
-    restart: always
     volumes: 
       -  ./pg-init-scripts:/docker-entrypoint-initdb.d
     environment:
       POSTGRES_PASSWORD: root
       POSTGRES_USER: postgres
-      POSTGRES_MULTIPLE_DATABASES: xws_users_service,xws_content_service
+      POSTGRES_MULTIPLE_DATABASES: xws_users_service, xws_content_service
 
   user_service:
     image: user_service
     container_name: user_service
-    restart: always
     environment:
       Docker_env: env 
       DB_HOST: postgres
@@ -70,7 +83,6 @@ services:
   content_service:
     image: content_service
     container_name: content_service
-    restart: always
     environment:
       Docker_env: env 
       DB_HOST: postgres
@@ -83,5 +95,3 @@ services:
     depends_on: 
       - user_service
 
-volumes:
-  mysql-data:
