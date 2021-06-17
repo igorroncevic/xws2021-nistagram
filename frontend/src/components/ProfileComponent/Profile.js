@@ -30,9 +30,11 @@ function Profile() {
     const [followers, setFollowers] = useState([]);
     const [following, setFollowings] = useState([]);
     const [posts, setPosts] = useState([]);
+
     const [closeFriend, setCloseFriend] = useState(false);
     const [isApprovedRequest, setIsApprovedRequest] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
+    const [isNotificationEnabled, setNotifications] = useState(false);
 
     const dispatch = useDispatch()
     const store = useSelector(state => state);
@@ -89,6 +91,7 @@ function Profile() {
             setCloseFriend(response.data.isCloseFriends)
             setIsApprovedRequest(response.data.isApprovedRequest)
             setIsMuted(response.data.isMuted)
+            setNotifications(response.data.isNotificationEnabled)
         } else {
             console.log("followings ne radi")
         }
@@ -157,7 +160,7 @@ function Profile() {
                             <div  style={{display: "flex"}}>
                             <h4>{user.firstName} {user.lastName}</h4>
                                 {follow && <div  style={{ marginLeft:'10em',color:'white'}}>
-                                    <BlockMuteAndNotifications isApprovedRequest={isApprovedRequest} isMuted={isMuted}/>
+                                    <BlockMuteAndNotifications isApprovedRequest={isApprovedRequest} isMuted={isMuted} isNotificationEnabled={isNotificationEnabled}/>
                                 </div>
                                 }
                             </div>

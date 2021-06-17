@@ -5,13 +5,21 @@ import followersService from "../../services/followers.service";
 import privacyService from "../../services/privacy.service";
 import {useSelector} from "react-redux";
 import {useHistory} from "react-router-dom";
+import Switch from "react-switch";
 
 function BlockMuteAndNotifications(props){
-    const {isApprovedRequest,isMuted} = props;
+    const {isApprovedRequest,isMuted,isNotificationEnabled} = props;
     const[muted,setIsMuted]=useState({})
+    const[notifications,setNotifications]=useState({})
     const [showBlockModal, setBlockModal] = useState(false);
     const [showMuteModal, setMuteModal] = useState(false);
-    const [showNotifiactionsModal, setNotificationsModal] = useState(false);
+    const [showNotificationsModal, setNotificationsModal] = useState(false);
+    const [messagesNotifications, setMessagesNotifications] = useState(notifications);
+    const [postNotifications, setPostNotifications] = useState(notifications);
+    const [storyNotifications, setStoryNotifications] = useState(notifications);
+    const [commentsNotifications, setCommentsNotifications] = useState(notifications);
+    const [update, setUpdate] = useState(false);
+
     const store = useSelector(state => state);
     const history = useHistory()
 
@@ -19,7 +27,9 @@ function BlockMuteAndNotifications(props){
         setIsMuted(isMuted)
     },[isMuted]);
 
-
+    useEffect(() => {
+        setNotifications(isNotificationEnabled)
+    },[isNotificationEnabled]);
 
     function handleBlockModal(){
         setBlockModal(!showBlockModal)
@@ -28,8 +38,25 @@ function BlockMuteAndNotifications(props){
         setMuteModal(!showMuteModal)
     }
     function handleNotificationsModal(){
-        setNotificationsModal(!showNotifiactionsModal)
+        setNotificationsModal(!showNotificationsModal)
     }
+    function handleMessagesNotifications(){
+        if(!update) setUpdate(true)
+        setMessagesNotifications(!messagesNotifications)
+    }
+    function handlePostNotifications(){
+        if(!update) setUpdate(true)
+        setPostNotifications(!postNotifications)
+    }
+    function handleCommentNotifications(){
+        if(!update) setUpdate(true)
+        setCommentsNotifications(!commentsNotifications)
+    }
+    function handleStoryNotifications(){
+        if(!update) setUpdate(true)
+        setStoryNotifications(!storyNotifications)
+    }
+
     async function blockUser() {
         const response = await privacyService.blockUser({
             UserId: store.user.id,
@@ -81,6 +108,22 @@ function BlockMuteAndNotifications(props){
             console.log("NIJE ")
         }
     }
+    async function menageNotifications() {
+        const response = await followersService.updateUserConnection({
+            userId: store.followers.userId,
+            followerId: store.followers.followerId,
+            isApprovedRequest: true,
+            isCloseFriends: false,
+            isMuted:false,
+            isNotificationEnabled:messagesNotifications,
+            jwt: store.user.jwt,
+        })
+        if (response.status === 200) {
+            handleNotificationsModal()
+        } else {
+            console.log("NIJE ")
+        }
+    }
 
     return(
         <div>
@@ -100,10 +143,8 @@ function BlockMuteAndNotifications(props){
                     <Modal.Title>Block user</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <p style={{fontWeight:'bold'}}>Are you sure you want to block this user? Blocked users will not be abele to message you.</p>
+                    <p style={{fontWeight:'bold'}}>Are you sure you want to <p style={{color:'red',display: 'inline'}}>block </p>this user?</p>
                     <p style={{fontSize:'13px'}}>After blocking you will be redirected to home page.</p>
-                    <br/> <br/>
-
                     <div style={{display:'flex',float:'right'}}>
                         <Button variant="danger" style={{marginRight:'10px'}} onClick={blockUser}>Yes</Button>
                         <Button variant="info" onClick={handleBlockModal}>No</Button>
@@ -135,8 +176,39 @@ function BlockMuteAndNotifications(props){
                         </div>
                     </div>}
                     <br/>
+                </Modal.Body>
+            </Modal>
 
-
+            <Modal show={showNotificationsModal} onHide={handleNotificationsModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Menage notifications</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <tr>
+                        <td> <p style={{marginRight:'38px', fontWeight:'bold'}}>Message notifications:</p>  </td>
+                        <td > <Switch  onChange={handleMessagesNotifications} checked={messagesNotifications}/></td>
+                        <td> {messagesNotifications ? <p style={{marginLeft:'12px', color:'green'}} >enabled</p> :<p style={{marginLeft:'12px', color:'grey'}} >not enabled</p>}</td>
+                    </tr>
+                    <tr>
+                        <td> <p style={{marginRight:'38px', fontWeight:'bold'}}>Post notifications:</p>  </td>
+                        <td > <Switch  onChange={handlePostNotifications} checked={postNotifications}/></td>
+                        <td> {postNotifications ? <p style={{marginLeft:'12px', color:'green'}} >enabled</p> :<p style={{marginLeft:'12px', color:'grey'}} >not enabled</p>}</td>
+                    </tr>
+                    <tr>
+                        <td> <p style={{marginRight:'38px', fontWeight:'bold'}}>Story notifications:</p>  </td>
+                        <td > <Switch  onChange={handleStoryNotifications} checked={storyNotifications}/></td>
+                        <td> {storyNotifications ? <p style={{marginLeft:'12px', color:'green'}} >enabled</p> :<p style={{marginLeft:'12px', color:'grey'}} >not enabled</p>}</td>
+                    </tr>
+                    <tr>
+                        <td> <p style={{marginRight:'38px', fontWeight:'bold'}}>Comment notifications:</p>  </td>
+                        <td > <Switch  onChange={handleCommentNotifications} checked={commentsNotifications}/></td>
+                        <td> {commentsNotifications ? <p style={{marginLeft:'12px', color:'green'}} >enabled</p> :<p style={{marginLeft:'12px', color:'grey'}} >not enabled</p>}</td>
+                    </tr>
+                    {update &&
+                    <div style={{display: 'flex', float: 'right'}}>
+                        <Button variant="success" style={{marginRight: '10px'}} onClick={menageNotifications}>Update settings</Button>
+                    </div>
+                    }
                 </Modal.Body>
             </Modal>
         </div>
