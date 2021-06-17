@@ -49,6 +49,7 @@ function FollowAndUnfollow(props) {
         if (response.status === 200) {
             console.log("ZAPRACENO")
             props.getFollowers(store.followers.followerId)
+            props.funcIsCloseFriend(store.followers.followerId)
             getFollowersConnection()
         } else {
             console.log("NIJE ZAPRACENO")
@@ -64,6 +65,7 @@ function FollowAndUnfollow(props) {
         })
         if (response.status === 200) {
             props.getFollowers(store.followers.followerId)
+            props.funcIsCloseFriend(store.followers.followerId)
             getFollowersConnection()
         } else {
             console.log("NIJE otpratio")
@@ -82,6 +84,7 @@ function FollowAndUnfollow(props) {
             followerId: store.followers.followerId,
             isApprovedRequest: true,
             isCloseFriends: !closeFriend,
+            isMuted:false,
             isNotificationEnabled:true,
             jwt: store.user.jwt,
         })

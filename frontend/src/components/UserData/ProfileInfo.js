@@ -2,10 +2,11 @@ import Navigation from "../HomePage/Navigation";
 import React from "react";
 import {ProSidebar, Menu, MenuItem, SubMenu, SidebarHeader, SidebarContent, SidebarFooter} from 'react-pro-sidebar';
 import {
+    CgProfile,
     FaBan,
     FaGem,
     FaHeart,
-    FaHeartBroken,
+    FaHeartBroken, HiOutlinePhotograph,
     IoMdSettings, RiLockPasswordLine, SiGnuprivacyguard,
 } from "react-icons/all";
 import 'react-pro-sidebar/dist/css/styles.css';
@@ -26,6 +27,7 @@ function  ProfileInfo(){
                         <MenuItem icon={<IoMdSettings/>}>Edit profile info  <Link to="/editProfile" /> </MenuItem>
                         <MenuItem icon={<RiLockPasswordLine/>}>Edit password  <Link to="/password" /> </MenuItem>
                         <MenuItem icon={<SiGnuprivacyguard/>}>Edit privacy  <Link to="/privacy" /> </MenuItem>
+                        <MenuItem icon={<HiOutlinePhotograph/>}>Edit profile photo  <Link to="/privacy" /> </MenuItem>
                     </Menu>
                 </ProSidebar>
             </div>

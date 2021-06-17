@@ -35,6 +35,36 @@ class PrivacyService extends RootService {
         return response
     }
 
+    async blockUser(data){
+        const { UserId,BlockedUserId,jwt} = data
+        const headers=this.setupHeaders(jwt)
+        const response = this.apiClient.post('/block_user',{
+            UserId,BlockedUserId
+        },{
+            headers:headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
+    async unBlockUser(data){
+        const { UserId,BlockedUserId,jwt} = data
+        const headers=this.setupHeaders(jwt)
+        const response = this.apiClient.post('/unblock_user',{
+            block:{UserId,BlockedUserId}
+        },{
+            headers:headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
+
+
 }const privacyService = new PrivacyService()
 
 export default privacyService;

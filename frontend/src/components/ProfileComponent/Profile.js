@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import axios from "axios";
 import '../../style/Profile.css';
-import {Button, Modal} from "react-bootstrap";
+import {Button, Dropdown, Modal} from "react-bootstrap";
 import FollowAndUnfollow from "./FollowAndUnfollow";
 import Navigation from "../HomePage/Navigation";
 import {   useParams } from 'react-router-dom'
@@ -13,6 +13,9 @@ import privacyService from "../../services/privacy.service";
 import followersService from "../../services/followers.service";
 import FollowersAndFollowings from "./FollowersAndFollowings";
 import Switch from "react-switch";
+import {BsThreeDotsVertical, FaGem} from "react-icons/all";
+import BlockMuteAndNotifications from "./BlockMuteAndNotifications";
+
 
 
 function Profile() {
@@ -28,6 +31,8 @@ function Profile() {
     const [following, setFollowings] = useState([]);
     const [posts, setPosts] = useState([]);
     const [closeFriend, setCloseFriend] = useState(false);
+    const [isApprovedRequest, setIsApprovedRequest] = useState(false);
+    const [isMuted, setIsMuted] = useState(false);
 
     const dispatch = useDispatch()
     const store = useSelector(state => state);
@@ -40,7 +45,6 @@ function Profile() {
         getUserPrivacy();
         getFollowers()
         getFollowing()
-        //getPosts()
     },[username]);
 
 
@@ -81,7 +85,10 @@ function Profile() {
             followerId: value,
         })
         if (response.status === 200) {
+            console.log(response.data)
             setCloseFriend(response.data.isCloseFriends)
+            setIsApprovedRequest(response.data.isApprovedRequest)
+            setIsMuted(response.data.isMuted)
         } else {
             console.log("followings ne radi")
         }
@@ -147,7 +154,13 @@ function Profile() {
                             <img style={{width: "180px", height: "160px", borderRadius: "80px"}} src={user.profilePhoto ? user.profilePhoto : ""}/>
                         </div>
                         <div>
+                            <div  style={{display: "flex"}}>
                             <h4>{user.firstName} {user.lastName}</h4>
+                                {follow && <div  style={{ marginLeft:'10em',color:'white'}}>
+                                    <BlockMuteAndNotifications isApprovedRequest={isApprovedRequest} isMuted={isMuted}/>
+                                </div>
+                                }
+                            </div>
                             <h4>{user.username}</h4>
                             <div style={{display: "flex"}}>
                                 <h6 style={{marginTop:'9px'}}> 15 posts </h6>
@@ -158,7 +171,7 @@ function Profile() {
                             {follow &&
                                 <div>
 
-                                <FollowAndUnfollow user={user} isCloseFriends={closeFriend} followers={followers} getFollowers={getFollowers}/>
+                                <FollowAndUnfollow user={user} isCloseFriends={closeFriend} funcIsCloseFriend={isCloseFriend} followers={followers} getFollowers={getFollowers}/>
                                 </div>
                             }
                         </div>

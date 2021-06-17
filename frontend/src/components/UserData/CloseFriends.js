@@ -25,18 +25,10 @@ function CloseFriends() {
         })
         if(response.status === 200) {
             setCloseFriends(response.data.users)
-            console.log(response.data.users)
             getUsers(response.data.users)
         }else{
             console.log("Nije uspeo")
         }
-    }
-
-    function getUsers(value)
-    {
-        value.map((id, i) =>
-            getUserById(id.UserId)
-        );
     }
 
     async function getUserById(id) {
@@ -55,6 +47,13 @@ function CloseFriends() {
         }
     }
 
+    function getUsers(value)
+    {
+        value.map((id, i) =>
+            getUserById(id.UserId)
+        );
+    }
+
     async function removeFromCloseFriends(id) {
 
         const response = await followersService.updateUserConnection({
@@ -62,6 +61,7 @@ function CloseFriends() {
             followerId: id,
             isApprovedRequest: true,
             isCloseFriends: false,
+            isMuted:false,
             jwt: store.user.jwt,
         })
         if (response.status === 200) {
