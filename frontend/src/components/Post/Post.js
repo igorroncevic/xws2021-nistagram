@@ -6,13 +6,14 @@ import "../../style/post.css";
 import Slider from './Slider'
 import Comment from "./Comment";
 import PostHeader from './PostHeader';
+import CollectionsModal from './CollectionsModal';
 import { ReactComponent as CardButton } from './../../images/icons/cardButton.svg' 
 import userService from './../../services/user.service';
 import toastService from './../../services/toast.service';
 import likeService from './../../services/like.service';
 import commentService from './../../services/comment.service';
+import collectionsService from './../../services/collections.service';
 import PostMenu from "./PostMenu";
-import Posts from "./Posts";
 
 function Post (props) {
     const { postUser } = props;
@@ -22,13 +23,18 @@ function Post (props) {
     const [daysAgo, setDaysAgo] = useState(0);
     const [minutesAgo, setMinutesAgo] = useState(0)
 
+    const [showSaveModal, setShowSaveModal] = useState(false);
+    const [isSaved, setIsSaved] = useState(false);
+    const [collections, setCollections] = useState([]);
+    const [savedInCollections, setSavedInCollections] = useState([]);
+
     const [likesText, setLikesText] = useState("");
     const [dislikesText, setDislikesText] = useState("");
     const [isLiked, setIsLiked] = useState(false);
     const [isDisliked, setIsDisliked] = useState(false);
     
     const [newComment, setNewComment] = useState("");
-    const [isCommentDisabled, setIsCommentDisabled] = useState("disabled")
+    const [isCommentDisabled, setIsCommentDisabled] = useState(true)
 
     const commentInputRef = useRef()
     
@@ -48,6 +54,7 @@ function Post (props) {
         }
         changeLikesText();
         changeDislikesText()
+        getUserCollections()
     }, [])
 
     useEffect(()=>{
@@ -62,8 +69,41 @@ function Post (props) {
     }, [post])
 
     useEffect(()=>{
-        setIsCommentDisabled(newComment.trim() === "" ? "disabled" : "")
+        setIsCommentDisabled(newComment.trim() === "" ? true : false)
     }, [newComment])
+
+    useEffect(() => {
+        getUserCollections()
+    }, [showSaveModal])
+
+    const getUserCollections = () => { 
+        collectionsService.getUserCollections({
+            userId: store.user.id,
+            jwt: store.user.jwt,
+        }).then(response => {
+            // Collection for posts that do not have any designated collection
+            const newCollections = response.data.collections;
+            newCollections.push({
+                id: "1",
+                name: "No Collection",
+                userId: store.user.id,
+            })
+            setCollections(response.data.collections)
+
+            // Check in which collection the post has been saved
+            newCollections.forEach(collection => {
+                const found = collection.posts.some(collectionPost => collectionPost.id === post.id)
+                if(found) {
+                    setIsSaved(true)
+                    setSavedInCollections([...savedInCollections, collection.id])
+                };
+            })
+
+            console.log(savedInCollections)
+        }).catch(err => {
+            toastService.show("error", "Could not load your collections. Please try again.")
+        })
+    }
 
     const changeLikesText = () => {
         if(post.likes.length === 0) setLikesText("no one")
@@ -172,6 +212,10 @@ function Post (props) {
         }
     }
 
+    const handleSaveClick = () => {
+       store.user.id && setShowSaveModal(!showSaveModal);
+    }
+
     return(
         <div className="Post">
             <header>
@@ -195,6 +239,8 @@ function Post (props) {
                 likeClicked={handleLikeClick}
                 dislikeClicked={handleDislikeClick}
                 commentClicked={handleCommentClick}
+                saveClicked={handleSaveClick}
+                isSaved={isSaved}
                 postId={post.id}
             />
             <div className="likes-dislikes">
@@ -231,6 +277,18 @@ function Post (props) {
                 />
                 <button className="postText" disabled={isCommentDisabled}  onClick={postNewComment}>Post</button>
             </div>
+
+            <CollectionsModal 
+                showModal={showSaveModal} 
+                setShowModal={handleSaveClick}
+                collections={collections}
+                setCollections={setCollections}
+                savedInCollections={savedInCollections}
+                setSavedInCollections={setSavedInCollections} 
+                postId={post.id} 
+                isSaved={isSaved}
+                setIsSaved={setIsSaved}    
+            />
         </div>
     );
 }

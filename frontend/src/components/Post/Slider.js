@@ -9,21 +9,20 @@ const Slider = (props) => {
     const { media } = props;
     const [slideCount, setSlideCount] = useState(1)
 
-    console.log(media);
-
     const nextImage = () => {
-      console.log("next clicked")
       setSlideCount((slideCount + 1 <= media.length) ? slideCount + 1 : slideCount)
     }
 
     const previousImage = () => {
-      console.log("previous clicked")
       setSlideCount((slideCount - 1 >= 1) ? slideCount - 1 : slideCount)
     }
 
     const BackArrow = () => <ChevronLeft onClick={previousImage} className="Arrow-back" />
     const NextArrow = () => <ChevronRight onClick={nextImage} className="Arrow-next" />
-    const CircleWrapper = () => (
+    const CircleWrapper = () => {
+      if(media.length < 2) return null;
+      
+      return (
       <div className="CircleWrapper">
         { media.map((photo, key) => {
           const checkActive = photo.orderNum === slideCount ? "active" : "";
@@ -32,7 +31,7 @@ const Slider = (props) => {
           )
         })}
       </div>
-    )
+    )}
 
     return (
       <div className="Slide">

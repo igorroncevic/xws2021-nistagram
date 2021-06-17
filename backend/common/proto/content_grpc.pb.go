@@ -44,7 +44,7 @@ type ContentClient interface {
 	// Collections & Favorites
 	GetAllCollections(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*CollectionsArray, error)
 	GetCollection(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Collection, error)
-	CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*EmptyResponseContent, error)
+	CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*Collection, error)
 	RemoveCollection(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetUserFavorites(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Favorites, error)
 	CreateFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error)
@@ -257,8 +257,8 @@ func (c *contentClient) GetCollection(ctx context.Context, in *RequestId, opts .
 	return out, nil
 }
 
-func (c *contentClient) CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
-	out := new(EmptyResponseContent)
+func (c *contentClient) CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*Collection, error) {
+	out := new(Collection)
 	err := c.cc.Invoke(ctx, "/proto.Content/CreateCollection", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -395,7 +395,7 @@ type ContentServer interface {
 	// Collections & Favorites
 	GetAllCollections(context.Context, *RequestId) (*CollectionsArray, error)
 	GetCollection(context.Context, *RequestId) (*Collection, error)
-	CreateCollection(context.Context, *Collection) (*EmptyResponseContent, error)
+	CreateCollection(context.Context, *Collection) (*Collection, error)
 	RemoveCollection(context.Context, *RequestId) (*EmptyResponseContent, error)
 	GetUserFavorites(context.Context, *RequestId) (*Favorites, error)
 	CreateFavorite(context.Context, *FavoritesRequest) (*EmptyResponseContent, error)
@@ -479,7 +479,7 @@ func (UnimplementedContentServer) GetAllCollections(context.Context, *RequestId)
 func (UnimplementedContentServer) GetCollection(context.Context, *RequestId) (*Collection, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollection not implemented")
 }
-func (UnimplementedContentServer) CreateCollection(context.Context, *Collection) (*EmptyResponseContent, error) {
+func (UnimplementedContentServer) CreateCollection(context.Context, *Collection) (*Collection, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCollection not implemented")
 }
 func (UnimplementedContentServer) RemoveCollection(context.Context, *RequestId) (*EmptyResponseContent, error) {

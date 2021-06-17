@@ -150,7 +150,7 @@ service Content {
     };
   }
 
-  rpc CreateCollection (Collection) returns (EmptyResponseContent) {
+  rpc CreateCollection (Collection) returns (Collection) {
     option(google.api.http) = {
       post: "/collections",
       body: "*"
