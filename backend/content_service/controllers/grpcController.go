@@ -129,7 +129,7 @@ func (s *Server) GetCollection(ctx context.Context, in *protopb.RequestId) (*pro
 	return s.favoritesController.GetCollection(ctx, in)
 }
 
-func (s *Server) CreateCollection(ctx context.Context, in *protopb.Collection) (*protopb.EmptyResponseContent, error) {
+func (s *Server) CreateCollection(ctx context.Context, in *protopb.Collection) (*protopb.Collection, error) {
 	return s.favoritesController.CreateCollection(ctx, in)
 }
 

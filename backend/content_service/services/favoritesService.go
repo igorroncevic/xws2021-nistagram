@@ -49,7 +49,10 @@ func (service *FavoritesService) GetAllCollections(ctx context.Context, userId s
 
 		posts := []domain.ReducedPost{}
 		for _, post := range dbPosts{
-			converted, err := service.contentService.GetReducedPostData(ctx, post.PostId)
+			// converted, err := service.contentService.GetReducedPostData(ctx, post.PostId)
+			converted := domain.ReducedPost{
+				Objava: domain.Objava{ Id: post.PostId },
+			}
 			if err != nil { return []domain.Collection{}, err }
 
 			posts = append(posts, converted)
@@ -58,6 +61,26 @@ func (service *FavoritesService) GetAllCollections(ctx context.Context, userId s
 		collection := dbCollection.ConvertToDomain(posts)
 		collections = append(collections, collection)
 	}
+
+	dbUnclassified, err := service.favoritesRepository.GetUnclassifiedFavorites(ctx, userId)
+	if err != nil { return []domain.Collection{}, err }
+
+	unclassifiedPosts := []domain.ReducedPost{}
+	for _, unclassifiedPost := range dbUnclassified{
+		converted := domain.ReducedPost{
+			Objava: domain.Objava{ Id: unclassifiedPost.Id },
+		}
+		if err != nil { return []domain.Collection{}, err }
+
+		unclassifiedPosts = append(unclassifiedPosts, converted)
+	}
+
+	collections = append(collections, domain.Collection{
+		Id:     "1",
+		Name:   "No Collection",
+		UserId: userId,
+		Posts:  unclassifiedPosts,
+	})
 
 	return collections, nil
 }
@@ -147,17 +170,19 @@ func (service *FavoritesService) RemoveFavorite(ctx context.Context, favoritesRe
 	return nil
 }
 
-func (service *FavoritesService) CreateCollection(ctx context.Context, collection domain.Collection) error {
+func (service *FavoritesService) CreateCollection(ctx context.Context, collection domain.Collection) (domain.Collection, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateCollection")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	err := service.favoritesRepository.CreateCollection(ctx, collection)
+	dbCollection, err := service.favoritesRepository.CreateCollection(ctx, collection)
 	if err != nil {
-		return err
+		return domain.Collection{}, err
 	}
 
-	return nil
+	collection.Id = dbCollection.Id
+
+	return collection, nil
 }
 func (service *FavoritesService) RemoveCollection(ctx context.Context, collectionId string, userId string) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveCollection")

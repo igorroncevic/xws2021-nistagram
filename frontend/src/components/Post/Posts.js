@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../../style/post.css";
+import "../../style/Posts.css";
 import Post from "./Post";
 import { useSelector } from 'react-redux';
 import postService from './../../services/post.service'
@@ -20,7 +20,7 @@ const Posts = (props) => {
     }, [])
 
     return(
-        <div>
+        <div className="Posts">
             {posts && posts.map((post) => {
                 return (
                     <Post post={post} postUser={{ id: post.userId }}/>);
