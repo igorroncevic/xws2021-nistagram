@@ -8,7 +8,8 @@ const defaultOptions = {
 /** 
  * Types: ```success```, ```info```, ```warning```, ```error```
 */
-const show = (type, message, options) => {
+const show = (type, message, options = {}) => {
+    toast.configure();
     let additionalOptions = {};
     if(options) {
         additionalOptions = { ...defaultOptions, ...options }
