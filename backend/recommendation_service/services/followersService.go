@@ -26,11 +26,30 @@ func (service *FollowersService) CreateUserConnection(ctx context.Context, follo
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	res, err := service.repository.CreateUserConnection(ctx, follower)
-	if err != nil || res == false {
+	follower.IsNotificationEnabled = true
+	follower.IsCloseFriends = false
+	follower.IsMuted = false
+
+	privacy, err := grpc_common.CheckUserProfilePublic(ctx, follower.FollowerId)
+	if err != nil {
 		return err
 	}
-	return grpc_common.CreateNotification(ctx, follower.UserId, follower.FollowerId, "Follow")
+	if privacy {
+		follower.IsApprovedRequest = false
+		res, err := service.repository.CreateUserConnection(ctx, follower)
+		if err != nil || res == false {
+			return err
+		}
+		return grpc_common.CreateNotification(ctx, follower.UserId, follower.FollowerId, "FollowPrivate")
+	}else {
+		follower.IsApprovedRequest = true
+		res, err := service.repository.CreateUserConnection(ctx, follower)
+		if err != nil || res == false {
+			return err
+		}
+		return grpc_common.CreateNotification(ctx, follower.UserId, follower.FollowerId, "FollowPublic")
+	}
+
 
 }
 

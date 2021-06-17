@@ -194,3 +194,16 @@ func CreateNotification(ctx context.Context, userId string, creatorId string, no
 
 	return nil
 }
+func CheckUserProfilePublic(ctx context.Context, userId string) (bool, error) {
+	conn, err := CreateGrpcConnection(Users_service_address)
+	if err != nil{
+		return false, status.Errorf(codes.Unknown, err.Error())
+	}
+	defer conn.Close()
+	privacyClient := GetPrivacyClient(conn)
+	res, err := privacyClient.CheckUserProfilePublic(ctx, &protopb.PrivacyRequest{UserId: userId})
+	if err != nil {
+		return false, err
+	}
+	return res.Response, nil
+}

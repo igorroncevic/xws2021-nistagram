@@ -21,6 +21,8 @@ type UsersClient interface {
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*UsersDTO, error)
 	GetUserById(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*UsersDTO, error)
 	GetUsernameById(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*UsersDTO, error)
+	GetBlockedUsers(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*ResponseIdUsers, error)
+	GetUserNotifications(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*CreateNotificationResponse, error)
 	GetAllUsers(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*UsersResponse, error)
 	UpdateUserProfile(ctx context.Context, in *CreateUserDTORequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	UpdateUserPhoto(ctx context.Context, in *UserPhotoRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
@@ -86,6 +88,24 @@ func (c *usersClient) GetUserById(ctx context.Context, in *RequestIdUsers, opts 
 func (c *usersClient) GetUsernameById(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*UsersDTO, error) {
 	out := new(UsersDTO)
 	err := c.cc.Invoke(ctx, "/proto.Users/GetUsernameById", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) GetBlockedUsers(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*ResponseIdUsers, error) {
+	out := new(ResponseIdUsers)
+	err := c.cc.Invoke(ctx, "/proto.Users/GetBlockedUsers", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) GetUserNotifications(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*CreateNotificationResponse, error) {
+	out := new(CreateNotificationResponse)
+	err := c.cc.Invoke(ctx, "/proto.Users/GetUserNotifications", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -271,6 +291,8 @@ type UsersServer interface {
 	CreateUser(context.Context, *CreateUserRequest) (*UsersDTO, error)
 	GetUserById(context.Context, *RequestIdUsers) (*UsersDTO, error)
 	GetUsernameById(context.Context, *RequestIdUsers) (*UsersDTO, error)
+	GetBlockedUsers(context.Context, *RequestIdUsers) (*ResponseIdUsers, error)
+	GetUserNotifications(context.Context, *RequestIdUsers) (*CreateNotificationResponse, error)
 	GetAllUsers(context.Context, *EmptyRequest) (*UsersResponse, error)
 	UpdateUserProfile(context.Context, *CreateUserDTORequest) (*EmptyResponse, error)
 	UpdateUserPhoto(context.Context, *UserPhotoRequest) (*EmptyResponse, error)
@@ -314,6 +336,12 @@ func (UnimplementedUsersServer) GetUserById(context.Context, *RequestIdUsers) (*
 }
 func (UnimplementedUsersServer) GetUsernameById(context.Context, *RequestIdUsers) (*UsersDTO, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUsernameById not implemented")
+}
+func (UnimplementedUsersServer) GetBlockedUsers(context.Context, *RequestIdUsers) (*ResponseIdUsers, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBlockedUsers not implemented")
+}
+func (UnimplementedUsersServer) GetUserNotifications(context.Context, *RequestIdUsers) (*CreateNotificationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserNotifications not implemented")
 }
 func (UnimplementedUsersServer) GetAllUsers(context.Context, *EmptyRequest) (*UsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllUsers not implemented")
@@ -453,6 +481,42 @@ func _Users_GetUsernameById_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UsersServer).GetUsernameById(ctx, req.(*RequestIdUsers))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_GetBlockedUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestIdUsers)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).GetBlockedUsers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/GetBlockedUsers",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).GetBlockedUsers(ctx, req.(*RequestIdUsers))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_GetUserNotifications_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestIdUsers)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).GetUserNotifications(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/GetUserNotifications",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).GetUserNotifications(ctx, req.(*RequestIdUsers))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -818,6 +882,14 @@ var _Users_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUsernameById",
 			Handler:    _Users_GetUsernameById_Handler,
+		},
+		{
+			MethodName: "GetBlockedUsers",
+			Handler:    _Users_GetBlockedUsers_Handler,
+		},
+		{
+			MethodName: "GetUserNotifications",
+			Handler:    _Users_GetUserNotifications_Handler,
 		},
 		{
 			MethodName: "GetAllUsers",

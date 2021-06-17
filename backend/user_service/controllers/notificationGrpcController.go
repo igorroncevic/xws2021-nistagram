@@ -38,3 +38,23 @@ func (c *NotificationGrpcController) CreateNotification(ctx context.Context, in 
 
 	return &protopb.EmptyResponse{}, nil
 }
+
+func (c *NotificationGrpcController) GetUserNotifications(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.CreateNotificationResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserNotifications")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	notifications, err := c.service.GetUserNotifications(ctx, in.Id)
+	if err != nil {
+		return &protopb.CreateNotificationResponse{}, err
+	}
+
+	var response []*protopb.Notification
+	for _, n := range notifications {
+		response = append(response, n.ConvertToGrpc())
+	}
+
+	return &protopb.CreateNotificationResponse{
+		Notifications: response,
+	}, nil
+}

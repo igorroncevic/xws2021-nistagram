@@ -133,3 +133,21 @@ func (s *PrivacyGrpcController) GetAllPublicUsers(ctx context.Context, in *proto
 		Ids: nonBlockedUsers,
 	}, nil
 }
+
+func (s *PrivacyGrpcController) GetBlockedUsers(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.ResponseIdUsers, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetBlockedUsers")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	blockedUsers, err := s.service.GetBlockedUsers(ctx, in.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	var ids []string
+	for _, blocked := range blockedUsers {
+		ids = append(ids, blocked.BlockedUserId)
+	}
+
+	return &protopb.ResponseIdUsers{Id: ids}, nil
+}

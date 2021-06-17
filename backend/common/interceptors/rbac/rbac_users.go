@@ -23,7 +23,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			updatePrivacy, blockUser, unBlockUser, checkIfBlocked, checkUserProfilePublic, getAllPublicUsers, approveAccount,
 			createNotification,
 			getPendingVerificationRequests, changeVerificationRequestStatus, getVerificationRequestsByUserId, getAllVerificationRequests,
-			updateUserPhoto,
+			updateUserPhoto,getUserNotifications,
 		}
 		result = db.Create(&permissions)
 		if result.Error != nil {
@@ -52,6 +52,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			basicGetVerificationRequestsByUserId, verifiedGetVerificationRequestsByUserId, adminGetVerificationRequestsByUserId, agentGetVerificationRequestsByUserId,
 			basicGetAllVerificationRequests, adminGetAllVerificationRequests, verifiedGetAllVerificationRequests,
 			basicUpdateUserPhoto,agentUpdateUserPhoto, adminUpdateUserPhoto,verifiedUpdateUserPhoto,
+			basicGetUserNotifications, adminGetUserNotifications, verifiedGetUserNotifications, nonregisteredGetUserNotifications,
 		}
 		result = db.Create(&rolePermissions)
 		if result.Error != nil {
@@ -97,11 +98,12 @@ var (
 	submitVerificationRequest       = Permission{Id: "1d867c15-595b-4a69-b8ad-7135457bc402", Name: "SubmitVerificationRequest"}
 	getPendingVerificationRequests  = Permission{Id: "56a15e9b-3522-4d32-a11a-2fd869a41489", Name: "GetPendingVerificationRequests"}
 	getAllVerificationRequests      = Permission{Id: "201569e4-b294-4b20-93f9-cd9d41e433bf", Name: "GetAllVerificationRequests"}
-	changeVerificationRequestStatus = Permission{Id: "03ba51b7-7497-42b5-9a2f-3961c3f43f04", Name: "ChangeVerificationRequestStatus"}
-	getVerificationRequestsByUserId = Permission{Id: "63a03b3a-46d6-4780-8517-fa61fbf8feba", Name: "GetVerificationRequestsByUserId"}
+	changeVerificationRequestStatus = Permission{Id: "63a03b3a-46d6-4780-8517-fa61fbf8feba", Name: "ChangeVerificationRequestStatus"}
+	getVerificationRequestsByUserId = Permission{Id: "735e6566-cf91-11eb-b8bc-0242ac130003", Name: "GetVerificationRequestsByUserId"}
 	createNotification      = Permission{ Id: "c6b63d7c-8344-43f4-b7c0-fb5e353aa2ae", Name: "CreateNotification"}
 	updateUserPhoto= Permission{ Id: "042cef39-9acb-49d9-8088-1a583623bfa0", Name: "UpdateUserPhoto"}
-)
+	getUserNotifications = Permission{Id : "2687d1e4-cf89-11eb-b8bc-0242ac130003", Name : "GetUserNotifications"}
+	)
 
 var (
 	basicGetUserById         = RolePermission{RoleId: basic.Id, PermissionId: getUserById.Id}
@@ -211,4 +213,10 @@ var (
 	agentUpdateUserPhoto= RolePermission{ RoleId: agent.Id, PermissionId: updateUserPhoto.Id }
 	adminUpdateUserPhoto= RolePermission{ RoleId: admin.Id, PermissionId: updateUserPhoto.Id }
 	verifiedUpdateUserPhoto= RolePermission{ RoleId: verified.Id, PermissionId: updateUserPhoto.Id }
+
+	basicGetUserNotifications = RolePermission{ RoleId: basic.Id, PermissionId: getUserNotifications.Id }
+	adminGetUserNotifications = RolePermission{ RoleId: admin.Id, PermissionId: getUserNotifications.Id }
+	verifiedGetUserNotifications = RolePermission{ RoleId: verified.Id, PermissionId: getUserNotifications.Id }
+	nonregisteredGetUserNotifications = RolePermission{ RoleId: nonregistered.Id, PermissionId: getUserNotifications.Id }
+
 )
