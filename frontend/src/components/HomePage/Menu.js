@@ -54,6 +54,9 @@ function Menu() {
             <NavLink  to={{ pathname: "/newpost" }}  >
                 <Plus className="icon" />
             </NavLink>
+            <NavLink  to={{ pathname: "/info" }} >
+                <Explore className="icon" />
+            </NavLink>
             {/*<NavLink  to={{ pathname: "/submit-verification-request" }}  >*/}
                 <Dropdown>
                     <Dropdown.Toggle variant="link" id="dropdown-basic">
@@ -73,9 +76,7 @@ function Menu() {
                 <ProfileIcon iconSize="medium" image='https://i.pravatar.cc/150?img=1' />
             </NavLink>
 
-            <NavLink  to={{ pathname: "/info" }} >
-                <Explore className="icon" />
-            </NavLink>
+
 
             <a href='/' style={{marginLeft:'10px'}}>Log out</a>
 

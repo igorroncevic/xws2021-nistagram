@@ -1,11 +1,9 @@
 import React, {useEffect, useState} from "react";
 import {Button} from "react-bootstrap";
-import axios from "axios";
-import userService from "../../services/user.service";
 import followersService from "../../services/followers.service";
 import {useDispatch, useSelector} from "react-redux";
 import Switch from "react-switch";
-//treba srediti da ne moze da zaprati sam sebe i da salje zahtev za pracenje drugima
+
 function FollowAndUnfollow(props) {
     const {user, followers, getFollowers} = props;
     const [follows, setFollows] = useState(false);
@@ -31,7 +29,6 @@ function FollowAndUnfollow(props) {
         })
 
         if (response.status === 200) {
-           // console.log(response.data)
             setFollows(response.data.isApprovedRequest)
             setCloseFriend(response.data.isCloseFriends)
             props.getFollowers(store.followers.followerId)
