@@ -153,7 +153,7 @@ func (s *Server) RemoveFavorite(ctx context.Context, in *protopb.FavoritesReques
 	return s.favoritesController.RemoveFavorite(ctx, in)
 }
 
-func (s *Server) SearchContentByLocation(ctx context.Context, in *protopb.SearchLocationRequest) (*protopb.ReducedPostArray, error) {
+func (s *Server) SearchContentByLocation(ctx context.Context, in *protopb.SearchLocationRequest) (*protopb.PostArray, error) {
 	return s.postController.SearchContentByLocation(ctx, in)
 }
 

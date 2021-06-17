@@ -303,7 +303,7 @@ func (c *PostGrpcController) RemovePost(ctx context.Context, id string) (*protop
 	return &protopb.EmptyResponseContent{}, nil
 }
 
-func (c *PostGrpcController) SearchContentByLocation(ctx context.Context, in *protopb.SearchLocationRequest) (*protopb.ReducedPostArray, error) {
+func (c *PostGrpcController) SearchContentByLocation(ctx context.Context, in *protopb.SearchLocationRequest) (*protopb.PostArray, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "SearchContentByLocation")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -312,17 +312,15 @@ func (c *PostGrpcController) SearchContentByLocation(ctx context.Context, in *pr
 
 	posts, err := c.service.SearchContentByLocation(ctx, location)
 	if err != nil {
-		return &protopb.ReducedPostArray{
-			Posts: []*protopb.ReducedPost{},
-		}, status.Errorf(codes.Unknown, err.Error())
+		return &protopb.PostArray{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
-	responsePosts := []*protopb.ReducedPost{}
+	responsePosts := []*protopb.Post{}
 	for _, post := range posts {
 		responsePosts = append(responsePosts, post.ConvertToGrpc())
 	}
 
-	return &protopb.ReducedPostArray{
+	return &protopb.PostArray{
 		Posts: responsePosts,
 	}, nil
 }

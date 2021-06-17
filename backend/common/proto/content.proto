@@ -46,7 +46,7 @@ service Content {
     };
   }
 
-  rpc SearchContentByLocation (SearchLocationRequest) returns (ReducedPostArray) {
+  rpc SearchContentByLocation (SearchLocationRequest) returns (PostArray) {
     option(google.api.http) = {
       post: "/location",
       body: "*"

@@ -11,7 +11,6 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/content_service/repositories"
-	"github.com/david-drvar/xws2021-nistagram/content_service/util/images"
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
 )
@@ -274,12 +273,33 @@ func (service *PostService) GetReducedPostData(ctx context.Context, postId strin
 	return retVal, nil
 }
 
-func (service *PostService) SearchContentByLocation(ctx context.Context, location string) ([]domain.ReducedPost, error) {
+//span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPosts")
+//defer span.Finish()
+//ctx = tracer.ContextWithSpan(context.Background(), span)
+//
+//posts := []domain.Post{}
+//
+//dbPosts, err := service.postRepository.GetAllPosts(ctx, followings)
+//if err != nil {
+//return posts, err
+//}
+//
+//for _, post := range dbPosts {
+//converted, err := service.GetPostById(ctx, post.Id)
+//if err != nil {
+//return []domain.Post{}, err
+//}
+//
+//posts = append(posts, converted)
+//}
+//
+//return posts, nil
+func (service *PostService) SearchContentByLocation(ctx context.Context, location string) ([]domain.Post, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "SearchContentByLocation")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	posts := []domain.ReducedPost{}
+	posts := []domain.Post{}
 
 	var conn *grpc.ClientConn
 	conn, err := grpc.Dial(":8091", grpc.WithInsecure())
@@ -296,49 +316,15 @@ func (service *PostService) SearchContentByLocation(ctx context.Context, locatio
 	}
 
 	for _, post := range dbPosts {
-		commentsNum, err := service.commentRepository.GetCommentsNumForPost(ctx, post.Id)
+		converted, err := service.GetPostById(ctx, post.Id)
 		if err != nil {
-			return []domain.ReducedPost{}, errors.New("unable to retrieve posts comments")
+			return []domain.Post{}, err
 		}
 
-		likes, err := service.likeRepository.GetLikesNumForPost(ctx, post.Id, true)
-		if err != nil {
-			return []domain.ReducedPost{}, errors.New("unable to retrieve posts likes")
-		}
-
-		dislikes, err := service.likeRepository.GetLikesNumForPost(ctx, post.Id, false)
-		if err != nil {
-			return []domain.ReducedPost{}, errors.New("unable to retrieve posts dislikes")
-		}
-
-		media, err := service.mediaRepository.GetMediaForPost(ctx, post.Id)
-		if err != nil {
-			return []domain.ReducedPost{}, errors.New("unable to retrieve posts media")
-		}
-
-		convertedMedia := []domain.Media{}
-		for _, single := range media {
-			tags, err := service.tagRepository.GetTagsForMedia(ctx, single.Id)
-			if err != nil {
-				return []domain.ReducedPost{}, errors.New("unable to retrieve media tags")
-			}
-
-			converted, err := single.ConvertToDomain(tags)
-			if err != nil {
-				return []domain.ReducedPost{}, errors.New("unable to convert media")
-			}
-
-			convertedMedia = append(convertedMedia, converted)
-		}
-
-		if err != nil {
-			return []domain.ReducedPost{}, errors.New("unable to convert posts media")
-		}
-
-		posts = append(posts, post.ConvertToDomainReduced(commentsNum, likes, dislikes, convertedMedia))
+		posts = append(posts, converted)
 	}
 
-	finalPosts := []domain.ReducedPost{}
+	finalPosts := []domain.Post{}
 
 	//call user service to check if users profile is public
 	for _, post := range posts {
@@ -356,22 +342,6 @@ func (service *PostService) SearchContentByLocation(ctx context.Context, locatio
 
 	//todo proveri da li su se useri blokirali medjusobno - ne moze u bilo kom smeru
 	//todo ako neregistrovan pretrazuje onda nemoj proveravati
-
-	//get media for post
-	//todo fix smh
-	for _, post := range finalPosts {
-		medias, err := service.mediaRepository.GetMediaForPost(ctx, post.Id) //vraca mi persistence media a treba mi domain
-		if err != nil {
-			log.Fatalf("Error when calling CheckUserProfilePublic: %s", err)
-		}
-		var mediasDomain []domain.Media
-		for _, mediaFor := range medias {
-			var mediaDomain = domain.Media{Id: mediaFor.Id, Type: mediaFor.Type, PostId: mediaFor.PostId, OrderNum: int32(mediaFor.OrderNum)}
-			mediaDomain.Content, _ = images.LoadImageToBase64(mediaFor.Filename)
-			mediasDomain = append(mediasDomain, mediaDomain)
-		}
-		post.Media = mediasDomain
-	}
 
 	return finalPosts, nil
 }

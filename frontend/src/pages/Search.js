@@ -7,6 +7,7 @@ import Navigation from "../components/HomePage/Navigation";
 import searchService from "../services/search.service";
 import {useSelector} from "react-redux";
 import userService from "../services/user.service";
+import Post from "../components/Post/Post";
 
 export default function Search() {
     const [user,setUser] =useState({});
@@ -48,10 +49,11 @@ export default function Search() {
     async function searchByLocation() {
         const response = await searchService.searchByLocation({
             location : input,
+            jwt : store.user.jwt
         })
 
-        if (response.status === 200) console.log("search radi")
-        else   console.log("search error")
+        if (response.status === 200) setSearchResult(response.data.posts);
+        else   console.log("search error loc")
     }
 
 
@@ -96,12 +98,6 @@ export default function Search() {
                 alert("Select search category");
                 return;
         }
-    }
-
-    if (searchCategory === 'User' && searchResult.length > 0) {
-        var userResults = searchResult.map((user, i) =>
-            <ProfileForSug user={user} username={user.username} firstName={user.firstName} lastName={user.lastName} caption={user.biography} urlText="Follow" iconSize="big" captionSize="small"  storyBorder={true} />
-        );
     }
 
     function handleSearchCategoryChange(event) {
@@ -153,10 +149,20 @@ export default function Search() {
                 </div>
             </div>
             <br/><br/>
+
             {searchResult.length > 0 && searchCategory === 'User' &&
                 <ul style={{marginLeft : "30px"}}>
-                    {userResults}
+                    {searchResult.map((user, i) =>
+                        <ProfileForSug user={user} username={user.username} firstName={user.firstName} lastName={user.lastName} caption={user.biography} urlText="Follow" iconSize="big" captionSize="small"  storyBorder={true} />
+                    )}
                 </ul>
+            }
+            {searchResult.length > 0 && searchCategory === 'Location' &&
+                searchResult.map((post) => {
+                    return (
+                        <Post post={post} postUser={{ id: post.userId }}/>
+                    );
+                })
             }
         </div>
     );
