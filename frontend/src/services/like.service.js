@@ -2,7 +2,7 @@ import RootService from './root.service'
 
 class LikeService extends RootService {
     constructor(){
-        super("http://localhost:8002/likes")
+        super("http://localhost:8080/api/content")
     }
 
 
@@ -10,7 +10,21 @@ class LikeService extends RootService {
         const { userId, postId, isLike, jwt } = data;
         const headers = this.setupHeaders(jwt);
 
-        const response = this.apiClient.post('', { userId, postId, isLike }, { headers })
+        const response = this.apiClient.post('/likes', { userId, postId, isLike }, { headers })
+            .then(res => {
+                return res
+            }).catch(err => {
+                console.error(err)
+                return err
+            })
+        return response
+    }
+
+    async getUserLikedOrDislikedPosts(data){
+        const { userId, isLike, jwt } = data;
+        const headers = this.setupHeaders(jwt);
+
+        const response = this.apiClient.post('/liked-posts-user', { userId, isLike }, { headers })
             .then(res => {
                 return res
             }).catch(err => {

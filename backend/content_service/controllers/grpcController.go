@@ -120,6 +120,10 @@ func (s *Server) GetLikesForPost(ctx context.Context, in *protopb.RequestId) (*p
 	return s.likeController.GetLikesForPost(ctx, in.Id, true)
 }
 
+func (s *Server) GetUserLikedOrDislikedPosts(ctx context.Context, in *protopb.Like) (*protopb.PostArray, error) {
+	return s.likeController.GetUserLikedOrDislikedPosts(ctx, in)
+}
+
 /* Collections & Favorites */
 func (s *Server) GetAllCollections(ctx context.Context, in *protopb.RequestId) (*protopb.CollectionsArray, error) {
 	return s.favoritesController.GetAllCollections(ctx, in)

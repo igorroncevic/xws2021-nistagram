@@ -25,7 +25,7 @@ func SetupContentRBAC(db *gorm.DB) error {
 			createLike, getLikesForPost, getDislikesForPost,
 			getAllCollections, getCollection, createCollection, removeCollection, getUserFavorites, createFavorite, removeFavorite,
 			createHashtag, getAllHashtags,
-			getAllHighlights, getHighlight, createHighlight, removeHighlight, createHighlightStory, removeHighlightStory,
+			getAllHighlights, getHighlight, createHighlight, removeHighlight, createHighlightStory, removeHighlightStory, getUserLikedOrDislikedPosts,
 		}
 		result = db.Create(&permissions)
 		if result.Error != nil {
@@ -65,6 +65,7 @@ func SetupContentRBAC(db *gorm.DB) error {
 			basicCreateHighlightStory, agentCreateHighlightStory, verifiedCreateHighlightStory,
 			basicRemoveHighlightStory, agentRemoveHighlightStory, verifiedRemoveHighlightStory,
 			basicGetAllHashtags, adminGetAllHashtags, agentGetAllHashtags, verifiedGetAllHashtags,
+			basicGetUserLikedOrDislikedPosts, verifiedGetUserLikedOrDislikedPosts,
 		}
 		result = db.Create(&rolePermissions)
 		if result.Error != nil {
@@ -108,9 +109,10 @@ var (
 	createComment      = Permission{Id: "4c43c1ae-fd17-4bc4-b9f9-bbab9208ad94", Name: "CreateComment"}
 	getCommentsForPost = Permission{Id: "f53a6be2-bd22-43d4-a1f5-b24483343f38", Name: "GetCommentsForPost"}
 
-	createLike         = Permission{Id: "99553bd8-9cac-4357-be26-3a1fd1f220a2", Name: "CreateLike"}
-	getLikesForPost    = Permission{Id: "9f0b1c74-0910-43e8-83f0-77436d245f3f", Name: "GetLikesForPost"}
-	getDislikesForPost = Permission{Id: "48067fbd-f078-40d0-8dee-a7f5ece74cb3", Name: "GetDislikesForPost"}
+	createLike                  = Permission{Id: "99553bd8-9cac-4357-be26-3a1fd1f220a2", Name: "CreateLike"}
+	getLikesForPost             = Permission{Id: "9f0b1c74-0910-43e8-83f0-77436d245f3f", Name: "GetLikesForPost"}
+	getDislikesForPost          = Permission{Id: "48067fbd-f078-40d0-8dee-a7f5ece74cb3", Name: "GetDislikesForPost"}
+	getUserLikedOrDislikedPosts = Permission{Id: "94ec116c-92fe-4cad-b262-a566d88c2041", Name: "GetUserLikedOrDislikedPosts"}
 
 	getAllCollections = Permission{Id: "f7ce029b-1d08-40d6-bf16-17a2e4b26c43", Name: "GetAllCollections"}
 	getCollection     = Permission{Id: "1c0d7507-4e50-49cf-ae3c-9d330583acdf", Name: "GetCollection"}
@@ -231,6 +233,10 @@ var (
 	adminGetDislikesForPost         = RolePermission{RoleId: admin.Id, PermissionId: getDislikesForPost.Id}
 	agentGetDislikesForPost         = RolePermission{RoleId: agent.Id, PermissionId: getDislikesForPost.Id}
 	nonregisteredGetDislikesForPost = RolePermission{RoleId: nonregistered.Id, PermissionId: getDislikesForPost.Id}
+
+	basicGetUserLikedOrDislikedPosts    = RolePermission{RoleId: basic.Id, PermissionId: getUserLikedOrDislikedPosts.Id}
+	verifiedGetUserLikedOrDislikedPosts = RolePermission{RoleId: verified.Id, PermissionId: getUserLikedOrDislikedPosts.Id}
+
 	// - - - - - - - - - -
 
 	// Collections & Favorites

@@ -41,6 +41,7 @@ type ContentClient interface {
 	CreateLike(ctx context.Context, in *Like, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetLikesForPost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*LikesArray, error)
 	GetDislikesForPost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*LikesArray, error)
+	GetUserLikedOrDislikedPosts(ctx context.Context, in *Like, opts ...grpc.CallOption) (*PostArray, error)
 	// Collections & Favorites
 	GetAllCollections(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*CollectionsArray, error)
 	GetCollection(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Collection, error)
@@ -239,6 +240,15 @@ func (c *contentClient) GetDislikesForPost(ctx context.Context, in *RequestId, o
 	return out, nil
 }
 
+func (c *contentClient) GetUserLikedOrDislikedPosts(ctx context.Context, in *Like, opts ...grpc.CallOption) (*PostArray, error) {
+	out := new(PostArray)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetUserLikedOrDislikedPosts", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *contentClient) GetAllCollections(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*CollectionsArray, error) {
 	out := new(CollectionsArray)
 	err := c.cc.Invoke(ctx, "/proto.Content/GetAllCollections", in, out, opts...)
@@ -392,6 +402,7 @@ type ContentServer interface {
 	CreateLike(context.Context, *Like) (*EmptyResponseContent, error)
 	GetLikesForPost(context.Context, *RequestId) (*LikesArray, error)
 	GetDislikesForPost(context.Context, *RequestId) (*LikesArray, error)
+	GetUserLikedOrDislikedPosts(context.Context, *Like) (*PostArray, error)
 	// Collections & Favorites
 	GetAllCollections(context.Context, *RequestId) (*CollectionsArray, error)
 	GetCollection(context.Context, *RequestId) (*Collection, error)
@@ -472,6 +483,9 @@ func (UnimplementedContentServer) GetLikesForPost(context.Context, *RequestId) (
 }
 func (UnimplementedContentServer) GetDislikesForPost(context.Context, *RequestId) (*LikesArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDislikesForPost not implemented")
+}
+func (UnimplementedContentServer) GetUserLikedOrDislikedPosts(context.Context, *Like) (*PostArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserLikedOrDislikedPosts not implemented")
 }
 func (UnimplementedContentServer) GetAllCollections(context.Context, *RequestId) (*CollectionsArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllCollections not implemented")
@@ -870,6 +884,24 @@ func _Content_GetDislikesForPost_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Content_GetUserLikedOrDislikedPosts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Like)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetUserLikedOrDislikedPosts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetUserLikedOrDislikedPosts",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetUserLikedOrDislikedPosts(ctx, req.(*Like))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Content_GetAllCollections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RequestId)
 	if err := dec(in); err != nil {
@@ -1204,6 +1236,10 @@ var Content_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetDislikesForPost",
 			Handler:    _Content_GetDislikesForPost_Handler,
+		},
+		{
+			MethodName: "GetUserLikedOrDislikedPosts",
+			Handler:    _Content_GetUserLikedOrDislikedPosts_Handler,
 		},
 		{
 			MethodName: "GetAllCollections",
