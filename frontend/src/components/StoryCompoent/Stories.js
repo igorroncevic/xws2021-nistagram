@@ -5,8 +5,10 @@ import '../../style/Stories.css';
 import { useSelector } from 'react-redux';
 import storyService from './../../services/story.service'
 import toastService from './../../services/toast.service'
+import Spinner from './../../helpers/spinner'; 
 
 const Stories = () => {
+    const [loading, setLoading] = useState(true);
     const [stories, setStories] = useState([]);
     const store = useSelector(state => state);
 
@@ -15,6 +17,7 @@ const Stories = () => {
             .then(response => {
                 if(response.status === 200) {
                     setStories(convertToComponentArray([...response.data.stories]));
+                    setLoading(false);
                 }
             })
             .catch(err => {
@@ -26,7 +29,8 @@ const Stories = () => {
     const convertToComponentArray = (stories) => stories.map((story) => <Story story={story} /> )
 
     return (
-        <div className="stories">
+        <div className={`stories ${loading ? "loading" : ""}`}>
+            { loading ? <Spinner /> :
             <ScrollMenu 
                 alignCenter={false}
                 data={stories}
@@ -34,6 +38,7 @@ const Stories = () => {
                 hideArrows={true}
                 hideSingleArrow={true}
                 />
+            }
         </div>
     );
 }
