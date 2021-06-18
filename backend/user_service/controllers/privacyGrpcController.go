@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"errors"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
@@ -150,4 +151,25 @@ func (s *PrivacyGrpcController) GetBlockedUsers(ctx context.Context, in *protopb
 	}
 
 	return &protopb.ResponseIdUsers{Id: ids}, nil
+}
+
+func (s *PrivacyGrpcController) GetUserPrivacy(ctx context.Context, in *protopb.RequestIdPrivacy) (*protopb.PrivacyMessage, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserPrivacy")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	privacy, err := s.service.GetUserPrivacy(ctx, in.Id)
+
+	if err != nil {
+		return &protopb.PrivacyMessage{}, errors.New("Could not return user privacy!")
+	}
+
+	return &protopb.PrivacyMessage{
+		Id : privacy.UserId,
+		IsProfilePublic: privacy.IsProfilePublic,
+		IsTagEnabled: privacy.IsTagEnabled,
+		IsDmPublic: privacy.IsDMPublic,
+	}, nil
+
+
 }
