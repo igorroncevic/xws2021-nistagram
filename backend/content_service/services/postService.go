@@ -273,27 +273,6 @@ func (service *PostService) GetReducedPostData(ctx context.Context, postId strin
 	return retVal, nil
 }
 
-//span := tracer.StartSpanFromContextMetadata(ctx, "GetAllPosts")
-//defer span.Finish()
-//ctx = tracer.ContextWithSpan(context.Background(), span)
-//
-//posts := []domain.Post{}
-//
-//dbPosts, err := service.postRepository.GetAllPosts(ctx, followings)
-//if err != nil {
-//return posts, err
-//}
-//
-//for _, post := range dbPosts {
-//converted, err := service.GetPostById(ctx, post.Id)
-//if err != nil {
-//return []domain.Post{}, err
-//}
-//
-//posts = append(posts, converted)
-//}
-//
-//return posts, nil
 func (service *PostService) SearchContentByLocation(ctx context.Context, location string) ([]domain.Post, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "SearchContentByLocation")
 	defer span.Finish()
@@ -405,12 +384,12 @@ func (service *PostService) GetPostsByHashtag(ctx context.Context, text string) 
 	return postsWithPublicAccess, nil
 }
 
-func (service *PostService) GetPostsForUser(ctx context.Context, id string) ([]domain.ReducedPost, error) {
+func (service *PostService) GetPostsForUser(ctx context.Context, id string) ([]domain.Post, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostsForUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	posts := []domain.ReducedPost{}
+	posts := []domain.Post{}
 
 	dbPosts, err := service.postRepository.GetPostsForUser(ctx, id)
 	if err != nil {
@@ -418,9 +397,9 @@ func (service *PostService) GetPostsForUser(ctx context.Context, id string) ([]d
 	}
 
 	for _, post := range dbPosts {
-		converted, err := service.GetReducedPostData(ctx, post.Id)
+		converted, err := service.GetPostById(ctx, post.Id)
 		if err != nil {
-			return []domain.ReducedPost{}, err
+			return []domain.Post{}, err
 		}
 
 		posts = append(posts, converted)

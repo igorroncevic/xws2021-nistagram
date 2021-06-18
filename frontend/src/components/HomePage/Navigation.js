@@ -1,11 +1,8 @@
-import "../../style/navigation.css";
-import Menu from "./Menu";
-import React, {useEffect, useState} from "react";
-import {Button, Modal} from "react-bootstrap";
-import RegistrationPage from "../../pages/RegistrationPage";
-import Search from "../../pages/Search";
+import React from "react";
+import {Button} from "react-bootstrap";
 import {useHistory} from "react-router-dom";
-
+import Menu from "./Menu";
+import "../../style/navigation.css";
 
 function Navigation() {
     const history = useHistory()

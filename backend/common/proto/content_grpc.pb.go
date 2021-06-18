@@ -22,7 +22,7 @@ type ContentClient interface {
 	CreatePost(ctx context.Context, in *Post, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetAllPostsReduced(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*ReducedPostArray, error)
 	GetAllPosts(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*PostArray, error)
-	GetPostsForUser(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*ReducedPostArray, error)
+	GetPostsForUser(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*PostArray, error)
 	RemovePost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetPostById(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Post, error)
 	SearchContentByLocation(ctx context.Context, in *SearchLocationRequest, opts ...grpc.CallOption) (*PostArray, error)
@@ -96,8 +96,8 @@ func (c *contentClient) GetAllPosts(ctx context.Context, in *EmptyRequestContent
 	return out, nil
 }
 
-func (c *contentClient) GetPostsForUser(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*ReducedPostArray, error) {
-	out := new(ReducedPostArray)
+func (c *contentClient) GetPostsForUser(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*PostArray, error) {
+	out := new(PostArray)
 	err := c.cc.Invoke(ctx, "/proto.Content/GetPostsForUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -383,7 +383,7 @@ type ContentServer interface {
 	CreatePost(context.Context, *Post) (*EmptyResponseContent, error)
 	GetAllPostsReduced(context.Context, *EmptyRequestContent) (*ReducedPostArray, error)
 	GetAllPosts(context.Context, *EmptyRequestContent) (*PostArray, error)
-	GetPostsForUser(context.Context, *RequestId) (*ReducedPostArray, error)
+	GetPostsForUser(context.Context, *RequestId) (*PostArray, error)
 	RemovePost(context.Context, *RequestId) (*EmptyResponseContent, error)
 	GetPostById(context.Context, *RequestId) (*Post, error)
 	SearchContentByLocation(context.Context, *SearchLocationRequest) (*PostArray, error)
@@ -436,7 +436,7 @@ func (UnimplementedContentServer) GetAllPostsReduced(context.Context, *EmptyRequ
 func (UnimplementedContentServer) GetAllPosts(context.Context, *EmptyRequestContent) (*PostArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllPosts not implemented")
 }
-func (UnimplementedContentServer) GetPostsForUser(context.Context, *RequestId) (*ReducedPostArray, error) {
+func (UnimplementedContentServer) GetPostsForUser(context.Context, *RequestId) (*PostArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPostsForUser not implemented")
 }
 func (UnimplementedContentServer) RemovePost(context.Context, *RequestId) (*EmptyResponseContent, error) {

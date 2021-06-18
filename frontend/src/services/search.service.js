@@ -1,17 +1,8 @@
-import axios from 'axios';
+import RootService from './root.service'
 
-class SearchService {
+class SearchService extends RootService {
     constructor() {
-        this.apiClient = axios.create({
-            baseURL: process.env.REACT_APP_CONTENT_SERVICE + "/api/content"
-        })
-    }
-
-    setupHeaders(jwt) {
-        return {
-            Accept: 'application/json',
-            Authorization: 'Bearer ' + jwt,
-        }
+        super(process.env.REACT_APP_CONTENT_SERVICE /*+ "/api/content"*/)
     }
 
     async searchByTag(data){
@@ -43,6 +34,8 @@ class SearchService {
     }
 
 
-}const searchService = new SearchService()
+}
+
+const searchService = new SearchService()
 
 export default searchService;
