@@ -54,6 +54,12 @@ service Privacy {
             get: "/api/privacy/public/{id}",
         };
     }
+
+    rpc GetUserPrivacy (RequestIdPrivacy) returns (PrivacyMessage) {
+        option(google.api.http) = {
+            get: "/api/privacy/get_privacy/{id}",
+        };
+    }
 }
 
 message Block {

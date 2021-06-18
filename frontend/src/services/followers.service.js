@@ -2,7 +2,7 @@ import RootService from './root.service'
 
 class FollowersService extends RootService {
     constructor() {
-        super("http://localhost:8005/api/followers")
+        super(process.env.REACT_APP_RECOMMENDATION_SERVICE + "/api/followers")
     }
 
     async getFollowers(data){

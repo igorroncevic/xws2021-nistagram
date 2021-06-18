@@ -68,6 +68,10 @@ func (s *Server) GetUsernameById(ctx context.Context, in *protopb.RequestIdUsers
 	return s.userController.GetUsernameById(ctx, in)
 }
 
+func (s *Server) GetPhotoById(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.UserPhoto, error) {
+	return s.userController.GetPhotoById(ctx, in)
+}
+
 func (s *Server) UpdateUserProfile(ctx context.Context, in *protopb.CreateUserDTORequest) (*protopb.EmptyResponse, error) {
 	return s.userController.UpdateUserProfile(ctx, in)
 }
@@ -175,4 +179,8 @@ func (s *Server) GetUserNotifications(ctx context.Context, in *protopb.RequestId
 
 func (s *Server) GetBlockedUsers(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.ResponseIdUsers, error) {
 	return s.privacyController.GetBlockedUsers(ctx, in)
+}
+
+func (s *Server) GetUserPrivacy(ctx context.Context, in *protopb.RequestIdPrivacy) (*protopb.PrivacyMessage, error) {
+	return s.privacyController.GetUserPrivacy(ctx, in)
 }

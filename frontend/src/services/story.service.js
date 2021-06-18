@@ -2,7 +2,7 @@ import RootService from './root.service'
 
 class StoryService extends RootService {
     constructor(){
-        super("http://localhost:8002/stories")
+        super(process.env.REACT_APP_CONTENT_SERVICE + "/stories")
     }
 
     async getHomepageStories(data){
@@ -17,6 +17,25 @@ class StoryService extends RootService {
             return err
         })
         return response
+    }
+
+    // Convert story with multiple media to multiple stories with single media, to comply with react-insta-stories
+    convertStory(story){
+        if(story.media.length === 1) return [{
+            ...story,
+            orderNum: 1, // Important for our custom slider component 
+        }]
+        
+        const stories = [];
+        story.media.forEach(singleMedia => {
+            singleMedia.orderNum = 1;   // Important for our custom slider component
+            stories.push({
+                ...story,
+                media: [singleMedia] // Must be an array
+            })
+        })
+
+        return stories;
     }
 }
 

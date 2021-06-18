@@ -4,15 +4,20 @@ import Post from "./Post";
 import { useSelector } from 'react-redux';
 import postService from './../../services/post.service'
 import toastService from './../../services/toast.service'
+import Spinner from './../../helpers/spinner';
 
 const Posts = (props) => {
+    const [loading, setLoading] = useState(true);
     const [posts, setPosts] = useState([]);
     const store = useSelector(state => state)
 
     useEffect(()=>{
         postService.getHomepagePosts({ jwt: store.user.jwt })
             .then(response => {
-                if(response.status === 200) setPosts(response.data.posts)
+                if(response.status === 200) {
+                    setPosts(response.data.posts)
+                    setLoading(false);
+                }
             })
             .catch(err => {
                 toastService.show("error", "Could not retrieve homepage posts.")
@@ -20,11 +25,11 @@ const Posts = (props) => {
     }, [])
 
     return(
-        <div className="Posts">
-            {posts && posts.map((post) => {
-                return (
-                    <Post post={post} postUser={{ id: post.userId }}/>);
-            })}
+        <div className={`Posts ${loading ? "loading" : ""}`}>
+            { loading ? 
+                <Spinner type="MutatingDots" height="100" width="100" /> : 
+                posts && posts.map((post) => <Post post={post} postUser={{ id: post.userId }}/> )
+            }
         </div>
 
     );

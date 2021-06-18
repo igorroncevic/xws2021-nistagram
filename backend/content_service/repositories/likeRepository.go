@@ -13,10 +13,12 @@ type LikeRepository interface {
 	GetLikesForPost(context.Context, string, bool) ([]persistence.Like, error)
 	GetLikesNumForPost(context.Context, string, bool) (int, error)
 	CreateLike(context.Context, domain.Like) error
+	GetUserLikedOrDislikedPostIds(ctx context.Context, id string, isLike bool) ([]string, error)
 }
 
 type likeRepository struct {
-	DB *gorm.DB
+	postRepository PostRepository
+	DB             *gorm.DB
 }
 
 func NewLikeRepo(db *gorm.DB) (*likeRepository, error) {
@@ -24,10 +26,15 @@ func NewLikeRepo(db *gorm.DB) (*likeRepository, error) {
 		panic("LikeRepository not created, gorm.DB is nil")
 	}
 
-	return &likeRepository{ DB: db }, nil
+	postRepository, _ := NewPostRepo(db)
+
+	return &likeRepository{
+		DB:             db,
+		postRepository: postRepository,
+	}, nil
 }
 
-func (repository *likeRepository) GetLikesForPost(ctx context.Context, postId string, isLike bool) ([]persistence.Like, error){
+func (repository *likeRepository) GetLikesForPost(ctx context.Context, postId string, isLike bool) ([]persistence.Like, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetLikesForPost")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -42,7 +49,7 @@ func (repository *likeRepository) GetLikesForPost(ctx context.Context, postId st
 	return likes, nil
 }
 
-func (repository *likeRepository) GetLikesNumForPost(ctx context.Context, postId string, isLike bool) (int, error){
+func (repository *likeRepository) GetLikesNumForPost(ctx context.Context, postId string, isLike bool) (int, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetLikesNumForPost")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -57,7 +64,7 @@ func (repository *likeRepository) GetLikesNumForPost(ctx context.Context, postId
 	return int(likes), nil
 }
 
-func (repository *likeRepository) CreateLike(ctx context.Context, like domain.Like) error{
+func (repository *likeRepository) CreateLike(ctx context.Context, like domain.Like) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateLike")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -79,7 +86,7 @@ func (repository *likeRepository) CreateLike(ctx context.Context, like domain.Li
 			if result.Error != nil || result.RowsAffected != 1 {
 				return errors.New("unable to update like")
 			}
-		}else{
+		} else {
 			// Remove like
 			result := repository.DB.Where("post_id = ? AND user_id = ?", checkLike.PostId, checkLike.UserId).Delete(checkLike)
 
@@ -88,7 +95,7 @@ func (repository *likeRepository) CreateLike(ctx context.Context, like domain.Li
 			}
 		}
 
-	}else {
+	} else {
 		var newLike *persistence.Like
 		newLike = newLike.ConvertToPersistence(like)
 		// Like does not exist, create a new one
@@ -99,6 +106,31 @@ func (repository *likeRepository) CreateLike(ctx context.Context, like domain.Li
 		}
 	}
 
-
 	return nil
+}
+
+func (repository *likeRepository) GetUserLikedOrDislikedPostIds(ctx context.Context, id string, isLike bool) ([]string, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserLikedOrDislikedPostIds")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	likes := []persistence.Like{}
+	if isLike == true {
+		result := repository.DB.Where("user_id = ? AND is_like = 'true'", id).Find(&likes)
+		if result.Error != nil {
+			return nil, result.Error
+		}
+	} else {
+		result := repository.DB.Where("user_id = ? AND is_like = 'false'", id).Find(&likes)
+		if result.Error != nil {
+			return nil, result.Error
+		}
+	}
+
+	var postIds []string
+	for _, like := range likes {
+		postIds = append(postIds, like.PostId)
+	}
+
+	return postIds, nil
 }

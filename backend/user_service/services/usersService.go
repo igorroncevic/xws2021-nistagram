@@ -187,7 +187,7 @@ func (service *UserService) SearchUsersByUsernameAndName(ctx context.Context, us
 }
 
 func (service *UserService) GetUserByEmail(ctx context.Context, email string) (domain.User, error) {
-	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserByEmail")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
@@ -314,4 +314,14 @@ func (service *UserService) GetUserByUsername(ctx context.Context, username stri
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	return service.userRepository.GetUserByUsername(username)
+}
+
+func (service *UserService) GetUserPhoto(ctx context.Context, userId string) (string, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUserPhoto")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if userId == "" { return "", errors.New("can't find photo from non-existing user") }
+
+	return service.userRepository.GetUserPhoto(ctx, userId)
 }

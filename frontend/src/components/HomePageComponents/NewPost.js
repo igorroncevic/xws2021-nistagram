@@ -31,7 +31,7 @@ function NewPost(props) {
     const store = useSelector(state => state);
 
     useEffect(() => {
-        //if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
+        if(store.user.role === 'Admin' || store.user.role === "") window.location.replace("http://localhost:3000/unauthorized");
         console.log(props);
         //setUser(props.location.state.user);
         getUserInfo();

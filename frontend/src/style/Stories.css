@@ -1,10 +1,19 @@
+@import url("./variables.css");
+
 .stories {
+    position: relative;
     display: flex;
     align-content: center;
     background-color: #ffffff;
-    border: 1px solid #dbdbdb;
+    border: 1px solid var(--border-color-grey-secondary);
     border-radius: 3px;
-    margin: 2em 15em 1.5em 15em;
-    height: 7.4em;
+    width: 70%;
+    margin: 0 auto;
+    padding-top: 5px;
+    height: auto;
     overflow: hidden;
+}
+
+.loading{
+    justify-content: space-around;
 }

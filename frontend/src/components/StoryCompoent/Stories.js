@@ -1,33 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import HorizontalScroll from "react-scroll-horizontal";
+import ScrollMenu from "react-horizontal-scrolling-menu";
 import Story from "./Story";
 import '../../style/Stories.css';
 import { useSelector } from 'react-redux';
 import storyService from './../../services/story.service'
 import toastService from './../../services/toast.service'
+import Spinner from './../../helpers/spinner'; 
 
 const Stories = () => {
+    const [loading, setLoading] = useState(true);
     const [stories, setStories] = useState([]);
     const store = useSelector(state => state);
 
     useEffect(()=>{
         storyService.getHomepageStories({ jwt: store.user.jwt })
             .then(response => {
-                if(response.status === 200) setStories(response.data.stories)
-                console.log(stories)
+                if(response.status === 200) {
+                    setStories(convertToComponentArray([...response.data.stories]));
+                    setLoading(false);
+                }
             })
             .catch(err => {
+                console.log(err)
                 toastService.show("error", "Could not retrieve homepage stories.")
             })
     }, [])
+    
+    const convertToComponentArray = (stories) => stories.map((story) => <Story story={story} /> )
 
     return (
-        <div className="stories">
-            <HorizontalScroll className="scroll" reverseScroll={false}>
-                {stories.forEach((story)=>{
-                    <Story story={story} />
-                })}
-            </HorizontalScroll>
+        <div className={`stories ${loading ? "loading" : ""}`}>
+            { loading ? <Spinner /> :
+            <ScrollMenu 
+                alignCenter={false}
+                data={stories}
+                wheel={true}
+                hideArrows={true}
+                hideSingleArrow={true}
+                />
+            }
         </div>
     );
 }

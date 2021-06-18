@@ -11,6 +11,7 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
+// Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
 // UsersClient is the client API for Users service.
@@ -23,22 +24,18 @@ type UsersClient interface {
 	GetUsernameById(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*UsersDTO, error)
 	GetBlockedUsers(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*ResponseIdUsers, error)
 	GetUserNotifications(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*CreateNotificationResponse, error)
+	GetPhotoById(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*UserPhoto, error)
 	GetAllUsers(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*UsersResponse, error)
 	UpdateUserProfile(ctx context.Context, in *CreateUserDTORequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	UpdateUserPhoto(ctx context.Context, in *UserPhotoRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	UpdateUserPassword(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	SearchUser(ctx context.Context, in *SearchUserDtoRequest, opts ...grpc.CallOption) (*UsersResponse, error)
-	// Svi
 	SendEmail(ctx context.Context, in *SendEmailDtoRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
-	// Svi
 	GetUserByEmail(ctx context.Context, in *RequestEmailUser, opts ...grpc.CallOption) (*UsersDTO, error)
 	GetUserByUsername(ctx context.Context, in *RequestUsernameUser, opts ...grpc.CallOption) (*UsersDTO, error)
-	// Svi
 	ValidateResetCode(ctx context.Context, in *RequestResetCode, opts ...grpc.CallOption) (*EmptyResponse, error)
-	// Svi
 	ChangeForgottenPass(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	CheckIsApproved(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*BooleanResponseUsers, error)
-	// Samo ulogovani
 	ApproveAccount(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GoogleAuth(ctx context.Context, in *GoogleAuthRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	CreateNotification(ctx context.Context, in *CreateNotificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
@@ -106,6 +103,15 @@ func (c *usersClient) GetBlockedUsers(ctx context.Context, in *RequestIdUsers, o
 func (c *usersClient) GetUserNotifications(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*CreateNotificationResponse, error) {
 	out := new(CreateNotificationResponse)
 	err := c.cc.Invoke(ctx, "/proto.Users/GetUserNotifications", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) GetPhotoById(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*UserPhoto, error) {
+	out := new(UserPhoto)
+	err := c.cc.Invoke(ctx, "/proto.Users/GetPhotoById", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -293,22 +299,18 @@ type UsersServer interface {
 	GetUsernameById(context.Context, *RequestIdUsers) (*UsersDTO, error)
 	GetBlockedUsers(context.Context, *RequestIdUsers) (*ResponseIdUsers, error)
 	GetUserNotifications(context.Context, *RequestIdUsers) (*CreateNotificationResponse, error)
+	GetPhotoById(context.Context, *RequestIdUsers) (*UserPhoto, error)
 	GetAllUsers(context.Context, *EmptyRequest) (*UsersResponse, error)
 	UpdateUserProfile(context.Context, *CreateUserDTORequest) (*EmptyResponse, error)
 	UpdateUserPhoto(context.Context, *UserPhotoRequest) (*EmptyResponse, error)
 	UpdateUserPassword(context.Context, *CreatePasswordRequest) (*EmptyResponse, error)
 	SearchUser(context.Context, *SearchUserDtoRequest) (*UsersResponse, error)
-	// Svi
 	SendEmail(context.Context, *SendEmailDtoRequest) (*EmptyResponse, error)
-	// Svi
 	GetUserByEmail(context.Context, *RequestEmailUser) (*UsersDTO, error)
 	GetUserByUsername(context.Context, *RequestUsernameUser) (*UsersDTO, error)
-	// Svi
 	ValidateResetCode(context.Context, *RequestResetCode) (*EmptyResponse, error)
-	// Svi
 	ChangeForgottenPass(context.Context, *CreatePasswordRequest) (*EmptyResponse, error)
 	CheckIsApproved(context.Context, *RequestIdUsers) (*BooleanResponseUsers, error)
-	// Samo ulogovani
 	ApproveAccount(context.Context, *CreatePasswordRequest) (*EmptyResponse, error)
 	GoogleAuth(context.Context, *GoogleAuthRequest) (*LoginResponse, error)
 	CreateNotification(context.Context, *CreateNotificationRequest) (*EmptyResponse, error)
@@ -342,6 +344,9 @@ func (UnimplementedUsersServer) GetBlockedUsers(context.Context, *RequestIdUsers
 }
 func (UnimplementedUsersServer) GetUserNotifications(context.Context, *RequestIdUsers) (*CreateNotificationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserNotifications not implemented")
+}
+func (UnimplementedUsersServer) GetPhotoById(context.Context, *RequestIdUsers) (*UserPhoto, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPhotoById not implemented")
 }
 func (UnimplementedUsersServer) GetAllUsers(context.Context, *EmptyRequest) (*UsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllUsers not implemented")
@@ -409,8 +414,8 @@ type UnsafeUsersServer interface {
 	mustEmbedUnimplementedUsersServer()
 }
 
-func RegisterUsersServer(s *grpc.Server, srv UsersServer) {
-	s.RegisterService(&_Users_serviceDesc, srv)
+func RegisterUsersServer(s grpc.ServiceRegistrar, srv UsersServer) {
+	s.RegisterService(&Users_ServiceDesc, srv)
 }
 
 func _Users_LoginUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -517,6 +522,24 @@ func _Users_GetUserNotifications_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UsersServer).GetUserNotifications(ctx, req.(*RequestIdUsers))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_GetPhotoById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestIdUsers)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).GetPhotoById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/GetPhotoById",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).GetPhotoById(ctx, req.(*RequestIdUsers))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -863,7 +886,10 @@ func _Users_GetAllVerificationRequests_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
-var _Users_serviceDesc = grpc.ServiceDesc{
+// Users_ServiceDesc is the grpc.ServiceDesc for Users service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Users_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.Users",
 	HandlerType: (*UsersServer)(nil),
 	Methods: []grpc.MethodDesc{
@@ -890,6 +916,10 @@ var _Users_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserNotifications",
 			Handler:    _Users_GetUserNotifications_Handler,
+		},
+		{
+			MethodName: "GetPhotoById",
+			Handler:    _Users_GetPhotoById_Handler,
 		},
 		{
 			MethodName: "GetAllUsers",

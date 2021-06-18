@@ -126,3 +126,11 @@ func (service *PrivacyService) GetBlockedUsers(ctx context.Context, userId strin
 
 	return service.repository.GetBlockedUsers(ctx, userId)
 }
+
+func (service *PrivacyService) GetUserPrivacy(ctx context.Context, userId string) (*persistence.Privacy, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserPrivacy")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.GetUserPrivacy(ctx, userId)
+}

@@ -37,9 +37,10 @@ type Story struct {
 }
 
 type StoryHome struct {
-	UserId   string
-	Username string
-	Stories  []Story
+	UserId    string
+	Username  string
+	UserPhoto string
+	Stories   []Story
 }
 
 type StoriesHome struct {

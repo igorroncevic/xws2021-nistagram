@@ -39,7 +39,7 @@ function Post (props) {
     const [showReportModal, setReportModal] = useState(false);
 
     const commentInputRef = useRef()
-    
+
     const store = useSelector(state => state)
 
     useEffect(() => {
@@ -127,7 +127,7 @@ function Post (props) {
             setUser({
                 id: store.user.id,
                 username: store.user.username,
-                photo: "",
+                profilePhoto: store.user.photo,
             })
         }
     }
