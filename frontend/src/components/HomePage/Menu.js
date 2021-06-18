@@ -8,9 +8,9 @@ import { ReactComponent as Explore } from "../../images/icons/more.svg";
 import { ReactComponent as VerificationSymbol } from "../../images/icons/verification-symbol.svg";
 
 import ProfileIcon from "../ProfileComponent/ProfileIcon";
-import {NavLink, Route} from "react-router-dom";
+import {Link, NavLink, Route, useHistory} from "react-router-dom";
 import Profile from "../ProfileComponent/Profile";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import userService from "../../services/user.service";
 import {useDispatch, useSelector} from "react-redux";
 import {Dropdown} from "react-bootstrap";
@@ -19,6 +19,8 @@ function Menu() {
     const[username,setUsername]=useState('')
     const dispatch = useDispatch()
     const store = useSelector(state => state);
+    const history = useHistory()
+
 
     useEffect(() => {
         //   if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
@@ -37,42 +39,62 @@ function Menu() {
             console.log("getuserbyusername error")
         }
     }
+
+    function verificationRedirect(text) {
+        switch(text) {
+            case 'submit-verification-request' :
+                history.push({ pathname: '/submit-verification-request' });
+                break;
+            case 'view-my-verification-request' :
+                history.push({ pathname: '/view-my-verification-request' })
+                break;
+            case 'view-pending-verification-request' :
+                history.push({ pathname: '/view-pending-verification-request' })
+                break;
+            case 'view-all-verification-request' :
+                history.push({ pathname: '/view-all-verification-request' })
+                break;
+            default: return;
+        }
+    }
+
     return (
         <div className="menu">
-            <NavLink  to={{ pathname: "/home" }}  >
+            <NavLink  to={{ pathname: "/home" }} >
                 <Home className="icon"/>
             </NavLink>
-            <NavLink  to={{ pathname: "/chats" }}  >
+            <NavLink  to={{ pathname: "/chats" }} style={store.user.role !== 'Admin' ? {display : 'block'} : {display: 'none'}} >
                 <Inbox className="icon" />
             </NavLink>
-            <NavLink  to={{ pathname: "/notifications" }}  >
+            <NavLink  to={{ pathname: "/notifications" }} style={store.user.role !== 'Admin' ? {display : 'block'} : {display: 'none'}} >
                 <Notifications className="icon" />
             </NavLink>
-            <NavLink  to={{ pathname: "/saved" }}  >
+            <NavLink  to={{ pathname: "/saved" }} style={store.user.role !== 'Admin' ? {display : 'block'} : {display: 'none'}} >
                 <Bookmark className="icon" /> 
             </NavLink>
-            <NavLink  to={{ pathname: "/newpost" }}  >
+            <NavLink  to={{ pathname: "/newpost" }} style={store.user.role !== 'Admin' ? {display : 'block'} : {display: 'none'}} >
                 <Plus className="icon" />
             </NavLink>
             <NavLink  to={{ pathname: "/info" }} >
                 <Explore className="icon" />
             </NavLink>
-            {/*<NavLink  to={{ pathname: "/submit-verification-request" }}  >*/}
-                <Dropdown>
-                    <Dropdown.Toggle variant="link" id="dropdown-basic">
-                        <VerificationSymbol className="icon" />
-                    </Dropdown.Toggle>
+            <Dropdown>
+                <Dropdown.Toggle variant="link" id="dropdown-basic">
+                    <VerificationSymbol className="icon" />
+                </Dropdown.Toggle>
 
-                    <Dropdown.Menu>
-                        <Dropdown.Item href="/submit-verification-request">Submit verification request </Dropdown.Item>
-                        <Dropdown.Item href="/view-my-verification-request">View my verification requests</Dropdown.Item>
-                        <Dropdown.Item href="/view-pending-verification-request">View pending verification requests</Dropdown.Item>
-                        <Dropdown.Item href="/view-all-verification-request">View all verification requests</Dropdown.Item>
-                    </Dropdown.Menu>
-                </Dropdown>
-            {/*</NavLink>*/}
+                <Dropdown.Menu>
 
-            <NavLink  to={"/profile/"+username }  >
+                    <Dropdown.Item onClick={() => verificationRedirect('submit-verification-request')} style={store.user.role !== 'Admin' ? {display : 'block'} : {display: 'none'}}>Submit verification request
+
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => verificationRedirect('view-my-verification-request')} style={store.user.role !== 'Admin' ? {display : 'block'} : {display: 'none'}}>View my verification requests</Dropdown.Item>
+                    <Dropdown.Item onClick={() => verificationRedirect('view-pending-verification-request')} style={store.user.role === 'Admin' ? {display : 'block'} : {display: 'none'}}>View pending verification requests</Dropdown.Item>
+                    <Dropdown.Item onClick={() => verificationRedirect('view-all-verification-request')} style={store.user.role === 'Admin' ? {display : 'block'} : {display: 'none'}}>View all verification requests</Dropdown.Item>
+                </Dropdown.Menu>
+            </Dropdown>
+
+            <NavLink  to={"/profile/"+username } style={store.user.role !== 'Admin' ? {display : 'block'} : {display: 'none'}} >
                 <ProfileIcon iconSize="medium" image='https://i.pravatar.cc/150?img=1' />
             </NavLink>
 

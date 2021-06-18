@@ -1,7 +1,15 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import ProfileInfo from "./ProfileInfo";
+import {useDispatch, useSelector} from "react-redux";
 
 function Disliked() {
+    const dispatch = useDispatch()
+    const store = useSelector(state => state);
+
+    useEffect(() => {
+        if(store.user.role === 'Admin' || store.user.role === "") window.location.replace("http://localhost:3000/unauthorized");
+    }, []);
+
     return (
         <div  style={{display: 'flex'}}>
             <ProfileInfo />

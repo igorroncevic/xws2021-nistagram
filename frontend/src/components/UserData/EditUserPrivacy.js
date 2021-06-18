@@ -1,5 +1,5 @@
 import Switch from "react-switch";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Alert, Button} from "react-bootstrap";
 import privacyService from "../../services/privacy.service";
 import {useDispatch, useSelector} from "react-redux";
@@ -13,6 +13,10 @@ function  EditUserPrivacy(){
 
     const [submitted,setSubmitted]=useState(false);
     const store = useSelector(state => state);
+
+    useEffect(() => {
+        if(store.user.role === 'Admin' || store.user.role === "") window.location.replace("http://localhost:3000/unauthorized");
+    }, []);
 
     function handlePrivacyChange() {
         setCheckedPrivacy(!checkedPrivacy)

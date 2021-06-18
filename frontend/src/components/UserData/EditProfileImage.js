@@ -1,5 +1,5 @@
 import ProfileInfo from "./ProfileInfo";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Button} from "react-bootstrap";
 import userService from "../../services/user.service";
 import {useSelector} from "react-redux";
@@ -7,6 +7,10 @@ import {useSelector} from "react-redux";
 function EditProfileImage(){
     const [profilePhoto, setProfilePhoto] = useState("");
     const store = useSelector(state => state);
+
+    useEffect(() => {
+        if(store.user.role === "") window.location.replace("http://localhost:3000/unauthorized");
+    }, []);
 
 
     function handleChangeImage(evt) {

@@ -22,6 +22,7 @@ function SubmitVerificationRequest() {
 
 
     useEffect(() => {
+        if(store.user.role === 'Admin' || store.user.role === "") window.location.replace("http://localhost:3000/unauthorized");
         setImageErr( image !== "" ? '' : 'Select document photo')
         setCategoryErr( selectedCategory !== "" ? '' : 'Select category')
     }, [image,selectedCategory])

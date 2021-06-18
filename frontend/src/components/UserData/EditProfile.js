@@ -22,7 +22,7 @@ function EditProfile () {
     const store = useSelector(state => state);
 
     useEffect(() => {
-        //   if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
+        if(store.user.role === "") window.location.replace("http://localhost:3000/unauthorized");
         getUserInfo();
     }, []);
 
