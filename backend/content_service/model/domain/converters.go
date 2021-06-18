@@ -94,6 +94,7 @@ func (s *StoriesHome) ConvertToGrpc() *protopb.StoriesHome{
 		storiesHome.Stories = append(storiesHome.Stories, &protopb.StoryHome{
 			UserId:   storyHome.UserId,
 			Username: storyHome.Username,
+			UserPhoto: storyHome.UserPhoto,
 			Stories:  ConvertMultipleStoriesToGrpc(storyHome.Stories),
 		})
 	}

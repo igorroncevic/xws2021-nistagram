@@ -213,6 +213,23 @@ func (s *UserGrpcController) GetUsernameById(ctx context.Context, in *protopb.Re
 	return userResponse, nil
 }
 
+func (s *UserGrpcController) GetPhotoById(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.UserPhoto, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetPhotoById")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	photo, err := s.service.GetUserPhoto(ctx, in.Id)
+	if err != nil{
+		return &protopb.UserPhoto{}, err
+	}
+
+	userResponse := &protopb.UserPhoto{
+		Photo: photo,
+	}
+
+	return userResponse, nil
+}
+
 
 func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginRequest) (*protopb.LoginResponse, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "LoginUser")
@@ -236,6 +253,12 @@ func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginReq
 		return &protopb.LoginResponse{}, err
 	}
 
+	photo, err := s.service.GetUserPhoto(ctx, user.Id)
+	if err != nil {
+		s.logger.ToStdoutAndFile("LoginUser", "Could not retrieve user's photo", logger.Error)
+		return &protopb.LoginResponse{}, err
+	}
+
 	s.logger.ToStdoutAndFile("LoginUser", "Successful login by " + in.Email, logger.Info)
 	return &protopb.LoginResponse{
 		AccessToken: token,
@@ -243,6 +266,7 @@ func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginReq
 		Username:    user.Username,
 		Role:        user.Role.String(),
 		IsSSO:       false,
+		Photo:		 photo,
 	}, nil
 }
 
@@ -363,6 +387,7 @@ func (s *UserGrpcController) UpdateUserPhoto(ctx context.Context, in *protopb.Us
 	}
 	return &protopb.EmptyResponse{}, nil
 }
+
 func (s *UserGrpcController) CheckIsApproved(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.BooleanResponseUsers, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetUsernameById")
 	defer span.Finish()

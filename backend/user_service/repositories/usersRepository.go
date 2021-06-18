@@ -34,6 +34,7 @@ type UserRepository interface {
 
 	CheckIsApproved(ctx context.Context, id string) (bool, error)
 	GetUserByUsername(username string) (domain.User, error)
+	GetUserPhoto(context.Context, string) (string, error)
 }
 
 type userRepository struct {
@@ -204,22 +205,6 @@ func (repository *userRepository) GetAllUsers(ctx context.Context) ([]domain.Use
 	}
 
 	return usersDomain, nil
-
-	/*query := "select u.id, u.first_name, u.last_name, u.email from registered_users u"
-	rows, err := repository.DB.Query(context.Background(), query)
-	defer rows.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	for rows.Next() {
-		var user models.User
-		err := rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email)
-		if err != nil {
-			return nil, err
-		}
-		users = append(users, user)
-	}*/
 }
 
 func (repository *userRepository) LoginUser(ctx context.Context, request domain.LoginRequest) (persistence.User, error) {
@@ -261,6 +246,14 @@ func (repository *userRepository) GetUserById(ctx context.Context, id string) (p
 	result := repository.DB.Where("id = ?", id).Find(&user)
 	if result.Error != nil || result.RowsAffected != 1 {
 		return persistence.User{}, errors.New("cannot retrieve this user")
+	}
+
+	if user.ProfilePhoto != "" {
+		filename, err := images.LoadImageToBase64(user.ProfilePhoto)
+		if err != nil {
+			return persistence.User{}, err
+		}
+		user.ProfilePhoto = filename
 	}
 
 	return user, nil
@@ -507,4 +500,24 @@ func (repository *userRepository) CheckIsApproved(ctx context.Context, id string
 		return false, err
 	}
 	return user.ApprovedAccount, nil
+}
+
+func (repository *userRepository) GetUserPhoto(ctx context.Context, userId string) (string, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserPhoto")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var user *persistence.User
+	result := repository.DB.Model(&persistence.User{}).Where("id = ?", userId).Find(&user)
+	if result.Error != nil || result.RowsAffected != 1 {
+		return "", result.Error
+	}
+
+	if user.ProfilePhoto != "" {
+		photo, err := images.LoadImageToBase64(user.ProfilePhoto)
+		if err != nil { return "", err }
+		return photo, nil
+	}
+
+	return "", nil
 }

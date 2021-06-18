@@ -318,7 +318,8 @@ message StoriesArray {
 message StoryHome {
   string userId = 1;
   string username = 2;
-  repeated Story stories = 3;
+  string userPhoto = 3;
+  repeated Story stories = 4;
 }
 
 message StoriesHome {

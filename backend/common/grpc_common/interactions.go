@@ -52,6 +52,26 @@ func GetUsernameById(ctx context.Context, userId string) (string, error){
 	return response.Username, nil
 }
 
+func GetPhotoById(ctx context.Context, userId string) (string, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetPhotoById")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	conn, err := GetClientConnection(Users_service_address)
+	if err != nil{
+		return "", status.Errorf(codes.Unknown, err.Error())
+	}
+	defer conn.Close()
+
+	userClient := GetUsersClient(conn)
+	response, err := userClient.GetPhotoById(ctx, &protopb.RequestIdUsers{Id: userId})
+	if err != nil {
+		return "", err
+	}
+
+	return response.Photo, nil
+}
+
 func CheckIfPublicProfile(ctx context.Context, requestedUserId string) (bool, error){
 	span := tracer.StartSpanFromContextMetadata(ctx, "CheckIfPublicProfile")
 	defer span.Finish()
