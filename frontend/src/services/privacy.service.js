@@ -65,6 +65,21 @@ class PrivacyService extends RootService {
         return response
     }
 
+    async getUserPrivacyInfo(data){
+        const { id,jwt} = data
+        const headers=this.setupHeaders(jwt)
+        const response = this.apiClient.get('/get_privacy/'+id,{
+            headers:headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
+
+
+
 
 }const privacyService = new PrivacyService()
 

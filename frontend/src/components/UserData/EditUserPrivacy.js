@@ -7,17 +7,31 @@ import ProfileInfo from "./ProfileInfo";
 import toastService from "../../services/toast.service";
 
 function  EditUserPrivacy(){
-    const[user,setUser]=useState({isProfilePublic:true, isTagEnabled:true,isDmPublic:true})
-    const [checkedPrivacy,setCheckedPrivacy]=useState(!user.isProfilePublic);
-    const [checkedDm,setCheckedDm]=useState(!user.isDmPublic);
-    const [checkedTag,setCheckedTag]=useState(!user.isTagEnabled);
+    const [checkedPrivacy,setCheckedPrivacy]=useState({});
+    const [checkedDm,setCheckedDm]=useState({});
+    const [checkedTag,setCheckedTag]=useState({});
 
     const [submitted,setSubmitted]=useState(false);
     const store = useSelector(state => state);
 
     useEffect(() => {
         if(store.user.role === 'Admin' || store.user.role === "") window.location.replace("http://localhost:3000/unauthorized");
+        getUserPrivacyInfo()
     }, []);
+
+    async function getUserPrivacyInfo() {
+        const response = await privacyService.getUserPrivacyInfo({
+            id: store.user.id,
+        })
+
+        if (response.status === 200) {
+            setCheckedPrivacy(!response.data.isProfilePublic)
+            setCheckedDm(!response.data.isDmPublic)
+            setCheckedTag(!response.data.isTagEnabled)
+        } else {
+            console.log("nebravo")
+        }
+    }
 
     function handlePrivacyChange() {
         setCheckedPrivacy(!checkedPrivacy)
@@ -45,8 +59,8 @@ function  EditUserPrivacy(){
         } else {
             console.log("nebravo")
         }
-
     }
+
     return(
 
         <div  style={{display: 'flex'}}>
