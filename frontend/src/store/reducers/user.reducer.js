@@ -7,6 +7,7 @@ const initialState = {
     role: "",
     username: "",
     isSSO: false,
+    photo: "",
 }
 
 export const user = (state = initialState, action) => {
@@ -27,6 +28,7 @@ export const user = (state = initialState, action) => {
                 role: action.data.role,
                 isSSO: action.data.isSSO,
                 username: action.data.username,
+                photo: action.data.photo,
         }
         default: 
             return state;

@@ -11,6 +11,7 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
+// Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
 // ContentClient is the client API for Content service.
@@ -523,8 +524,8 @@ type UnsafeContentServer interface {
 	mustEmbedUnimplementedContentServer()
 }
 
-func RegisterContentServer(s *grpc.Server, srv ContentServer) {
-	s.RegisterService(&_Content_serviceDesc, srv)
+func RegisterContentServer(s grpc.ServiceRegistrar, srv ContentServer) {
+	s.RegisterService(&Content_ServiceDesc, srv)
 }
 
 func _Content_CreatePost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -1121,7 +1122,10 @@ func _Content_RemoveHighlightStory_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-var _Content_serviceDesc = grpc.ServiceDesc{
+// Content_ServiceDesc is the grpc.ServiceDesc for Content service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Content_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.Content",
 	HandlerType: (*ContentServer)(nil),
 	Methods: []grpc.MethodDesc{

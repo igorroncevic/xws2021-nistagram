@@ -147,8 +147,16 @@ func (c *StoryGrpcController) GetAllStories(ctx context.Context, in *protopb.Emp
 		if err != nil {
 			return &protopb.StoriesHome{}, status.Errorf(codes.Unknown, err.Error())
 		}
-
 		allStories.Stories[index].Username = username
+
+		photo, err := grpc_common.GetPhotoById(ctx, story.UserId)
+		if err != nil {
+			return &protopb.StoriesHome{}, status.Errorf(codes.Unknown, err.Error())
+		}
+		allStories.Stories[index].UserPhoto = photo
+
+		// Get usernames for tags
+
 	}
 
 	responseStories := allStories.ConvertToGrpc()

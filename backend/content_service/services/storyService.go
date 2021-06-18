@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
@@ -169,6 +170,14 @@ func (service *StoryService) retrieveStoryAdditionalData(ctx context.Context, st
 	for _, single := range dbMedia{
 		tags, err := service.tagRepository.GetTagsForMedia(ctx, single.Id)
 		if err != nil { return domain.Story{}, err }
+
+		for index, tag := range tags {
+			username, err := grpc_common.GetUsernameById(ctx, tag.UserId)
+			if username == "" || err != nil {
+				return domain.Story{}, errors.New("cannot retrieve tags")
+			}
+			tags[index].Username = username
+		}
 
 		converted, err := single.ConvertToDomain(tags)
 		if err != nil { return domain.Story{}, err }

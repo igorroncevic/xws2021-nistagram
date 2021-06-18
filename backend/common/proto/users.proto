@@ -46,6 +46,12 @@ service Users {
     };
   }
 
+  rpc GetPhotoById (RequestIdUsers) returns (UserPhoto) {
+    option(google.api.http) = {
+      get: "/api/users/photo/{id}"
+    };
+  }
+
   rpc GetAllUsers (EmptyRequest) returns (UsersResponse) {
     option(google.api.http) = {
       get: "/api/users"
@@ -81,7 +87,6 @@ service Users {
     };
   }
 
-  // Svi
   rpc SendEmail (SendEmailDtoRequest) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/api/users/sendEmail"
@@ -89,7 +94,6 @@ service Users {
     };
   }
 
-  // Svi
   rpc GetUserByEmail (RequestEmailUser) returns (UsersDTO) {
     option(google.api.http) = {
       get: "/api/users/getUserByEmail/{email}"
@@ -101,7 +105,6 @@ service Users {
     };
   }
 
-  // Svi
   rpc ValidateResetCode (RequestResetCode) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/api/users/validateResetCode"
@@ -109,7 +112,6 @@ service Users {
     };
   }
 
-  // Svi
   rpc ChangeForgottenPass (CreatePasswordRequest) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/api/users/changeForgottenPass"
@@ -124,7 +126,6 @@ service Users {
     };
   }
 
-  // Samo ulogovani
   rpc ApproveAccount (CreatePasswordRequest) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/api/users/approveAccount"
@@ -287,10 +288,16 @@ message LoginResponse {
   string role = 3;
   string username = 4;
   bool   isSSO = 5;
+  string photo = 6;
 }
 
 message SendEmailDtoRequest {
   string to = 1;
+}
+
+// Has to be a separate message for possible image streaming later on
+message UserPhoto {
+  string photo = 1;
 }
 
 message RequestEmailUser {

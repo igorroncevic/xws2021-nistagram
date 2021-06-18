@@ -7,9 +7,9 @@ import { ReactComponent as Circle } from './../../images/icons/circle.svg';
 import { ReactComponent as Tag } from './../../images/icons/tag.svg';
 
 const Slider = (props) => {
-    const { media } = props;
+    const { media, showStoryCaption, storyCaption } = props;
     const [slideCount, setSlideCount] = useState(1)
-    const [showTags, setShowTags] = useState(false);
+    const [showTags, setShowTags] = useState(props.showTags);
 
     const nextImage = () => {
       setSlideCount((slideCount + 1 <= media.length) ? slideCount + 1 : slideCount)
@@ -25,7 +25,7 @@ const Slider = (props) => {
         <div className="tagWrapper">
           <Tag onClick={() => setShowTags(!showTags)} className="tagIcon" />
           <div className="tags"> 
-            {showTags && photo.tags.map(tag => {
+            {showTags && photo.tags.length > 0 && photo.tags.map(tag => {
               return (
                 <div className="tag">
                     <div className="tagText">{tag.username}</div>
@@ -53,19 +53,29 @@ const Slider = (props) => {
       </div>
     )}
 
+    const StoryCaption = () => (
+      <div className="storyCaptionWrapepr">
+        <div className="storyCaptionText">{storyCaption}</div>
+      </div>
+    )
+
     return (
       <div className="Slide">
-        {media.map((photo) => {
-          if (photo.orderNum === slideCount) {
-            return (
-              <div key={photo.id}>
-                <img src={photo.content} alt=''/>
-                { photo.tags.length !== 0 ? <Tags photo={photo} /> : null }
-              </div>
-            )
-          }
-          return ''
-        })}
+          {media.map((photo) => {
+            if (photo.orderNum === slideCount) {
+              return (
+                <div key={photo.id}>
+                  <img src={photo.content} alt=''/>
+                  <div className="tags-caption">
+                    { photo.tags.length !== 0 && <Tags photo={photo} /> }
+                    { showStoryCaption && <StoryCaption /> }
+                  </div>
+                </div>
+              )
+            }
+            return ''
+          })}
+        
         <CircleWrapper />
         {slideCount !== 1 ? <BackArrow /> : ''}
         {slideCount !== media.length ? <NextArrow /> : ''}
