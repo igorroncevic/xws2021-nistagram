@@ -4,15 +4,16 @@
     align-items: center;
     margin: 1em 0.5em;
 }
-.first-child {
-     margin-left: 1em;
+
+.story:first-child {
+    margin-left: 1em;
  }
 
-.last-child {
-     margin-right: 1em;
- }
+.story:last-child {
+    margin-right: 1em;
+}
 
 .accountName {
-    font-size: 0.65em;
+    font-size: 0.8em;
     margin: 0.4em;
 }

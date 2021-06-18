@@ -13,21 +13,20 @@ const Stories = () => {
     useEffect(()=>{
         storyService.getHomepageStories({ jwt: store.user.jwt })
             .then(response => {
-                if(response.status === 200) setStories(response.data.stories)
-                console.log(stories)
+                if(response.status === 200) setStories([...response.data.stories])
+                console.log(response.data.stories)
             })
             .catch(err => {
+                console.log(err)
                 toastService.show("error", "Could not retrieve homepage stories.")
             })
     }, [])
 
     return (
         <div className="stories">
-            <HorizontalScroll className="scroll" reverseScroll={false}>
-                {stories.forEach((story)=>{
-                    <Story story={story} />
-                })}
-            </HorizontalScroll>
+            {/* <HorizontalScroll className="scroll" reverseScroll={false}> */}
+                {stories.map((story) => <Story story={story} /> )}
+            {/* </HorizontalScroll> */}
         </div>
     );
 }

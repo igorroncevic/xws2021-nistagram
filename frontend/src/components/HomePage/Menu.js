@@ -70,7 +70,7 @@ function Menu() {
             {/*</NavLink>*/}
 
             <NavLink  to={"/profile/"+username }  >
-                <ProfileIcon iconSize="medium" image='https://i.pravatar.cc/150?img=1' />
+                <ProfileIcon iconSize="medium" image={store.user.photo ? store.user.photo : 'https://i.pravatar.cc/150?img=1'} />
             </NavLink>
 
             <NavLink  to={{ pathname: "/info" }} >
