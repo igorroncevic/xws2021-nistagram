@@ -73,7 +73,7 @@ function BlockedUsers() {
             <div style={{marginRight: '20%',marginTop:'5%',display: 'flex', flexDirection: 'column'}}>
                 {users.map((user, i) =>
                     <div style={{display: "flex"}}>
-                        <ProfileForSug user={user} username={user.username} caption={user.biography} urlText="Follow" iconSize="big" captionSize="small" storyBorder={true}
+                        <ProfileForSug user={user} username={user.username} image={user.profilePhoto} caption={user.biography} urlText="Follow" iconSize="big" captionSize="small" storyBorder={true}
                                        firstName={user.firstName} lastName={user.lastName} />
                         <Button style={{height:'45px', marginLeft:'20em', fontSize:'12px'}} variant="outline-danger"   onClick={() => unblock(user.id)}>Unblock</Button>{' '}
                     </div>

@@ -82,7 +82,7 @@ function CloseFriends() {
                 {users.map((user, i) =>
                     <div style={{display: "flex"}}>
                         <ProfileForSug user={user} username={user.username} caption={user.biography} urlText="Follow" iconSize="big" captionSize="small" storyBorder={true}
-                                               firstName={user.firstName} lastName={user.lastName} />
+                                               firstName={user.firstName} lastName={user.lastName} image={user.profilePhoto}/>
                         <Button style={{height:'45px', marginLeft:'20em', fontSize:'12px'}} variant="outline-danger"   onClick={() => removeFromCloseFriends(user.id)}>Remove from close friends</Button>{' '}
                     </div>
                 ) }

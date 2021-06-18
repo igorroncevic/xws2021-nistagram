@@ -37,7 +37,7 @@ function FollowersAndFollowings(props) {
             {users.map((user, i) =>
                 <Button variant="link"  onClick={props.handleModal}>
                     <ProfileForSug user={user} username={user.username} firstName={user.firstName} lastName={user.lastName}
-                          caption={user.biography} urlText="Follow" iconSize="big" captionSize="small" storyBorder={true}/>
+                          caption={user.biography} image={user.profilePhoto} urlText="Follow" iconSize="big" captionSize="small" storyBorder={true}/>
                 </Button>
             )
             }

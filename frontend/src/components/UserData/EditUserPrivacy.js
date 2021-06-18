@@ -69,7 +69,7 @@ function  EditUserPrivacy(){
                 <div style={{marginTop:'15'}}>
                 <tr>
                     <td>
-                        <p style={{marginRight:'38px', fontWeight:'bold'}}>User privacy:</p>
+                        <p style={{marginRight:'38px', fontWeight:'bold'}}>Profile privacy:</p>
                     </td>
                     <td >
                         <Switch  onChange={handlePrivacyChange} checked={checkedPrivacy}/>
