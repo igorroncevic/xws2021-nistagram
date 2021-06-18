@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
+	"github.com/david-drvar/xws2021-nistagram/user_service/model"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/user_service/util"
@@ -98,14 +99,16 @@ func (repository *userRepository) UpdateUserProfile(ctx context.Context, userDTO
 		return false, errors.New("rows affected is equal to zero")
 	}
 
-	userAdditionalInfoUpdate := persistence.UserAdditionalInfo{Website: userDTO.Website, Category: userDTO.Category, Biography: userDTO.Biography}
-	if userAdditionalInfoUpdate.Website == "" {
-		userAdditionalInfoUpdate.Website = " "
+	if userDTO.Role != model.UserRole("Admin") {
+		userAdditionalInfoUpdate := persistence.UserAdditionalInfo{Website: userDTO.Website, Category: userDTO.Category, Biography: userDTO.Biography}
+		if userAdditionalInfoUpdate.Website == "" {
+			userAdditionalInfoUpdate.Website = " "
+		}
+		if userAdditionalInfoUpdate.Biography == "" {
+			userAdditionalInfoUpdate.Biography = " "
+		}
+		db = repository.DB.Model(&userAdditionalInfo).Where("id = ?", userDTO.Id).Updates(userAdditionalInfoUpdate)
 	}
-	if userAdditionalInfoUpdate.Biography == "" {
-		userAdditionalInfoUpdate.Biography = " "
-	}
-	db = repository.DB.Model(&userAdditionalInfo).Where("id = ?", userDTO.Id).Updates(userAdditionalInfoUpdate)
 
 	if db.Error != nil {
 		return false, db.Error
@@ -487,11 +490,11 @@ func (repository *userRepository) UpdateUserPhoto(ctx context.Context, userId st
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var user persistence.User
-	user, _ = repository.GetUserById(ctx,userId)
-	user.ProfilePhoto=photo
+	user, _ = repository.GetUserById(ctx, userId)
+	user.ProfilePhoto = photo
 	_, err := repository.SaveUserProfilePhoto(ctx, &user)
 	if err != nil {
-		return  err
+		return err
 
 	}
 

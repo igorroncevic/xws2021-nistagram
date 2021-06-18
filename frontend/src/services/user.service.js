@@ -78,10 +78,10 @@ class UserService extends RootService {
     }
 
     async editProfile(data){
-        const { id,firstName,lastName,email,phoneNumber,username,profilePhoto,sex,website,biography,jwt} = data
+        const { id,firstName,lastName,email,phoneNumber,username,profilePhoto,sex,website,biography,jwt,role} = data
         const headers=this.setupHeaders(jwt)
         const response = this.apiClient.post('/update_profile',{
-            user:{id,firstName,lastName,email,phoneNumber,username,profilePhoto,sex,website,biography}
+            user:{id,firstName,lastName,email,phoneNumber,username,profilePhoto,sex,website,biography, role}
         },{
             headers:headers
         }).then(res => {

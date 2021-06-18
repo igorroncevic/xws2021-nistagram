@@ -22,7 +22,7 @@ function EditProfile () {
     const store = useSelector(state => state);
 
     useEffect(() => {
-        //   if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
+        if(store.user.role === "") window.location.replace("http://localhost:3000/unauthorized");
         getUserInfo();
     }, []);
 
@@ -52,6 +52,7 @@ function EditProfile () {
             website: user.website,
             biography: user.biography,
             jwt: store.user.jwt,
+            role : store.user.role
         })
 
         if (response.status === 200) {
@@ -237,7 +238,7 @@ function EditProfile () {
                                 : <td>{user.sex}</td>
                             }
                         </tr>
-                        <tr>
+                        <tr style={store.user.role !== 'Admin' ? {display : 'block'} : {display: 'none'}}>
                             <td>Biography</td>
                             {edit
                                 ? <FormControl name="biography" className="mt-2 mb-2" value={user.biography}
@@ -245,7 +246,7 @@ function EditProfile () {
                                 : <td>{user.biography}</td>
                             }
                         </tr>
-                        <tr>
+                        <tr style={store.user.role !== 'Admin' ? {display : 'block'} : {display: 'none'}}>
                             <td>Web site</td>
                             {edit
                                 ? <FormControl name="website" className="mt-2 mb-2" value={user.website}
