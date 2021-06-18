@@ -1,3 +1,5 @@
+@import url("./variables.css");
+
 .story {
     display: flex;
     flex-direction: column;
@@ -5,9 +7,13 @@
     margin: 1em 0.5em;
 }
 
+.accountName{
+    color: var(--font-color-primary) !important;
+}
+
 .story:first-child {
     margin-left: 1em;
- }
+}
 
 .story:last-child {
     margin-right: 1em;

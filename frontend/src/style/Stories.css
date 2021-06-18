@@ -4,7 +4,9 @@
     background-color: #ffffff;
     border: 1px solid #dbdbdb;
     border-radius: 3px;
-    margin: 2em 15em 1.5em 15em;
-    height: 7.4em;
+    width: 70%;
+    margin: 0 auto;
+    padding-top: 5px;
+    height: auto;
     overflow: hidden;
 }
