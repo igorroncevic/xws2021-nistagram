@@ -150,6 +150,20 @@ class UserService extends RootService {
         })
         return response
     }
+
+    async getBlockedUsers(data){
+        const { id,jwt} = data
+        const headers=this.setupHeaders(jwt)
+        const response = this.apiClient.get('/get_blocked/'+id,{
+            headers:headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
+
 }
 
 const userService = new UserService()

@@ -23,7 +23,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			updatePrivacy, blockUser, unBlockUser, checkIfBlocked, checkUserProfilePublic, getAllPublicUsers, approveAccount, getUserPrivacy,
 			createNotification,
 			getPendingVerificationRequests, changeVerificationRequestStatus, getVerificationRequestsByUserId, getAllVerificationRequests,
-			updateUserPhoto, getUserNotifications,
+			updateUserPhoto, getUserNotifications,getBlockedUsers,
 		}
 		result = db.Create(&permissions)
 		if result.Error != nil {
@@ -54,6 +54,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			basicGetVerificationRequestsByUserId, verifiedGetVerificationRequestsByUserId, adminGetVerificationRequestsByUserId, agentGetVerificationRequestsByUserId,
 			adminGetAllVerificationRequests,
 			basicUpdateUserPhoto, agentUpdateUserPhoto, adminUpdateUserPhoto, verifiedUpdateUserPhoto,
+			basicGetBlockedUsers, agentGetBlockedUsers, adminGetBlockedUsers, verifiedGetBlockedUsers,
 			basicGetUserNotifications, adminGetUserNotifications, verifiedGetUserNotifications, nonregisteredGetUserNotifications,
 		}
 		result = db.Create(&rolePermissions)
@@ -91,7 +92,6 @@ var (
 	updateUserPassword = Permission{Id: "50db6a87-483e-4d97-b320-9ff68235280a", Name: "UpdateUserPassword"}
 	searchUser         = Permission{Id: "afbbf68f-ad1d-45db-8345-37ab619eea33", Name: "SearchUser"}
 	approveAccount     = Permission{Id: "15e9a950-8581-4aa6-81c1-ae722c527051", Name: "ApproveAccount"}
-
 	updatePrivacy                   = Permission{Id: "3ce13d71-30e2-4cca-8a48-8a5ee1b6a42e", Name: "UpdatePrivacy"}
 	blockUser                       = Permission{Id: "9ec3fb89-28d6-4789-82b8-f247706cb6a0", Name: "BlockUser"}
 	unBlockUser                     = Permission{Id: "bf4632b1-e3ae-41d5-a04a-4bac73b7a2ef", Name: "UnBlockUser"}
@@ -107,6 +107,7 @@ var (
 	updateUserPhoto                 = Permission{Id: "042cef39-9acb-49d9-8088-1a583623bfa0", Name: "UpdateUserPhoto"}
 	getUserNotifications            = Permission{Id: "2687d1e4-cf89-11eb-b8bc-0242ac130003", Name: "GetUserNotifications"}
 	getUserPrivacy                  = Permission{Id: "221ee966-d025-11eb-b8bc-0242ac130003", Name: "GetUserPrivacy"}
+	getBlockedUsers                  = Permission{Id: "bb400be1-7dcb-439c-9aba-235b566ec1fd", Name: "GetBlockedUsers"}
 )
 
 var (
@@ -230,4 +231,9 @@ var (
 	verifiedGetUserPrivacy      = RolePermission{RoleId: verified.Id, PermissionId: getUserPrivacy.Id}
 	nonregisteredGetUserPrivacy = RolePermission{RoleId: nonregistered.Id, PermissionId: getUserPrivacy.Id}
 	agentGetUserPrivacy         = RolePermission{RoleId: agent.Id, PermissionId: getUserPrivacy.Id}
+
+	basicGetBlockedUsers      = RolePermission{RoleId: basic.Id, PermissionId: getBlockedUsers.Id}
+	adminGetBlockedUsers         = RolePermission{RoleId: admin.Id, PermissionId: getBlockedUsers.Id}
+	verifiedGetBlockedUsers      = RolePermission{RoleId: verified.Id, PermissionId: getBlockedUsers.Id}
+	agentGetBlockedUsers        = RolePermission{RoleId: agent.Id, PermissionId: getBlockedUsers.Id}
 )

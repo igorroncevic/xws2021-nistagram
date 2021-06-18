@@ -49,11 +49,12 @@ class PrivacyService extends RootService {
         })
         return response
     }
+
     async unBlockUser(data){
         const { UserId,BlockedUserId,jwt} = data
         const headers=this.setupHeaders(jwt)
         const response = this.apiClient.post('/unblock_user',{
-            block:{UserId,BlockedUserId}
+            UserId,BlockedUserId
         },{
             headers:headers
         }).then(res => {
