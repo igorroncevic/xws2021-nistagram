@@ -3,8 +3,9 @@ import React, {useEffect, useState} from "react";
 import axios from "axios";
 import userService from "../../services/user.service";
 import {useDispatch, useSelector} from "react-redux";
+import ProfileInfo from "./ProfileInfo";
 
-function EditProfile (props) {
+function EditProfile () {
     const [user, setUser] = useState({});
     const [edit, setEdit] = useState(false)
     const [success, setSuccess] = useState(false)
@@ -55,7 +56,7 @@ function EditProfile (props) {
 
         if (response.status === 200) {
             console.log("RADI")
-            props.updateUser()
+          //  props.updateUser()
             setSuccess(true);
         } else {
             console.log("NE RADIs")
@@ -132,21 +133,18 @@ function EditProfile (props) {
     }
 
     return (
-        <div>
+        <div  style={{display: 'flex'}}>
+            <ProfileInfo />
+            <div style={{marginRight: '20%',marginTop:'5%',display: 'flex', flexDirection: 'column'}}>
             {success ?
                 <Alert variant='success' show={true} style={({textAlignVertical: "center", textAlign: "center"})}>Successfully
                     updated!</Alert>
                 :
                 <div>
 
-                    <Table style={{
-                        marginLeft: '850px',
-                        display: 'inline-block',
-                        float: 'right',
-                        alignContent: '',
-                        maxWidth: '900px'
-                    }}>
-                        <tbody>
+                    <table className="table">
+
+                    <tbody>
                         <tr>
                             <td>Username</td>
                             {edit
@@ -267,13 +265,14 @@ function EditProfile (props) {
                         }
 
                         </tbody>
-                    </Table>
+                    </table>
                     {!edit &&
                     <button style={{marginRight: '100px', float: 'right'}} type="button"
                             className="btn btn-outline-danger" onClick={activateUpdateMode}>Edit profile</button>
                     }
                 </div>
             }
+            </div>
         </div>
     );
 };export default EditProfile;

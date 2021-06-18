@@ -332,7 +332,7 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 }
 
 func (repository *userRepository) GetUserAdditionalInfoById(ctx context.Context, id string) (persistence.UserAdditionalInfo, error) {
-	span := tracer.StartSpanFromContextMetadata(ctx, "SearchUsersByUsernameAndName")
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserAdditionalInfoById")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
@@ -352,19 +352,19 @@ func (repository *userRepository) SearchUsersByUsernameAndName(ctx context.Conte
 	var users []persistence.User
 
 	if user.Username != "" && user.FirstName != "" && user.LastName != "" {
-		repository.DB.Where("username = ? AND first_name = ? AND last_name = ?", user.Username, user.FirstName, user.LastName).Find(&users)
+		repository.DB.Where("username ILIKE ? AND first_name ILIKE ? AND last_name ILIKE ?", "%"+user.Username+"%", "%"+user.FirstName+"%", "%"+user.LastName+"%").Find(&users)
 	} else if user.Username != "" && user.FirstName != "" && user.LastName == "" {
-		repository.DB.Where("username = ? AND first_name = ?", user.Username, user.FirstName).Find(&users)
+		repository.DB.Where("username ILIKE ? AND first_name ILIKE ?", "%"+user.Username+"%", "%"+user.FirstName+"%").Find(&users)
 	} else if user.Username != "" && user.FirstName == "" && user.LastName != "" {
-		repository.DB.Where("username = ? AND last_name = ?", user.Username, user.LastName).Find(&users)
+		repository.DB.Where("username ILIKE ? AND last_name ILIKE ?", "%"+user.Username+"%", "%"+user.LastName+"%").Find(&users)
 	} else if user.Username == "" && user.FirstName != "" && user.LastName != "" {
-		repository.DB.Where("first_name = ? AND last_name = ?", user.FirstName, user.LastName).Find(&users)
+		repository.DB.Where("first_name ILIKE ? AND last_name ILIKE ?", "%"+user.FirstName+"%", "%"+user.LastName+"%").Find(&users)
 	} else if user.Username != "" && user.FirstName == "" && user.LastName == "" {
-		repository.DB.Where("username = ?", user.Username).Find(&users)
+		repository.DB.Where("username ILIKE ?", "%"+user.Username+"%").Find(&users)
 	} else if user.Username == "" && user.FirstName != "" && user.LastName == "" {
-		repository.DB.Where("first_name = ?", user.FirstName).Find(&users)
+		repository.DB.Where("first_name ILIKE ?", "%"+user.FirstName+"%").Find(&users)
 	} else if user.Username == "" && user.FirstName == "" && user.LastName != "" {
-		repository.DB.Where("last_name = ?", user.LastName).Find(&users)
+		repository.DB.Where("last_name ILIKE ?", "%"+user.LastName+"%").Find(&users)
 	}
 
 	var usersDomain []domain.User
@@ -486,12 +486,13 @@ func (repository *userRepository) UpdateUserPhoto(ctx context.Context, userId st
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	db := repository.DB.Model(&persistence.User{}).Where("id =?", userId).Updates(persistence.User{ProfilePhoto: photo})
+	var user persistence.User
+	user, _ = repository.GetUserById(ctx,userId)
+	user.ProfilePhoto=photo
+	_, err := repository.SaveUserProfilePhoto(ctx, &user)
+	if err != nil {
+		return  err
 
-	if db.Error != nil {
-		return  db.Error
-	} else if db.RowsAffected == 0 {
-		return errors.New("Zero rows affected")
 	}
 
 	return nil

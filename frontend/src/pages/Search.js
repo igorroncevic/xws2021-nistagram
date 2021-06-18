@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Alert, Button, Dropdown, DropdownButton, FormControl, InputGroup, Card} from "react-bootstrap";
+import {Alert, Button, Dropdown, DropdownButton, FormControl, InputGroup, Card, Modal} from "react-bootstrap";
 import axios from "axios";
 import ProfileForSug from "../components/HomePage/ProfileForSug";
 import {useHistory} from "react-router-dom";
@@ -7,6 +7,14 @@ import Navigation from "../components/HomePage/Navigation";
 import searchService from "../services/search.service";
 import {useSelector} from "react-redux";
 import userService from "../services/user.service";
+import Post from "../components/Post/Post";
+
+import '../style/hover-post.css';
+import '../style/Profile.css';
+import { AiFillHeart } from 'react-icons/all';
+import { FaComment } from 'react-icons/all';
+import { IoIosHeartDislike } from 'react-icons/all';
+
 
 export default function Search() {
     const [user,setUser] =useState({});
@@ -18,6 +26,9 @@ export default function Search() {
     const [searchResult, setSearchResult] = useState([]);
     const [searchPlaceholder, setSearchPlaceholder] = useState("search value");
     const store = useSelector(state => state);
+    const [showModal, setModal] = useState(false);
+    const [selectedPost, setSelectedPost] = useState({})
+
 
     useEffect(() => {
         //if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
@@ -38,20 +49,26 @@ export default function Search() {
 
     async function searchByTag() {
         const response = await searchService.searchByTag({
-            tag : input,
+            text : input,
+            jwt : store.user.jwt
         })
 
-        if (response.status === 200)   console.log("search radi")
+        if (response.status === 200)   setSearchResult(response.data.posts)
         else  console.log("search error")
     }
 
     async function searchByLocation() {
         const response = await searchService.searchByLocation({
             location : input,
+            jwt : store.user.jwt
         })
 
-        if (response.status === 200) console.log("search radi")
-        else   console.log("search error")
+        if (response.status === 200) setSearchResult(response.data.posts);
+        else   console.log("search error loc")
+    }
+
+    function handleModal() {
+        setModal(!showModal)
     }
 
 
@@ -94,17 +111,19 @@ export default function Search() {
                 break;
             default:
                 alert("Select search category");
+                setInput("")
                 return;
         }
-    }
 
-    if (searchCategory === 'User' && searchResult.length > 0) {
-        var userResults = searchResult.map((user, i) =>
-            <ProfileForSug user={user} username={user.username} firstName={user.firstName} lastName={user.lastName} caption={user.biography} urlText="Follow" iconSize="big" captionSize="small"  storyBorder={true} />
-        );
+        console.log(searchResult)
     }
 
     function handleSearchCategoryChange(event) {
+        setSelectedPost({})
+        setSearchResult([])
+        setInput("")
+        setFirstName("")
+        setLastName("")
         setSearchCategory(event)
         switch (event) {
             case "Location" :
@@ -119,13 +138,18 @@ export default function Search() {
         }
     }
 
+    function openPost(post) {
+        setSelectedPost(post);
+        handleModal();
+    }
+
 
     return (
         <div  className="App">
             <Navigation d/>
 
             <br/>
-            <br/><br/>
+            <br/><br/><br/><br/>
             <div className="row" style={{marginLeft : "10px"}}>
                 <div className="col-sm-5 mb-2">
                     <DropdownButton onSelect={(e) => handleSearchCategoryChange(e) } as={InputGroup.Append}  variant="outline-secondary" title={searchCategory} id="input-group-dropdown-2" >
@@ -148,16 +172,50 @@ export default function Search() {
                     <input name="input" className="form-control" placeholder={"last name"} value={lastName} onClick={(e) => setInputErr("")} onChange={(e) => setLastName(e.target.value)}/>}
                 </div>
 
+                <br/>
                 <div className="col-sm-4">
                     <Button variant="primary" onClick={search}>Search</Button>{' '}
                 </div>
             </div>
             <br/><br/>
+
             {searchResult.length > 0 && searchCategory === 'User' &&
                 <ul style={{marginLeft : "30px"}}>
-                    {userResults}
+                    {searchResult.map((user, i) =>
+                        <ProfileForSug user={user} username={user.username} firstName={user.firstName} lastName={user.lastName} caption={user.biography} urlText="Follow" iconSize="big" captionSize="small"  storyBorder={true} />
+                    )}
                 </ul>
             }
+
+
+            <div  style={{marginLeft: '20%', marginRight: '20%',marginTop:'10%'}}>
+                <div className="gallery">
+
+
+                    {searchResult.length > 0 && searchCategory !== 'User' &&
+                        searchResult.map((post) => {
+                            return (
+                                <div className="content" onClick={() => openPost(post)}>
+                                    <div className="doc" >
+                                        <img src={post.media[0].content} alt="" className="item"/>
+                                        <div className="links">
+                                            <a href=""><i >{post.likes.length}<AiFillHeart /></i></a>
+                                            <a href=""><i >{post.dislikes.length}<IoIosHeartDislike /></i></a>
+                                            <a href=""><i >{post.comments.length}<FaComment /></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })
+                    }
+                </div>
+            </div>
+
+            <Modal show={showModal} onHide={handleModal}>
+                <Modal.Body>
+                    <Post post={selectedPost} postUser={{ id: selectedPost.userId }}/>
+                </Modal.Body>
+            </Modal>
         </div>
     );
 }

@@ -11,7 +11,6 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-// Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
 // ContentClient is the client API for Content service.
@@ -25,8 +24,8 @@ type ContentClient interface {
 	GetPostsForUser(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*ReducedPostArray, error)
 	RemovePost(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetPostById(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Post, error)
-	SearchContentByLocation(ctx context.Context, in *SearchLocationRequest, opts ...grpc.CallOption) (*ReducedPostArray, error)
-	GetPostsByHashtag(ctx context.Context, in *Hashtag, opts ...grpc.CallOption) (*ReducedPostArray, error)
+	SearchContentByLocation(ctx context.Context, in *SearchLocationRequest, opts ...grpc.CallOption) (*PostArray, error)
+	GetPostsByHashtag(ctx context.Context, in *Hashtag, opts ...grpc.CallOption) (*PostArray, error)
 	GetAllHashtags(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*Hashtags, error)
 	//    Stories
 	CreateStory(ctx context.Context, in *Story, opts ...grpc.CallOption) (*EmptyResponseContent, error)
@@ -44,7 +43,7 @@ type ContentClient interface {
 	// Collections & Favorites
 	GetAllCollections(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*CollectionsArray, error)
 	GetCollection(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Collection, error)
-	CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*EmptyResponseContent, error)
+	CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*Collection, error)
 	RemoveCollection(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetUserFavorites(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Favorites, error)
 	CreateFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error)
@@ -122,8 +121,8 @@ func (c *contentClient) GetPostById(ctx context.Context, in *RequestId, opts ...
 	return out, nil
 }
 
-func (c *contentClient) SearchContentByLocation(ctx context.Context, in *SearchLocationRequest, opts ...grpc.CallOption) (*ReducedPostArray, error) {
-	out := new(ReducedPostArray)
+func (c *contentClient) SearchContentByLocation(ctx context.Context, in *SearchLocationRequest, opts ...grpc.CallOption) (*PostArray, error) {
+	out := new(PostArray)
 	err := c.cc.Invoke(ctx, "/proto.Content/SearchContentByLocation", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -131,8 +130,8 @@ func (c *contentClient) SearchContentByLocation(ctx context.Context, in *SearchL
 	return out, nil
 }
 
-func (c *contentClient) GetPostsByHashtag(ctx context.Context, in *Hashtag, opts ...grpc.CallOption) (*ReducedPostArray, error) {
-	out := new(ReducedPostArray)
+func (c *contentClient) GetPostsByHashtag(ctx context.Context, in *Hashtag, opts ...grpc.CallOption) (*PostArray, error) {
+	out := new(PostArray)
 	err := c.cc.Invoke(ctx, "/proto.Content/GetPostsByHashtag", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -257,8 +256,8 @@ func (c *contentClient) GetCollection(ctx context.Context, in *RequestId, opts .
 	return out, nil
 }
 
-func (c *contentClient) CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
-	out := new(EmptyResponseContent)
+func (c *contentClient) CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*Collection, error) {
+	out := new(Collection)
 	err := c.cc.Invoke(ctx, "/proto.Content/CreateCollection", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -376,8 +375,8 @@ type ContentServer interface {
 	GetPostsForUser(context.Context, *RequestId) (*ReducedPostArray, error)
 	RemovePost(context.Context, *RequestId) (*EmptyResponseContent, error)
 	GetPostById(context.Context, *RequestId) (*Post, error)
-	SearchContentByLocation(context.Context, *SearchLocationRequest) (*ReducedPostArray, error)
-	GetPostsByHashtag(context.Context, *Hashtag) (*ReducedPostArray, error)
+	SearchContentByLocation(context.Context, *SearchLocationRequest) (*PostArray, error)
+	GetPostsByHashtag(context.Context, *Hashtag) (*PostArray, error)
 	GetAllHashtags(context.Context, *EmptyRequestContent) (*Hashtags, error)
 	//    Stories
 	CreateStory(context.Context, *Story) (*EmptyResponseContent, error)
@@ -395,7 +394,7 @@ type ContentServer interface {
 	// Collections & Favorites
 	GetAllCollections(context.Context, *RequestId) (*CollectionsArray, error)
 	GetCollection(context.Context, *RequestId) (*Collection, error)
-	CreateCollection(context.Context, *Collection) (*EmptyResponseContent, error)
+	CreateCollection(context.Context, *Collection) (*Collection, error)
 	RemoveCollection(context.Context, *RequestId) (*EmptyResponseContent, error)
 	GetUserFavorites(context.Context, *RequestId) (*Favorites, error)
 	CreateFavorite(context.Context, *FavoritesRequest) (*EmptyResponseContent, error)
@@ -434,10 +433,10 @@ func (UnimplementedContentServer) RemovePost(context.Context, *RequestId) (*Empt
 func (UnimplementedContentServer) GetPostById(context.Context, *RequestId) (*Post, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPostById not implemented")
 }
-func (UnimplementedContentServer) SearchContentByLocation(context.Context, *SearchLocationRequest) (*ReducedPostArray, error) {
+func (UnimplementedContentServer) SearchContentByLocation(context.Context, *SearchLocationRequest) (*PostArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchContentByLocation not implemented")
 }
-func (UnimplementedContentServer) GetPostsByHashtag(context.Context, *Hashtag) (*ReducedPostArray, error) {
+func (UnimplementedContentServer) GetPostsByHashtag(context.Context, *Hashtag) (*PostArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPostsByHashtag not implemented")
 }
 func (UnimplementedContentServer) GetAllHashtags(context.Context, *EmptyRequestContent) (*Hashtags, error) {
@@ -479,7 +478,7 @@ func (UnimplementedContentServer) GetAllCollections(context.Context, *RequestId)
 func (UnimplementedContentServer) GetCollection(context.Context, *RequestId) (*Collection, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCollection not implemented")
 }
-func (UnimplementedContentServer) CreateCollection(context.Context, *Collection) (*EmptyResponseContent, error) {
+func (UnimplementedContentServer) CreateCollection(context.Context, *Collection) (*Collection, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCollection not implemented")
 }
 func (UnimplementedContentServer) RemoveCollection(context.Context, *RequestId) (*EmptyResponseContent, error) {
@@ -524,8 +523,8 @@ type UnsafeContentServer interface {
 	mustEmbedUnimplementedContentServer()
 }
 
-func RegisterContentServer(s grpc.ServiceRegistrar, srv ContentServer) {
-	s.RegisterService(&Content_ServiceDesc, srv)
+func RegisterContentServer(s *grpc.Server, srv ContentServer) {
+	s.RegisterService(&_Content_serviceDesc, srv)
 }
 
 func _Content_CreatePost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -1122,10 +1121,7 @@ func _Content_RemoveHighlightStory_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-// Content_ServiceDesc is the grpc.ServiceDesc for Content service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var Content_ServiceDesc = grpc.ServiceDesc{
+var _Content_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.Content",
 	HandlerType: (*ContentServer)(nil),
 	Methods: []grpc.MethodDesc{

@@ -69,11 +69,11 @@ class FollowersService extends RootService {
         return response
     }
     async updateUserConnection(data){
-        const { userId,followerId,isApprovedRequest,isCloseFriends,isNotificationEnabled,jwt} = data
+        const { userId,followerId,isApprovedRequest,isCloseFriends,isMuted,isNotificationEnabled,jwt} = data
         const headers=this.setupHeaders(jwt)
 
         const response = this.apiClient.post('/update_follower',{
-             userId,followerId,isApprovedRequest,isCloseFriends,isNotificationEnabled
+             userId,followerId,isApprovedRequest,isCloseFriends,isMuted,isNotificationEnabled
         },{
             headers:headers
         }).then(res => {
@@ -91,6 +91,19 @@ class FollowersService extends RootService {
         const response = this.apiClient.post('/connection',{
              userId,followerId
         },{
+            headers:headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
+
+    async getCloseFriends(data){
+        const { id,jwt} = data
+        const headers=this.setupHeaders(jwt)
+        const response = this.apiClient.get('/close/'+id,{
             headers:headers
         }).then(res => {
             return res

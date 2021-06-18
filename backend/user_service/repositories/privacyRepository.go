@@ -16,6 +16,7 @@ type PrivacyRepository interface {
 	CheckIfBlocked(context.Context, string, string) 		(bool, error)
 	GetUserPrivacy(context.Context, string) 				(*persistence.Privacy, error)
 	GetAlLPublicUsers(context.Context) 						([]persistence.Privacy, error)
+	GetBlockedUsers(context.Context, string)     ([]persistence.BlockedUsers, error)
 }
 
 type privacyRepository struct {
@@ -43,6 +44,21 @@ func (repository *privacyRepository) BlockUser(ctx context.Context, b *persisten
 	}
 
 	return true, nil
+}
+
+func (repository *privacyRepository) GetBlockedUsers(ctx context.Context, userId string) ([]persistence.BlockedUsers, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetBlockedUsers")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var blockedUsers []persistence.BlockedUsers
+
+	db := repository.DB.Where("user_id = ?", userId).Find(&blockedUsers)
+	if db.Error != nil {
+		return nil, errors.New("Could not find blocked users")
+	}
+
+	return blockedUsers, nil
 }
 
 func (repository *privacyRepository) UnBlockUser(ctx context.Context, b *persistence.BlockedUsers) (bool, error) {
@@ -94,15 +110,13 @@ func (repository *privacyRepository) UpdatePrivacy(ctx context.Context, p *persi
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	var privacy persistence.Privacy
-
-	db := repository.DB.Model(&privacy).Where("user_id = ?", p.UserId).Updates(persistence.Privacy{IsTagEnabled: p.IsTagEnabled, IsProfilePublic: p.IsProfilePublic, IsDMPublic: p.IsDMPublic})
-	if db.Error != nil {
-		return false, db.Error
-	} else if db.RowsAffected == 0 {
-		return false, errors.New("rows affected is equal to zero")
+	if err := repository.DB.Model(&p).Updates(map[string]interface{}{
+		"is_tag_enabled":          p.IsTagEnabled,
+		"is_profile_public": p.IsProfilePublic,
+		"is_dm_public": p.IsDMPublic,
+	}).Error; err != nil {
+		return false, err
 	}
-
 	return true, nil
 }
 

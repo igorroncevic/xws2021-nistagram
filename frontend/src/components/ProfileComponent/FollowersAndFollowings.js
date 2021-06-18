@@ -25,7 +25,7 @@ function FollowersAndFollowings(props) {
         if (response.status === 200) {
            setUsers(users=>[...users,response.data])
         } else {
-            console.log("getuserbyusername error")
+            console.log("getuserbyid error")
         }
     }
 
@@ -39,9 +39,6 @@ function FollowersAndFollowings(props) {
                     <ProfileForSug user={user} username={user.username} firstName={user.firstName} lastName={user.lastName}
                           caption={user.biography} urlText="Follow" iconSize="big" captionSize="small" storyBorder={true}/>
                 </Button>
-
-
-
             )
             }
         </div>

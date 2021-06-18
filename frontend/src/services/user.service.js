@@ -135,6 +135,21 @@ class UserService extends RootService {
         })
         return response
     }
+
+    async updatePhoto(data){
+        const { userId,photo,jwt} = data
+        const headers=this.setupHeaders(jwt)
+        const response = this.apiClient.post('/update_photo',{
+            userId,photo
+        },{
+            headers:headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
 }
 
 const userService = new UserService()

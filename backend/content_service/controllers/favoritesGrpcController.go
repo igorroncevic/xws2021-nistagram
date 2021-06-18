@@ -189,29 +189,30 @@ func (c *FavoritesGrpcController) RemoveFavorite(ctx context.Context, in *protop
 	return &protopb.EmptyResponseContent{}, nil
 }
 
-func (c *FavoritesGrpcController) CreateCollection(ctx context.Context, in *protopb.Collection) (*protopb.EmptyResponseContent, error) {
+func (c *FavoritesGrpcController) CreateCollection(ctx context.Context, in *protopb.Collection) (*protopb.Collection, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateCollection")
 	defer span.Finish()
 	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	if err != nil {
-		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create collection")
+		return &protopb.Collection{}, status.Errorf(codes.Unknown, "could not create collection")
 	}else if claims.UserId == "" {
-		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "no user id provided")
+		return &protopb.Collection{}, status.Errorf(codes.InvalidArgument, "no user id provided")
 	}  else if claims.UserId != in.UserId {
-		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot create collection for another user")
+		return &protopb.Collection{}, status.Errorf(codes.Unknown, "cannot create collection for another user")
 	}
 
 	var collection domain.Collection
 	collection = collection.ConvertFromGrpc(in)
 
-	err = c.service.CreateCollection(ctx, collection)
+	collection, err = c.service.CreateCollection(ctx, collection)
 	if err != nil {
-		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create collection")
+		return &protopb.Collection{}, status.Errorf(codes.Unknown, "could not create collection")
 	}
 
-	return &protopb.EmptyResponseContent{}, nil
+	responseCollection := collection.ConvertToGrpc()
+	return responseCollection, nil
 }
 
 func (c *FavoritesGrpcController) RemoveCollection(ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent, error) {

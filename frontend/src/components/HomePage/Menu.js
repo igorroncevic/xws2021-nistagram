@@ -54,6 +54,9 @@ function Menu() {
             <NavLink  to={{ pathname: "/newpost" }}  >
                 <Plus className="icon" />
             </NavLink>
+            <NavLink  to={{ pathname: "/info" }} >
+                <Explore className="icon" />
+            </NavLink>
             {/*<NavLink  to={{ pathname: "/submit-verification-request" }}  >*/}
                 <Dropdown>
                     <Dropdown.Toggle variant="link" id="dropdown-basic">
@@ -61,7 +64,7 @@ function Menu() {
                     </Dropdown.Toggle>
 
                     <Dropdown.Menu>
-                        <Dropdown.Item href="/submit-verification-request">Submit verification request</Dropdown.Item>
+                        <Dropdown.Item href="/submit-verification-request">Submit verification request </Dropdown.Item>
                         <Dropdown.Item href="/view-my-verification-request">View my verification requests</Dropdown.Item>
                         <Dropdown.Item href="/view-pending-verification-request">View pending verification requests</Dropdown.Item>
                         <Dropdown.Item href="/view-all-verification-request">View all verification requests</Dropdown.Item>
@@ -73,9 +76,7 @@ function Menu() {
                 <ProfileIcon iconSize="medium" image='https://i.pravatar.cc/150?img=1' />
             </NavLink>
 
-            <NavLink  to={{ pathname: "/info" }} >
-                <Explore className="icon" />
-            </NavLink>
+
 
             <a href='/' style={{marginLeft:'10px'}}>Log out</a>
 

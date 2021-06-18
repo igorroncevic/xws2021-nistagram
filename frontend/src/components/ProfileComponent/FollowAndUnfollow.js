@@ -1,22 +1,22 @@
 import React, {useEffect, useState} from "react";
 import {Button} from "react-bootstrap";
-import axios from "axios";
-import userService from "../../services/user.service";
 import followersService from "../../services/followers.service";
 import {useDispatch, useSelector} from "react-redux";
 import Switch from "react-switch";
-//treba srediti da ne moze da zaprati sam sebe i da salje zahtev za pracenje drugima
-function FollowAndUnfollow(props) {
-    const {user, followers, getFollowers} = props;
-    const [follows, setFollows] = useState(false);
-    const [closeFriend, setCloseFriend] = useState(false);
 
-    const dispatch = useDispatch()
+function FollowAndUnfollow(props) {
+    const {isCloseFriend, followers} = props;
+    const [follows, setFollows] = useState(false);
+    const [closeFriend, setCloseFriend] = useState({});
+
     const store = useSelector(state => state);
+    useEffect(() => {
+        setCloseFriend(props.isCloseFriends)
+    }, [props.isCloseFriends])
 
     useEffect(() => {
-        props.getFollowers(store.followers.followerId)
         getFollowersConnection()
+        props.getFollowers(store.followers.followerId)
     }, [])
 
     useEffect(() => {
@@ -31,7 +31,6 @@ function FollowAndUnfollow(props) {
         })
 
         if (response.status === 200) {
-            console.log(response.data)
             setFollows(response.data.isApprovedRequest)
             setCloseFriend(response.data.isCloseFriends)
             props.getFollowers(store.followers.followerId)
@@ -50,6 +49,7 @@ function FollowAndUnfollow(props) {
         if (response.status === 200) {
             console.log("ZAPRACENO")
             props.getFollowers(store.followers.followerId)
+            props.funcIsCloseFriend(store.followers.followerId)
             getFollowersConnection()
         } else {
             console.log("NIJE ZAPRACENO")
@@ -65,25 +65,26 @@ function FollowAndUnfollow(props) {
         })
         if (response.status === 200) {
             props.getFollowers(store.followers.followerId)
+            props.funcIsCloseFriend(store.followers.followerId)
             getFollowersConnection()
         } else {
             console.log("NIJE otpratio")
         }
     }
 
+
+
     function handleCloseFriends() {
         setCloseFriend(!closeFriend)
-        console.log(closeFriend)
-
         setCloseFriends()
     }
-
     async function setCloseFriends() {
         const response = await followersService.updateUserConnection({
             userId: store.followers.userId,
             followerId: store.followers.followerId,
             isApprovedRequest: true,
             isCloseFriends: !closeFriend,
+            isMuted:false,
             isNotificationEnabled:true,
             jwt: store.user.jwt,
         })
@@ -102,8 +103,8 @@ function FollowAndUnfollow(props) {
                 :
                 <div>
                     <div className='row'>
-                        <p  style={{ marginLeft:'15px',marginRight:'3em', color:'#64f427'}}  >Close friend: </p>
-                    <Switch onChange={handleCloseFriends} checked={closeFriend}/>
+                        <p style={{marginLeft: '15px', marginRight: '3em', color: '#64f427'}}>Close friend: </p>
+                        <Switch onChange={handleCloseFriends} checked={closeFriend}/>
                     </div>
                     <Button style={{margin: "10px", marginRight: '78px'}} onClick={unfollow}>UnFollow</Button>
 

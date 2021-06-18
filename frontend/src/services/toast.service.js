@@ -1,14 +1,15 @@
 import { toast } from 'react-toastify';
 
 const defaultOptions = {
-    autoClose: 3000,
+    autoClose: 4000,
     hideProgressBar: true,
 }
 
 /** 
  * Types: ```success```, ```info```, ```warning```, ```error```
 */
-const show = (type, message, options) => {
+const show = (type, message, options = {}) => {
+    toast.configure();
     let additionalOptions = {};
     if(options) {
         additionalOptions = { ...defaultOptions, ...options }

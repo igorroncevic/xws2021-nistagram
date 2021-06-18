@@ -19,7 +19,7 @@ type FavoritesRepository interface {
 	CreateFavorite(context.Context, domain.FavoritesRequest) error
 	RemoveFavorite(context.Context, domain.FavoritesRequest) error
 
-	CreateCollection(context.Context, domain.Collection) error
+	CreateCollection(context.Context, domain.Collection) (persistence.Collection, error)
 	RemoveCollection(context.Context, string, string)    error
 }
 
@@ -174,15 +174,15 @@ func (repository *favoritesRepository) RemoveFavorite(ctx context.Context, favor
 	return nil
 }
 
-func (repository *favoritesRepository) CreateCollection(ctx context.Context, collection domain.Collection) error{
+func (repository *favoritesRepository) CreateCollection(ctx context.Context, collection domain.Collection) (persistence.Collection, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateCollection")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	err := repository.DB.Transaction(func (tx *gorm.DB) error{
-		var collectionPers *persistence.Collection
-		collectionPers = collectionPers.ConvertToPersistence(collection)
+	var collectionPers *persistence.Collection
+	collectionPers = collectionPers.ConvertToPersistence(collection)
 
+	err := repository.DB.Transaction(func (tx *gorm.DB) error{
 		result := repository.DB.Create(collectionPers)
 
 		if result.Error != nil || result.RowsAffected != 1 {
@@ -205,8 +205,8 @@ func (repository *favoritesRepository) CreateCollection(ctx context.Context, col
 		return nil
 	})
 
-	if err != nil { return err }
-	return nil
+	if err != nil { return *collectionPers, err }
+	return *collectionPers, nil
 }
 
 func (repository *favoritesRepository) RemoveCollection(ctx context.Context, collectionId string, userId string) error{

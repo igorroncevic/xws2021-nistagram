@@ -1,22 +1,21 @@
 import React, {useEffect, useState} from "react";
 import axios from "axios";
 import '../../style/Profile.css';
-import {Button, Modal} from "react-bootstrap";
-import EditProfile from "./EditProfile";
-import ChangePassword from "./ChangePassword";
+import {Button, Dropdown, Modal} from "react-bootstrap";
 import FollowAndUnfollow from "./FollowAndUnfollow";
 import Navigation from "../HomePage/Navigation";
 import {   useParams } from 'react-router-dom'
 import userService from "../../services/user.service";
 import {userActions} from "../../store/actions/user.actions";
-import Switch from "react-switch";
-
 
 import {useDispatch, useSelector} from "react-redux";
 import privacyService from "../../services/privacy.service";
 import followersService from "../../services/followers.service";
 import FollowersAndFollowings from "./FollowersAndFollowings";
-import EditUserPrivacy from "./EditUserPrivacy";
+import Switch from "react-switch";
+import {BsThreeDotsVertical, FaGem} from "react-icons/all";
+import BlockMuteAndNotifications from "./BlockMuteAndNotifications";
+
 
 
 function Profile() {
@@ -25,15 +24,17 @@ function Profile() {
     const [follow,setFollow] =useState( {});
     const [publicProfile,setPublicProfile]=useState(false);
 
-    const [showModal, setModal] = useState(false);
-    const [showModalPass, setModalPass] = useState(false);
     const [showModalFollowers, setModalFollowers] = useState(false);
     const [showModalFollowings, setModalFollowings] = useState(false);
-    const [showModalPrivacy, setModalPrivacy] = useState(false);
 
     const [followers, setFollowers] = useState([]);
     const [following, setFollowings] = useState([]);
     const [posts, setPosts] = useState([]);
+
+    const [closeFriend, setCloseFriend] = useState(false);
+    const [isApprovedRequest, setIsApprovedRequest] = useState(false);
+    const [isMuted, setIsMuted] = useState(false);
+    const [isNotificationEnabled, setNotifications] = useState(false);
 
     const dispatch = useDispatch()
     const store = useSelector(state => state);
@@ -46,7 +47,6 @@ function Profile() {
         getUserPrivacy();
         getFollowers()
         getFollowing()
-        //getPosts()
     },[username]);
 
 
@@ -67,28 +67,33 @@ function Profile() {
             console.log("getuserbyusername error")
         }
     }
-    async function getUserById() {
-        const response = await userService.getUserById({
-            id: store.user.id,
-            jwt: store.user.jwt,
-        })
 
-        if (response.status === 200) {
-            setUser(response.data)
-            checkUser(response.data.id);
-        } else {
-            console.log("getuserbyusername error")
-        }
-    }
-    function   checkUser(value){
-        if(value===store.user.id){
+    async function checkUser(value) {
+        if (value === store.user.id) {
             setFollow(false)
-        }else{
+        } else {
             setFollow(true)
             dispatch(userActions.followRequest({
                 userId: store.user.id,
                 followerId: value,
             }))
+            isCloseFriend(value)
+        }
+    }
+
+    async function isCloseFriend(value) {
+        const response = await followersService.getFollowersConnection({
+            userId: store.user.id,
+            followerId: value,
+        })
+        if (response.status === 200) {
+            console.log(response.data)
+            setCloseFriend(response.data.isCloseFriends)
+            setIsApprovedRequest(response.data.isApprovedRequest)
+            setIsMuted(response.data.isMuted)
+            setNotifications(response.data.isNotificationEnabled)
+        } else {
+            console.log("followings ne radi")
         }
     }
 
@@ -132,23 +137,14 @@ function Profile() {
 
     }
 
-
-    function handleModal() {
-        setModal(!showModal)
-    }
-    function handleModalPass() {
-        setModalPass(!showModalPass)
-    }
     function handleModalFollowers() {
         setModalFollowers(!showModalFollowers)
     }
+
     function handleModalFollowings() {
         setModalFollowings(!showModalFollowings)
     }
 
-    function handleModalPrivacy() {
-        setModalPrivacy(!showModalPrivacy)
-    }
 
 
     return (
@@ -161,23 +157,25 @@ function Profile() {
                             <img style={{width: "180px", height: "160px", borderRadius: "80px"}} src={user.profilePhoto ? user.profilePhoto : ""}/>
                         </div>
                         <div>
+                            <div  style={{display: "flex"}}>
                             <h4>{user.firstName} {user.lastName}</h4>
+                                {follow && <div  style={{ marginLeft:'10em',color:'white'}}>
+                                    <BlockMuteAndNotifications isApprovedRequest={isApprovedRequest} isMuted={isMuted} isNotificationEnabled={isNotificationEnabled}/>
+                                </div>
+                                }
+                            </div>
                             <h4>{user.username}</h4>
                             <div style={{display: "flex"}}>
                                 <h6 style={{marginTop:'9px'}}> 15 posts </h6>
                                 <Button variant="link" style={{color:'black'}} onClick={handleModalFollowers}>{followers.length} followers</Button>
                                 <Button variant="link"  style={{color:'black'}} onClick={handleModalFollowings}> {following.length} following </Button>
-
                             </div>
-                            {follow ?
-                                <FollowAndUnfollow user={user} followers={followers} getFollowers={getFollowers}/>
-                                :
-                                <div >
-                                    <Button variant="link" style={{marginTop:'2em', borderTop: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModal}>Update profile info</Button>
-                                    { !isSSO && <Button variant="link" style={{display: "flex",justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModalPass}>Change password</Button> }
-                                    <Button variant="link" style={{ borderBottom: '1px solid red', display: "flex",  justifyContent: "space-between", width: "108%", color: 'red', float: "right"}} onClick={handleModalPrivacy}>Update profile privacy</Button>
-                                </div>
 
+                            {follow &&
+                                <div>
+
+                                <FollowAndUnfollow user={user} isCloseFriends={closeFriend} funcIsCloseFriend={isCloseFriend} followers={followers} getFollowers={getFollowers}/>
+                                </div>
                             }
                         </div>
                         <div>
@@ -186,46 +184,33 @@ function Profile() {
                     </div>
 
                 </div>
-                {publicProfile ?
-                    <div className="gallery">
-                        <img className="item"
-                             src='https://images.unsplash.com/photo-1522228115018-d838bcce5c3a?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
-                        <img className="item"
-                             src='https://images.unsplash.com/photo-1581882898166-634d30416957?ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
-                        <img className="item"
-                             src='https://images.unsplash.com/photo-1522228115018-d838bcce5c3a?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
-                    </div>
-                    :
+                {!follow &&
+                <div className="gallery">
+                    <img className="item"
+                         src='https://images.unsplash.com/photo-1522228115018-d838bcce5c3a?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
+                    <img className="item"
+                         src='https://images.unsplash.com/photo-1581882898166-634d30416957?ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
+                    <img className="item"
+                         src='https://images.unsplash.com/photo-1522228115018-d838bcce5c3a?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
+                </div>
+                }
+                {follow && publicProfile &&
+                <div className="gallery">
+                    <img className="item"
+                         src='https://images.unsplash.com/photo-1522228115018-d838bcce5c3a?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
+                    <img className="item"
+                         src='https://images.unsplash.com/photo-1581882898166-634d30416957?ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
+                    <img className="item"
+                         src='https://images.unsplash.com/photo-1522228115018-d838bcce5c3a?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
+                </div>
+                }
+                {follow && !publicProfile &&
                     <div style={{ borderTop: '1px solid black'}}>
                         <p style={{textAlign: 'center',marginTop:'6%', fontWeight:'bold'}}> This Account is Private </p>
                         <p style={{textAlign: 'center',marginTop:'2%'}}>Follow to see their photos and videos!</p>
                     </div>
-
-
                 }
-                <Modal show={showModal} onHide={handleModal}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Edit profile</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <EditProfile updateUser={getUserById}/>
-                    </Modal.Body>
-                    <Modal.Footer>
 
-                    </Modal.Footer>
-                </Modal>
-
-                <Modal show={showModalPass} onHide={handleModalPass}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Change password</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <ChangePassword user={user}/>
-                    </Modal.Body>
-                    <Modal.Footer>
-
-                    </Modal.Footer>
-                </Modal>
                 <Modal show={showModalFollowers} onHide={handleModalFollowers}>
                     <Modal.Header closeButton>
                         <Modal.Title>Followers:</Modal.Title>
@@ -250,17 +235,7 @@ function Profile() {
 
                     </Modal.Footer>
                 </Modal>
-                <Modal show={showModalPrivacy} onHide={handleModalPrivacy}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Edit privacy</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <EditUserPrivacy/>
-                    </Modal.Body>
-                    <Modal.Footer>
 
-                    </Modal.Footer>
-                </Modal>
             </div>
         </div>
     );

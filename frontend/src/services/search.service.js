@@ -15,24 +15,23 @@ class SearchService {
     }
 
     async searchByTag(data){
-        const {tag,jwt} = data
+        const {text,jwt} = data
         const headers=this.setupHeaders(jwt)
-        const response = this.apiClient.post('/searchByLocation',{
-           tag
-        },{
-            headers:headers
+        return this.apiClient.post('/posts-by-hashtag', {
+            text
+        }, {
+            headers: headers
         }).then(res => {
             return res
         }).catch(err => {
             return err
         })
-        return response
     }
     async searchByLocation(data){
-        const {tag,jwt} = data
+        const {location,jwt} = data
         const headers=this.setupHeaders(jwt)
-        const response = this.apiClient.post('/searchByLocation',{
-            tag
+        const response = this.apiClient.post('/location',{
+            location
         },{
             headers:headers
         }).then(res => {
