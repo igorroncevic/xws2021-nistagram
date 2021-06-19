@@ -88,14 +88,14 @@ func (s *Story) ConvertFromGrpc(story *protopb.Story) *Story {
 	}
 }
 
-func (s *StoriesHome) ConvertToGrpc() *protopb.StoriesHome{
+func (s *StoriesHome) ConvertToGrpc() *protopb.StoriesHome {
 	storiesHome := &protopb.StoriesHome{}
 	for _, storyHome := range s.Stories {
 		storiesHome.Stories = append(storiesHome.Stories, &protopb.StoryHome{
-			UserId:   storyHome.UserId,
-			Username: storyHome.Username,
+			UserId:    storyHome.UserId,
+			Username:  storyHome.Username,
 			UserPhoto: storyHome.UserPhoto,
-			Stories:  ConvertMultipleStoriesToGrpc(storyHome.Stories),
+			Stories:   ConvertMultipleStoriesToGrpc(storyHome.Stories),
 		})
 	}
 
@@ -388,9 +388,9 @@ func (l *Like) ConvertToGrpc() *protopb.Like {
 		l = &Like{}
 	}
 	return &protopb.Like{
-		PostId: l.PostId,
-		UserId: l.UserId,
-		IsLike: l.IsLike,
+		PostId:   l.PostId,
+		UserId:   l.UserId,
+		IsLike:   l.IsLike,
 		Username: l.Username,
 	}
 }
@@ -483,4 +483,18 @@ func ConvertMultipleHashtagFromGrpc(t []*protopb.Hashtag) []Hashtag {
 	}
 
 	return hashtags
+}
+
+func (c *ContentComplaint) ConvertFromGrpc(contentComplaint *protopb.ContentComplaint) *ContentComplaint {
+	if c == nil {
+		c = &ContentComplaint{}
+	}
+	return &ContentComplaint{
+		Id:       contentComplaint.Id,
+		Category: model.ComplaintCategory(contentComplaint.Category),
+		PostId:   contentComplaint.PostId,
+		Status:   model.RequestStatus(contentComplaint.Status),
+		IsPost:   contentComplaint.IsPost,
+		UserId:   contentComplaint.UserId,
+	}
 }
