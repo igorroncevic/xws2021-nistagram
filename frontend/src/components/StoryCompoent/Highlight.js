@@ -24,11 +24,10 @@ const Highlight = (props) => {
             convertedStories.push(...storyService.convertStory(singleStory))
         })
         setConvertedStory(convertedStories);
-
-        const cover = highlight.stories && highlight.stories[0] && 
-                      highlight.stories[0].media && highlight.stories[0].media[0] ? highlight.stories[0].media[0].content : ""
-                      console.log(cover)
-        setCoverPhoto(cover ? cover : empty)
+                      
+        // Set the first photo to be a cover, otherwise set a default empty highlight photo
+        setCoverPhoto(highlight.stories && highlight.stories[0] &&  highlight.stories[0].media && highlight.stories[0].media[0] ?
+                      highlight.stories[0].media[0].content : empty)
 
         setHeader({
             username: highlight.name,

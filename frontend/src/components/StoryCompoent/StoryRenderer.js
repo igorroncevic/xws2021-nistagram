@@ -21,7 +21,9 @@ const StoryRenderer = ({ story, action, isPaused, config }) => {
                     timeCreated = Math.floor(difference.asSeconds()) + "s ago @ " + story.location : 
                     timeCreated = Math.floor(difference.asMinutes()) + + "h ago @ " + story.location
             }else{
-                timeCreated = Math.floor(difference.asHours()) + "h ago @ " + story.location
+                difference.asHours() > 24 ? 
+                    timeCreated = Math.floor(difference.asDays()) + "d ago @ " + story.location :
+                    timeCreated = Math.floor(difference.asHours()) + "h ago @ " + story.location
             }
         }
 
