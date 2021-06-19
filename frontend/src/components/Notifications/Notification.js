@@ -70,7 +70,8 @@ function Notification(props){
         <div style={{display: "flex", marginLeft:'10%'}}>
             <ProfileForSug user={user} username={user.username} caption={user.biography} urlText="Follow" iconSize="big" captionSize="small" storyBorder={true}
                            firstName={user.firstName} lastName={user.lastName} image={user.profilePhoto}/>
-            <p style={{fontWeight:'bold', marginLeft:'15px'}}> {text}</p>
+            <font face = "Comic Sans MS" size = "3" style={{marginRight:'5em', fontWeight:'bold'}}>{text}</font>
+
             {privateFollow &&
                 <div  style={{display: "flex", marginLeft:'85px'}}>
 

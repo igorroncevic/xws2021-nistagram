@@ -187,7 +187,7 @@ const Profile = () => {
                             </div>
                             <h4>{user.username}</h4>
                             <div style={{display: "flex"}}>
-                                <h6 style={{marginTop:'9px'}}> 15 posts </h6>
+                                <h6 style={{marginTop:'9px'}}>{posts.length} posts </h6>
                                 <Button variant="link" style={{color:'black'}} onClick={handleModalFollowers}>{followers.length} followers</Button>
                                 <Button variant="link"  style={{color:'black'}} onClick={handleModalFollowings}> {following.length} following </Button>
                             </div>
