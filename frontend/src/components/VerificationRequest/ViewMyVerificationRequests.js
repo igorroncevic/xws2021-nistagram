@@ -5,6 +5,7 @@ import Navigation from "../HomePage/Navigation";
 import {Button, Table} from "react-bootstrap";
 import {user} from "../../store/reducers/user.reducer";
 import userService from "../../services/user.service";
+import verificationRequestService from "../../services/verificationRequest.service";
 
 
 
@@ -19,12 +20,12 @@ function ViewMyVerificationRequests() {
         getVerificationRequestsByUser();
     }, [])
 
-    function getVerificationRequestsByUser() {
-        axios.post("http://localhost:8080/api/users/api/users/get-verification-requests-by-user", {
-            userId : store.user.id
-        },{
-            headers : userService.setupHeaders(store.user.jwt)
-        }).then(res => setVerificationRequests(res.data.verificationRequests))
+    async function getVerificationRequestsByUser() {
+        const response = await verificationRequestService.getVerificationRequestsByUser({
+            userId : store.user.id,
+            jwt : store.user.jwt
+        });
+        setVerificationRequests(response.data.verificationRequests);
     }
 
     return (

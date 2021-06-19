@@ -91,6 +91,19 @@ class UserService extends RootService {
         return response
     }
 
+    async getAllUsers(data) {
+        const { jwt} = data
+        const headers=this.setupHeaders(jwt)
+        const response = this.apiClient.get('',{
+            headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
+
     async editProfile(data){
         const { id,firstName,lastName,email,phoneNumber,username,profilePhoto,sex,website,biography,jwt,role} = data
         const headers=this.setupHeaders(jwt)
@@ -183,6 +196,20 @@ class UserService extends RootService {
         const headers=this.setupHeaders(jwt)
         const response = this.apiClient.get('/get_notifications/'+id,{
             headers:headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
+
+    async createUser(data){
+        const { id, firstName, lastName, email, username, password, role, birthdate, profilePhoto,
+        phoneNumber, sex, isActive, biography, website} = data
+        const response = this.apiClient.post('',{
+            id, firstName, lastName, email, username, password, role, birthdate, profilePhoto,
+            phoneNumber, sex, isActive, biography, website
         }).then(res => {
             return res
         }).catch(err => {

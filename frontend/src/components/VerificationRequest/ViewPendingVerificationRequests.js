@@ -5,6 +5,8 @@ import Navigation from "../HomePage/Navigation";
 import {Button, Table} from "react-bootstrap";
 import {user} from "../../store/reducers/user.reducer";
 import userService from "../../services/user.service";
+import verificationRequestService from "../../services/verificationRequest.service";
+import toastService from "../../services/toast.service";
 
 
 
@@ -19,24 +21,25 @@ function ViewPendingVerificationRequests() {
         getPendingVerificationRequests();
     }, [])
 
-    function getPendingVerificationRequests() {
-        axios.get("http://localhost:8080/api/users/api/users/get-pending-verification-requests", {
-            headers : userService.setupHeaders(store.user.jwt)
-        }).then(res => setVerificationRequests(res.data.verificationRequests))
+    async function getPendingVerificationRequests() {
+        const response = await verificationRequestService.getPendingVerificationRequests({jwt : store.user.jwt})
+        setVerificationRequests(response.data.verificationRequests);
     }
 
-    function changeVerificationRequestStatus(verificationRequest, status) {
-        axios.post("http://localhost:8080/api/users/api/users/change-verification-request-status", {
+    async function changeVerificationRequestStatus(verificationRequest, status) {
+        const response = await verificationRequestService.changeVerificationRequestStatus({
             id : verificationRequest.id,
-            status : status
-        },{
-            headers : userService.setupHeaders(store.user.jwt)
-        }).then(res => {
-            alert("Verification request status changed successfully!")
+            status : status,
+            jwt : store.user.jwt
+        });
+        if (response.status === 200) {
+            toastService.show("success", "Verification request status changed successfully")
             getPendingVerificationRequests();
-        }).catch(err => {
-            alert("Error while attempting to change verification request status!")
-        })
+        }
+        else
+            toastService.show("error", "Something went wrong. Try again")
+
+
     }
 
     return (

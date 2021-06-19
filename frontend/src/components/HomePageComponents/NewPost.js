@@ -8,6 +8,10 @@ import ProfileForAutocomplete from "../Post/ProfileForAutocomplete";
 import AutocompleteHashtags from "../Post/AutocompleteHashtags";
 import userService from "../../services/user.service";
 import {useDispatch, useSelector} from "react-redux";
+import postService from "../../services/post.service";
+import {toast} from "react-toastify";
+import toastService from "../../services/toast.service";
+import hashtagService from "../../services/hashtag.service";
 
 function NewPost(props) {
     // const [user,setUser] =useState(props.location.state.user);
@@ -62,17 +66,15 @@ function NewPost(props) {
         }
     }
 
-    function getAllUsers() {
-        console.log(setupHeaders())
-        axios.get("http://localhost:8080/api/users/api/users", {
-            headers : setupHeaders()
-        }).then(res => setAllUsers(res.data.users));
+    async function getAllUsers() {
+        const response = await userService.getAllUsers({jwt : store.user.jwt});
+        await setAllUsers(response.data.users);
+
     }
 
-    function getAllHashtags() {
-        axios.get("http://localhost:8080/api/content/hashtag/get-all", {
-            headers : setupHeaders()
-        }).then(res => setAllHashtags(res.data.hashtags));
+    async function getAllHashtags() {
+        const response = await hashtagService.getAllHashtags({jwt : store.user.jwt});
+        setAllHashtags(response.data.hashtags)
     }
 
     //todo hashtag list
@@ -116,37 +118,35 @@ function NewPost(props) {
     }
 
 
-    const postDetails = ()=>{
+    const postDetails = async ()=>{
+        if (mediaList.length === 0) {
+            toastService.show("warning", "Please add media for post")
+            return;
+        }
         let date = new Date();
         let month = date.getMonth() + 1;
         if (month < 10)
             month = "0" + month;
         let jsonDate = date.getFullYear() + "-" + month + "-" + date.getDate() + "T01:30:15.01Z";
-        console.log(mediaList)
-        axios
-            .post('http://localhost:8080/api/content/posts', {
-                id:'1',
-                userId : user.id,
-                isAd : false,
-                type : 'Post',
-                description : description,
-                location : location,
-                createdAt : jsonDate,
-                media : mediaList,
-                comments : [],
-                likes : [],
-                dislikes : [],
-                hashtags : hashtagList
-            }, {
-                headers : setupHeaders()
-
-            })
-            .then(res => {
-                alert("Post created successfully!");
-
-            }).catch(res => {
-            console.log("NE RADI")
-        })
+        const response = await postService.createPost({
+            id:'1',
+            userId : user.id,
+            isAd : false,
+            type : 'Post',
+            description : description,
+            location : location,
+            createdAt : jsonDate,
+            media : mediaList,
+            comments : [],
+            likes : [],
+            dislikes : [],
+            hashtags : hashtagList,
+            jwt : store.user.jwt
+        });
+        if (response.status === 200)
+            toastService.show("success", "New post successfully created!");
+        else
+            toastService.show("error", "Something went wrong, please try again!");
     }
 
     function handleChangeImage(evt) {
