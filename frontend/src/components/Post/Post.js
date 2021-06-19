@@ -15,6 +15,8 @@ import commentService from './../../services/comment.service';
 import collectionsService from './../../services/collections.service';
 import PostMenu from "./PostMenu";
 import {Button, Dropdown, Modal} from "react-bootstrap";
+import axios from "axios";
+import complaintService from "../../services/complaint.service";
 
 function Post (props) {
     const { postUser } = props;
@@ -37,6 +39,9 @@ function Post (props) {
     const [newComment, setNewComment] = useState("");
     const [isCommentDisabled, setIsCommentDisabled] = useState(true)
     const [showReportModal, setReportModal] = useState(false);
+
+    const [reportCategory, setReportCategory] = useState("");
+    const [reportCategoryErr, setReportCategoryErr] = useState("Select report category");
 
     const commentInputRef = useRef()
 
@@ -211,7 +216,38 @@ function Post (props) {
        store.user.id && setShowSaveModal(!showSaveModal);
     }
     const handleReportModal =()=>{
+        setReportCategory("");
+        setReportCategoryErr("");
         setReportModal(!showReportModal)
+    }
+
+    const handleReportCategoryChange = (event) => {
+        setReportCategory(event.target.value);
+        setReportCategoryErr("");
+    }
+
+    const sendReport = async () => {
+        if (reportCategory === "") {
+            console.log(reportCategory);
+            setReportCategoryErr("Select report category");
+            return;
+        }
+        const response = await complaintService.createComplaint({
+            id : "",
+            category : reportCategory,
+            postId : post.id,
+            status : "",
+            isPost : true,
+            userId : store.user.id,
+            jwt : store.user.jwt
+        });
+        
+        if(response.status === 200){
+            toastService.show("success", "Post report successfully created.")
+        } else{
+            toastService.show("error", "Could not create report for this post.")
+        }
+        handleReportModal();
     }
 
 
@@ -303,12 +339,27 @@ function Post (props) {
                     <Modal.Title>Report this post?</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                    <div className="col-sm-6 mb-2">
+                        <select onChange={(e) => handleReportCategoryChange(e)} name={"reportCategory"} value={reportCategory}>
+                            <option disabled={true} value="">Select report category</option>
+                            <option value="Gore">Gore</option>
+                            <option value="Nudity">Nudity</option>
+                            <option value="Violence">Violence</option>
+                            <option value="Suicide">Suicide</option>
+                            <option value="Fake News">Fake News</option>
+                            <option value="Spam">Spam</option>
+                            <option value="Hate Speech">Hate Speech</option>
+                            <option value="Terrorism">Terrorism</option>
+                            <option value="Harassment">Harassment</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        {reportCategoryErr.length > 0 && <span className="text-danger">{reportCategoryErr}</span>}
+                    </div>
                     <p >Are you sure you want to report this post? </p>
                 <div style={{display:'flex',float:'right'}}>
-                    <Button variant="info" style={{marginRight:'10px'}} >Confirm</Button>
-                    <Button variant="secondary" >Cancel</Button>
+                    <Button variant="info" style={{marginRight:'10px'}} onClick={sendReport} >Confirm</Button>
+                    <Button variant="secondary" onClick={handleReportModal} >Cancel</Button>
                 </div>
-
                 </Modal.Body>
             </Modal>
 

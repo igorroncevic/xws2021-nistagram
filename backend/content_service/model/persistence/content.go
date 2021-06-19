@@ -70,7 +70,7 @@ type Comment struct {
 }
 
 type Highlight struct {
-	Id string `gorm:"primaryKey"`
+	Id     string `gorm:"primaryKey"`
 	UserId string
 	Name   string
 }
@@ -117,6 +117,8 @@ type ContentComplaint struct {
 	Category model.ComplaintCategory
 	PostId   string
 	Status   model.RequestStatus
+	IsPost   bool
+	UserId   string
 }
 
 type AdCategory struct {
