@@ -133,7 +133,6 @@ func (verificationRequest VerificationRequest) ConvertToGrpc() *protopb.Verifica
 		CreatedAt:     timestamppb.New(verificationRequest.CreatedAt),
 	}
 }
-
 func (n *UserNotification) ConvertFromGrpc(notification protopb.CreateNotificationRequest) *UserNotification {
 	if n == nil { n = &UserNotification{} }
 	return &UserNotification{

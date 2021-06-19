@@ -197,15 +197,7 @@ const Profile = () => {
                     </div>
 
                 </div>
-
-                {(follow || publicProfile) && 
-                    (loading ? 
-                        <div style={{ position: "relative", left: "45%", marginTop: "50px" }}>
-                            <Spinner type="MutatingDots" height="100" width="100" />
-                        </div> :
-                        <PostPreviewGrid posts={posts} />
-                    )
-                }
+                {/*prikazi kad sam na svom profilu*/}
                 {!follow &&
                 (loading ?
                         <div style={{ position: "relative", left: "45%", marginTop: "50px" }}>
@@ -214,8 +206,17 @@ const Profile = () => {
                         <PostPreviewGrid posts={posts} />
                 )
                 }
+                {follow && publicProfile && isApprovedRequest &&
+                    (loading ? 
+                        <div style={{ position: "relative", left: "45%", marginTop: "50px" }}>
+                            <Spinner type="MutatingDots" height="100" width="100" />
+                        </div> :
+                        <PostPreviewGrid posts={posts} />
+                    )
+                }
 
-                {follow && !publicProfile &&
+
+                {follow && !publicProfile && !isApprovedRequest &&
                     <div style={{ borderTop: '1px solid black'}}>
                         <p style={{textAlign: 'center', marginTop:'6%', fontWeight:'bold'}}> This Account is Private </p>
                         <p style={{textAlign: 'center', marginTop:'2%'}}>Follow to see their photos and videos!</p>

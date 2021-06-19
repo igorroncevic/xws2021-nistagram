@@ -191,6 +191,20 @@ class UserService extends RootService {
         return response
     }
 
+    async deleteNotification(data){
+        console.log(data)
+        const { id,jwt} = data
+        const headers=this.setupHeaders(jwt)
+        const response = this.apiClient.get('/delete_notifications/'+id,{
+            headers:headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
+
 }
 
 const userService = new UserService()

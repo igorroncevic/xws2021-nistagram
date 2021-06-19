@@ -58,3 +58,15 @@ func (c *NotificationGrpcController) GetUserNotifications(ctx context.Context, i
 		Notifications: response,
 	}, nil
 }
+func (c *NotificationGrpcController) DeleteNotification(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.EmptyResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UnBlockUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	_, err := c.service.DeleteNotification(ctx,  in.Id)
+	if err != nil {
+		return &protopb.EmptyResponse{}, err
+	}
+
+	return &protopb.EmptyResponse{}, nil
+}

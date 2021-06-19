@@ -143,4 +143,14 @@ type UserNotification struct {
 	CreatorId string
 	Text string
 	Type string
+	IsRead bool
+}
+func (notification *UserNotification) ConvertFromGrpc(n *protopb.Notification) *UserNotification {
+	return &UserNotification{
+		NotificationId: n.Id,
+		UserId: n.UserId,
+		CreatorId: n.CreatorId,
+		Text: n.Text,
+		IsRead: n.IsRead,
+	}
 }

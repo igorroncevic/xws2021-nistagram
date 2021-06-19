@@ -38,7 +38,7 @@ function Notifications() {
                  <h3 style={{borderBottom:'1px solid black'}}>Notifications</h3>
                 <div style={{marginTop:'4%'}}>
                     {notifications.map((notification, i) =>
-                       <Notification creatorId={notification.creatorId} userId={notification.userId} text={notification.text} type={notification.type}/>
+                       <Notification id={notification.id} creatorId={notification.creatorId} userId={notification.userId} text={notification.text} type={notification.type} getUserNotifications={getUserNotifications}/>
                     ) }
                 </div>
             </div>

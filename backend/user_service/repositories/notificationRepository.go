@@ -12,6 +12,7 @@ import (
 type NotificationRepository interface {
 	CreateNotification(context.Context, *persistence.UserNotification) error
 	GetUserNotifications( context.Context,  string) ([]persistence.UserNotification, error)
+	DeleteNotification(ctx context.Context,   id string ) (bool, error)
 }
 type notificationRepository struct {
 	DB *gorm.DB
@@ -50,4 +51,35 @@ func (repository *notificationRepository) GetUserNotifications(ctx context.Conte
 	}
 
 	return userNotifications, nil
+}
+
+func (repository *notificationRepository) GetNotificationById(ctx context.Context, id string) (persistence.UserNotification, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var notification persistence.UserNotification
+	result := repository.DB.Where("notification_id = ?", id).Find(&notification)
+	if result.Error != nil || result.RowsAffected != 1 {
+		return persistence.UserNotification{}, errors.New("cannot retrieve this notification")
+	}
+
+	return notification, nil
+}
+func (repository *notificationRepository) DeleteNotification(ctx context.Context, id string) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UnBlockUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var notification persistence.UserNotification
+	notification, _ = repository.GetNotificationById(ctx, id)
+
+	db := repository.DB.Delete(&notification)
+	if db.Error != nil {
+		return false, db.Error
+	} else if db.RowsAffected == 0 {
+		return false, errors.New("rows affected is equal to zero")
+	}
+
+	return true, nil
 }

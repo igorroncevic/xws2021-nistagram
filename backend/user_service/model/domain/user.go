@@ -42,6 +42,7 @@ type UserNotification struct {
 	UserId            string
 	CreatorId 		  string
 	NotificationType  string
+	IsRead			  bool
 }
 
 func (user *User) CheckValidation() (bool, error){

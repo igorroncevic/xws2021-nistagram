@@ -23,7 +23,7 @@ function FollowAndUnfollow(props) {
     }, [])
 
     useEffect(() => {
-        getFollowersConnection()
+       // getFollowersConnection()
 
         setFollows(followers.some(item => item.UserId === store.user.id))
     }, [followers])
@@ -73,6 +73,8 @@ function FollowAndUnfollow(props) {
         if (response.status === 200) {
             props.getFollowers(store.followers.followerId)
             props.funcIsCloseFriend(store.followers.followerId)
+            console.log(store.followers.userId)
+            console.log("otpratio")
             console.log("otpratio")
 
             getFollowersConnection()

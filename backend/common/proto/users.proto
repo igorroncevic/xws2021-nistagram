@@ -147,6 +147,12 @@ service Users {
     };
   }
 
+  rpc DeleteNotification(RequestIdUsers) returns (EmptyResponse) {
+    option(google.api.http) = {
+      get: "/api/users/delete_notifications/{id}"
+    };
+  }
+
   //* Verification requests *
   rpc SubmitVerificationRequest (VerificationRequest) returns (EmptyResponse) {
     option(google.api.http) = {
@@ -194,6 +200,7 @@ message Notification {
    string creatorId = 3;
    string text = 4;
    string type = 5;
+   bool isRead = 6;
 }
 
 message CreateNotificationResponse {
