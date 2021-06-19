@@ -8,11 +8,12 @@ import toastService from "../../services/toast.service";
 function FollowAndUnfollow(props) {
     const {isCloseFriend, followers,publicProfile} = props;
     const [follows, setFollows] = useState(false);
-    const [success, setSucess] = useState(false);
+    const [requestIsPending, setRequestIsPending] = useState(false);
     const [closeFriend, setCloseFriend] = useState({});
 
     const store = useSelector(state => state);
     useEffect(() => {
+        getFollowersConnection()
         setCloseFriend(props.isCloseFriends)
     }, [props.isCloseFriends])
 
@@ -22,6 +23,8 @@ function FollowAndUnfollow(props) {
     }, [])
 
     useEffect(() => {
+       // getFollowersConnection()
+
         setFollows(followers.some(item => item.UserId === store.user.id))
     }, [followers])
 
@@ -33,14 +36,10 @@ function FollowAndUnfollow(props) {
         })
 
         if (response.status === 200) {
-            //console.log("IDEMOOO")
             console.log(response.data)
-            if(response.data.userId!="" && !response.data.isApprovedRequest){
-                toastService.show("error", "NA cekanju si batice");
-
-            }
             setFollows(response.data.isApprovedRequest)
             setCloseFriend(response.data.isCloseFriends)
+            setRequestIsPending(response.data.requestIsPending)
             props.getFollowers(store.followers.followerId)
         } else {
             console.log("followings ne radi")
@@ -56,12 +55,10 @@ function FollowAndUnfollow(props) {
         })
         if (response.status === 200) {
             console.log("ZAPRACENO")
-            setSucess(true)
-            if(publicProfile){
-                props.getFollowers(store.followers.followerId)
-                props.funcIsCloseFriend(store.followers.followerId)
-                getFollowersConnection()
-            }
+            props.getFollowers(store.followers.followerId)
+            props.funcIsCloseFriend(store.followers.followerId)
+            getFollowersConnection()
+
         } else {
             console.log("NIJE ZAPRACENO")
         }
@@ -71,13 +68,15 @@ function FollowAndUnfollow(props) {
         const response = await followersService.unfollow({
             userId: store.followers.userId,
             followerId: store.followers.followerId,
-            isApprovedRequest: true,
             jwt: store.user.jwt,
         })
         if (response.status === 200) {
             props.getFollowers(store.followers.followerId)
             props.funcIsCloseFriend(store.followers.followerId)
-            setSucess(false)
+            console.log(store.followers.userId)
+            console.log("otpratio")
+            console.log("otpratio")
+
             getFollowersConnection()
         } else {
             console.log("NIJE otpratio")
@@ -106,10 +105,10 @@ function FollowAndUnfollow(props) {
 
     return (
         <div>
-            {!follows && !success &&
+            {!follows  && !requestIsPending &&
             <Button variant="primary" style={{margin: "10px"}} onClick={follow}>Follow</Button>
             }
-            {follows &&
+            {follows  && !requestIsPending &&
                 <div>
                     <div className='row'>
                         <p style={{marginLeft: '15px', marginRight: '3em', color: '#64f427'}}>Close friend: </p>
@@ -119,10 +118,10 @@ function FollowAndUnfollow(props) {
                 </div>
             }
 
-            {success && !follows &&
+            {requestIsPending &&
                 <div>
-                 <p style={{marginLeft: '15px', marginRight: '3em', color: '#64f427'}}>Request sent</p>
-                <Button variant="outline-primary" style={{margin: "10px", marginRight: '78px'}}>Remove follow request</Button>
+                 <p style={{marginLeft: '15px', marginRight: '3em', color: '#64f427'}}>Request is pending</p>
+                <Button variant="outline-primary" style={{margin: "10px", marginRight: '78px'}} onClick={unfollow}>Remove follow request</Button>
                 </div>
             }
         </div>

@@ -159,12 +159,12 @@ const Profile = () => {
     }
 
     function handleModalFollowers() {
-        if(publicProfile || isApprovedRequest)
+        if(publicProfile || isApprovedRequest || !follow)
          setModalFollowers(!showModalFollowers)
     }
 
     function handleModalFollowings() {
-        if(publicProfile || isApprovedRequest)
+        if(publicProfile || isApprovedRequest || !follow)
             setModalFollowings(!showModalFollowings)
     }
 
@@ -187,7 +187,7 @@ const Profile = () => {
                             </div>
                             <h4>{user.username}</h4>
                             <div style={{display: "flex"}}>
-                                <h6 style={{marginTop:'9px'}}> 15 posts </h6>
+                                <h6 style={{marginTop:'9px'}}>{posts.length} posts </h6>
                                 <Button variant="link" style={{color:'black'}} onClick={handleModalFollowers}>{followers.length} followers</Button>
                                 <Button variant="link"  style={{color:'black'}} onClick={handleModalFollowings}> {following.length} following </Button>
                             </div>
@@ -197,8 +197,16 @@ const Profile = () => {
                     </div>
 
                 </div>
-
-                {(follow || publicProfile) && 
+                {/*prikazi kad sam na svom profilu*/}
+                {!follow &&
+                (loading ?
+                        <div style={{ position: "relative", left: "45%", marginTop: "50px" }}>
+                            <Spinner type="MutatingDots" height="100" width="100" />
+                        </div> :
+                        <PostPreviewGrid posts={posts} />
+                )
+                }
+                {follow && publicProfile && isApprovedRequest &&
                     (loading ? 
                         <div style={{ position: "relative", left: "45%", marginTop: "50px" }}>
                             <Spinner type="MutatingDots" height="100" width="100" />
@@ -207,7 +215,8 @@ const Profile = () => {
                     )
                 }
 
-                {follow && !publicProfile &&
+
+                {follow && !publicProfile && !isApprovedRequest &&
                     <div style={{ borderTop: '1px solid black'}}>
                         <p style={{textAlign: 'center', marginTop:'6%', fontWeight:'bold'}}> This Account is Private </p>
                         <p style={{textAlign: 'center', marginTop:'2%'}}>Follow to see their photos and videos!</p>

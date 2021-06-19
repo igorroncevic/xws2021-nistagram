@@ -20,7 +20,7 @@ function Notifications() {
 
     async function getUserNotifications() {
         const response = await userService.getUserNotifications({
-            id: '11fa801d-9064-4478-bdcd-0d522c32efa4',
+            id: store.user.id,
             jwt: store.user.jwt,
         })
         if (response.status === 200) {
@@ -38,7 +38,7 @@ function Notifications() {
                  <h3 style={{borderBottom:'1px solid black'}}>Notifications</h3>
                 <div style={{marginTop:'4%'}}>
                     {notifications.map((notification, i) =>
-                       <Notification creatorId={notification.creatorId} userId={notification.userId} text={notification.text} type={notification.type}/>
+                       <Notification id={notification.id} creatorId={notification.creatorId} userId={notification.userId} text={notification.text} type={notification.type} getUserNotifications={getUserNotifications}/>
                     ) }
                 </div>
             </div>

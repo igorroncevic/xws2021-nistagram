@@ -14,6 +14,7 @@ type Follower struct {
 	IsMuted               bool
 	IsCloseFriends        bool
 	IsApprovedRequest     bool
+	RequestIsPending     bool
 	IsNotificationEnabled bool
 }
 
@@ -36,6 +37,7 @@ func (follower *Follower) ConvertToGrpc() *protopb.Follower {
 		IsMuted:               follower.IsMuted,
 		IsNotificationEnabled: follower.IsNotificationEnabled,
 		IsApprovedRequest:     follower.IsApprovedRequest,
+		RequestIsPending:     follower.RequestIsPending,
 		IsCloseFriends:        follower.IsCloseFriends,
 	}
 }
@@ -56,5 +58,7 @@ func (follower *Follower) ConvertFromGrpc(f *protopb.Follower) *Follower {
 		IsCloseFriends:        f.IsCloseFriends,
 		IsApprovedRequest:     f.IsApprovedRequest,
 		IsNotificationEnabled: f.IsNotificationEnabled,
+		RequestIsPending: f.RequestIsPending,
+
 	}
 }

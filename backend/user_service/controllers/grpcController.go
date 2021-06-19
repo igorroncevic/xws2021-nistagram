@@ -147,6 +147,11 @@ func (s *Server) UpdateUserPhoto(ctx context.Context, in *protopb.UserPhotoReque
 func (s *Server) CreateNotification(ctx context.Context, in *protopb.CreateNotificationRequest) (*protopb.EmptyResponse, error) {
 	return s.notificationController.CreateNotification(ctx, in)
 }
+
+func (s *Server) DeleteNotification(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.EmptyResponse, error) {
+	return s.notificationController.DeleteNotification(ctx, in)
+}
+
 func (s *Server) CheckIsApproved(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.BooleanResponseUsers, error) {
 	return s.userController.CheckIsApproved(ctx, in)
 }

@@ -50,6 +50,7 @@ func (s NotificationService) CreateNotification(ctx context.Context, domainNotif
 	userNotification.UserId = domainNotification.UserId
 	userNotification.CreatorId = domainNotification.CreatorId
 	userNotification.Type = domainNotification.NotificationType
+	userNotification.IsRead=false
 
 	err := s.repository.CreateNotification(ctx, userNotification)
 	if err != nil {
@@ -77,4 +78,12 @@ func (s NotificationService) GetUserNotifications(ctx context.Context, userId st
 	}
 
 	return notifications, nil
+}
+
+func (s NotificationService) DeleteNotification(ctx context.Context,  id string) (bool, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "UnBlockUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return s.repository.DeleteNotification(ctx, id)
 }

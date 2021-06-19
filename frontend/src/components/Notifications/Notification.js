@@ -7,7 +7,7 @@ import followersService from "../../services/followers.service";
 import toastService from "../../services/toast.service";
 
 function Notification(props){
-    const {creatorId,userId,text,type} = props;
+    const {id,creatorId,userId,text,type,getUserNotifications} = props;
     const[user,setUser]=useState({});
     const[privateFollow,setPrivateFollow]=useState(false);
     const store = useSelector(state => state);
@@ -36,30 +36,50 @@ function Notification(props){
             setPrivateFollow(true)
         }
     }
+    
     async function acceptRequest() {
         const response = await followersService.updateUserConnection({
-            userId: userId ,
-            followerId: creatorId,
+            userId: creatorId ,
+            followerId: userId,
             isApprovedRequest: true,
             isCloseFriends: false,
             isMuted:false,
+            requestIsPending:false,
             jwt: store.user.jwt,
         })
         if (response.status === 200) {
             toastService.show("success", "Successfully accepted!");
+            deleteNotification()
         } else {
             toastService.show("error", "Something went wrong, please try again!");
         }
     }
 
-    async function removeRequest() {
+    function handleReject(){
+        unfollow()
+        deleteNotification()
+    }
+
+    async function unfollow() {
         const response = await followersService.unfollow({
-            userId: userId,
-            followerId: creatorId,
+            userId: creatorId,
+            followerId:  userId,
             jwt: store.user.jwt,
         })
         if (response.status === 200) {
-            toastService.show("success", "Successfully removed!");
+            toastService.show("success", "Successfully rejected!");
+        } else {
+            toastService.show("error", "Something went wrong, please try again!");
+        }
+    }
+
+    async function deleteNotification() {
+        const response = await userService.deleteNotification({
+            id: id,
+            jwt: store.user.jwt,
+        })
+        if (response.status === 200) {
+            props.getUserNotifications()
         } else {
             toastService.show("error", "Something went wrong, please try again!");
         }
@@ -70,12 +90,13 @@ function Notification(props){
         <div style={{display: "flex", marginLeft:'10%'}}>
             <ProfileForSug user={user} username={user.username} caption={user.biography} urlText="Follow" iconSize="big" captionSize="small" storyBorder={true}
                            firstName={user.firstName} lastName={user.lastName} image={user.profilePhoto}/>
-            <p style={{fontWeight:'bold', marginLeft:'15px'}}> {text}</p>
+            <font face = "Comic Sans MS" size = "3" style={{marginRight:'5em', fontWeight:'bold'}}>{text}</font>
+
             {privateFollow &&
                 <div  style={{display: "flex", marginLeft:'85px'}}>
 
                     <Button  style={{ height:'27px',  fontSize:'12px'}}  variant="success"  onClick={() => acceptRequest()}  >Accept</Button>
-                    <Button  style={{marginLeft:'5px', height:'27px', fontSize:'12px'}}  variant="secondary"  onClick={() => removeRequest()} >Reject</Button>
+                    <Button  style={{marginLeft:'5px', height:'27px', fontSize:'12px'}}  variant="secondary"  onClick={() => handleReject()} >Reject</Button>
 
                 </div>
             }

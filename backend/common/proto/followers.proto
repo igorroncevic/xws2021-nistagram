@@ -84,6 +84,7 @@ message Follower {
     bool isCloseFriends = 4;
     bool isApprovedRequest = 5;
     bool isNotificationEnabled = 6;
+    bool requestIsPending = 7;
 }
 
 message UserFollowers {

@@ -39,6 +39,7 @@ type UsersClient interface {
 	ApproveAccount(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GoogleAuth(ctx context.Context, in *GoogleAuthRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	CreateNotification(ctx context.Context, in *CreateNotificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	DeleteNotification(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*EmptyResponse, error)
 	//* Verification requests *
 	SubmitVerificationRequest(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GetPendingVerificationRequests(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*VerificationRequestsArray, error)
@@ -244,6 +245,15 @@ func (c *usersClient) CreateNotification(ctx context.Context, in *CreateNotifica
 	return out, nil
 }
 
+func (c *usersClient) DeleteNotification(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Users/DeleteNotification", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *usersClient) SubmitVerificationRequest(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	out := new(EmptyResponse)
 	err := c.cc.Invoke(ctx, "/proto.Users/SubmitVerificationRequest", in, out, opts...)
@@ -314,6 +324,7 @@ type UsersServer interface {
 	ApproveAccount(context.Context, *CreatePasswordRequest) (*EmptyResponse, error)
 	GoogleAuth(context.Context, *GoogleAuthRequest) (*LoginResponse, error)
 	CreateNotification(context.Context, *CreateNotificationRequest) (*EmptyResponse, error)
+	DeleteNotification(context.Context, *RequestIdUsers) (*EmptyResponse, error)
 	//* Verification requests *
 	SubmitVerificationRequest(context.Context, *VerificationRequest) (*EmptyResponse, error)
 	GetPendingVerificationRequests(context.Context, *EmptyRequest) (*VerificationRequestsArray, error)
@@ -389,6 +400,9 @@ func (UnimplementedUsersServer) GoogleAuth(context.Context, *GoogleAuthRequest) 
 }
 func (UnimplementedUsersServer) CreateNotification(context.Context, *CreateNotificationRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateNotification not implemented")
+}
+func (UnimplementedUsersServer) DeleteNotification(context.Context, *RequestIdUsers) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteNotification not implemented")
 }
 func (UnimplementedUsersServer) SubmitVerificationRequest(context.Context, *VerificationRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitVerificationRequest not implemented")
@@ -796,6 +810,24 @@ func _Users_CreateNotification_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_DeleteNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestIdUsers)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).DeleteNotification(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/DeleteNotification",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).DeleteNotification(ctx, req.(*RequestIdUsers))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Users_SubmitVerificationRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(VerificationRequest)
 	if err := dec(in); err != nil {
@@ -976,6 +1008,10 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateNotification",
 			Handler:    _Users_CreateNotification_Handler,
+		},
+		{
+			MethodName: "DeleteNotification",
+			Handler:    _Users_DeleteNotification_Handler,
 		},
 		{
 			MethodName: "SubmitVerificationRequest",

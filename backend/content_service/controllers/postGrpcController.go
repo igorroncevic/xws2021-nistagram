@@ -186,7 +186,7 @@ func (c *PostGrpcController) GetPostsForUser(ctx context.Context, in *protopb.Re
 	claims, _ := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	if claims.Id == "" {
+	if claims.UserId == "" {
 		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
 		if err != nil {
 			return &protopb.PostArray{}, status.Errorf(codes.Unknown, err.Error())

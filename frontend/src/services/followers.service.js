@@ -3,7 +3,7 @@ import { recommendationService } from './../backendPaths';
 
 class FollowersService extends RootService {
     constructor() {
-        super(recommendationService())
+        super(recommendationService() + "/api/followers")
     }
 
     async getFollowers(data){
@@ -39,11 +39,11 @@ class FollowersService extends RootService {
     }
 
     async createConnection(data){
-        const { userId,followerId,isApprovedRequest,isCloseFriends,isNotificationEnabled,jwt} = data
+        const { userId,followerId,isApprovedRequest,isCloseFriends,isNotificationEnabled,requestIsPending,jwt} = data
         const headers=this.setupHeaders(jwt)
 
         const response = this.apiClient.post('/create_connection',{
-          follower:{  userId,followerId,isApprovedRequest,isCloseFriends,isNotificationEnabled}
+          follower:{  userId,followerId,isApprovedRequest,isCloseFriends,isNotificationEnabled,requestIsPending}
         },{
             headers:headers
         }).then(res => {
@@ -70,11 +70,11 @@ class FollowersService extends RootService {
         return response
     }
     async updateUserConnection(data){
-        const { userId,followerId,isApprovedRequest,isCloseFriends,isMuted,isNotificationEnabled,jwt} = data
+        const { userId,followerId,isApprovedRequest,isCloseFriends,isMuted,isNotificationEnabled,requestIsPending,jwt} = data
         const headers=this.setupHeaders(jwt)
 
         const response = this.apiClient.post('/update_follower',{
-             userId,followerId,isApprovedRequest,isCloseFriends,isMuted,isNotificationEnabled
+             userId,followerId,isApprovedRequest,isCloseFriends,isMuted,isNotificationEnabled,requestIsPending
         },{
             headers:headers
         }).then(res => {
