@@ -3,7 +3,7 @@ import { recommendationService } from './../backendPaths';
 
 class FollowersService extends RootService {
     constructor() {
-        super(recommendationService())
+        super(recommendationService() + "/api/followers")
     }
 
     async getFollowers(data){

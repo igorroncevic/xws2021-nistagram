@@ -105,24 +105,24 @@ function FollowAndUnfollow(props) {
     }
 
     return (
-        <div>
+        <div style={{marginTop: "10px"}}>
             {!follows && !success &&
-            <Button variant="primary" style={{margin: "10px"}} onClick={follow}>Follow</Button>
+                <Button variant="primary" style={{width: "100px" }} onClick={follow}>Follow</Button>
             }
             {follows &&
                 <div>
                     <div className='row'>
-                        <p style={{marginLeft: '15px', marginRight: '3em', color: '#64f427'}}>Close friend: </p>
+                        <p style={{color: '#64f427'}}>Close friend: </p>
                         <Switch onChange={handleCloseFriends} checked={closeFriend}/>
                     </div>
-                    <Button style={{margin: "10px", marginRight: '78px'}} onClick={unfollow}>UnFollow</Button>
+                    <Button onClick={unfollow}>UnFollow</Button>
                 </div>
             }
 
             {success && !follows &&
                 <div>
-                 <p style={{marginLeft: '15px', marginRight: '3em', color: '#64f427'}}>Request sent</p>
-                <Button variant="outline-primary" style={{margin: "10px", marginRight: '78px'}}>Remove follow request</Button>
+                 <p style={{color: '#64f427'}}>Request sent</p>
+                <Button variant="outline-primary">Remove follow request</Button>
                 </div>
             }
         </div>

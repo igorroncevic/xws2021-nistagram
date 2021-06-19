@@ -9,8 +9,8 @@ import Switch from "react-switch";
 
 function BlockMuteAndNotifications(props){
     const {isApprovedRequest,isMuted,isNotificationEnabled} = props;
-    const[muted,setIsMuted]=useState({})
-    const[notifications,setNotifications]=useState({})
+    const [muted,setIsMuted]=useState({})
+    const [notifications,setNotifications]=useState({})
     const [showBlockModal, setBlockModal] = useState(false);
     const [showMuteModal, setMuteModal] = useState(false);
     const [showNotificationsModal, setNotificationsModal] = useState(false);

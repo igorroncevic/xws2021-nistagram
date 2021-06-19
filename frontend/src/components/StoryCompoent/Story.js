@@ -33,7 +33,7 @@ function Story(props) {
         <div>
             <div className="story">
                 <div className={true ? "storyBorder" : ""}>
-                    <img className={`profileIcon big`} src={story.userPhoto} alt="profile" onClick={() => setModal(!showModal)}/>
+                    <img className={`profileIcon big`} src={story.userPhoto} alt="" onClick={() => setModal(!showModal)}/>
                 </div>
                 <span className="accountName">{story.username}</span>
             </div>
