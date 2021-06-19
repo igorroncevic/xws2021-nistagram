@@ -179,10 +179,24 @@ func (service *UserService) SearchUsersByUsernameAndName(ctx context.Context, us
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	return service.userRepository.SearchUsersByUsernameAndName(ctx, user)
+	users, err := service.userRepository.SearchUsersByUsernameAndName(ctx, user)
+	if err != nil {
+		return nil, err
+	}
 
-	//todo proveri da li su se useri blokirali medjusobno - ne moze u bilo kom smeru
-	//todo ako neregistrovan pretrazuje onda nemoj proveravati
+	var finalUsers []domain.User
+
+	for _, user := range users {
+		blocked, err := service.privacyRepository.CheckIfBlocked(ctx, user.Id, userWhoSearchedId)
+		if err != nil {
+			return nil, err
+		}
+		if blocked == false {
+			finalUsers = append(finalUsers, user)
+		}
+	}
+
+	return finalUsers, nil
 
 }
 
@@ -321,7 +335,9 @@ func (service *UserService) GetUserPhoto(ctx context.Context, userId string) (st
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	if userId == "" { return "", errors.New("can't find photo from non-existing user") }
+	if userId == "" {
+		return "", errors.New("can't find photo from non-existing user")
+	}
 
 	return service.userRepository.GetUserPhoto(ctx, userId)
 }
