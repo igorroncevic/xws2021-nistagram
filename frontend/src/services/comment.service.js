@@ -1,8 +1,9 @@
 import RootService from './root.service'
+import { contentService } from './../backendPaths';
 
 class CommentService extends RootService {
     constructor(){
-        super("http://localhost:8002/comments")
+        super(contentService() + "/comments")
     }
 
 

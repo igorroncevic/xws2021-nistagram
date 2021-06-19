@@ -69,7 +69,7 @@ func (s *Server) GetAllPosts(ctx context.Context, in *protopb.EmptyRequestConten
 	return s.postController.GetAllPosts(ctx, in)
 }
 
-func (s *Server) GetPostsForUser(ctx context.Context, in *protopb.RequestId) (*protopb.ReducedPostArray, error) {
+func (s *Server) GetPostsForUser(ctx context.Context, in *protopb.RequestId) (*protopb.PostArray, error) {
 	return s.postController.GetPostsForUser(ctx, in)
 }
 

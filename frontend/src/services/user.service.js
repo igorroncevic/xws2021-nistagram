@@ -1,8 +1,9 @@
 import RootService from './root.service'
+import { userService as getUserService } from './../backendPaths';
 
 class UserService extends RootService {
     constructor(){
-        super(process.env.REACT_APP_USER_SERVICE + "/api/users")
+        super(getUserService() + "/api/users")
     }
 
     async login(data){
@@ -10,6 +11,19 @@ class UserService extends RootService {
         const response = this.apiClient.post('/login', {
             email,
             password
+        }).then(res => {
+            return res
+        }).catch(err => {
+            console.error(err)
+            return err
+        })
+        return response
+    }
+
+    async googleLogin(data){
+        const { googleToken } = data
+        const response = this.apiClient.post('/auth/google', {
+            token: googleToken
         }).then(res => {
             return res
         }).catch(err => {

@@ -1,8 +1,8 @@
 import RootService from './root.service'
-
+import { contentService } from './../backendPaths';
 class FavoritesService extends RootService {
     constructor(){
-        super("http://localhost:8002/favorites")
+        super(contentService() + "/favorites")
     }
 
     async createFavorite(data){

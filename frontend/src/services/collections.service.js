@@ -1,8 +1,9 @@
 import RootService from './root.service'
+import { contentService } from './../backendPaths';
 
 class CollectionsService extends RootService {
     constructor(){
-        super("http://localhost:8002/collections")
+        super(contentService() + "/collections")
     }
 
     async getUserCollections(data){
