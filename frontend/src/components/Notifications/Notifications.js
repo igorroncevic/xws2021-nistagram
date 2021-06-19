@@ -20,7 +20,7 @@ function Notifications() {
 
     async function getUserNotifications() {
         const response = await userService.getUserNotifications({
-            id: '11fa801d-9064-4478-bdcd-0d522c32efa4',
+            id: store.user.id,
             jwt: store.user.jwt,
         })
         if (response.status === 200) {

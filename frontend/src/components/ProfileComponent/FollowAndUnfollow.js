@@ -13,6 +13,7 @@ function FollowAndUnfollow(props) {
 
     const store = useSelector(state => state);
     useEffect(() => {
+        getFollowersConnection()
         setCloseFriend(props.isCloseFriends)
     }, [props.isCloseFriends])
 
@@ -22,6 +23,8 @@ function FollowAndUnfollow(props) {
     }, [])
 
     useEffect(() => {
+        getFollowersConnection()
+
         setFollows(followers.some(item => item.UserId === store.user.id))
     }, [followers])
 
@@ -103,7 +106,7 @@ function FollowAndUnfollow(props) {
             {!follows  && !requestIsPending &&
             <Button variant="primary" style={{margin: "10px"}} onClick={follow}>Follow</Button>
             }
-            {follows &&
+            {follows  && !requestIsPending &&
                 <div>
                     <div className='row'>
                         <p style={{marginLeft: '15px', marginRight: '3em', color: '#64f427'}}>Close friend: </p>
