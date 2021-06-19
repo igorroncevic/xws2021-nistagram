@@ -6,6 +6,8 @@ import {Button} from "react-bootstrap";
 import {user} from "../../store/reducers/user.reducer";
 import userService from "../../services/user.service";
 import {useHistory} from "react-router-dom";
+import verificationRequestService from "../../services/verificationRequest.service";
+import toastService from "../../services/toast.service";
 
 
 function SubmitVerificationRequest() {
@@ -74,25 +76,28 @@ function SubmitVerificationRequest() {
         return valid;
     }
 
-    function submitVerificationRequest() {
+    async function submitVerificationRequest() {
         setSubmitted(true);
 
         const errors = ['category', 'file'];
         if (validateForm(errors)) {
-            axios.post("http://localhost:8080/api/users/api/users/submit-verification-request", {
+            const response = await verificationRequestService.submitVerificationRequest({
                 userId: store.user.id,
                 documentPhoto: image,
-                category: selectedCategory
-            }, {
-                headers: userService.setupHeaders(store.user.jwt)
-            }).then(res => {
-                alert("Verification request submitted successfully!")
+                category: selectedCategory,
+                jwt : store.user.jwt
+            });
+            if (response.status === 200) {
+                toastService.show("success", "Verification request submitted successfully")
                 history.push({
                     pathname: '/view-my-verification-request'
                 })
-            }).catch(err => {
-                alert("Error while submitting verification request")
-            })
+            }
+            else
+                toastService.show("error", "Something went wrong. Try again")
+
+
+
         }
     }
 

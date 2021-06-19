@@ -200,7 +200,7 @@ func (repository *userRepository) GetAllUsers(ctx context.Context) ([]domain.Use
 		userDomain = userDomain.GenerateUserDTO(user, dbUserAdditionalInfo)
 		imageBase64, err := images.LoadImageToBase64(userDomain.ProfilePhoto)
 		if err != nil {
-			return nil, err
+			continue
 		}
 		userDomain.ProfilePhoto = imageBase64
 

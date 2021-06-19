@@ -105,7 +105,7 @@ func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, us
 		return nil, errors.New("cannot create user")
 	}
 
-	//todo create user node in graph database
+	//create user node in graph database
 	var conn *grpc.ClientConn
 	conn, err = grpc.Dial(":8095", grpc.WithInsecure())
 	if err != nil {

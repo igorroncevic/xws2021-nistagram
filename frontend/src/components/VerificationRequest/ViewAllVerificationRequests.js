@@ -5,6 +5,7 @@ import Navigation from "../HomePage/Navigation";
 import {Button, Table} from "react-bootstrap";
 import {user} from "../../store/reducers/user.reducer";
 import userService from "../../services/user.service";
+import verificationRequestService from "../../services/verificationRequest.service";
 
 
 
@@ -16,13 +17,12 @@ function ViewAllVerificationRequests() {
 
     useEffect(() => {
         if(store.user.role !== 'Admin') window.location.replace("http://localhost:3000/unauthorized");
-        getVerificationRequestsByUser();
+        getAllVerificationRequests();
     }, [])
 
-    function getVerificationRequestsByUser() {
-        axios.get("http://localhost:8080/api/users/api/users/get-all-verification-requests", {
-            headers : userService.setupHeaders(store.user.jwt)
-        }).then(res => setVerificationRequests(res.data.verificationRequests))
+    async function getAllVerificationRequests() {
+        const response = await verificationRequestService.getAllVerificationRequests({jwt : store.user.jwt})
+        setVerificationRequests(response.data.verificationRequests);
     }
 
     return (

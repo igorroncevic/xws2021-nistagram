@@ -4,6 +4,7 @@ import PasswordStrengthBar from 'react-password-strength-bar';
 import {Alert, Button, FormControl} from "react-bootstrap";
 import axios from "axios";
 import { userActions } from './../store/actions/user.actions';
+import userService from "../services/user.service";
 
 const RegistrationPage = () => {
     // Declare a new state variable, which we'll call "count"
@@ -201,32 +202,32 @@ const RegistrationPage = () => {
         //setBirthDate(new Date(birthDate));
         const jsonDate = birthDate + 'T' + '01:30:15.01Z';
         console.log(profilePhoto)
-        axios
-            .post('http://localhost:8080/api/users/api/users', {
-                'id':'1',
-                'firstName' : firstName,
-                'lastName' : lastName,
-                'email' : email,
-                'username' : username,
-                'password' : password,
-                'role' : 'Basic',
-                'birthdate' : jsonDate,
-                'profilePhoto' : profilePhoto,
-                'phoneNumber' : phoneNumber,
-                'sex' : 'MAN',
-                'isActive' : true,
-                'biography' : biography,
-                'website' : website,
-            })
-            .then(res => {
-                console.log(res.data)
+
+        const response = await userService.createUser({
+            id:'1',
+            firstName : firstName,
+            lastName : lastName,
+            email : email,
+            username : username,
+            password : password,
+            role : 'Basic',
+            birthdate : jsonDate,
+            profilePhoto : profilePhoto,
+            phoneNumber : phoneNumber,
+            sex : 'MAN',
+            isActive : true,
+            biography : biography,
+            website : website,
+        })
+        if (response.status === 200) {
+                console.log(response.data)
                 setErrorMessage(false);
                 setSuccessfullyReg(true);
                 setDisabled(!disabled);
-            }).catch(res => {
+        } else {
             setErrorMessage(true);
             console.log("NE RADI")
-        })
+        }
     }
 
     function handleChangeImage(evt) {
