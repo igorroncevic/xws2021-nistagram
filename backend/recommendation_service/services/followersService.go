@@ -36,6 +36,7 @@ func (service *FollowersService) CreateUserConnection(ctx context.Context, follo
 	}
 	if !privacy {
 		follower.IsApprovedRequest = false
+		follower.RequestIsPending=true
 		res, err := service.repository.CreateUserConnection(ctx, follower)
 		if err != nil || res == false {
 			return err
@@ -43,6 +44,7 @@ func (service *FollowersService) CreateUserConnection(ctx context.Context, follo
 		return grpc_common.CreateNotification(ctx,  follower.UserId, follower.FollowerId, "FollowPrivate")
 	}else {
 		follower.IsApprovedRequest = true
+		follower.RequestIsPending=false
 		res, err := service.repository.CreateUserConnection(ctx, follower)
 		if err != nil || res == false {
 			return err
