@@ -159,12 +159,12 @@ const Profile = () => {
     }
 
     function handleModalFollowers() {
-        if(publicProfile || isApprovedRequest)
+        if(publicProfile || isApprovedRequest || !follow)
          setModalFollowers(!showModalFollowers)
     }
 
     function handleModalFollowings() {
-        if(publicProfile || isApprovedRequest)
+        if(publicProfile || isApprovedRequest || !follow)
             setModalFollowings(!showModalFollowings)
     }
 
@@ -205,6 +205,14 @@ const Profile = () => {
                         </div> :
                         <PostPreviewGrid posts={posts} />
                     )
+                }
+                {!follow &&
+                (loading ?
+                        <div style={{ position: "relative", left: "45%", marginTop: "50px" }}>
+                            <Spinner type="MutatingDots" height="100" width="100" />
+                        </div> :
+                        <PostPreviewGrid posts={posts} />
+                )
                 }
 
                 {follow && !publicProfile &&
