@@ -38,7 +38,7 @@ service Privacy {
     rpc CheckIfBlocked (CreateBlockRequest) returns (BooleanResponse) {
         option(google.api.http) = {
             post: "/api/privacy/check_block",
-            body: "block"
+            body: "*"
         };
     }
 

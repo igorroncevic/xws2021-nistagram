@@ -12,6 +12,7 @@ import '../style/Profile.css';
 import { AiFillHeart } from 'react-icons/all';
 import { FaComment } from 'react-icons/all';
 import { IoIosHeartDislike } from 'react-icons/all';
+import PostPreviewGrid from "../components/Post/PostPreviewGrid";
 
 
 export default function Search() {
@@ -180,26 +181,11 @@ export default function Search() {
             }
 
 
-            <div  style={{marginLeft: '20%', marginRight: '20%',marginTop:'10%'}}>
-                <div className="gallery">
+            <div  style={{marginLeft: '10%', marginRight: '10%'}}>
+                {searchResult.length > 0 && searchCategory !== 'User' &&
+                <PostPreviewGrid posts={searchResult} />
 
-                    {searchResult.length > 0 && searchCategory !== 'User' &&
-                        searchResult.map((post) => {
-                            return (
-                                <div className="content" onClick={() => openPost(post)}>
-                                    <div className="doc" >
-                                        <img src={post.media[0].content} alt="" className="item"/>
-                                        <div className="links">
-                                            <a href=""><i >{post.likes.length}<AiFillHeart /></i></a>
-                                            <a href=""><i >{post.dislikes.length}<IoIosHeartDislike /></i></a>
-                                            <a href=""><i >{post.comments.length}<FaComment /></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })
-                    }
-                </div>
+                }
             </div>
 
             <Modal show={showModal} onHide={handleModal}>

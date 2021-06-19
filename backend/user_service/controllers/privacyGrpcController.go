@@ -46,7 +46,7 @@ func (s *PrivacyGrpcController) UpdatePrivacy(ctx context.Context, in *protopb.C
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var privacy *persistence.Privacy
-	privacy=privacy.ConvertFromGrpc(in.Privacy)
+	privacy = privacy.ConvertFromGrpc(in.Privacy)
 	_, err := s.service.UpdatePrivacy(ctx, privacy)
 	if err != nil {
 		return &protopb.EmptyResponsePrivacy{}, err
@@ -103,7 +103,9 @@ func (s *PrivacyGrpcController) CheckIfBlocked(ctx context.Context, in *protopb.
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	isBlocked, err := s.service.CheckIfBlocked(ctx, in.Block.UserId, in.Block.BlockedUserId)
-	if err != nil { return &protopb.BooleanResponse{Response: true}, nil }
+	if err != nil {
+		return &protopb.BooleanResponse{}, err
+	}
 
 	return &protopb.BooleanResponse{
 		Response: isBlocked,
@@ -135,7 +137,7 @@ func (s *PrivacyGrpcController) GetAllPublicUsers(ctx context.Context, in *proto
 	}, nil
 }
 
-func (s *PrivacyGrpcController) GetBlockedUsers(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.ResponseIdUsers, error){
+func (s *PrivacyGrpcController) GetBlockedUsers(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.ResponseIdUsers, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetBlockedUsers")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -165,11 +167,10 @@ func (s *PrivacyGrpcController) GetUserPrivacy(ctx context.Context, in *protopb.
 	}
 
 	return &protopb.PrivacyMessage{
-		Id : privacy.UserId,
+		Id:              privacy.UserId,
 		IsProfilePublic: privacy.IsProfilePublic,
-		IsTagEnabled: privacy.IsTagEnabled,
-		IsDmPublic: privacy.IsDMPublic,
+		IsTagEnabled:    privacy.IsTagEnabled,
+		IsDmPublic:      privacy.IsDMPublic,
 	}, nil
-
 
 }

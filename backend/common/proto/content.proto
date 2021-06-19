@@ -239,6 +239,17 @@ service Content {
     };
   }
   /* * * * * * * * * * * * */
+
+  /*   Content complaints   */
+  rpc CreateContentComplaint (ContentComplaint) returns (EmptyResponseContent) {
+    option(google.api.http) = {
+      post: "/complaint/create",
+      body: "*"
+    };
+  }
+
+  /* * * * * * * * * * * * */
+
 }
 
 /*    Posts    */
@@ -418,4 +429,17 @@ message SearchLocationRequest {
 
 message EmptyRequestContent {}
 message EmptyResponseContent {}
+/* * * * * * * * * * * * */
+
+
+/*    Content Complaint    */
+message ContentComplaint {
+  string id = 1;
+  string category = 2;
+  string postId = 3;
+  string status = 4;
+  bool isPost = 5;
+  string userId = 6;
+}
+
 /* * * * * * * * * * * * */

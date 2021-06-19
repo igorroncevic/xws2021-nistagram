@@ -348,19 +348,19 @@ func (repository *userRepository) SearchUsersByUsernameAndName(ctx context.Conte
 	var users []persistence.User
 
 	if user.Username != "" && user.FirstName != "" && user.LastName != "" {
-		repository.DB.Where("username ILIKE ? AND first_name ILIKE ? AND last_name ILIKE ?", "%"+user.Username+"%", "%"+user.FirstName+"%", "%"+user.LastName+"%").Find(&users)
+		repository.DB.Where("username ILIKE ? AND first_name ILIKE ? AND last_name ILIKE ? AND role != 'Admin'", "%"+user.Username+"%", "%"+user.FirstName+"%", "%"+user.LastName+"%").Find(&users)
 	} else if user.Username != "" && user.FirstName != "" && user.LastName == "" {
-		repository.DB.Where("username ILIKE ? AND first_name ILIKE ?", "%"+user.Username+"%", "%"+user.FirstName+"%").Find(&users)
+		repository.DB.Where("username ILIKE ? AND first_name ILIKE ? AND role != 'Admin'", "%"+user.Username+"%", "%"+user.FirstName+"%").Find(&users)
 	} else if user.Username != "" && user.FirstName == "" && user.LastName != "" {
-		repository.DB.Where("username ILIKE ? AND last_name ILIKE ?", "%"+user.Username+"%", "%"+user.LastName+"%").Find(&users)
+		repository.DB.Where("username ILIKE ? AND last_name ILIKE ? AND role != 'Admin'", "%"+user.Username+"%", "%"+user.LastName+"%").Find(&users)
 	} else if user.Username == "" && user.FirstName != "" && user.LastName != "" {
-		repository.DB.Where("first_name ILIKE ? AND last_name ILIKE ?", "%"+user.FirstName+"%", "%"+user.LastName+"%").Find(&users)
+		repository.DB.Where("first_name ILIKE ? AND last_name ILIKE ? AND role != 'Admin'", "%"+user.FirstName+"%", "%"+user.LastName+"%").Find(&users)
 	} else if user.Username != "" && user.FirstName == "" && user.LastName == "" {
-		repository.DB.Where("username ILIKE ?", "%"+user.Username+"%").Find(&users)
+		repository.DB.Where("username ILIKE ? AND role != 'Admin'", "%"+user.Username+"%").Find(&users)
 	} else if user.Username == "" && user.FirstName != "" && user.LastName == "" {
-		repository.DB.Where("first_name ILIKE ?", "%"+user.FirstName+"%").Find(&users)
+		repository.DB.Where("first_name ILIKE ? AND role != 'Admin'", "%"+user.FirstName+"%").Find(&users)
 	} else if user.Username == "" && user.FirstName == "" && user.LastName != "" {
-		repository.DB.Where("last_name ILIKE ?", "%"+user.LastName+"%").Find(&users)
+		repository.DB.Where("last_name ILIKE ? AND role != 'Admin'", "%"+user.LastName+"%").Find(&users)
 	}
 
 	var usersDomain []domain.User
@@ -506,7 +506,7 @@ func (repository *userRepository) CheckIsApproved(ctx context.Context, id string
 	return user.ApprovedAccount, nil
 }
 
-func (repository *userRepository) GetUserPhoto(ctx context.Context, userId string) (string, error){
+func (repository *userRepository) GetUserPhoto(ctx context.Context, userId string) (string, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserPhoto")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -519,7 +519,9 @@ func (repository *userRepository) GetUserPhoto(ctx context.Context, userId strin
 
 	if user.ProfilePhoto != "" {
 		photo, err := images.LoadImageToBase64(user.ProfilePhoto)
-		if err != nil { return "", err }
+		if err != nil {
+			return "", err
+		}
 		return photo, nil
 	}
 

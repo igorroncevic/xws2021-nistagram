@@ -21,6 +21,7 @@ type Server struct {
 	hashtagController   *HashtagGrpcController
 	storyController     *StoryGrpcController
 	highlightController *HighlightGrpcController
+	complaintController *ComplaintGrpcController
 	tracer              otgo.Tracer
 	closer              io.Closer
 }
@@ -33,6 +34,7 @@ func NewServer(db *gorm.DB, manager *common.JWTManager, logger *logger.Logger) (
 	favoritesController, _ := NewFavoritesController(db, manager)
 	hashtagController, _ := NewHashtagController(db)
 	highlightController, _ := NewHighlightController(db, manager)
+	complaintController, _ := NewComplaintController(db, manager)
 	tracer, closer := tracer.Init("global_ContentGrpcController")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
@@ -43,6 +45,7 @@ func NewServer(db *gorm.DB, manager *common.JWTManager, logger *logger.Logger) (
 		hashtagController:   hashtagController,
 		storyController:     storyController,
 		highlightController: highlightController,
+		complaintController: complaintController,
 		tracer:              tracer,
 		closer:              closer,
 	}, nil
@@ -193,4 +196,9 @@ func (s *Server) CreateHighlightStory(ctx context.Context, in *protopb.Highlight
 
 func (s *Server) RemoveHighlightStory(ctx context.Context, in *protopb.HighlightRequest) (*protopb.EmptyResponseContent, error) {
 	return s.highlightController.RemoveHighlightStory(ctx, in)
+}
+
+/*   Content Complaint   */
+func (s *Server) CreateContentComplaint(ctx context.Context, in *protopb.ContentComplaint) (*protopb.EmptyResponseContent, error) {
+	return s.complaintController.CreateContentComplaint(ctx, in)
 }

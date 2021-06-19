@@ -26,6 +26,7 @@ func SetupContentRBAC(db *gorm.DB) error {
 			getAllCollections, getCollection, createCollection, removeCollection, getUserFavorites, createFavorite, removeFavorite,
 			createHashtag, getAllHashtags,
 			getAllHighlights, getHighlight, createHighlight, removeHighlight, createHighlightStory, removeHighlightStory, getUserLikedOrDislikedPosts,
+			createContentComplaint,
 		}
 		result = db.Create(&permissions)
 		if result.Error != nil {
@@ -66,6 +67,7 @@ func SetupContentRBAC(db *gorm.DB) error {
 			basicRemoveHighlightStory, agentRemoveHighlightStory, verifiedRemoveHighlightStory,
 			basicGetAllHashtags, adminGetAllHashtags, agentGetAllHashtags, verifiedGetAllHashtags,
 			basicGetUserLikedOrDislikedPosts, verifiedGetUserLikedOrDislikedPosts,
+			basicCreateContentComplaint, verifiedCreateContentComplaint, agentCreateContentComplaint,
 		}
 		result = db.Create(&rolePermissions)
 		if result.Error != nil {
@@ -131,7 +133,8 @@ var (
 	createHighlightStory = Permission{Id: "fd684575-a6ac-4aa2-b4ad-d967a65cb808", Name: "CreateHighlightStory"}
 	removeHighlightStory = Permission{Id: "46f3c5f7-1979-410c-96ed-d9957ef58bac", Name: "RemoveHighlightStory"}
 
-	getAllHashtags = Permission{Id: "1932ca5d-24af-4dcf-8f42-4ca32c799815", Name: "GetAllHashtags"}
+	getAllHashtags         = Permission{Id: "1932ca5d-24af-4dcf-8f42-4ca32c799815", Name: "GetAllHashtags"}
+	createContentComplaint = Permission{Id: "334e6ffd-a9d7-4e83-bfb5-9f5f053b0069", Name: "CreateContentComplaint"}
 )
 
 var (
@@ -309,5 +312,12 @@ var (
 	verifiedRemoveHighlightStory = RolePermission{RoleId: verified.Id, PermissionId: removeHighlightStory.Id}
 	agentRemoveHighlightStory    = RolePermission{RoleId: agent.Id, PermissionId: removeHighlightStory.Id}
 	// - - - - - - - - - -
+
+	// Content Complaint
+	basicCreateContentComplaint    = RolePermission{RoleId: basic.Id, PermissionId: createContentComplaint.Id}
+	verifiedCreateContentComplaint = RolePermission{RoleId: verified.Id, PermissionId: createContentComplaint.Id}
+	agentCreateContentComplaint    = RolePermission{RoleId: agent.Id, PermissionId: createContentComplaint.Id}
+
+	// - - - - - - - - -
 
 )

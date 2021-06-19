@@ -67,6 +67,15 @@ type Hashtag struct {
 	Text string
 }
 
+type ContentComplaint struct {
+	Id       string
+	Category model.ComplaintCategory
+	PostId   string
+	Status   model.RequestStatus
+	IsPost   bool
+	UserId   string
+}
+
 type Collection struct {
 	Id     string
 	Name   string
