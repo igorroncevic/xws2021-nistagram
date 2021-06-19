@@ -3,10 +3,12 @@ import {Button} from "react-bootstrap";
 import followersService from "../../services/followers.service";
 import {useDispatch, useSelector} from "react-redux";
 import Switch from "react-switch";
+import toastService from "../../services/toast.service";
 
 function FollowAndUnfollow(props) {
-    const {isCloseFriend, followers} = props;
+    const {isCloseFriend, followers,publicProfile} = props;
     const [follows, setFollows] = useState(false);
+    const [success, setSucess] = useState(false);
     const [closeFriend, setCloseFriend] = useState({});
 
     const store = useSelector(state => state);
@@ -31,6 +33,12 @@ function FollowAndUnfollow(props) {
         })
 
         if (response.status === 200) {
+            //console.log("IDEMOOO")
+            console.log(response.data)
+            if(response.data.userId!="" && !response.data.isApprovedRequest){
+                toastService.show("error", "NA cekanju si batice");
+
+            }
             setFollows(response.data.isApprovedRequest)
             setCloseFriend(response.data.isCloseFriends)
             props.getFollowers(store.followers.followerId)
@@ -48,9 +56,12 @@ function FollowAndUnfollow(props) {
         })
         if (response.status === 200) {
             console.log("ZAPRACENO")
-            props.getFollowers(store.followers.followerId)
-            props.funcIsCloseFriend(store.followers.followerId)
-            getFollowersConnection()
+            setSucess(true)
+            if(publicProfile){
+                props.getFollowers(store.followers.followerId)
+                props.funcIsCloseFriend(store.followers.followerId)
+                getFollowersConnection()
+            }
         } else {
             console.log("NIJE ZAPRACENO")
         }
@@ -66,14 +77,12 @@ function FollowAndUnfollow(props) {
         if (response.status === 200) {
             props.getFollowers(store.followers.followerId)
             props.funcIsCloseFriend(store.followers.followerId)
+            setSucess(false)
             getFollowersConnection()
         } else {
             console.log("NIJE otpratio")
         }
     }
-
-
-
     function handleCloseFriends() {
         setCloseFriend(!closeFriend)
         setCloseFriends()
@@ -95,22 +104,28 @@ function FollowAndUnfollow(props) {
         }
     }
 
-
     return (
         <div>
-            {!follows ?
-                <Button variant="primary" style={{margin: "10px"}} onClick={follow}>Follow</Button>
-                :
+            {!follows && !success &&
+            <Button variant="primary" style={{margin: "10px"}} onClick={follow}>Follow</Button>
+            }
+            {follows &&
                 <div>
                     <div className='row'>
                         <p style={{marginLeft: '15px', marginRight: '3em', color: '#64f427'}}>Close friend: </p>
                         <Switch onChange={handleCloseFriends} checked={closeFriend}/>
                     </div>
                     <Button style={{margin: "10px", marginRight: '78px'}} onClick={unfollow}>UnFollow</Button>
-
                 </div>
+            }
 
+            {success && !follows &&
+                <div>
+                 <p style={{marginLeft: '15px', marginRight: '3em', color: '#64f427'}}>Request sent</p>
+                <Button variant="outline-primary" style={{margin: "10px", marginRight: '78px'}}>Remove follow request</Button>
+                </div>
             }
         </div>
     );
-}export default FollowAndUnfollow;
+}
+export default FollowAndUnfollow;

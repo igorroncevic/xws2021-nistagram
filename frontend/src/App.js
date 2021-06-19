@@ -10,7 +10,6 @@ import Search from "./pages/Search";
 import Profile from "./components/ProfileComponent/Profile";
 import NewPost from "./components/HomePageComponents/NewPost";
 import Home from "./components/HomePage/Home";
-import Notifications from "./components/HomePageComponents/Notifications";
 import UnauthorizedPage from "./helpers/UnauthorizedPage";
 import BlockedUsers from "./components/UserData/BlockedUsers";
 import CloseFriends from "./components/UserData/CloseFriends";
@@ -26,6 +25,7 @@ import ViewMyVerificationRequests from "./components/VerificationRequest/ViewMyV
 import ViewPendingVerificationRequests from "./components/VerificationRequest/ViewPendingVerificationRequests";
 import ViewAllVerificationRequests from "./components/VerificationRequest/ViewAllVerificationRequests";
 import EditProfileImage from "./components/UserData/EditProfileImage";
+import Notifications from "./components/Notifications/Notifications";
 
 
 const App = () => {

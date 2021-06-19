@@ -87,7 +87,6 @@ function Profile() {
             followerId: value,
         })
         if (response.status === 200) {
-            console.log(response.data)
             setCloseFriend(response.data.isCloseFriends)
             setIsApprovedRequest(response.data.isApprovedRequest)
             setIsMuted(response.data.isMuted)
@@ -138,14 +137,14 @@ function Profile() {
     }
 
     function handleModalFollowers() {
-        setModalFollowers(!showModalFollowers)
+        if(publicProfile || isApprovedRequest)
+         setModalFollowers(!showModalFollowers)
     }
 
     function handleModalFollowings() {
-        setModalFollowings(!showModalFollowings)
+        if(publicProfile || isApprovedRequest)
+            setModalFollowings(!showModalFollowings)
     }
-
-
 
     return (
         <div>
@@ -173,8 +172,7 @@ function Profile() {
 
                             {follow &&
                                 <div>
-
-                                <FollowAndUnfollow user={user} isCloseFriends={closeFriend} funcIsCloseFriend={isCloseFriend} followers={followers} getFollowers={getFollowers}/>
+                                <FollowAndUnfollow user={user} isCloseFriends={closeFriend} funcIsCloseFriend={isCloseFriend} followers={followers} getFollowers={getFollowers} publicProfile={publicProfile}/>
                                 </div>
                             }
                         </div>
@@ -204,6 +202,17 @@ function Profile() {
                          src='https://images.unsplash.com/photo-1522228115018-d838bcce5c3a?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
                 </div>
                 }
+                {follow && !publicProfile && isApprovedRequest &&
+                <div className="gallery">
+                    <img className="item"
+                         src='https://images.unsplash.com/photo-1522228115018-d838bcce5c3a?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
+                    <img className="item"
+                         src='https://images.unsplash.com/photo-1581882898166-634d30416957?ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
+                    <img className="item"
+                         src='https://images.unsplash.com/photo-1522228115018-d838bcce5c3a?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZSUyMHBpY3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'/>
+                </div>
+                }
+
                 {follow && !publicProfile &&
                     <div style={{ borderTop: '1px solid black'}}>
                         <p style={{textAlign: 'center',marginTop:'6%', fontWeight:'bold'}}> This Account is Private </p>
@@ -240,45 +249,3 @@ function Profile() {
         </div>
     );
 }export default Profile;
-
-/*
-const postsMock = [
-    {
-        id: '1',
-        userId: '2dsdsd',
-        isAd: false,
-        type: 'Post',
-        description: 'a cool new post',
-        location: 'Novi Sad, Serbia',
-        createdAt: '2021-06-02T17:33:17.541716Z',
-        mediaContent: 'https://picsum.photos/800/1000'
-    }, {
-        id: '2',
-        userId: '3dsdss',
-        isAd: false,
-        type: 'Post',
-        description: 'Vidite kako je lepo',
-        location: 'Zlatibor, Serbia',
-        createdAt: '2021-06-02T17:33:17.541716Z',
-        mediaContent: 'https://picsum.photos/600/1000'
-    }
-
-];
-        {
-                                                        mypics.map(item=>{
-                                                            return(
-                                                                <img key={item._id} className="item" src={item.photo} alt={item.title}/>
-                                                            )
-                                                        })
-                                                    }
-                                                                       {postsMock .map(item => {
-                                                                return (
-                                                                    <div>
-                                                                        <Post post={item}/>
-                                                                    </div>
-                                                                )
-                                                            })
-                                                            }
-
-
-*/
