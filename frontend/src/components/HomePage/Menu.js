@@ -95,7 +95,7 @@ function Menu() {
             </Dropdown>
 
             <NavLink  to={"/profile/"+username } style={store.user.role !== 'Admin' ? {display : 'block'} : {display: 'none'}} >
-                <ProfileIcon iconSize="medium" image='https://i.pravatar.cc/150?img=1' />
+                <ProfileIcon iconSize="medium" image={store.user.photo ? store.user.photo : 'https://i.pravatar.cc/150?img=1'} />
             </NavLink>
 
 

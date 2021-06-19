@@ -1,8 +1,6 @@
-import React, {useEffect, useState} from 'react';
-import {Alert, Button, Dropdown, DropdownButton, FormControl, InputGroup, Card, Modal} from "react-bootstrap";
-import axios from "axios";
+import React, { useState } from 'react';
+import { Button, Dropdown, DropdownButton, InputGroup, Modal } from "react-bootstrap";
 import ProfileForSug from "../components/HomePage/ProfileForSug";
-import {useHistory} from "react-router-dom";
 import Navigation from "../components/HomePage/Navigation";
 import searchService from "../services/search.service";
 import {useSelector} from "react-redux";
@@ -17,23 +15,18 @@ import { IoIosHeartDislike } from 'react-icons/all';
 
 
 export default function Search() {
-    const [user,setUser] =useState({});
+    const [user, setUser] =useState({});
     const [searchCategory, setSearchCategory] = useState("Search category");
     const [input, setInput] = useState("");
     const [inputErr, setInputErr] = useState("");
     const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
+    const [lastName, setLastName] = useState(""); 
     const [searchResult, setSearchResult] = useState([]);
     const [searchPlaceholder, setSearchPlaceholder] = useState("search value");
-    const store = useSelector(state => state);
     const [showModal, setModal] = useState(false);
     const [selectedPost, setSelectedPost] = useState({})
-
-
-    useEffect(() => {
-        //if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
-
-    },[])
+    
+    const store = useSelector(state => state);
 
     async function searchByUser() {
         const response = await userService.searchByUser({
@@ -43,28 +36,28 @@ export default function Search() {
             jwt: store.user.jwt,
         })
 
-        if (response.status === 200)  setSearchResult(response.data.users);
-        else  console.log("search error")
+        if (response.status === 200) setSearchResult(response.data.users);
+        else console.log("search error")
     }
 
     async function searchByTag() {
         const response = await searchService.searchByTag({
-            text : input,
-            jwt : store.user.jwt
+            text: input,
+            jwt: store.user.jwt
         })
 
-        if (response.status === 200)   setSearchResult(response.data.posts)
-        else  console.log("search error")
+        if (response.status === 200) setSearchResult(response.data.posts)
+        else console.log("search error")
     }
 
     async function searchByLocation() {
         const response = await searchService.searchByLocation({
-            location : input,
-            jwt : store.user.jwt
+            location: input,
+            jwt: store.user.jwt
         })
 
         if (response.status === 200) setSearchResult(response.data.posts);
-        else   console.log("search error loc")
+        else console.log("search error loc")
     }
 
     function handleModal() {
@@ -87,13 +80,13 @@ export default function Search() {
             return
         }
         else if ( searchCategory === "User") {
-            if( input!="" && !/^[a-zA-Z ,.'-]+$/.test(input)) {
+            if(input !== "" && !/^[a-zA-Z ,.'-]+$/.test(input)) {
                 setInputErr("Enter valid search value")
                 return
-            }else  if( firstName!="" && !/^[a-zA-Z ,.'-]+$/.test(firstName)) {
+            }else  if(firstName !== "" && !/^[a-zA-Z ,.'-]+$/.test(firstName)) {
                 setInputErr("Enter valid search value")
                 return
-            }else  if( lastName!="" && !/^[a-zA-Z ,.'-]+$/.test(lastName)) {
+            }else  if(lastName !== "" && !/^[a-zA-Z ,.'-]+$/.test(lastName)) {
                 setInputErr("Enter valid search value")
                 return
             }
@@ -143,7 +136,6 @@ export default function Search() {
         handleModal();
     }
 
-
     return (
         <div  className="App">
             <Navigation d/>
@@ -190,7 +182,6 @@ export default function Search() {
 
             <div  style={{marginLeft: '20%', marginRight: '20%',marginTop:'10%'}}>
                 <div className="gallery">
-
 
                     {searchResult.length > 0 && searchCategory !== 'User' &&
                         searchResult.map((post) => {

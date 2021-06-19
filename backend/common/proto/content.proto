@@ -28,7 +28,7 @@ service Content {
     };
   }
 
-  rpc GetPostsForUser (RequestId) returns (ReducedPostArray) {
+  rpc GetPostsForUser (RequestId) returns (PostArray) {
     option(google.api.http) = {
       get: "/posts/user/{id}"
     };

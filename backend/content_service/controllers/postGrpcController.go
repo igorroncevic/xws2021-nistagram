@@ -180,7 +180,7 @@ func (c *PostGrpcController) GetAllPosts(ctx context.Context, in *protopb.EmptyR
 	}, nil
 }
 
-func (c *PostGrpcController) GetPostsForUser(ctx context.Context, in *protopb.RequestId) (*protopb.ReducedPostArray, error) {
+func (c *PostGrpcController) GetPostsForUser(ctx context.Context, in *protopb.RequestId) (*protopb.PostArray, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostsForUser")
 	defer span.Finish()
 	claims, _ := c.jwtManager.ExtractClaimsFromMetadata(ctx)
@@ -189,41 +189,41 @@ func (c *PostGrpcController) GetPostsForUser(ctx context.Context, in *protopb.Re
 	if claims.Id == "" {
 		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
 		if err != nil {
-			return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
+			return &protopb.PostArray{}, status.Errorf(codes.Unknown, err.Error())
 		}
 		if !isPublic {
-			return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, "this user is not public")
+			return &protopb.PostArray{}, status.Errorf(codes.Unknown, "this user is not public")
 		}
 	} else if in.Id != claims.UserId {
 		followConnection, err := grpc_common.CheckFollowInteraction(ctx, in.Id, claims.UserId)
 		if err != nil {
-			return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
+			return &protopb.PostArray{}, status.Errorf(codes.Unknown, err.Error())
 		}
 
 		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.Id)
 		if err != nil {
-			return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
+			return &protopb.PostArray{}, status.Errorf(codes.Unknown, err.Error())
 		}
 
 		isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.Id, claims.UserId)
 		if err != nil {
-			return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
+			return &protopb.PostArray{}, status.Errorf(codes.Unknown, err.Error())
 		}
 
 		// If used is blocked or his profile is private and did not approve your request
 		if isBlocked || (!isPublic && !followConnection.IsApprovedRequest) {
-			return &protopb.ReducedPostArray{}, nil
+			return &protopb.PostArray{}, nil
 		}
 	}
 
 	posts, err := c.service.GetPostsForUser(ctx, in.Id)
 	if err != nil {
-		return &protopb.ReducedPostArray{}, status.Errorf(codes.Unknown, err.Error())
+		return &protopb.PostArray{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
-	responsePosts := domain.ConvertMultipleReducedPostsToGrpc(posts)
+	responsePosts := domain.ConvertMultiplePostsToGrpc(posts)
 
-	return &protopb.ReducedPostArray{Posts: responsePosts}, nil
+	return &protopb.PostArray{Posts: responsePosts}, nil
 }
 
 func (c *PostGrpcController) GetPostById(ctx context.Context, id string) (*protopb.Post, error) {

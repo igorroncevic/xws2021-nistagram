@@ -97,17 +97,19 @@ const IndexPage = () => {
 
     const successGoogleLogin = (googleUser) => {
         const googleToken = googleUser.getAuthResponse().id_token
-        axios
-            .post("http://localhost:8080/api/users/api/users/auth/google", {
-                token: googleToken,
+        const response = userService.googleLogin({
+            token: googleToken
             })
             .then(res => {
-                sessionStorage.setItem("username", res.data.username);
-                sessionStorage.setItem("isSSO", res.data.isSSO);
-                history.push({
-                    pathname: '/home',
-                    state: { user: res.data, follow: false }
-                })
+                dispatch(userActions.loginRequest({
+                    jwt: response.data.accessToken,
+                    id: response.data.userId,
+                    role: response.data.role,
+                    isSSO: response.data.isSSO,
+                    username: response.data.username,
+                    photo: response.data.photo,
+                }))
+                history.push({ pathname: '/home' })
             })
             .catch(err => {
                 if (reCaptcha >= 2) {
@@ -118,7 +120,7 @@ const IndexPage = () => {
                     setCaptcha(reCaptcha+1);
                     setCredentials(false);
                 }
-            });
+            })
     }
 
     const errorGoogleLogin = (err) => {
@@ -151,7 +153,6 @@ const IndexPage = () => {
                     // asyncScriptOnLoad={asyncScriptOnLoad}
                 />
                 }
-                <p>{process.env.REACT_APP_CHECK}</p>
                 <Button disabled={logInDisabled} block size="lg" onClick={submitHandler}>Login </Button>
                 <GoogleLogin
                     clientId="1033035332377-1qa39htnroucmro5bpmghhm797ldljrl.apps.googleusercontent.com"
