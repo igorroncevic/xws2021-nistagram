@@ -5,6 +5,7 @@ import likeService from './../../services/like.service'
 import postService from "../../services/post.service";
 import toastService from "../../services/toast.service";
 import Post from "../Post/Post";
+import PostPreviewGrid from "../Post/PostPreviewGrid";
 
 
 function Liked() {
@@ -30,11 +31,9 @@ function Liked() {
     return (
         <div  style={{display: 'flex'}}>
             <ProfileInfo />
-            <div style={{marginRight: '20%',marginTop:'5%',display: 'flex', flexDirection: 'column'}}>
-                {posts && posts.map((post) => {
-                    return (
-                        <Post post={post} postUser={{ id: post.userId }}/>);
-                })}
+            <div style={{marginRight: '30%',marginTop:'5%',display: 'flex', flexDirection: 'column'}}>
+                <PostPreviewGrid posts={posts} />
+
             </div>
         </div>
     );

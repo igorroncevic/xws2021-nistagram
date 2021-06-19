@@ -4,6 +4,7 @@ import {useDispatch, useSelector} from "react-redux";
 import likeService from "../../services/like.service";
 import toastService from "../../services/toast.service";
 import Post from "../Post/Post";
+import PostPreviewGrid from "../Post/PostPreviewGrid";
 
 function Disliked() {
     const dispatch = useDispatch()
@@ -29,11 +30,9 @@ function Disliked() {
     return (
         <div  style={{display: 'flex'}}>
             <ProfileInfo />
-            <div style={{marginRight: '20%',marginTop:'5%',display: 'flex', flexDirection: 'column'}}>
-                {posts && posts.map((post) => {
-                    return (
-                        <Post post={post} postUser={{ id: post.userId }}/>);
-                })}
+            <div style={{marginRight: '30%',marginTop:'5%',display: 'flex', flexDirection: 'column'}}>
+                <PostPreviewGrid posts={posts} />
+
             </div>
         </div>
     );
