@@ -1,10 +1,10 @@
 import RootService from './root.service'
+import { contentService } from './../backendPaths';
 
 class LikeService extends RootService {
     constructor(){
-        super("http://localhost:8080/api/content")
+        super(contentService())
     }
-
 
     async addLike(data){
         const { userId, postId, isLike, jwt } = data;

@@ -26,7 +26,7 @@ const Profile = () => {
     const [loading, setLoading] = useState(true);
 
     const [user, setUser] = useState({});
-    const [follow,setFollow] = useState( {});
+    const [follow, setFollow] = useState({});
     const [publicProfile,setPublicProfile] = useState(false);
 
     const [showModalFollowers, setModalFollowers] = useState(false);
@@ -47,7 +47,6 @@ const Profile = () => {
     useEffect(() => {
         (async function(){
             const tempUser = await getUserByUsername(); // Since it doesn't get saved in time for other requests
-            console.log(tempUser)
             if(tempUser) {
                 getUserPrivacy(tempUser.id);
                 getFollowers(tempUser.id)
@@ -69,7 +68,7 @@ const Profile = () => {
         
         if (response.status === 200){ 
             setPosts([...response.data.posts])
-            // setLoading(false);
+            setLoading(false);
         }
         else{
             console.log(response);
@@ -84,7 +83,6 @@ const Profile = () => {
         })
 
         if (response.status === 200) {
-            console.log(response)
             setUser(response.data)
             return response.data
         } else {
@@ -175,7 +173,7 @@ const Profile = () => {
                 <div style={{margin: "18px 0px", orderBottom: "1px solid "}}>
                     <div style={{display: "flex", justifyContent: "space-around",}}>
                         <div>
-                            <img style={{width: "180px", height: "160px", borderRadius: "80px"}} src={user.profilePhoto ? user.profilePhoto : ""}/>
+                            <img alt="" style={{width: "180px", height: "160px", borderRadius: "80px"}} src={user.profilePhoto ? user.profilePhoto : ""}/>
                         </div>
                         <div>
                             <div  style={{display: "flex"}}>
@@ -209,34 +207,26 @@ const Profile = () => {
 
                 {follow && !publicProfile &&
                     <div style={{ borderTop: '1px solid black'}}>
-                        <p style={{textAlign: 'center',marginTop:'6%', fontWeight:'bold'}}> This Account is Private </p>
-                        <p style={{textAlign: 'center',marginTop:'2%'}}>Follow to see their photos and videos!</p>
+                        <p style={{textAlign: 'center', marginTop:'6%', fontWeight:'bold'}}> This Account is Private </p>
+                        <p style={{textAlign: 'center', marginTop:'2%'}}>Follow to see their photos and videos!</p>
                     </div>
                 }
 
                 <Modal show={showModalFollowers} onHide={handleModalFollowers}>
                     <Modal.Header closeButton>
                         <Modal.Title>Followers:</Modal.Title>
-
                     </Modal.Header>
                     <Modal.Body>
                         <FollowersAndFollowings ids={followers} handleModal={handleModalFollowers}/>
                     </Modal.Body>
-                    <Modal.Footer>
-
-                    </Modal.Footer>
                 </Modal>
                 <Modal show={showModalFollowings} onHide={handleModalFollowings}>
                     <Modal.Header closeButton>
                         <Modal.Title>Following:</Modal.Title>
-
                     </Modal.Header>
                     <Modal.Body>
                         <FollowersAndFollowings ids={following} handleModal={handleModalFollowings}/>
                     </Modal.Body>
-                    <Modal.Footer>
-
-                    </Modal.Footer>
                 </Modal>
 
             </div>

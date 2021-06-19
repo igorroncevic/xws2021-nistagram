@@ -1,8 +1,9 @@
 import RootService from './root.service'
+import { userService as getUserService } from './../backendPaths';
 
 class UserService extends RootService {
     constructor(){
-        super(process.env.REACT_APP_USER_SERVICE + "/api/users")
+        super(getUserService() + "/api/users")
     }
 
     async login(data){

@@ -1,8 +1,10 @@
 import RootService from './root.service'
+import { contentService } from './../backendPaths';
+
 
 class PostService extends RootService {
     constructor(){
-        super(process.env.REACT_APP_CONTENT_SERVICE + "/posts")
+        super(contentService() + "/posts")
     }
 
     async getHomepagePosts(data){

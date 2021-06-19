@@ -1,8 +1,9 @@
 import RootService from './root.service'
+import { recommendationService } from './../backendPaths';
 
 class FollowersService extends RootService {
     constructor() {
-        super(process.env.REACT_APP_RECOMMENDATION_SERVICE + "/api/followers")
+        super(recommendationService())
     }
 
     async getFollowers(data){

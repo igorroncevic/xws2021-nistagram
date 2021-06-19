@@ -13,6 +13,7 @@ const PostPreviewGrid = (props) => {
     const [showModal, setShowModal] = useState(false);
 
     const openPost = (post) => {
+        console.log(post);
         setSelectedPost(post);
         setShowModal(true);
     }
@@ -25,6 +26,7 @@ const PostPreviewGrid = (props) => {
             <PostPreviewModal 
                 post={selectedPost} 
                 postUser={{ id: selectedPost.userId }} 
+                showModal={showModal}
                 setShowModal={setShowModal}
             /> }
         </div>
