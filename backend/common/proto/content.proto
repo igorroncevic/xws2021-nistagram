@@ -88,6 +88,12 @@ service Content {
     };
   }
 
+  rpc GetMyStories (RequestId) returns (StoriesArray) {
+    option(google.api.http) = {
+      get: "/stories/archive/{id}"
+    };
+  }
+
   rpc RemoveStory (RequestId) returns (EmptyResponseContent) {
     option(google.api.http) = {
       delete: "/stories/{id}"
@@ -212,7 +218,7 @@ service Content {
     };
   }
 
-  rpc CreateHighlight (Highlight) returns (EmptyResponseContent) {
+  rpc CreateHighlight (Highlight) returns (Highlight) {
     option(google.api.http) = {
       post: "/highlights",
       body: "*"

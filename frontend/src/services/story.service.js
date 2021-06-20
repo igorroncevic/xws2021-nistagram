@@ -20,6 +20,34 @@ class StoryService extends RootService {
         return response
     }
 
+    async getMyStories(data){
+        const { userId, jwt } = data;
+        const headers = this.setupHeaders(jwt)
+
+        const response = this.apiClient.get(`/archive/${userId}`, { headers })
+        .then(res => {
+            return res
+        }).catch(err => {
+            console.error(err)
+            return err
+        })
+        return response
+    }
+
+    async getUsersStories(data){
+        const { userId, jwt } = data;
+        const headers = this.setupHeaders(jwt)
+
+        const response = this.apiClient.get(`/user/${userId}`, { headers })
+        .then(res => {
+            return res
+        }).catch(err => {
+            console.error(err)
+            return err
+        })
+        return response
+    }
+
     // Convert story with multiple media to multiple stories with single media, to comply with react-insta-stories
     convertStory(story){
         if(story.media.length === 1) return [{

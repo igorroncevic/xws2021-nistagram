@@ -87,6 +87,30 @@ func (c *StoryGrpcController) GetStoriesForUser(ctx context.Context, in *protopb
 	}, nil
 }
 
+func (c *StoryGrpcController) GetMyStories(ctx context.Context, in *protopb.RequestId) (*protopb.StoriesArray, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetMyStories")
+	defer span.Finish()
+	claims, _ := c.jwtManager.ExtractClaimsFromMetadata(ctx)
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if claims.UserId == "" {
+		return &protopb.StoriesArray{}, status.Errorf(codes.Unauthenticated, "you do not have your stories")
+	}else if in.Id != claims.UserId{
+		return &protopb.StoriesArray{}, status.Errorf(codes.Unauthenticated, "cannot access other person's archive")
+	}
+
+	stories, err := c.service.GetMyStories(ctx, in.Id)
+	if err != nil{
+		return &protopb.StoriesArray{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	responseStories := domain.ConvertMultipleStoriesToGrpc(stories)
+
+	return &protopb.StoriesArray{
+		Stories: responseStories,
+	}, nil
+}
+
 func (c *StoryGrpcController) GetAllStories(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.StoriesHome, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllHomeStories")
 	defer span.Finish()

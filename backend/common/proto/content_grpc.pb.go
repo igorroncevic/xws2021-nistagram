@@ -32,6 +32,7 @@ type ContentClient interface {
 	CreateStory(ctx context.Context, in *Story, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetAllStories(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*StoriesHome, error)
 	GetStoriesForUser(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*StoriesArray, error)
+	GetMyStories(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*StoriesArray, error)
 	RemoveStory(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetStoryById(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Story, error)
 	//    Comments
@@ -55,7 +56,7 @@ type ContentClient interface {
 	//   Highlights
 	GetAllHighlights(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*HighlightsArray, error)
 	GetHighlight(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Highlight, error)
-	CreateHighlight(ctx context.Context, in *Highlight, opts ...grpc.CallOption) (*EmptyResponseContent, error)
+	CreateHighlight(ctx context.Context, in *Highlight, opts ...grpc.CallOption) (*Highlight, error)
 	RemoveHighlight(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	CreateHighlightStory(ctx context.Context, in *HighlightRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	RemoveHighlightStory(ctx context.Context, in *HighlightRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error)
@@ -171,6 +172,15 @@ func (c *contentClient) GetAllStories(ctx context.Context, in *EmptyRequestConte
 func (c *contentClient) GetStoriesForUser(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*StoriesArray, error) {
 	out := new(StoriesArray)
 	err := c.cc.Invoke(ctx, "/proto.Content/GetStoriesForUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) GetMyStories(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*StoriesArray, error) {
+	out := new(StoriesArray)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetMyStories", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -339,8 +349,8 @@ func (c *contentClient) GetHighlight(ctx context.Context, in *RequestId, opts ..
 	return out, nil
 }
 
-func (c *contentClient) CreateHighlight(ctx context.Context, in *Highlight, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
-	out := new(EmptyResponseContent)
+func (c *contentClient) CreateHighlight(ctx context.Context, in *Highlight, opts ...grpc.CallOption) (*Highlight, error) {
+	out := new(Highlight)
 	err := c.cc.Invoke(ctx, "/proto.Content/CreateHighlight", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -393,6 +403,7 @@ type ContentServer interface {
 	CreateStory(context.Context, *Story) (*EmptyResponseContent, error)
 	GetAllStories(context.Context, *EmptyRequestContent) (*StoriesHome, error)
 	GetStoriesForUser(context.Context, *RequestId) (*StoriesArray, error)
+	GetMyStories(context.Context, *RequestId) (*StoriesArray, error)
 	RemoveStory(context.Context, *RequestId) (*EmptyResponseContent, error)
 	GetStoryById(context.Context, *RequestId) (*Story, error)
 	//    Comments
@@ -416,7 +427,7 @@ type ContentServer interface {
 	//   Highlights
 	GetAllHighlights(context.Context, *RequestId) (*HighlightsArray, error)
 	GetHighlight(context.Context, *RequestId) (*Highlight, error)
-	CreateHighlight(context.Context, *Highlight) (*EmptyResponseContent, error)
+	CreateHighlight(context.Context, *Highlight) (*Highlight, error)
 	RemoveHighlight(context.Context, *RequestId) (*EmptyResponseContent, error)
 	CreateHighlightStory(context.Context, *HighlightRequest) (*EmptyResponseContent, error)
 	RemoveHighlightStory(context.Context, *HighlightRequest) (*EmptyResponseContent, error)
@@ -462,6 +473,9 @@ func (UnimplementedContentServer) GetAllStories(context.Context, *EmptyRequestCo
 }
 func (UnimplementedContentServer) GetStoriesForUser(context.Context, *RequestId) (*StoriesArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetStoriesForUser not implemented")
+}
+func (UnimplementedContentServer) GetMyStories(context.Context, *RequestId) (*StoriesArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMyStories not implemented")
 }
 func (UnimplementedContentServer) RemoveStory(context.Context, *RequestId) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveStory not implemented")
@@ -517,7 +531,7 @@ func (UnimplementedContentServer) GetAllHighlights(context.Context, *RequestId) 
 func (UnimplementedContentServer) GetHighlight(context.Context, *RequestId) (*Highlight, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHighlight not implemented")
 }
-func (UnimplementedContentServer) CreateHighlight(context.Context, *Highlight) (*EmptyResponseContent, error) {
+func (UnimplementedContentServer) CreateHighlight(context.Context, *Highlight) (*Highlight, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateHighlight not implemented")
 }
 func (UnimplementedContentServer) RemoveHighlight(context.Context, *RequestId) (*EmptyResponseContent, error) {
@@ -754,6 +768,24 @@ func _Content_GetStoriesForUser_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).GetStoriesForUser(ctx, req.(*RequestId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_GetMyStories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetMyStories(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetMyStories",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetMyStories(ctx, req.(*RequestId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1208,6 +1240,10 @@ var Content_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetStoriesForUser",
 			Handler:    _Content_GetStoriesForUser_Handler,
+		},
+		{
+			MethodName: "GetMyStories",
+			Handler:    _Content_GetMyStories_Handler,
 		},
 		{
 			MethodName: "RemoveStory",

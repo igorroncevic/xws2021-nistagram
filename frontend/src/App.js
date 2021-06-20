@@ -6,6 +6,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import RegistrationPage from "./pages/RegistrationPage";
 import Chats from "./components/HomePageComponents/Chats";
 import Saved from "./components/HomePageComponents/Saved";
+import StoryArchive from "./components/HomePageComponents/StoryArchive";
 import Search from "./pages/Search";
 import Profile from "./components/ProfileComponent/Profile";
 import NewPost from "./components/HomePageComponents/NewPost";
@@ -44,12 +45,12 @@ const App = () => {
                 <Route path='/newpost' exact component={NewPost} />
                 <Route path='/chats' exact component={Chats} />
                 <Route path='/saved' exact component={Saved} />
+                <Route path='/story-archive' exact component={StoryArchive} />
                 <Route path='/notifications' exact component={Notifications} />
                 <Route path='/submit-verification-request' exact component={SubmitVerificationRequest} />
                 <Route path='/view-my-verification-request' exact component={ViewMyVerificationRequests} />
                 <Route path='/view-pending-verification-request' exact component={ViewPendingVerificationRequests} />
                 <Route path='/view-all-verification-request' exact component={ViewAllVerificationRequests} />
-
 
                 <Route path='/blocked' exact component={BlockedUsers} />
                 <Route path='/close_friends' exact component={CloseFriends} />

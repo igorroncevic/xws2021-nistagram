@@ -3,42 +3,26 @@ import { ReactComponent as Home } from "../../images/icons/home.svg";
 import { ReactComponent as Inbox } from "../../images/icons/inbox.svg";
 import { ReactComponent as Notifications } from "../../images/icons/notifications.svg";
 import { ReactComponent as Bookmark } from "../../images/icons/bookmark.svg";
+import { ReactComponent as StoryArchive } from "../../images/icons/story-archive.svg";
 import { ReactComponent as Plus } from "../../images/icons/plus.svg";
 import { ReactComponent as Explore } from "../../images/icons/more.svg";
 import { ReactComponent as VerificationSymbol } from "../../images/icons/verification-symbol.svg";
 
 import ProfileIcon from "../ProfileComponent/ProfileIcon";
-import {Link, NavLink, Route, useHistory} from "react-router-dom";
-import Profile from "../ProfileComponent/Profile";
+import { NavLink, useHistory } from "react-router-dom";
 import React, {useEffect, useState} from "react";
-import userService from "../../services/user.service";
-import {useDispatch, useSelector} from "react-redux";
-import {Dropdown} from "react-bootstrap";
+import { useSelector} from "react-redux";
+import { Dropdown, Button } from "react-bootstrap";
 
 function Menu() {
-    const[username,setUsername]=useState('')
-    const dispatch = useDispatch()
+    const[username, setUsername]=useState('')
     const store = useSelector(state => state);
     const history = useHistory()
 
 
     useEffect(() => {
-        //   if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
-        getUsernameById();
+        setUsername(store.user.username ? store.user.username : "")
     }, []);
-
-    async function getUsernameById() {
-        const response = await userService.getUsernameById({
-            id: store.user.id,
-            jwt: store.user.jwt,
-        })
-
-        if (response.status === 200) {
-            setUsername(response.data.username)
-        } else {
-            console.log("getuserbyusername error")
-        }
-    }
 
     function verificationRedirect(text) {
         switch(text) {
@@ -72,6 +56,9 @@ function Menu() {
             <NavLink  to={{ pathname: "/saved" }} style={store.user.role !== 'Admin' ? {display : 'block'} : {display: 'none'}} >
                 <Bookmark className="icon" /> 
             </NavLink>
+            <NavLink  to={{ pathname: "/story-archive" }} style={store.user.role !== 'Admin' ? {display : 'block'} : {display: 'none'}} >
+                <StoryArchive className="icon" /> 
+            </NavLink>
             <NavLink  to={{ pathname: "/newpost" }} style={store.user.role !== 'Admin' ? {display : 'block'} : {display: 'none'}} >
                 <Plus className="icon" />
             </NavLink>
@@ -98,9 +85,7 @@ function Menu() {
                 <ProfileIcon iconSize="medium" image={store.user.photo ? store.user.photo : 'https://i.pravatar.cc/150?img=1'} />
             </NavLink>
 
-
-
-            <a href='/' style={{marginLeft:'10px'}}>Log out</a>
+            <Button variant="outline-danger" href='/' style={{width: "220px", display: "block"}}>Logout</Button>
 
         </div>
     );

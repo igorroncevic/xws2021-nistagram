@@ -24,7 +24,7 @@ class HighlightsService extends RootService {
         const { userId, name, jwt } = data;
         const headers = this.setupHeaders(jwt);
 
-        const response = this.apiClient.post('/', { userId, name }, { headers })
+        const response = this.apiClient.post('', { userId, name }, { headers })
             .then(res => {
                 return res
             }).catch(err => {
@@ -66,7 +66,7 @@ class HighlightsService extends RootService {
         const { userId, highlightId, storyId, jwt } = data;
         const headers = this.setupHeaders(jwt);
 
-        const response = this.apiClient.post('/remove', { userId, highlightId, storyId }, { headers })
+        const response = this.apiClient.post('/delete', { userId, highlightId, storyId }, { headers })
             .then(res => {
                 return res
             }).catch(err => {

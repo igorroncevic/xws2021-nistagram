@@ -28,7 +28,7 @@ const StoryRenderer = ({ story, action, isPaused, config }) => {
         }
 
         const newHeader = {
-            heading: header.username ? header.username : "username",
+            heading: header.heading ? header.heading : "username",
         }
         if(timeCreated) newHeader["subheading"] = timeCreated;
         if(header.profileImage) newHeader["profileImage"] = header.profileImage;
@@ -39,8 +39,6 @@ const StoryRenderer = ({ story, action, isPaused, config }) => {
         })
 
         action('play'); // Doesn't auto start if there are multiple stories
-
-        console.log("useEffect")
     }, [story])
 
     return (

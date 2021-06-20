@@ -20,7 +20,7 @@ func SetupContentRBAC(db *gorm.DB) error {
 
 		permissions := []Permission{
 			createPost, getAllPosts, getPostsForUser, removePost, getPostById, searchContentByLocation, getPostsByHashtag,
-			createStory, getAllStories, getStoriesForUser, removeStory, getStoryById,
+			createStory, getAllStories, getStoriesForUser, getMyStories, removeStory, getStoryById,
 			createComment, getCommentsForPost,
 			createLike, getLikesForPost, getDislikesForPost,
 			getAllCollections, getCollection, createCollection, removeCollection, getUserFavorites, createFavorite, removeFavorite,
@@ -43,6 +43,7 @@ func SetupContentRBAC(db *gorm.DB) error {
 			basicCreateStory, agentCreateStory, verifiedCreateStory,
 			basicGetAllStories, adminGetAllStories, agentGetAllStories, nonregisteredGetAllStories, verifiedGetAllStories,
 			basicGetStoriesForUser, adminGetStoriesForUser, agentGetStoriesForUser, nonregisteredGetStoriesForUser, verifiedGetStoriesForUser,
+			basicGetMyStories, agentGetMyStories, verifiedGetMyStories,
 			basicRemoveStory, agentRemoveStory, adminRemoveStory, verifiedRemoveStory,
 			basicGetStoryById, adminGetStoryById, agentGetStoryById, verifiedGetStoryById, nonregisteredGetStoryById,
 			basicCreateComment, agentCreateComment, verifiedCreateComment,
@@ -103,6 +104,7 @@ var (
 	createStory       = Permission{Id: "9bf49450-4f25-46bf-9691-428f112868b5", Name: "CreateStory"}
 	getAllStories     = Permission{Id: "7440d209-98f9-4dad-898c-8ec5daa2d71d", Name: "GetAllStories"}
 	getStoriesForUser = Permission{Id: "01c4aef8-b6fa-48cd-98d8-02af401c83e2", Name: "GetStoriesForUser"}
+	getMyStories 	  = Permission{Id: "7172c042-6d9a-4cdb-8c59-ab65427df96b", Name: "GetMyStories"}
 	removeStory       = Permission{Id: "62e8ef56-5096-46e5-a57a-5e2025240d86", Name: "RemoveStory"}
 	getStoryById      = Permission{Id: "9e8ba8ed-f14a-4ceb-9006-90f24f487db8", Name: "GetStoryById"}
 
@@ -192,6 +194,10 @@ var (
 	adminGetStoriesForUser         = RolePermission{RoleId: admin.Id, PermissionId: getStoriesForUser.Id}
 	agentGetStoriesForUser         = RolePermission{RoleId: agent.Id, PermissionId: getStoriesForUser.Id}
 	nonregisteredGetStoriesForUser = RolePermission{RoleId: nonregistered.Id, PermissionId: getStoriesForUser.Id}
+
+	basicGetMyStories         = RolePermission{RoleId: basic.Id, PermissionId: getMyStories.Id}
+	verifiedGetMyStories      = RolePermission{RoleId: verified.Id, PermissionId: getMyStories.Id}
+	agentGetMyStories         = RolePermission{RoleId: agent.Id, PermissionId: getMyStories.Id}
 
 	basicRemoveStory    = RolePermission{RoleId: basic.Id, PermissionId: removeStory.Id}
 	verifiedRemoveStory = RolePermission{RoleId: verified.Id, PermissionId: removeStory.Id}

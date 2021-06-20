@@ -94,6 +94,10 @@ func (s *Server) GetStoriesForUser(ctx context.Context, in *protopb.RequestId) (
 	return s.storyController.GetStoriesForUser(ctx, in)
 }
 
+func (s *Server) GetMyStories(ctx context.Context, in *protopb.RequestId) (*protopb.StoriesArray, error) {
+	return s.storyController.GetMyStories(ctx, in)
+}
+
 func (s *Server) GetStoryById(ctx context.Context, in *protopb.RequestId) (*protopb.Story, error) {
 	return s.storyController.GetStoryById(ctx, in)
 }
@@ -179,7 +183,7 @@ func (s *Server) GetHighlight(ctx context.Context, in *protopb.RequestId) (*prot
 	return s.highlightController.GetHighlight(ctx, in)
 }
 
-func (s *Server) CreateHighlight(ctx context.Context, in *protopb.Highlight) (*protopb.EmptyResponseContent, error) {
+func (s *Server) CreateHighlight(ctx context.Context, in *protopb.Highlight) (*protopb.Highlight, error) {
 	return s.highlightController.CreateHighlight(ctx, in)
 }
 

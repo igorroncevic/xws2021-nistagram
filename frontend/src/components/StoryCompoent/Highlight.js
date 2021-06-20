@@ -30,7 +30,7 @@ const Highlight = (props) => {
                       highlight.stories[0].media[0].content : empty)
 
         setHeader({
-            username: highlight.name,
+            heading: highlight.name,
         })
     }, [])
 
