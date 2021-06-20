@@ -141,7 +141,7 @@ func (repository *notificationRepository) DeleteByTypeAndCreator(ctx context.Con
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	result := repository.DB.Where("creator_id = ?", notification.CreatorId).Where("user_id = ?").Where("type = ?", notification.Type).Delete(&notification)
+	result := repository.DB.Where("creator_id = ?", notification.CreatorId).Where("type = ?", notification.Type).Delete(&notification)
 	if result.Error != nil {
 		return errors.New("Could not delete notification!")
 	}

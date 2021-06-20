@@ -220,6 +220,22 @@ class UserService extends RootService {
         return response
     }
 
+    async deleteByTypeAndCreator(data){
+        const { creatorId,type,jwt} = data
+        const headers=this.setupHeaders(jwt)
+        const response = this.apiClient.post('/deleteBy_type_creator',{
+                creatorId,type
+            },
+            {
+                headers:headers
+            }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
+
 }
 
 const userService = new UserService()

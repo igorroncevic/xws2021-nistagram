@@ -4,6 +4,8 @@ import followersService from "../../services/followers.service";
 import {useDispatch, useSelector} from "react-redux";
 import Switch from "react-switch";
 import toastService from "../../services/toast.service";
+import {user} from "../../store/reducers/user.reducer";
+import userService from "../../services/user.service";
 
 function FollowAndUnfollow(props) {
     const {isCloseFriend, followers,publicProfile} = props;
@@ -73,13 +75,23 @@ function FollowAndUnfollow(props) {
         if (response.status === 200) {
             props.getFollowers(store.followers.followerId)
             props.funcIsCloseFriend(store.followers.followerId)
-            console.log(store.followers.userId)
-            console.log("otpratio")
-            console.log("otpratio")
-
+            deleteNotification()
             getFollowersConnection()
         } else {
             console.log("NIJE otpratio")
+        }
+    }
+    async function deleteNotification() {
+        const response = await userService.deleteByTypeAndCreator({
+            creatorId: store.user.id,
+            type: "FollowPrivate",
+            jwt: store.user.jwt,
+        })
+        if (response.status === 200) {
+            console.log(" nije obrisao")
+
+        } else {
+            console.log("obrisao")
         }
     }
     function handleCloseFriends() {
