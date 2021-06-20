@@ -3,19 +3,20 @@ import { useSelector } from 'react-redux';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 import "../../style/post.css";
+
 import Slider from './Slider'
 import Comment from "./Comment";
 import PostHeader from './PostHeader';
 import CollectionsModal from './CollectionsModal';
+import {Button, Dropdown, Modal} from "react-bootstrap";
 import { ReactComponent as CardButton } from './../../images/icons/cardButton.svg' 
+import PostMenu from "./PostMenu";
+
 import userService from './../../services/user.service';
 import toastService from './../../services/toast.service';
 import likeService from './../../services/like.service';
 import commentService from './../../services/comment.service';
 import favoritesService from './../../services/favorites.service';
-import PostMenu from "./PostMenu";
-import {Button, Dropdown, Modal} from "react-bootstrap";
-import axios from "axios";
 import complaintService from "../../services/complaint.service";
 
 function Post (props) {

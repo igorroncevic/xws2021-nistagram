@@ -11,12 +11,13 @@ import BlockMuteAndNotifications from "./BlockMuteAndNotifications";
 import Highlight from './../StoryCompoent/Highlight';
 import PostPreviewGrid from './../Post/PostPreviewGrid';
 import Spinner from './../../helpers/spinner';
-
+import Story from './../StoryCompoent/Story';
 
 import userService from "../../services/user.service";
 import privacyService from "../../services/privacy.service";
 import followersService from "../../services/followers.service";
 import postService from './../../services/post.service';
+import storyService from './../../services/story.service';
 import highlightsService from './../../services/highlights.service';
 import toastService from './../../services/toast.service';
 
@@ -44,6 +45,7 @@ const Profile = () => {
     const [isNotificationEnabled, setNotifications] = useState(false);
 
     const [posts, setPosts] = useState([]);
+    const [stories, setStories] = useState([]);
     const [highlights, setHighlights] = useState([]);
 
     const dispatch = useDispatch()
@@ -61,6 +63,7 @@ const Profile = () => {
                 getFollowers(tempUser.id);
                 getFollowing(tempUser.id);
                 getPosts(tempUser.id);
+                getStories(tempUser.id);
                 getHighlights(tempUser.id);
             }
         })();
@@ -79,6 +82,25 @@ const Profile = () => {
         else{
             console.log(response);
             toastService.show("error", "Could not retrieve user's posts.")
+        }
+    }
+
+    const getStories = async (userId) => {
+        const response = await storyService.getUsersStories({
+            jwt: store.user.jwt,
+            userId: userId
+        })
+        
+        if (response.status === 200){ 
+            setStories({
+                username: store.user.username,
+                userPhoto: store.user.photo,
+                stories: [...response.data.stories]
+            })
+        }
+        else{
+            console.log(response);
+            toastService.show("error", "Could not retrieve user's stories.")
         }
     }
 
@@ -177,7 +199,6 @@ const Profile = () => {
         } else {
             console.log("followers ne radi")
         }
-
     }
 
     function handleModalFollowers() {
@@ -195,7 +216,13 @@ const Profile = () => {
             <Navigation/>
             <div className="profileGrid">
                     <div className="profileHeader">
-                        <img alt="" src={user.profilePhoto ? user.profilePhoto : ""}/>
+                        { stories.stories && stories.stories.length > 0 && 
+                        (!follow || // Moj profil
+                        (follow && publicProfile) || // Tudji javan 
+                        (follow && !publicProfile  && isApprovedRequest)) ?
+                            <Story story={stories} iconSize={"xxl"} hideUsername={true} /> :
+                            <img style={{marginLeft: "-1em", paddingRight: "4px"}} alt="" src={user.profilePhoto ? user.profilePhoto : ""}/>
+                        }
                         <div className="info">
                             <div className="fullname">
                                 {user.firstName} {user.lastName}

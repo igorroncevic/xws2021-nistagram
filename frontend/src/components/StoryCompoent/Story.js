@@ -7,10 +7,8 @@ import storyService from './../../services/story.service'
 import '../../style/Story.css';
 import '../../style/ProfileIcon.css';
 
-
-
 function Story(props) {
-    const { story } = props;
+    const { story, iconSize, hideUsername, fixMargins } = props;
     const [showModal, setModal] = useState(false);
     const [convertedStory, setConvertedStory] = useState([])
     const [header, setHeader] = useState({})
@@ -24,18 +22,18 @@ function Story(props) {
         setConvertedStory(convertedStories);
 
         setHeader({
-            username: story.username,
+            heading: story.username,
             profileImage: story.userPhoto
         })
     }, [])
 
     return (
         <div>
-            <div className="story">
+            <div className={`story ${fixMargins ? "fixMargins" : ""}`}>
                 <div className={true ? "storyBorder" : ""}>
-                    <img className={`profileIcon big`} src={story.userPhoto} alt="" onClick={() => setModal(!showModal)}/>
+                    <img className={`profileIcon ${iconSize ? iconSize : "big"}`} src={story.userPhoto} alt="" onClick={() => setModal(!showModal)}/>
                 </div>
-                <span className="accountName">{story.username}</span>
+                {!hideUsername ? <span className="accountName">{story.username}</span> : null}
             </div>
             
             <Modal show={showModal} onHide={() => setModal(!showModal)}>
