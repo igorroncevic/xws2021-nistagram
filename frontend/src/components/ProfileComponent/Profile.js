@@ -37,7 +37,10 @@ const Profile = () => {
     const [closeFriend, setCloseFriend] = useState(false);
     const [isApprovedRequest, setIsApprovedRequest] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
-    const [isNotificationEnabled, setNotifications] = useState(false);
+    const [isMessageNotificationEnabled, setMessageNotifications] = useState(false);
+    const [isPostNotificationEnabled, setPostNotifications] = useState(false);
+    const [isStoryNotificationEnabled, setStoryNotifications] = useState(false);
+    const [isCommentNotificationEnabled, setCommentNotifications] = useState(false);
 
     const [posts, setPosts] = useState([]);
 
@@ -112,7 +115,11 @@ const Profile = () => {
             setCloseFriend(response.data.isCloseFriends)
             setIsApprovedRequest(response.data.isApprovedRequest)
             setIsMuted(response.data.isMuted)
-            setNotifications(response.data.isNotificationEnabled)
+            setMessageNotifications(response.data.isMessageNotificationEnabled)
+            setPostNotifications(response.data.isPostNotificationEnabled)
+            setStoryNotifications(response.data.isStoryNotificationEnabled)
+            setCommentNotifications(response.data.isCommentNotificationEnabled
+            )
         } else {
             console.log("followings ne radi")
         }
@@ -181,7 +188,9 @@ const Profile = () => {
                             <div  style={{display: "flex"}}>
                             <h4>{user.firstName} {user.lastName}</h4>
                                 {follow && <div  style={{ marginLeft:'10em',color:'white'}}>
-                                    <BlockMuteAndNotifications isApprovedRequest={isApprovedRequest} isMuted={isMuted} isNotificationEnabled={isNotificationEnabled}/>
+                                    <BlockMuteAndNotifications isApprovedRequest={isApprovedRequest} isMuted={isMuted}
+                                                               isMessageEnabled={isMessageNotificationEnabled} isPostEnabled={isPostNotificationEnabled}
+                                    isStoryEnabled={isStoryNotificationEnabled} isCommentEnabled={isCommentNotificationEnabled}/>
                                 </div>
                                 }
                             </div>

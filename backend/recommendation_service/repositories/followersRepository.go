@@ -80,7 +80,7 @@ func (repository *followersRepository) GetAllFollowers(ctx context.Context, user
 }
 
 func (repository *followersRepository) GetUsersForNotificationEnabled(ctx context.Context, userId string,notification string) ([]model.User, error) {
-	query := "MATCH (a:User)-[r:Follows]->(b:User {id : $UserId}) WHERE r." + notification + " = true RETURN a.id"
+	query := "MATCH (a:User)-[r:Follows]->(b:User {id : $UserId}) WHERE r." + notification + " = true AND r.IsMuted = false RETURN a.id"
 	return repository.GetUsers(ctx, userId, query)
 }
 

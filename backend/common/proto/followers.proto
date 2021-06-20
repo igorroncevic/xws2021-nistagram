@@ -97,10 +97,10 @@ message Follower {
     bool isMuted = 3;
     bool isCloseFriends = 4;
     bool isApprovedRequest = 5;
-    bool IsMessageNotificationEnabled = 6;
-    bool IsPostNotificationEnabled = 7;
-    bool IsStoryNotificationEnabled = 8;
-    bool IsCommentNotificationEnabled = 9;
+    bool isMessageNotificationEnabled = 6;
+    bool isPostNotificationEnabled = 7;
+    bool isStoryNotificationEnabled = 8;
+    bool isCommentNotificationEnabled = 9;
     bool requestIsPending = 10;
 }
 
