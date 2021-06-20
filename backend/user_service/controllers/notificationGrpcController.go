@@ -5,6 +5,7 @@ import (
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
+	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/user_service/services"
 	"gorm.io/gorm"
 )
@@ -77,6 +78,19 @@ func (c *NotificationGrpcController) ReadAllNotifications(ctx context.Context, i
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	err := c.service.ReadAllNotifications(ctx, in.Id)
+	if err != nil {
+		return &protopb.EmptyResponse{}, err
+	}
+
+	return &protopb.EmptyResponse{}, nil
+}
+
+func (c *NotificationGrpcController) DeleteByTypeAndCreator(ctx context.Context, in *protopb.Notification) (*protopb.EmptyResponse, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteByTypeAndCreator")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	err := c.service.DeleteByTypeAndCreator(ctx, &persistence.UserNotification{CreatorId: in.CreatorId, Type: in.Type, UserId: in.UserId})
 	if err != nil {
 		return &protopb.EmptyResponse{}, err
 	}

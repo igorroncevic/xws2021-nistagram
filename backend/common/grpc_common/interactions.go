@@ -227,3 +227,18 @@ func CheckUserProfilePublic(ctx context.Context, userId string) (bool, error) {
 	}
 	return res.Response, nil
 }
+
+func DeleteByTypeAndCreator(ctx context.Context, notificationType string, userId string, creatorId string) (error){
+	conn, err := CreateGrpcConnection(Users_service_address)
+	if err != nil{
+		return status.Errorf(codes.Unknown, err.Error())
+	}
+	defer conn.Close()
+	usersClient := GetUsersClient(conn)
+	_ ,err = usersClient.DeleteByTypeAndCreator(ctx, &protopb.Notification{Type: notificationType, CreatorId: creatorId, UserId: userId})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+

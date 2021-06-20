@@ -193,3 +193,7 @@ func (s *Server) GetUserPrivacy(ctx context.Context, in *protopb.RequestIdPrivac
 func (s *Server) ReadAllNotifications(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.EmptyResponse,error) {
 	return s.notificationController.ReadAllNotifications(ctx, in)
 }
+
+func (s *Server) DeleteByTypeAndCreator(ctx context.Context, in *protopb.Notification) (*protopb.EmptyResponse, error) {
+	return s.notificationController.DeleteByTypeAndCreator(ctx, in)
+}

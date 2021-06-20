@@ -15,6 +15,7 @@ type NotificationRepository interface {
 	GetUserNotifications( context.Context,  string) ([]persistence.UserNotification, error)
 	DeleteNotification(context.Context, string ) (bool, error)
 	ReadAllNotifications( context.Context,  string) error
+	DeleteByTypeAndCreator(ctx context.Context, notification *persistence.UserNotification) error
 }
 type notificationRepository struct {
 	DB *gorm.DB
@@ -135,3 +136,15 @@ func (repository *notificationRepository) DeleteNotification(ctx context.Context
 	return true, nil
 }
 
+func (repository *notificationRepository) DeleteByTypeAndCreator(ctx context.Context, notification *persistence.UserNotification) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteByTypeAndCreator")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	result := repository.DB.Where("creator_id = ?", notification.CreatorId).Where("user_id = ?").Where("type = ?", notification.Type).Delete(&notification)
+	if result.Error != nil {
+		return errors.New("Could not delete notification!")
+	}
+	return nil
+
+}
