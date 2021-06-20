@@ -120,7 +120,8 @@ function Post (props) {
     const getUserInfo = async () => {
         if(postUser && postUser.id && postUser.id !== store.user.id){
             const response = await userService.getUserById({
-                id: postUser.id
+                id: postUser.id,
+                jwt:store.user.jwt
             })
             
             if(response.status === 200){
