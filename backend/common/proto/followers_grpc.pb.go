@@ -27,6 +27,7 @@ type FollowersClient interface {
 	GetAllFollowingsForHomepage(ctx context.Context, in *CreateUserRequestFollowers, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	GetCloseFriends(ctx context.Context, in *RequestIdFollowers, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	UpdateUserConnection(ctx context.Context, in *CreateFollowerRequest, opts ...grpc.CallOption) (*CreateFollowerResponse, error)
+	AcceptFollowRequest(ctx context.Context, in *CreateFollowerRequest, opts ...grpc.CallOption) (*CreateFollowerResponse, error)
 	GetFollowersConnection(ctx context.Context, in *Follower, opts ...grpc.CallOption) (*Follower, error)
 }
 
@@ -119,6 +120,15 @@ func (c *followersClient) UpdateUserConnection(ctx context.Context, in *CreateFo
 	return out, nil
 }
 
+func (c *followersClient) AcceptFollowRequest(ctx context.Context, in *CreateFollowerRequest, opts ...grpc.CallOption) (*CreateFollowerResponse, error) {
+	out := new(CreateFollowerResponse)
+	err := c.cc.Invoke(ctx, "/proto.Followers/AcceptFollowRequest", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *followersClient) GetFollowersConnection(ctx context.Context, in *Follower, opts ...grpc.CallOption) (*Follower, error) {
 	out := new(Follower)
 	err := c.cc.Invoke(ctx, "/proto.Followers/GetFollowersConnection", in, out, opts...)
@@ -141,6 +151,7 @@ type FollowersServer interface {
 	GetAllFollowingsForHomepage(context.Context, *CreateUserRequestFollowers) (*CreateUserResponse, error)
 	GetCloseFriends(context.Context, *RequestIdFollowers) (*CreateUserResponse, error)
 	UpdateUserConnection(context.Context, *CreateFollowerRequest) (*CreateFollowerResponse, error)
+	AcceptFollowRequest(context.Context, *CreateFollowerRequest) (*CreateFollowerResponse, error)
 	GetFollowersConnection(context.Context, *Follower) (*Follower, error)
 	mustEmbedUnimplementedFollowersServer()
 }
@@ -175,6 +186,9 @@ func (UnimplementedFollowersServer) GetCloseFriends(context.Context, *RequestIdF
 }
 func (UnimplementedFollowersServer) UpdateUserConnection(context.Context, *CreateFollowerRequest) (*CreateFollowerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserConnection not implemented")
+}
+func (UnimplementedFollowersServer) AcceptFollowRequest(context.Context, *CreateFollowerRequest) (*CreateFollowerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AcceptFollowRequest not implemented")
 }
 func (UnimplementedFollowersServer) GetFollowersConnection(context.Context, *Follower) (*Follower, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFollowersConnection not implemented")
@@ -354,6 +368,24 @@ func _Followers_UpdateUserConnection_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Followers_AcceptFollowRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateFollowerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FollowersServer).AcceptFollowRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Followers/AcceptFollowRequest",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FollowersServer).AcceptFollowRequest(ctx, req.(*CreateFollowerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Followers_GetFollowersConnection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Follower)
 	if err := dec(in); err != nil {
@@ -414,6 +446,10 @@ var Followers_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateUserConnection",
 			Handler:    _Followers_UpdateUserConnection_Handler,
+		},
+		{
+			MethodName: "AcceptFollowRequest",
+			Handler:    _Followers_AcceptFollowRequest_Handler,
 		},
 		{
 			MethodName: "GetFollowersConnection",

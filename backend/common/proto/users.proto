@@ -160,12 +160,27 @@ service Users {
     };
   }
 
+  rpc GetByTypeAndCreator(Notification) returns (Notification) {
+    option(google.api.http) = {
+      post: "/api/users/getBy_type_creator"
+      body: "*"
+    };
+  }
+
   rpc DeleteByTypeAndCreator(Notification) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/api/users/deleteBy_type_creator"
       body: "*"
     };
   }
+  rpc UpdateNotification(Notification) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/update_notification"
+      body: "*"
+    };
+  }
+
+
 
   //* Verification requests *
   rpc SubmitVerificationRequest (VerificationRequest) returns (EmptyResponse) {
