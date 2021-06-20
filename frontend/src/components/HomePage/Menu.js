@@ -17,15 +17,30 @@ import {Dropdown} from "react-bootstrap";
 
 function Menu() {
     const[username,setUsername]=useState('')
-    const dispatch = useDispatch()
     const store = useSelector(state => state);
     const history = useHistory()
+    const[notifications,setNotifications]=useState([])
 
 
     useEffect(() => {
         //   if(!props.location.state) window.location.replace("http://localhost:3000/unauthorized");
         getUsernameById();
+        getUserNotifications()
     }, []);
+
+    async function getUserNotifications() {
+        const response = await userService.getUserNotifications({
+            id: store.user.id,
+            jwt: store.user.jwt,
+        })
+        if (response.status === 200) {
+           // console.log(" nasao notifikacije")
+            setNotifications(response.data.notifications)
+        } else {
+            console.log("NIJE nasao notifikacije")
+        }
+    }
+
 
     async function getUsernameById() {
         const response = await userService.getUsernameById({
@@ -66,7 +81,7 @@ function Menu() {
             <NavLink  to={{ pathname: "/chats" }} style={store.user.role !== 'Admin' ? {display : 'block'} : {display: 'none'}} >
                 <Inbox className="icon" />
             </NavLink>
-            <NavLink  to={{ pathname: "/notifications" }} style={store.user.role !== 'Admin' ? {display : 'block'} : {display: 'none'}} >
+            <NavLink  to={{ pathname: "/notifications",  state: {notifications:notifications}}}  style={store.user.role !== 'Admin' ? {display : 'block'} : {display: 'none'}} >
                 <Notifications className="icon" />
             </NavLink>
             <NavLink  to={{ pathname: "/saved" }} style={store.user.role !== 'Admin' ? {display : 'block'} : {display: 'none'}} >

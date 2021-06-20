@@ -7,7 +7,7 @@ import followersService from "../../services/followers.service";
 import toastService from "../../services/toast.service";
 
 function Notification(props){
-    const {id,creatorId,userId,text,type,getUserNotifications} = props;
+    const {id,creatorId,userId,text,type} = props;
     const[user,setUser]=useState({});
     const[privateFollow,setPrivateFollow]=useState(false);
     const store = useSelector(state => state);
@@ -24,7 +24,6 @@ function Notification(props){
         })
 
         if (response.status === 200) {
-        console.log(response.data)
             setUser(response.data)
         } else {
             console.log("getuserbyid error")
@@ -84,6 +83,8 @@ function Notification(props){
             toastService.show("error", "Something went wrong, please try again!");
         }
     }
+
+
 
 
     return(

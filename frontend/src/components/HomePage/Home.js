@@ -23,6 +23,7 @@ const Home = () => {
         checkProfile();
     },[]);
 
+
     async function checkProfile() {
         const response = await userService.checkIsApproved({
             id: store.user.id,

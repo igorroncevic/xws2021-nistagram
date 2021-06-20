@@ -36,7 +36,7 @@ func (repository *notificationRepository) CreateNotification(ctx context.Context
 	//Check if already exists notification
 	err := repository.CheckIfAlreadyExists(notification)
 	if err != nil {
-		return err
+		return nil
 	}
 
 	notification.NotificationId = uuid.New().String()
