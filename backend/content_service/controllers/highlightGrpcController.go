@@ -244,29 +244,30 @@ func (c *HighlightGrpcController) RemoveHighlightStory(ctx context.Context, in *
 	return &protopb.EmptyResponseContent{}, nil
 }
 
-func (c *HighlightGrpcController) CreateHighlight (ctx context.Context, in *protopb.Highlight) (*protopb.EmptyResponseContent, error) {
+func (c *HighlightGrpcController) CreateHighlight (ctx context.Context, in *protopb.Highlight) (*protopb.Highlight, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateHighlight")
 	defer span.Finish()
 	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	if err != nil {
-		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
+		return &protopb.Highlight{}, status.Errorf(codes.Unknown, err.Error())
 	}  else if claims.UserId == "" {
-		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "no user id provided")
+		return &protopb.Highlight{}, status.Errorf(codes.InvalidArgument, "no user id provided")
 	}  else if claims.UserId != in.UserId {
-		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot create post for another user")
+		return &protopb.Highlight{}, status.Errorf(codes.Unknown, "cannot create post for another user")
 	}
 
 	var collection *domain.Highlight
 	collection = collection.ConvertFromGrpc(in)
 
-	err = c.service.CreateHighlight(ctx, *collection)
+	highlight, err := c.service.CreateHighlight(ctx, *collection)
 	if err != nil {
-		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create highlight")
+		return &protopb.Highlight{}, status.Errorf(codes.Unknown, "could not create highlight")
 	}
 
-	return &protopb.EmptyResponseContent{}, nil
+	highlightResponse := highlight.ConvertToGrpc()
+	return highlightResponse, nil
 }
 
 func (c *HighlightGrpcController) RemoveHighlight (ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent, error) {

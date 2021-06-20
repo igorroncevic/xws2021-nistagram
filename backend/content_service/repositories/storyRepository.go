@@ -17,6 +17,7 @@ type StoryRepository interface {
 	RemoveStory(context.Context, string, string) error
 	GetHighlightsStories(context.Context, string) ([]persistence.Story, error)
 	GetUsersStories(context.Context, string, bool) ([]persistence.Story, error)
+	GetMyStories(context.Context, string) ([]persistence.Story, error)
 }
 
 type storyRepository struct {
@@ -65,10 +66,26 @@ func (repository *storyRepository) GetUsersStories(ctx context.Context, userId s
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	// TODO Retrieve ids from people you follow
 	stories := []persistence.Story{}
 	result := repository.DB.Order("created_at desc").
 		Where(storyDurationQuery + " AND user_id = ? AND is_close_friends = ?", userId, isCloseFriends).
+		Find(&stories)
+	if result.Error != nil {
+		return stories, result.Error
+	}
+
+	return stories, nil
+}
+
+// Getting stories no matter if they expired
+func (repository *storyRepository) GetMyStories(ctx context.Context, userId string) ([]persistence.Story, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetMyStories")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	stories := []persistence.Story{}
+	result := repository.DB.Order("created_at desc").
+		Where("user_id = ?", userId).
 		Find(&stories)
 	if result.Error != nil {
 		return stories, result.Error
@@ -84,7 +101,7 @@ func (repository *storyRepository) GetStoryById(ctx context.Context, id string) 
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	story := &persistence.Story{}
-	result := repository.DB.Where("id = ? AND " + storyDurationQuery, id).First(&story)
+	result := repository.DB.Where("id = ?", id).First(&story)
 	if result.Error != nil {
 		return story, result.Error
 	}

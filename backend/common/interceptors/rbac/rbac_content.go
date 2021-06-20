@@ -20,10 +20,10 @@ func SetupContentRBAC(db *gorm.DB) error {
 
 		permissions := []Permission{
 			createPost, getAllPosts, getPostsForUser, removePost, getPostById, searchContentByLocation, getPostsByHashtag,
-			createStory, getAllStories, getStoriesForUser, removeStory, getStoryById,
+			createStory, getAllStories, getStoriesForUser, getMyStories, removeStory, getStoryById,
 			createComment, getCommentsForPost,
 			createLike, getLikesForPost, getDislikesForPost,
-			getAllCollections, getCollection, createCollection, removeCollection, getUserFavorites, createFavorite, removeFavorite,
+			getAllCollections, getCollection, createCollection, removeCollection, getUserFavorites, getUserFavoritesOptimized, createFavorite, removeFavorite,
 			createHashtag, getAllHashtags,
 			getAllHighlights, getHighlight, createHighlight, removeHighlight, createHighlightStory, removeHighlightStory, getUserLikedOrDislikedPosts,
 			createContentComplaint,
@@ -44,6 +44,7 @@ func SetupContentRBAC(db *gorm.DB) error {
 			basicCreateStory, agentCreateStory, verifiedCreateStory,
 			basicGetAllStories, adminGetAllStories, agentGetAllStories, nonregisteredGetAllStories, verifiedGetAllStories,
 			basicGetStoriesForUser, adminGetStoriesForUser, agentGetStoriesForUser, nonregisteredGetStoriesForUser, verifiedGetStoriesForUser,
+			basicGetMyStories, agentGetMyStories, verifiedGetMyStories,
 			basicRemoveStory, agentRemoveStory, adminRemoveStory, verifiedRemoveStory,
 			basicGetStoryById, adminGetStoryById, agentGetStoryById, verifiedGetStoryById, nonregisteredGetStoryById,
 			basicCreateComment, agentCreateComment, verifiedCreateComment,
@@ -52,6 +53,7 @@ func SetupContentRBAC(db *gorm.DB) error {
 			basicGetLikesForPost, agentGetLikesForPost, adminGetLikesForPost, nonregisteredGetLikesForPost, verifiedGetLikesForPost,
 			basicGetDislikesForPost, agentGetDislikesForPost, adminGetDislikesForPost, nonregisteredGetDislikesForPost, verifiedGetDislikesForPost,
 			basicGetAllCollections, agentGetAllCollections, verifiedGetAllCollections,
+			basicGetUserFavoritesOptimized, agentGetUserFavoritesOptimized, verifiedGetUserFavoritesOptimized,
 			basicGetCollection, agentGetCollection, verifiedGetCollection,
 			basicCreateCollection, agentCreateCollection, verifiedCreateCollection,
 			basicRemoveCollection, agentRemoveCollection, verifiedRemoveCollection,
@@ -105,6 +107,7 @@ var (
 	createStory       = Permission{Id: "9bf49450-4f25-46bf-9691-428f112868b5", Name: "CreateStory"}
 	getAllStories     = Permission{Id: "7440d209-98f9-4dad-898c-8ec5daa2d71d", Name: "GetAllStories"}
 	getStoriesForUser = Permission{Id: "01c4aef8-b6fa-48cd-98d8-02af401c83e2", Name: "GetStoriesForUser"}
+	getMyStories 	  = Permission{Id: "7172c042-6d9a-4cdb-8c59-ab65427df96b", Name: "GetMyStories"}
 	removeStory       = Permission{Id: "62e8ef56-5096-46e5-a57a-5e2025240d86", Name: "RemoveStory"}
 	getStoryById      = Permission{Id: "9e8ba8ed-f14a-4ceb-9006-90f24f487db8", Name: "GetStoryById"}
 
@@ -117,6 +120,7 @@ var (
 	getUserLikedOrDislikedPosts = Permission{Id: "94ec116c-92fe-4cad-b262-a566d88c2041", Name: "GetUserLikedOrDislikedPosts"}
 
 	getAllCollections = Permission{Id: "f7ce029b-1d08-40d6-bf16-17a2e4b26c43", Name: "GetAllCollections"}
+	getUserFavoritesOptimized = Permission{Id: "f99726f8-f73b-49eb-806b-b0d45c0ae4f6", Name: "GetUserFavoritesOptimized"}
 	getCollection     = Permission{Id: "1c0d7507-4e50-49cf-ae3c-9d330583acdf", Name: "GetCollection"}
 	createCollection  = Permission{Id: "ebd1ebf8-07fb-4062-a5ee-cedb08a8236a", Name: "CreateCollection"}
 	removeCollection  = Permission{Id: "672eb20a-26e5-42b7-a666-708b80f983ee", Name: "RemoveCollection"}
@@ -196,6 +200,10 @@ var (
 	agentGetStoriesForUser         = RolePermission{RoleId: agent.Id, PermissionId: getStoriesForUser.Id}
 	nonregisteredGetStoriesForUser = RolePermission{RoleId: nonregistered.Id, PermissionId: getStoriesForUser.Id}
 
+	basicGetMyStories         = RolePermission{RoleId: basic.Id, PermissionId: getMyStories.Id}
+	verifiedGetMyStories      = RolePermission{RoleId: verified.Id, PermissionId: getMyStories.Id}
+	agentGetMyStories         = RolePermission{RoleId: agent.Id, PermissionId: getMyStories.Id}
+
 	basicRemoveStory    = RolePermission{RoleId: basic.Id, PermissionId: removeStory.Id}
 	verifiedRemoveStory = RolePermission{RoleId: verified.Id, PermissionId: removeStory.Id}
 	agentRemoveStory    = RolePermission{RoleId: agent.Id, PermissionId: removeStory.Id}
@@ -246,6 +254,10 @@ var (
 	basicGetAllCollections    = RolePermission{RoleId: basic.Id, PermissionId: getAllCollections.Id}
 	verifiedGetAllCollections = RolePermission{RoleId: verified.Id, PermissionId: getAllCollections.Id}
 	agentGetAllCollections    = RolePermission{RoleId: agent.Id, PermissionId: getAllCollections.Id}
+
+	basicGetUserFavoritesOptimized    = RolePermission{RoleId: basic.Id, PermissionId: getUserFavoritesOptimized.Id}
+	verifiedGetUserFavoritesOptimized = RolePermission{RoleId: verified.Id, PermissionId: getUserFavoritesOptimized.Id}
+	agentGetUserFavoritesOptimized    = RolePermission{RoleId: agent.Id, PermissionId: getUserFavoritesOptimized.Id}
 
 	basicGetCollection    = RolePermission{RoleId: basic.Id, PermissionId: getCollection.Id}
 	verifiedGetCollection = RolePermission{RoleId: verified.Id, PermissionId: getCollection.Id}

@@ -4,21 +4,21 @@ import { ReactComponent as Inbox } from "../../images/icons/inbox.svg";
 import { ReactComponent as Notifications } from "../../images/icons/notifications.svg";
 import { ReactComponent as NewNotifications } from "../../images/icons/newNotification.svg";
 import { ReactComponent as Bookmark } from "../../images/icons/bookmark.svg";
+import { ReactComponent as StoryArchive } from "../../images/icons/story-archive.svg";
 import { ReactComponent as Plus } from "../../images/icons/plus.svg";
 import { ReactComponent as Explore } from "../../images/icons/more.svg";
 import { ReactComponent as VerificationSymbol } from "../../images/icons/verification-symbol.svg";
 
 import ProfileIcon from "../ProfileComponent/ProfileIcon";
-import {Link, NavLink, Route, useHistory} from "react-router-dom";
-import Profile from "../ProfileComponent/Profile";
+import { NavLink, useHistory } from "react-router-dom";
 import React, {useEffect, useState} from "react";
+import { useSelector } from "react-redux";
+import { Dropdown, Button } from "react-bootstrap";
+
 import userService from "../../services/user.service";
-import {useDispatch, useSelector} from "react-redux";
-import {Dropdown} from "react-bootstrap";
-import {AiFillNotification, BsDot} from "react-icons/all";
 
 function Menu() {
-    const [username, setUsername] = useState('')
+    const[username, setUsername]=useState('')
     const store = useSelector(state => state);
     const history = useHistory()
     const [notifications, setNotifications] = useState([])
@@ -102,9 +102,11 @@ function Menu() {
                      style={store.user.role !== 'Admin' ? {display: 'block'} : {display: 'none'}}>
                 <Bookmark className="icon"/>
             </NavLink>
-            <NavLink to={{pathname: "/newpost"}}
-                     style={store.user.role !== 'Admin' ? {display: 'block'} : {display: 'none'}}>
-                <Plus className="icon"/>
+            <NavLink  to={{ pathname: "/story-archive" }} style={store.user.role !== 'Admin' ? {display : 'block'} : {display: 'none'}} >
+                <StoryArchive className="icon" /> 
+            </NavLink>
+            <NavLink  to={{ pathname: "/newpost" }} style={store.user.role !== 'Admin' ? {display : 'block'} : {display: 'none'}} >
+                <Plus className="icon" />
             </NavLink>
             <NavLink to={{pathname: "/info"}}>
                 <Explore className="icon"/>
@@ -139,8 +141,7 @@ function Menu() {
                              image={store.user.photo ? store.user.photo : 'https://i.pravatar.cc/150?img=1'}/>
             </NavLink>
 
-
-            <a href='/' style={{marginLeft: '10px'}}>Log out</a>
+            <Button variant="outline-danger" href='/' style={{width: "220px", display: "block"}}>Logout</Button>
 
         </div>
     );

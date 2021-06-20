@@ -16,7 +16,7 @@ type HighlightRepository interface {
 	CreateHighlightStory(context.Context, domain.HighlightRequest) error
 	RemoveHighlightStory(context.Context, domain.HighlightRequest) error
 
-	CreateHighlight(context.Context, domain.Highlight) error
+	CreateHighlight(context.Context, domain.Highlight) (persistence.Highlight, error)
 	RemoveHighlight(context.Context, string, string)   error
 }
 
@@ -129,15 +129,14 @@ func (repository *highlightRepository) RemoveHighlightStory(ctx context.Context,
 	return nil
 }
 
-func (repository *highlightRepository) CreateHighlight(ctx context.Context, highlight domain.Highlight) error{
+func (repository *highlightRepository) CreateHighlight(ctx context.Context, highlight domain.Highlight) (persistence.Highlight, error){
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateHighlight")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	var highlightPers *persistence.Highlight
+	highlightPers = highlightPers.ConvertToPersistence(highlight)
 	err := repository.DB.Transaction(func (tx *gorm.DB) error{
-		var highlightPers *persistence.Highlight
-		highlightPers = highlightPers.ConvertToPersistence(highlight)
-
 		result := repository.DB.Create(highlightPers)
 
 		if result.Error != nil || result.RowsAffected != 1 {
@@ -160,8 +159,8 @@ func (repository *highlightRepository) CreateHighlight(ctx context.Context, high
 		return nil
 	})
 
-	if err != nil { return err }
-	return nil
+	if err != nil { return persistence.Highlight{}, err }
+	return *highlightPers, nil
 }
 
 func (repository *highlightRepository) RemoveHighlight(ctx context.Context, highlightId string, userId string) error{

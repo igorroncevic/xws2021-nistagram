@@ -93,17 +93,17 @@ func (service *HighlightService) RemoveHighlightStory(ctx context.Context, highl
 	return nil
 }
 
-func (service *HighlightService) CreateHighlight(ctx context.Context, highlight domain.Highlight) error {
+func (service *HighlightService) CreateHighlight(ctx context.Context, highlight domain.Highlight) (domain.Highlight, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateHighlight")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	err := service.highlightRepository.CreateHighlight(ctx, highlight)
-	if err != nil {
-		return err
-	}
+	dbHighlight, err := service.highlightRepository.CreateHighlight(ctx, highlight)
+	if err != nil { return domain.Highlight{}, err }
 
-	return nil
+	converted := dbHighlight.ConvertToDomain([]domain.Story{})
+
+	return converted, nil
 }
 func (service *HighlightService) RemoveHighlight(ctx context.Context, highlightId string, userId string) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveHighlight")

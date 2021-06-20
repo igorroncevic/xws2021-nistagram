@@ -1,13 +1,11 @@
 .menu {
   display: flex;
-  padding-right: 1.5em;
+  align-items: center;
 }
+
 .icon {
-    margin-right: 1.5em;
+    color: black !important; 
     width: 25px;
     height: 25px;
-  }
-.profileIcon {
-    margin-top: -3px;
-  }
-
+    margin-left: 8px;
+}

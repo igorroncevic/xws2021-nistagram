@@ -11,6 +11,7 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
+// Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
 // ContentClient is the client API for Content service.
@@ -31,6 +32,7 @@ type ContentClient interface {
 	CreateStory(ctx context.Context, in *Story, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetAllStories(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*StoriesHome, error)
 	GetStoriesForUser(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*StoriesArray, error)
+	GetMyStories(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*StoriesArray, error)
 	RemoveStory(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetStoryById(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Story, error)
 	//    Comments
@@ -47,6 +49,8 @@ type ContentClient interface {
 	CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*Collection, error)
 	RemoveCollection(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetUserFavorites(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Favorites, error)
+	// Only fetching post ids, instead of all the data
+	GetUserFavoritesOptimized(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Favorites, error)
 	CreateFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	RemoveFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	// Hashtags
@@ -54,7 +58,7 @@ type ContentClient interface {
 	//   Highlights
 	GetAllHighlights(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*HighlightsArray, error)
 	GetHighlight(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Highlight, error)
-	CreateHighlight(ctx context.Context, in *Highlight, opts ...grpc.CallOption) (*EmptyResponseContent, error)
+	CreateHighlight(ctx context.Context, in *Highlight, opts ...grpc.CallOption) (*Highlight, error)
 	RemoveHighlight(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	CreateHighlightStory(ctx context.Context, in *HighlightRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	RemoveHighlightStory(ctx context.Context, in *HighlightRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error)
@@ -178,6 +182,15 @@ func (c *contentClient) GetStoriesForUser(ctx context.Context, in *RequestId, op
 	return out, nil
 }
 
+func (c *contentClient) GetMyStories(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*StoriesArray, error) {
+	out := new(StoriesArray)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetMyStories", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *contentClient) RemoveStory(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
 	out := new(EmptyResponseContent)
 	err := c.cc.Invoke(ctx, "/proto.Content/RemoveStory", in, out, opts...)
@@ -295,6 +308,15 @@ func (c *contentClient) GetUserFavorites(ctx context.Context, in *RequestId, opt
 	return out, nil
 }
 
+func (c *contentClient) GetUserFavoritesOptimized(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Favorites, error) {
+	out := new(Favorites)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetUserFavoritesOptimized", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *contentClient) CreateFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
 	out := new(EmptyResponseContent)
 	err := c.cc.Invoke(ctx, "/proto.Content/CreateFavorite", in, out, opts...)
@@ -340,8 +362,8 @@ func (c *contentClient) GetHighlight(ctx context.Context, in *RequestId, opts ..
 	return out, nil
 }
 
-func (c *contentClient) CreateHighlight(ctx context.Context, in *Highlight, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
-	out := new(EmptyResponseContent)
+func (c *contentClient) CreateHighlight(ctx context.Context, in *Highlight, opts ...grpc.CallOption) (*Highlight, error) {
+	out := new(Highlight)
 	err := c.cc.Invoke(ctx, "/proto.Content/CreateHighlight", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -403,6 +425,7 @@ type ContentServer interface {
 	CreateStory(context.Context, *Story) (*EmptyResponseContent, error)
 	GetAllStories(context.Context, *EmptyRequestContent) (*StoriesHome, error)
 	GetStoriesForUser(context.Context, *RequestId) (*StoriesArray, error)
+	GetMyStories(context.Context, *RequestId) (*StoriesArray, error)
 	RemoveStory(context.Context, *RequestId) (*EmptyResponseContent, error)
 	GetStoryById(context.Context, *RequestId) (*Story, error)
 	//    Comments
@@ -419,6 +442,8 @@ type ContentServer interface {
 	CreateCollection(context.Context, *Collection) (*Collection, error)
 	RemoveCollection(context.Context, *RequestId) (*EmptyResponseContent, error)
 	GetUserFavorites(context.Context, *RequestId) (*Favorites, error)
+	// Only fetching post ids, instead of all the data
+	GetUserFavoritesOptimized(context.Context, *RequestId) (*Favorites, error)
 	CreateFavorite(context.Context, *FavoritesRequest) (*EmptyResponseContent, error)
 	RemoveFavorite(context.Context, *FavoritesRequest) (*EmptyResponseContent, error)
 	// Hashtags
@@ -426,7 +451,7 @@ type ContentServer interface {
 	//   Highlights
 	GetAllHighlights(context.Context, *RequestId) (*HighlightsArray, error)
 	GetHighlight(context.Context, *RequestId) (*Highlight, error)
-	CreateHighlight(context.Context, *Highlight) (*EmptyResponseContent, error)
+	CreateHighlight(context.Context, *Highlight) (*Highlight, error)
 	RemoveHighlight(context.Context, *RequestId) (*EmptyResponseContent, error)
 	CreateHighlightStory(context.Context, *HighlightRequest) (*EmptyResponseContent, error)
 	RemoveHighlightStory(context.Context, *HighlightRequest) (*EmptyResponseContent, error)
@@ -475,6 +500,9 @@ func (UnimplementedContentServer) GetAllStories(context.Context, *EmptyRequestCo
 func (UnimplementedContentServer) GetStoriesForUser(context.Context, *RequestId) (*StoriesArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetStoriesForUser not implemented")
 }
+func (UnimplementedContentServer) GetMyStories(context.Context, *RequestId) (*StoriesArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMyStories not implemented")
+}
 func (UnimplementedContentServer) RemoveStory(context.Context, *RequestId) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveStory not implemented")
 }
@@ -514,6 +542,9 @@ func (UnimplementedContentServer) RemoveCollection(context.Context, *RequestId) 
 func (UnimplementedContentServer) GetUserFavorites(context.Context, *RequestId) (*Favorites, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserFavorites not implemented")
 }
+func (UnimplementedContentServer) GetUserFavoritesOptimized(context.Context, *RequestId) (*Favorites, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserFavoritesOptimized not implemented")
+}
 func (UnimplementedContentServer) CreateFavorite(context.Context, *FavoritesRequest) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateFavorite not implemented")
 }
@@ -529,7 +560,7 @@ func (UnimplementedContentServer) GetAllHighlights(context.Context, *RequestId) 
 func (UnimplementedContentServer) GetHighlight(context.Context, *RequestId) (*Highlight, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHighlight not implemented")
 }
-func (UnimplementedContentServer) CreateHighlight(context.Context, *Highlight) (*EmptyResponseContent, error) {
+func (UnimplementedContentServer) CreateHighlight(context.Context, *Highlight) (*Highlight, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateHighlight not implemented")
 }
 func (UnimplementedContentServer) RemoveHighlight(context.Context, *RequestId) (*EmptyResponseContent, error) {
@@ -553,8 +584,8 @@ type UnsafeContentServer interface {
 	mustEmbedUnimplementedContentServer()
 }
 
-func RegisterContentServer(s *grpc.Server, srv ContentServer) {
-	s.RegisterService(&_Content_serviceDesc, srv)
+func RegisterContentServer(s grpc.ServiceRegistrar, srv ContentServer) {
+	s.RegisterService(&Content_ServiceDesc, srv)
 }
 
 func _Content_CreatePost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -769,6 +800,24 @@ func _Content_GetStoriesForUser_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).GetStoriesForUser(ctx, req.(*RequestId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_GetMyStories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetMyStories(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetMyStories",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetMyStories(ctx, req.(*RequestId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1007,6 +1056,24 @@ func _Content_GetUserFavorites_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Content_GetUserFavoritesOptimized_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetUserFavoritesOptimized(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetUserFavoritesOptimized",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetUserFavoritesOptimized(ctx, req.(*RequestId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Content_CreateFavorite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FavoritesRequest)
 	if err := dec(in); err != nil {
@@ -1187,7 +1254,10 @@ func _Content_CreateContentComplaint_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-var _Content_serviceDesc = grpc.ServiceDesc{
+// Content_ServiceDesc is the grpc.ServiceDesc for Content service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Content_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.Content",
 	HandlerType: (*ContentServer)(nil),
 	Methods: []grpc.MethodDesc{
@@ -1240,6 +1310,10 @@ var _Content_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Content_GetStoriesForUser_Handler,
 		},
 		{
+			MethodName: "GetMyStories",
+			Handler:    _Content_GetMyStories_Handler,
+		},
+		{
 			MethodName: "RemoveStory",
 			Handler:    _Content_RemoveStory_Handler,
 		},
@@ -1290,6 +1364,10 @@ var _Content_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserFavorites",
 			Handler:    _Content_GetUserFavorites_Handler,
+		},
+		{
+			MethodName: "GetUserFavoritesOptimized",
+			Handler:    _Content_GetUserFavoritesOptimized_Handler,
 		},
 		{
 			MethodName: "CreateFavorite",

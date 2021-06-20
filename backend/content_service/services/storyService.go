@@ -69,6 +69,26 @@ func (service *StoryService) GetStoriesForUser(ctx context.Context, userId strin
 	return stories, nil
 }
 
+func (service *StoryService) GetMyStories(ctx context.Context, userId string) ([]domain.Story, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetMyStories")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+
+	dbStories, err := service.storyRepository.GetMyStories(ctx, userId)
+	if err != nil { return []domain.Story{}, err }
+
+	stories := []domain.Story{}
+	for _, dbStory := range dbStories{
+		story, err := service.retrieveStoryAdditionalData(ctx, dbStory)
+		if err != nil { return []domain.Story{}, err }
+
+		stories = append(stories, story)
+	}
+
+	return stories, nil
+}
+
 func (service *StoryService) GetAllHomeStories(ctx context.Context, userIds []string, isCloseFriends bool) (domain.StoriesHome, error){
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllHomeStories")
 	defer span.Finish()

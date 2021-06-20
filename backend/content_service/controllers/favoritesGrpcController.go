@@ -114,6 +114,30 @@ func (c *FavoritesGrpcController) GetUserFavorites(ctx context.Context, in *prot
 	return grpcFavorites, nil
 }
 
+func (c *FavoritesGrpcController) GetUserFavoritesOptimized(ctx context.Context, in *protopb.RequestId) (*protopb.Favorites, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserFavoritesOptimized")
+	defer span.Finish()
+	claims, err := c.jwtManager.ExtractClaimsFromMetadata(ctx)
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if err != nil {
+		return &protopb.Favorites{}, status.Errorf(codes.Unknown, "could not retrieve favorites")
+	}else if claims.UserId == "" {
+		return &protopb.Favorites{}, status.Errorf(codes.InvalidArgument, "no user id provided")
+	}  else if claims.UserId != in.Id {
+		return &protopb.Favorites{}, status.Errorf(codes.Unknown, "cannot get another user's favorites")
+	}
+
+	favorites, err := c.service.GetUserFavoritesOptimized(ctx, in.Id)
+	if err != nil {
+		return &protopb.Favorites{}, status.Errorf(codes.Unknown, "could not retrieve favorites")
+	}
+
+	grpcFavorites := favorites.ConvertToGrpc()
+
+	return grpcFavorites, nil
+}
+
 func (c *FavoritesGrpcController) CreateFavorite(ctx context.Context, in *protopb.FavoritesRequest) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateFavorite")
 	defer span.Finish()

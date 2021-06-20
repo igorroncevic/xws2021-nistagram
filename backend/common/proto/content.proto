@@ -88,6 +88,12 @@ service Content {
     };
   }
 
+  rpc GetMyStories (RequestId) returns (StoriesArray) {
+    option(google.api.http) = {
+      get: "/stories/archive/{id}"
+    };
+  }
+
   rpc RemoveStory (RequestId) returns (EmptyResponseContent) {
     option(google.api.http) = {
       delete: "/stories/{id}"
@@ -176,6 +182,13 @@ service Content {
     };
   }
 
+  // Only fetching post ids, instead of all the data
+  rpc GetUserFavoritesOptimized (RequestId) returns (Favorites) {
+    option(google.api.http) = {
+      get: "/favorites/optimized/{id}"
+    };
+  }
+
   rpc CreateFavorite (FavoritesRequest) returns (EmptyResponseContent) {
     option(google.api.http) = {
       post: "/favorites/create",
@@ -212,7 +225,7 @@ service Content {
     };
   }
 
-  rpc CreateHighlight (Highlight) returns (EmptyResponseContent) {
+  rpc CreateHighlight (Highlight) returns (Highlight) {
     option(google.api.http) = {
       post: "/highlights",
       body: "*"
@@ -351,13 +364,13 @@ message Collection {
   string id = 1;
   string name = 2;
   string userId = 3;
-  repeated ReducedPost posts = 4;
+  repeated Post posts = 4;
 }
 
 message Favorites {
   string userId = 1;
   repeated Collection collections = 2;
-  repeated ReducedPost unclassified = 3;
+  repeated Post unclassified = 3;
 }
 
 message FavoritesRequest {

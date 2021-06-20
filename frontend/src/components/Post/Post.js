@@ -12,14 +12,14 @@ import userService from './../../services/user.service';
 import toastService from './../../services/toast.service';
 import likeService from './../../services/like.service';
 import commentService from './../../services/comment.service';
-import collectionsService from './../../services/collections.service';
+import favoritesService from './../../services/favorites.service';
 import PostMenu from "./PostMenu";
 import {Button, Dropdown, Modal} from "react-bootstrap";
 import axios from "axios";
 import complaintService from "../../services/complaint.service";
 
 function Post (props) {
-    const { postUser } = props;
+    const { postUser, shouldReload } = props;
     const [post, setPost] = useState(props.post)
     const [user, setUser] = useState({});
     const [hoursAgo, setHoursAgo] = useState(0)
@@ -84,12 +84,16 @@ function Post (props) {
     }, [showSaveModal])
 
     const getUserCollections = () => { 
-        collectionsService.getUserCollections({
+        favoritesService.getUserFavoritesOptimized({
             userId: store.user.id,
             jwt: store.user.jwt,
         }).then(response => {
             // Collection for posts that do not have any designated collection
-            const newCollections = [...response.data.collections];
+            const newCollections = [...response.data.collections, {
+                id: null,
+                name: "Unclassified",
+                posts: [...response.data.unclassified],
+            }];
             setCollections(newCollections)
 
             // Check in which collection the post has been saved
@@ -100,6 +104,7 @@ function Post (props) {
                     setSavedInCollections([...savedInCollections, collection.id])
                 };
             })
+            console.log(response);
         }).catch(err => {
             toastService.show("error", "Could not load your collections. Please try again.")
         })
@@ -216,6 +221,7 @@ function Post (props) {
     const handleSaveClick = () => {
        store.user.id && setShowSaveModal(!showSaveModal);
     }
+
     const handleReportModal =()=>{
         setReportCategory("");
         setReportCategoryErr("");
@@ -331,9 +337,9 @@ function Post (props) {
                 setSavedInCollections={setSavedInCollections} 
                 postId={post.id} 
                 isSaved={isSaved}
-                setIsSaved={setIsSaved}    
+                setIsSaved={setIsSaved}   
+                shouldReload={shouldReload} 
             />
-
 
             <Modal show={showReportModal} onHide={setReportModal}>
                 <Modal.Header closeButton>

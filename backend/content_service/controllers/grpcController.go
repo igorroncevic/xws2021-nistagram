@@ -97,6 +97,10 @@ func (s *Server) GetStoriesForUser(ctx context.Context, in *protopb.RequestId) (
 	return s.storyController.GetStoriesForUser(ctx, in)
 }
 
+func (s *Server) GetMyStories(ctx context.Context, in *protopb.RequestId) (*protopb.StoriesArray, error) {
+	return s.storyController.GetMyStories(ctx, in)
+}
+
 func (s *Server) GetStoryById(ctx context.Context, in *protopb.RequestId) (*protopb.Story, error) {
 	return s.storyController.GetStoryById(ctx, in)
 }
@@ -130,6 +134,10 @@ func (s *Server) GetUserLikedOrDislikedPosts(ctx context.Context, in *protopb.Li
 /* Collections & Favorites */
 func (s *Server) GetAllCollections(ctx context.Context, in *protopb.RequestId) (*protopb.CollectionsArray, error) {
 	return s.favoritesController.GetAllCollections(ctx, in)
+}
+
+func (s *Server) GetUserFavoritesOptimized(ctx context.Context, in *protopb.RequestId) (*protopb.Favorites, error) {
+	return s.favoritesController.GetUserFavoritesOptimized(ctx, in)
 }
 
 func (s *Server) GetCollection(ctx context.Context, in *protopb.RequestId) (*protopb.Collection, error) {
@@ -182,7 +190,7 @@ func (s *Server) GetHighlight(ctx context.Context, in *protopb.RequestId) (*prot
 	return s.highlightController.GetHighlight(ctx, in)
 }
 
-func (s *Server) CreateHighlight(ctx context.Context, in *protopb.Highlight) (*protopb.EmptyResponseContent, error) {
+func (s *Server) CreateHighlight(ctx context.Context, in *protopb.Highlight) (*protopb.Highlight, error) {
 	return s.highlightController.CreateHighlight(ctx, in)
 }
 

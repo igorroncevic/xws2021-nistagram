@@ -4,7 +4,7 @@ import Post from './Post';
 import "./../../style/PostPreviewModal.css"
 
 const PostPreviewModal = (props) => {
-    const { postUser, post, showModal, setShowModal } = props;
+    const { postUser, post, showModal, setShowModal, shouldReload } = props;
 
     return (
         <Modal 
@@ -12,7 +12,7 @@ const PostPreviewModal = (props) => {
             contentClassName="content" 
             show={showModal} 
             onHide={() => setShowModal(false)}>
-            <Post className="Post" post={post} postUser={postUser} />
+            <Post className="Post" shouldReload={shouldReload} post={post} postUser={postUser} />
         </Modal>
     )
 }
