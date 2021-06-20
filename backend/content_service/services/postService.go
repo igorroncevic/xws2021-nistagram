@@ -122,7 +122,20 @@ func (service *PostService) CreatePost(ctx context.Context, post *domain.Post) e
 		return errors.New("cannot create empty post")
 	}
 
-	return service.postRepository.CreatePost(ctx, post)
+	err :=  service.postRepository.CreatePost(ctx, post)
+	if err != nil {
+		return err
+	}
+	users, err := grpc_common.GetUsersForNotificationEnabled(ctx, post.UserId, "IsPostNotificationEnabled")
+	if err != nil {
+		return errors.New("Could not create notification")
+	}
+	for _, u := range users.Users {
+		if u.UserId == post.UserId {
+			grpc_common.CreateNotification(ctx, u.UserId, post.UserId, "Post", post.Id)
+		}
+	}
+	return nil
 }
 
 func (service *PostService) RemovePost(ctx context.Context, id string, userId string) error {

@@ -19,6 +19,8 @@ type FollowersRepository interface {
 	UpdateUserConnection(context.Context, model.Follower) (*model.Follower,error)
 	GetFollowersConnection(context.Context, model.Follower) (*model.Follower, error)
 	GetCloseFriends(context.Context, string) ([]model.User, error)
+    GetUsersForNotificationEnabled( context.Context,  string, string) ([]model.User, error)
+
 }
 
 type followersRepository struct {
@@ -72,6 +74,16 @@ func (repository *followersRepository) GetAllFollowing(ctx context.Context, user
 	return repository.GetUsers(ctx, userId, query)
 }
 
+func (repository *followersRepository) GetAllFollowers(ctx context.Context, userId string) ([]model.User, error){
+	query := "MATCH (b:User)-[r:Follows]->(a:User {id : $UserId}) WHERE r.IsApprovedRequest = true RETURN b.id"
+	return repository.GetUsers(ctx, userId, query)
+}
+
+func (repository *followersRepository) GetUsersForNotificationEnabled(ctx context.Context, userId string,notification string) ([]model.User, error) {
+	query := "MATCH (a:User)-[r:Follows]->(b:User {id : $UserId}) WHERE r." + notification + " = true RETURN a.id"
+	return repository.GetUsers(ctx, userId, query)
+}
+
 func (repository *followersRepository) GetAllFollowingsForHomepage(ctx context.Context, userId string) ([]model.User, error){
 	query := "MATCH (a:User {id : $UserId})-[r:Follows]->(b:User) WHERE r.IsApprovedRequest = true AND r.IsMuted = false RETURN b.id"
 	return repository.GetUsers(ctx, userId, query)
@@ -82,10 +94,6 @@ func (repository *followersRepository) GetCloseFriends(ctx context.Context, id s
 	return repository.GetUsers(ctx, id, query)
 }
 
-func (repository *followersRepository) GetAllFollowers(ctx context.Context, userId string) ([]model.User, error){
-	query := "MATCH (b:User)-[r:Follows]->(a:User {id : $UserId}) WHERE r.IsApprovedRequest = true RETURN b.id"
-	return repository.GetUsers(ctx, userId, query)
-}
 
 func (repository *followersRepository) CreateUserConnection(ctx context.Context, f model.Follower) (bool, error){
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateFollowersConnection")
@@ -101,7 +109,10 @@ func (repository *followersRepository) CreateUserConnection(ctx context.Context,
 				"(a)-[:Follows {UserId : $UserId, FollowerId : $FollowerId ,IsMuted : $IsMuted," +
 				" IsCloseFriend : $IsCloseFriend, IsApprovedRequest : $IsApprovedRequest, " +
 				" RequestIsPending : $RequestIsPending, " +
-				"IsNotificationEnabled : $IsNotificationEnabled}]->(b)" +
+				"IsMessageNotificationEnabled : $IsMessageNotificationEnabled," +
+				"IsCommentNotificationEnabled : $IsCommentNotificationEnabled," +
+				"IsPostNotificationEnabled : $IsPostNotificationEnabled," +
+				"IsStoryNotificationEnabled : $IsStoryNotificationEnabled}]->(b)" +
 				"RETURN a",
 				map[string]interface{}{
 				"UserId" : f.UserId,
@@ -109,10 +120,12 @@ func (repository *followersRepository) CreateUserConnection(ctx context.Context,
 				"IsMuted" : f.IsMuted,
 				"IsCloseFriend" : f.IsCloseFriends,
 				"IsApprovedRequest" : f.IsApprovedRequest,
-				"IsNotificationEnabled" : f.IsNotificationEnabled,
+				"IsMessageNotificationEnabled" : f.IsMessageNotificationEnabled,
+				"IsPostNotificationEnabled" : f.IsPostNotificationEnabled,
+				"IsCommentNotificationEnabled" : f.IsCommentNotificationEnabled,
+				"IsStoryNotificationEnabled" : f.IsStoryNotificationEnabled,
 				"RequestIsPending" : f.RequestIsPending,
 			})
-
 		if err != nil {
 			return nil, err
 		}
@@ -139,16 +152,19 @@ func (repository *followersRepository) UpdateUserConnection(ctx context.Context,
 	_ , err := session.WriteTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
 		result, err := transaction.Run(
 			"MATCH (a:User {id : $UserId})-[r:Follows]->(b:User {id : $FollowerId})" +
-				" SET r.IsMuted = $IsMuted, r.IsCloseFriend = $IsCloseFriend, r.IsApprovedRequest = $IsApprovedRequest, r.IsNotificationEnabled =  $IsNotificationEnabled, r.RequestIsPending =  $RequestIsPending" +
-				" RETURN r.UserId, r.FollowerId, r.IsMuted, r.IsCloseFriend, r.IsApprovedRequest, r.IsNotificationEnabled, r.RequestIsPending",
+				" SET r.IsStoryNotificationEnabled = $IsStoryNotificationEnabled, r.IsCommentNotificationEnabled = $IsCommentNotificationEnabled, r.IsPostNotificationEnabled = $IsPostNotificationEnabled, r.IsMessageNotificationEnabled = $IsMessageNotificationEnabled, r.IsMuted = $IsMuted, r.IsCloseFriend = $IsCloseFriend, r.IsApprovedRequest = $IsApprovedRequest, r.RequestIsPending =  $RequestIsPending" +
+				" RETURN r.UserId, r.FollowerId, r.IsMuted, r.IsCloseFriend, r.IsApprovedRequest, r.RequestIsPending, r.IsStoryNotificationEnabled, r.IsCommentNotificationEnabled, r.IsPostNotificationEnabled, r.IsMessageNotificationEnabled ",
 			map[string]interface{}{
 				"UserId" : f.UserId,
 				"FollowerId" : f.FollowerId,
 				"IsMuted" : f.IsMuted,
 				"IsCloseFriend" : f.IsCloseFriends,
 				"IsApprovedRequest" : f.IsApprovedRequest,
-				"IsNotificationEnabled" : f.IsNotificationEnabled,
-				"RequestIsPending":f.RequestIsPending,
+				"IsMessageNotificationEnabled" : f.IsMessageNotificationEnabled,
+				"IsPostNotificationEnabled" : f.IsPostNotificationEnabled,
+				"IsCommentNotificationEnabled" : f.IsCommentNotificationEnabled,
+				"IsStoryNotificationEnabled" : f.IsStoryNotificationEnabled,
+				"RequestIsPending" : f.RequestIsPending,
 			})
 
 		if err != nil {
@@ -161,7 +177,11 @@ func (repository *followersRepository) UpdateUserConnection(ctx context.Context,
 				IsMuted: result.Record().Values[2].(bool),
 				IsCloseFriends: result.Record().Values[3].(bool),
 				IsApprovedRequest: result.Record().Values[4].(bool),
-				IsNotificationEnabled: result.Record().Values[5].(bool),
+				RequestIsPending: result.Record().Values[5].(bool),
+				IsStoryNotificationEnabled: result.Record().Values[6].(bool),
+				IsCommentNotificationEnabled: result.Record().Values[7].(bool),
+				IsPostNotificationEnabled: result.Record().Values[8].(bool),
+				IsMessageNotificationEnabled: result.Record().Values[9].(bool),
 			}
 			return nil, nil
 		}
@@ -185,7 +205,7 @@ func (repository *followersRepository) GetFollowersConnection(ctx context.Contex
 	_ , err := session.WriteTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
 		result, err := transaction.Run(
 			"MATCH (a:User {id : $UserId})-[r:Follows]->(b:User {id : $FollowerId})" +
-				" RETURN r.UserId, r.FollowerId, r.IsMuted, r.IsCloseFriend, r.IsApprovedRequest, r.IsNotificationEnabled, r.RequestIsPending",
+				" RETURN r.UserId, r.FollowerId, r.IsMuted, r.IsCloseFriend, r.IsApprovedRequest, r.RequestIsPending, r.IsStoryNotificationEnabled, r.IsCommentNotificationEnabled, r.IsPostNotificationEnabled, r.IsMessageNotificationEnabled",
 			map[string]interface{}{
 				"UserId" : f.UserId,
 				"FollowerId" : f.FollowerId,
@@ -201,8 +221,11 @@ func (repository *followersRepository) GetFollowersConnection(ctx context.Contex
 				IsMuted: result.Record().Values[2].(bool),
 				IsCloseFriends: result.Record().Values[3].(bool),
 				IsApprovedRequest: result.Record().Values[4].(bool),
-				IsNotificationEnabled: result.Record().Values[5].(bool),
-				RequestIsPending: result.Record().Values[6].(bool),
+				RequestIsPending: result.Record().Values[5].(bool),
+				IsStoryNotificationEnabled: result.Record().Values[6].(bool),
+				IsCommentNotificationEnabled: result.Record().Values[7].(bool),
+				IsPostNotificationEnabled: result.Record().Values[8].(bool),
+				IsMessageNotificationEnabled: result.Record().Values[9].(bool),
 			}
 			return nil, nil
 		}

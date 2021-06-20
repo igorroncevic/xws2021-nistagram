@@ -199,3 +199,17 @@ func (controller *FollowersGrpcController)  AcceptFollowRequest(ctx context.Cont
 	return &protopb.CreateFollowerResponse{Follower: result.ConvertToGrpc()}, nil
 
 }
+
+func (c *FollowersGrpcController) GetUsersForNotificationEnabled(ctx context.Context, in *protopb.RequestForNotification) (*protopb.CreateUserResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUsersForNotificationEnabled")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+	var user model.User
+	users, err := c.service.GetUsersForNotificationEnabled(ctx, in.UserId, in.NotificationType)
+	if err != nil {
+		return nil, err
+	}
+
+	return &protopb.CreateUserResponse{Users: user.ConvertAllToGrpc(users)}, nil
+
+}

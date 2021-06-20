@@ -15,7 +15,10 @@ type Follower struct {
 	IsCloseFriends        bool
 	IsApprovedRequest     bool
 	RequestIsPending     bool
-	IsNotificationEnabled bool
+	IsMessageNotificationEnabled bool
+	IsPostNotificationEnabled bool
+	IsStoryNotificationEnabled bool
+	IsCommentNotificationEnabled bool
 }
 
 func (user *User) ConvertFromGrpc(u *protopb.UserFollowers) *User {
@@ -35,7 +38,10 @@ func (follower *Follower) ConvertToGrpc() *protopb.Follower {
 		UserId:                follower.UserId,
 		FollowerId:            follower.FollowerId,
 		IsMuted:               follower.IsMuted,
-		IsNotificationEnabled: follower.IsNotificationEnabled,
+		IsMessageNotificationEnabled: follower.IsMessageNotificationEnabled ,
+		IsPostNotificationEnabled: follower.IsPostNotificationEnabled ,
+		IsStoryNotificationEnabled: follower.IsStoryNotificationEnabled ,
+		IsCommentNotificationEnabled: follower.IsCommentNotificationEnabled,
 		IsApprovedRequest:     follower.IsApprovedRequest,
 		RequestIsPending:     follower.RequestIsPending,
 		IsCloseFriends:        follower.IsCloseFriends,
@@ -57,7 +63,10 @@ func (follower *Follower) ConvertFromGrpc(f *protopb.Follower) *Follower {
 		IsMuted:               f.IsMuted,
 		IsCloseFriends:        f.IsCloseFriends,
 		IsApprovedRequest:     f.IsApprovedRequest,
-		IsNotificationEnabled: f.IsNotificationEnabled,
+		IsMessageNotificationEnabled: f.IsMessageNotificationEnabled ,
+		IsPostNotificationEnabled: f.IsPostNotificationEnabled ,
+		IsStoryNotificationEnabled: f.IsStoryNotificationEnabled ,
+		IsCommentNotificationEnabled: f.IsCommentNotificationEnabled,
 		RequestIsPending: f.RequestIsPending,
 
 	}

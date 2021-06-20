@@ -130,7 +130,21 @@ func (service *StoryService) CreateStory(ctx context.Context, story *domain.Stor
 		return errors.New("cannot create empty story")
 	}
 
-	return service.storyRepository.CreateStory(ctx, story)
+	err := service.storyRepository.CreateStory(ctx, story)
+	if err != nil {
+		return err
+	}
+
+	users, err := grpc_common.GetUsersForNotificationEnabled(ctx, story.UserId, "IsStoryNotificationEnabled")
+	if err != nil {
+		return errors.New("Could not create notification")
+	}
+	for _, u := range users.Users {
+		if u.UserId == story.UserId {
+			grpc_common.CreateNotification(ctx, u.UserId, story.UserId, "Story", story.Id)
+		}
+	}
+	return nil
 }
 
 func (service *StoryService) GetStoryById(ctx context.Context, id string) (domain.Story, error){

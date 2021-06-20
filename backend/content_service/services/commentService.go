@@ -51,7 +51,18 @@ func (service CommentService) CreateComment(ctx context.Context, comment *domain
 		return err
 	}
 
-	return grpc_common.CreateNotification(ctx, post.UserId, comment.UserId, "Comment", post.Id)
+	users, err := grpc_common.GetUsersForNotificationEnabled(ctx, comment.UserId, "IsCommentNotificationEnabled")
+	if err != nil {
+		return errors.New("Could not create notification")
+	}
+	for _, u := range users.Users {
+		if u.UserId == post.UserId {
+			grpc_common.CreateNotification(ctx, post.UserId, comment.UserId, "Comment", post.Id)
+			break
+		}
+	}
+
+	return nil
 }
 
 func (service CommentService) GetCommentsForPost(ctx context.Context, id string) ([]domain.Comment, error) {

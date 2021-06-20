@@ -79,3 +79,7 @@ func (s *Server) GetFollowersConnection(ctx context.Context, in *protopb.Followe
 func (s *Server)  AcceptFollowRequest(ctx context.Context,in *protopb.CreateFollowerRequest) (*protopb.CreateFollowerResponse, error) {
 	return s.followerController.AcceptFollowRequest(ctx, in)
 }
+
+func (s *Server) GetUsersForNotificationEnabled(ctx context.Context, in *protopb.RequestForNotification) (*protopb.CreateUserResponse, error) {
+	return s.followerController.GetUsersForNotificationEnabled(ctx, in)
+}

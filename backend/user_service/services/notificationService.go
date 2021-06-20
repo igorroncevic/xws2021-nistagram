@@ -43,6 +43,10 @@ func (s NotificationService) CreateNotification(ctx context.Context, domainNotif
 		userNotification.Text = " disliked your post."
 	}else if domainNotification.NotificationType == "Comment" {
 		userNotification.Text = " commented on your post."
+	}else if domainNotification.NotificationType == "Post" {
+		userNotification.Text = " shared a post."
+	}else if domainNotification.NotificationType == "Story" {
+		userNotification.Text = " shared a story."
 	}else {
 		return errors.New("Bad notification type")
 	}
