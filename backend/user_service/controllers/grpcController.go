@@ -197,3 +197,11 @@ func (s *Server) ReadAllNotifications(ctx context.Context, in *protopb.RequestId
 func (s *Server) DeleteByTypeAndCreator(ctx context.Context, in *protopb.Notification) (*protopb.EmptyResponse, error) {
 	return s.notificationController.DeleteByTypeAndCreator(ctx, in)
 }
+
+func (s *Server) GetByTypeAndCreator(ctx context.Context,in *protopb.Notification) (*protopb.Notification, error) {
+	return s.notificationController.GetByTypeAndCreator(ctx, in)
+}
+
+func (s *Server) UpdateNotification(ctx context.Context, in *protopb.Notification) (*protopb.EmptyResponse, error) {
+	return s.notificationController.UpdateNotification(ctx, in)
+}

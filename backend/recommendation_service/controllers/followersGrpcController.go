@@ -182,3 +182,20 @@ func (controller *FollowersGrpcController) UpdateUserConnection(ctx context.Cont
 
 	return &protopb.CreateFollowerResponse{Follower: result.ConvertToGrpc()}, nil
 }
+
+func (controller *FollowersGrpcController)  AcceptFollowRequest(ctx context.Context,in *protopb.CreateFollowerRequest) (*protopb.CreateFollowerResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "AcceptFollowRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var follower = model.Follower{}
+	follower = *follower.ConvertFromGrpc(in.Follower)
+	result, err := controller.service.AcceptFollowRequest(ctx, follower)
+
+	if err != nil {
+		return nil, errors.New("Could not accept follow request!")
+	}
+
+	return &protopb.CreateFollowerResponse{Follower: result.ConvertToGrpc()}, nil
+
+}

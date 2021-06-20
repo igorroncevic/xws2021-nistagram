@@ -107,3 +107,19 @@ func (s NotificationService) DeleteByTypeAndCreator(ctx context.Context, notific
 	return s.repository.DeleteByTypeAndCreator(ctx, notification)
 
 }
+
+func (s NotificationService) UpdateNotification(ctx context.Context, notification *persistence.UserNotification) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateNotification")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return s.repository.UpdateNotification(ctx, notification)
+}
+
+func (s NotificationService) GetByTypeAndCreator(ctx context.Context, notification *persistence.UserNotification) (*persistence.UserNotification, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetByTypeAndCreator")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return s.repository.GetByTypeAndCreator(ctx, notification)
+}

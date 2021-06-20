@@ -16,6 +16,8 @@ type NotificationRepository interface {
 	DeleteNotification(context.Context, string ) (bool, error)
 	ReadAllNotifications( context.Context,  string) error
 	DeleteByTypeAndCreator(ctx context.Context, notification *persistence.UserNotification) error
+	UpdateNotification(ctx context.Context, notification *persistence.UserNotification) error
+	GetByTypeAndCreator( context.Context, *persistence.UserNotification) (*persistence.UserNotification, error)
 }
 type notificationRepository struct {
 	DB *gorm.DB
@@ -118,6 +120,7 @@ func (repository *notificationRepository) GetNotificationById(ctx context.Contex
 
 	return notification, nil
 }
+
 func (repository *notificationRepository) DeleteNotification(ctx context.Context, id string) (bool, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "UnBlockUser")
 	defer span.Finish()
@@ -141,10 +144,39 @@ func (repository *notificationRepository) DeleteByTypeAndCreator(ctx context.Con
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	result := repository.DB.Where("creator_id = ?", notification.CreatorId).Where("type = ?", notification.Type).Delete(&notification)
+	result := repository.DB.Where("creator_id = ?", notification.CreatorId).Where("user_id = ?", notification.UserId).Where("type = ?", notification.Type).Delete(&notification)
 	if result.Error != nil {
 		return errors.New("Could not delete notification!")
 	}
 	return nil
 
+}
+
+func (repository *notificationRepository) UpdateNotification(ctx context.Context, notification *persistence.UserNotification) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateNotification")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	db := repository.DB.Model(&notification).Where("notification_id = ?", notification.NotificationId).Updates(persistence.UserNotification{Type: notification.Type, Text: notification.Text, CreatedAt: time.Now()})
+	if db.Error != nil {
+		return errors.New("Could not update notification!")
+	}else if db.RowsAffected == 0 {
+		return errors.New("Could not update notification! Rows affected 0")
+	}
+
+	return nil
+}
+
+func (repository *notificationRepository) GetByTypeAndCreator(ctx context.Context, notification *persistence.UserNotification) (*persistence.UserNotification, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetByTypeAndCreator")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var retVal *persistence.UserNotification
+	result := repository.DB.Where("creator_id = ?", notification.CreatorId).Where("user_id = ?", notification.UserId).Where("type = ?", notification.Type).Find(&retVal)
+	if result.Error != nil {
+		return nil, errors.New("Could not delete notification!")
+	}
+
+	return retVal, nil
 }

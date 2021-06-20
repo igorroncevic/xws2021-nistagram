@@ -98,3 +98,27 @@ func (c *NotificationGrpcController) DeleteByTypeAndCreator(ctx context.Context,
 	return &protopb.EmptyResponse{}, nil
 }
 
+func (c *NotificationGrpcController) UpdateNotification(ctx context.Context, in *protopb.Notification) (*protopb.EmptyResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateNotification")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	err := c.service.UpdateNotification(ctx, &persistence.UserNotification{NotificationId: in.Id, Type: in.Type, Text: in.Text})
+	if err != nil {
+		return &protopb.EmptyResponse{}, err
+	}
+	return &protopb.EmptyResponse{}, nil
+}
+
+func (c *NotificationGrpcController) GetByTypeAndCreator(ctx context.Context,in *protopb.Notification) (*protopb.Notification, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetByTypeAndCreator")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	notification, err := c.service.GetByTypeAndCreator(ctx, &persistence.UserNotification{UserId: in.UserId, CreatorId: in.CreatorId, Type: in.Type})
+	if err != nil {
+		return nil, err
+	}
+
+	return notification.ConvertToGrpc(), nil
+}

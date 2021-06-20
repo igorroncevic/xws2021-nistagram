@@ -242,3 +242,31 @@ func DeleteByTypeAndCreator(ctx context.Context, notificationType string, userId
 	return nil
 }
 
+func UpdateNotification (ctx context.Context, id string, notificationType string, text string) error{
+	conn, err := CreateGrpcConnection(Users_service_address)
+	if err != nil{
+		return status.Errorf(codes.Unknown, err.Error())
+	}
+	defer conn.Close()
+	usersClient := GetUsersClient(conn)
+	_, err = usersClient.UpdateNotification(ctx, &protopb.Notification{Id: id, Text: text, Type: notificationType})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetByTypeAndCreator(ctx context.Context, userId string, creatorId string, notificationType string) (*protopb.Notification, error) {
+	conn, err := CreateGrpcConnection(Users_service_address)
+	if err != nil{
+		return nil, status.Errorf(codes.Unknown, err.Error())
+	}
+	defer conn.Close()
+	usersClient := GetUsersClient(conn)
+	result, err := usersClient.GetByTypeAndCreator(ctx, &protopb.Notification{CreatorId: creatorId, UserId: userId, Type: notificationType})
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+

@@ -152,4 +152,27 @@ func (service *FollowersService) GetFollowersConnection(ctx context.Context, f m
 	return service.repository.GetFollowersConnection(ctx, f)
 }
 
+func (service *FollowersService) AcceptFollowRequest(ctx context.Context, f model.Follower) (*model.Follower, error ){
+	span := tracer.StartSpanFromContextMetadata(ctx, "AcceptFollowRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	follower, err := service.UpdateUserConnection(ctx, f)
+	if err != nil {
+		return nil, err
+	}
+
+	notification, err := grpc_common.GetByTypeAndCreator(ctx, f.FollowerId, f.UserId, "FollowPrivate")
+	if err != nil {
+		return nil, err
+	}
+
+	err = grpc_common.UpdateNotification(ctx, notification.Id, "FollowPublic", " started following you.")
+	if err != nil {
+		return nil, err
+	}
+	return follower, nil
+
+}
+
 
