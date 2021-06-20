@@ -170,7 +170,7 @@ func (t *Tag) ConvertToPersistence(tag domain.Tag) *Tag{
 	}
 }
 
-func (f Favorites) ConvertToDomain(collections []domain.Collection, unclassified []domain.ReducedPost) domain.Favorites {
+func (f Favorites) ConvertToDomain(collections []domain.Collection, unclassified []domain.Post) domain.Favorites {
 	return domain.Favorites{
 		UserId:       f.UserId,
 		Collections:  collections,
@@ -187,7 +187,7 @@ func (f *Favorites) ConvertToPersistence(favorites domain.FavoritesRequest) *Fav
 	}
 }
 
-func (c Collection) ConvertToDomain(posts []domain.ReducedPost) domain.Collection {
+func (c Collection) ConvertToDomain(posts []domain.Post) domain.Collection {
 	return domain.Collection{
 		Id:     c.Id,
 		Name:   c.Name,

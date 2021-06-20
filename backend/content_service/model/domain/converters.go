@@ -221,6 +221,18 @@ func ConvertMultipleReducedPostsFromGrpc(posts []*protopb.ReducedPost) []Reduced
 	return convertedPosts
 }
 
+func ConvertMultiplePostsFromGrpc(posts []*protopb.Post) []Post {
+	convertedPosts := []Post{}
+	for _, post := range posts {
+		var converted *Post
+		converted = converted.ConvertFromGrpc(post)
+
+		convertedPosts = append(convertedPosts, *converted)
+	}
+
+	return convertedPosts
+}
+
 // Media converters
 func (m *Media) ConvertFromGrpc(media *protopb.Media) *Media {
 	if m == nil {
@@ -423,7 +435,7 @@ func (c Collection) ConvertFromGrpc(collection *protopb.Collection) Collection {
 		Id:     collection.Id,
 		Name:   collection.Name,
 		UserId: collection.UserId,
-		Posts:  ConvertMultipleReducedPostsFromGrpc(collection.Posts),
+		Posts:  ConvertMultiplePostsFromGrpc(collection.Posts),
 	}
 }
 
@@ -432,7 +444,7 @@ func (c Collection) ConvertToGrpc() *protopb.Collection {
 		Id:     c.Id,
 		Name:   c.Name,
 		UserId: c.UserId,
-		Posts:  ConvertMultipleReducedPostsToGrpc(c.Posts),
+		Posts:  ConvertMultiplePostsToGrpc(c.Posts),
 	}
 }
 
@@ -449,7 +461,7 @@ func (f Favorites) ConvertToGrpc() *protopb.Favorites {
 	return &protopb.Favorites{
 		UserId:       f.UserId,
 		Collections:  ConvertMultipleCollectionsToGrpc(f.Collections),
-		Unclassified: ConvertMultipleReducedPostsToGrpc(f.Unclassified),
+		Unclassified: ConvertMultiplePostsToGrpc(f.Unclassified),
 	}
 }
 

@@ -71,13 +71,13 @@ type Collection struct {
 	Id     string
 	Name   string
 	UserId string
-	Posts  []ReducedPost
+	Posts  []Post
 }
 
 type Favorites struct {
 	UserId       string
 	Collections  []Collection
-	Unclassified []ReducedPost
+	Unclassified []Post
 }
 
 type FavoritesRequest struct {

@@ -47,12 +47,9 @@ func (service *FavoritesService) GetAllCollections(ctx context.Context, userId s
 			return []domain.Collection{}, err
 		}
 
-		posts := []domain.ReducedPost{}
+		posts := []domain.Post{}
 		for _, post := range dbPosts{
-			// converted, err := service.contentService.GetReducedPostData(ctx, post.PostId)
-			converted := domain.ReducedPost{
-				Objava: domain.Objava{ Id: post.PostId },
-			}
+			converted, err := service.contentService.GetPostById(ctx, post.PostId)
 			if err != nil { return []domain.Collection{}, err }
 
 			posts = append(posts, converted)
@@ -61,26 +58,6 @@ func (service *FavoritesService) GetAllCollections(ctx context.Context, userId s
 		collection := dbCollection.ConvertToDomain(posts)
 		collections = append(collections, collection)
 	}
-
-	dbUnclassified, err := service.favoritesRepository.GetUnclassifiedFavorites(ctx, userId)
-	if err != nil { return []domain.Collection{}, err }
-
-	unclassifiedPosts := []domain.ReducedPost{}
-	for _, unclassifiedPost := range dbUnclassified{
-		converted := domain.ReducedPost{
-			Objava: domain.Objava{ Id: unclassifiedPost.Id },
-		}
-		if err != nil { return []domain.Collection{}, err }
-
-		unclassifiedPosts = append(unclassifiedPosts, converted)
-	}
-
-	collections = append(collections, domain.Collection{
-		Id:     "1",
-		Name:   "No Collection",
-		UserId: userId,
-		Posts:  unclassifiedPosts,
-	})
 
 	return collections, nil
 }
@@ -99,9 +76,9 @@ func (service *FavoritesService) GetCollection(ctx context.Context, collectionId
 		return domain.Collection{}, err
 	}
 
-	posts := []domain.ReducedPost{}
+	posts := []domain.Post{}
 	for _, post := range dbPosts{
-		converted, err := service.contentService.GetReducedPostData(ctx, post.PostId)
+		converted, err := service.contentService.GetPostById(ctx, post.PostId)
 		if err != nil { return domain.Collection{}, err }
 
 		posts = append(posts, converted)
@@ -127,9 +104,9 @@ func (service *FavoritesService) GetUserFavorites(ctx context.Context, userId st
 		return domain.Favorites{}, err
 	}
 
-	unclassified := []domain.ReducedPost{}
+	unclassified := []domain.Post{}
 	for _, post := range dbUnclassified {
-		converted, err := service.contentService.GetReducedPostData(ctx, post.Id)
+		converted, err := service.contentService.GetPostById(ctx, post.Id)
 		if err != nil {
 			return domain.Favorites{}, err
 		}
@@ -157,6 +134,7 @@ func (service *FavoritesService) CreateFavorite(ctx context.Context, favoritesRe
 
 	return  nil
 }
+
 func (service *FavoritesService) RemoveFavorite(ctx context.Context, favoritesRequest domain.FavoritesRequest) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveFavorite")
 	defer span.Finish()

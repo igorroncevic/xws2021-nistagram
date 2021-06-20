@@ -48,6 +48,6 @@ class FavoritesService extends RootService {
     }
 }
 
-const collectionService = new FavoritesService();
+const favoritesService = new FavoritesService();
 
-export default collectionService;
+export default favoritesService;

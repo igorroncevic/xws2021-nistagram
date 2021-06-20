@@ -11,9 +11,7 @@ const CollectionsModal = (props) => {
     const { 
         showModal, 
         setShowModal, 
-        postId, 
-        isSaved, 
-        setIsSaved, 
+        postId,
         collections, 
         setCollections, 
         savedInCollections, 
@@ -37,40 +35,42 @@ const CollectionsModal = (props) => {
 
     const saveToCollection = async () => {
         const newFavorite = {
-            userId: selectedCollection.userId,
+            userId: store.user.id,
             postId: postId,
-            collectionId: selectedCollection.id == "1" ? null : selectedCollection.id,
+            collectionId: selectedCollection.id,
             jwt: store.user.jwt,
         }
-
+        
         const response = await favoritesService.createFavorite(newFavorite);
         
+        const collectionName = selectedCollection.name ? selectedCollection.name : "unclassified posts" 
         if(response.status === 200){
-            toastService.show("success", "Successfully saved this post to " + selectedCollection.name + ".");
+            toastService.show("success", "Successfully saved this post to " + collectionName + ".");
             setSavedInCollections([...savedInCollections, selectedCollection.id])
             setSelectedCollection({});
             setShowModal(!showModal);
         }else{
-            toastService.show("error", "Could not save this post to " + selectedCollection.name + ".");
+            toastService.show("error", "Could not save this post to " + collectionName + ".");
         }
     }
 
     const removeFromCollection = async () => {
         const removingFavorite = {
-            userId: selectedCollection.userId,
+            userId: store.user.id,
             postId: postId,
-            collectionId: selectedCollection.id == "1" ? null : selectedCollection.id,
+            collectionId: selectedCollection.id,
             jwt: store.user.jwt,
         }
         
         const response = await favoritesService.removeFavorite(removingFavorite);
         
+        const collectionName = selectedCollection.name ? selectedCollection.name : "unclassified posts" 
         if(response.status === 200){
-            toastService.show("success", "Successfully removed this post from " + selectedCollection.name + ".");
+            toastService.show("success", "Successfully removed this post from " + collectionName + ".");
             setSelectedCollection({});
             setShowModal(!showModal);
         }else{
-            toastService.show("error", "Could not remove this post from " + selectedCollection.name + ".");
+            toastService.show("error", "Could not remove this post from " + collectionName + ".");
         }
     }
 
@@ -84,11 +84,14 @@ const CollectionsModal = (props) => {
 
         if(response.status === 200) {
             setNewCollectionName("");
+            setIsNewCollectionButtonDisabled(true)
             setCollections([...collections, {
                 id: response.data.id,
                 name: collectionRequest.name,
                 userId: collectionRequest.userId,
+                posts: [],
             }])
+            toastService.show("success", "Successfully created new collection called " + collectionRequest.name + ".");
         }
     }
 

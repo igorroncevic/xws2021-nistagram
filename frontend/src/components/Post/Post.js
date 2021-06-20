@@ -12,7 +12,7 @@ import userService from './../../services/user.service';
 import toastService from './../../services/toast.service';
 import likeService from './../../services/like.service';
 import commentService from './../../services/comment.service';
-import collectionsService from './../../services/collections.service';
+import favoritesService from './../../services/favorites.service';
 import PostMenu from "./PostMenu";
 import {Button, Dropdown, Modal} from "react-bootstrap";
 
@@ -79,12 +79,16 @@ function Post (props) {
     }, [showSaveModal])
 
     const getUserCollections = () => { 
-        collectionsService.getUserCollections({
+        favoritesService.getUserFavorites({
             userId: store.user.id,
             jwt: store.user.jwt,
         }).then(response => {
             // Collection for posts that do not have any designated collection
-            const newCollections = [...response.data.collections];
+            const newCollections = [...response.data.collections, {
+                id: null,
+                name: "Unclassified",
+                posts: [...response.data.unclassified],
+            }];
             setCollections(newCollections)
 
             // Check in which collection the post has been saved

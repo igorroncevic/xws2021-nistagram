@@ -346,13 +346,13 @@ message Collection {
   string id = 1;
   string name = 2;
   string userId = 3;
-  repeated ReducedPost posts = 4;
+  repeated Post posts = 4;
 }
 
 message Favorites {
   string userId = 1;
   repeated Collection collections = 2;
-  repeated ReducedPost unclassified = 3;
+  repeated Post unclassified = 3;
 }
 
 message FavoritesRequest {
