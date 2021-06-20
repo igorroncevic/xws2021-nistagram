@@ -8,16 +8,15 @@ import {useHistory} from "react-router-dom";
 import Switch from "react-switch";
 
 function BlockMuteAndNotifications(props){
-    const {isApprovedRequest,isMuted,isMessageEnabled,isPostEnabled,isStoryEnabled,isCommentEnabled} = props;
+    const {isApprovedRequest,isMuted,notifications} = props;
     const[muted,setIsMuted]=useState({})
-    const[notifications,setNotifications]=useState({})
     const [showBlockModal, setBlockModal] = useState(false);
     const [showMuteModal, setMuteModal] = useState(false);
     const [showNotificationsModal, setNotificationsModal] = useState(false);
-    const [isMessageNotificationEnabled, setMessagesNotifications] = useState(isMessageEnabled);
-    const [isPostNotificationEnabled, setPostNotifications] = useState(isPostEnabled);
-    const [isStoryNotificationEnabled, setStoryNotifications] = useState(isStoryEnabled);
-    const [isCommentNotificationEnabled, setCommentsNotifications] = useState(isCommentEnabled);
+    const [isMessageNotificationEnabled, setMessagesNotifications] = useState(notifications.isMessageNotificationEnabled);
+    const [isPostNotificationEnabled, setPostNotifications] = useState(notifications.isPostNotificationEnabled);
+    const [isStoryNotificationEnabled, setStoryNotifications] = useState(notifications.isStoryNotificationEnabled);
+    const [isCommentNotificationEnabled, setCommentsNotifications] = useState(notifications.isCommentNotificationEnabled);
     const [update, setUpdate] = useState(false);
 
     const store = useSelector(state => state);
@@ -27,9 +26,12 @@ function BlockMuteAndNotifications(props){
         setIsMuted(isMuted)
     },[isMuted]);
 
-    //useEffect(() => {
-    //    setNotifications(isNotificationEnabled)
-    //},[isNotificationEnabled]);
+    useEffect(() => {
+        setMessagesNotifications(isMessageNotificationEnabled)
+        setPostNotifications(isPostNotificationEnabled)
+        setStoryNotifications(isStoryNotificationEnabled)
+        setCommentsNotifications(isCommentNotificationEnabled)
+    },[isMessageNotificationEnabled,isPostNotificationEnabled,isStoryNotificationEnabled,isCommentNotificationEnabled]);
 
     function handleBlockModal(){
         setBlockModal(!showBlockModal)
@@ -107,7 +109,7 @@ function BlockMuteAndNotifications(props){
             console.log("NIJE ")
         }
     }
-    
+
     async function menageNotifications() {
         const response = await followersService.updateUserConnection({
             userId: store.followers.userId,
