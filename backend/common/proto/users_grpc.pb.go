@@ -41,6 +41,7 @@ type UsersClient interface {
 	CreateNotification(ctx context.Context, in *CreateNotificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	DeleteNotification(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*EmptyResponse, error)
 	ReadAllNotifications(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*EmptyResponse, error)
+	DeleteByTypeAndCreator(ctx context.Context, in *Notification, opts ...grpc.CallOption) (*EmptyResponse, error)
 	//* Verification requests *
 	SubmitVerificationRequest(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GetPendingVerificationRequests(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*VerificationRequestsArray, error)
@@ -264,6 +265,15 @@ func (c *usersClient) ReadAllNotifications(ctx context.Context, in *RequestIdUse
 	return out, nil
 }
 
+func (c *usersClient) DeleteByTypeAndCreator(ctx context.Context, in *Notification, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Users/DeleteByTypeAndCreator", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *usersClient) SubmitVerificationRequest(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	out := new(EmptyResponse)
 	err := c.cc.Invoke(ctx, "/proto.Users/SubmitVerificationRequest", in, out, opts...)
@@ -336,6 +346,7 @@ type UsersServer interface {
 	CreateNotification(context.Context, *CreateNotificationRequest) (*EmptyResponse, error)
 	DeleteNotification(context.Context, *RequestIdUsers) (*EmptyResponse, error)
 	ReadAllNotifications(context.Context, *RequestIdUsers) (*EmptyResponse, error)
+	DeleteByTypeAndCreator(context.Context, *Notification) (*EmptyResponse, error)
 	//* Verification requests *
 	SubmitVerificationRequest(context.Context, *VerificationRequest) (*EmptyResponse, error)
 	GetPendingVerificationRequests(context.Context, *EmptyRequest) (*VerificationRequestsArray, error)
@@ -417,6 +428,9 @@ func (UnimplementedUsersServer) DeleteNotification(context.Context, *RequestIdUs
 }
 func (UnimplementedUsersServer) ReadAllNotifications(context.Context, *RequestIdUsers) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReadAllNotifications not implemented")
+}
+func (UnimplementedUsersServer) DeleteByTypeAndCreator(context.Context, *Notification) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteByTypeAndCreator not implemented")
 }
 func (UnimplementedUsersServer) SubmitVerificationRequest(context.Context, *VerificationRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitVerificationRequest not implemented")
@@ -860,6 +874,24 @@ func _Users_ReadAllNotifications_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_DeleteByTypeAndCreator_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Notification)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).DeleteByTypeAndCreator(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/DeleteByTypeAndCreator",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).DeleteByTypeAndCreator(ctx, req.(*Notification))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Users_SubmitVerificationRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(VerificationRequest)
 	if err := dec(in); err != nil {
@@ -1048,6 +1080,10 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ReadAllNotifications",
 			Handler:    _Users_ReadAllNotifications_Handler,
+		},
+		{
+			MethodName: "DeleteByTypeAndCreator",
+			Handler:    _Users_DeleteByTypeAndCreator_Handler,
 		},
 		{
 			MethodName: "SubmitVerificationRequest",

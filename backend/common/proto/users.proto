@@ -160,7 +160,12 @@ service Users {
     };
   }
 
-
+  rpc DeleteByTypeAndCreator(Notification) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/deleteBy_type_creator"
+      body: "*"
+    };
+  }
 
   //* Verification requests *
   rpc SubmitVerificationRequest (VerificationRequest) returns (EmptyResponse) {
