@@ -16,6 +16,7 @@ function Liked() {
     useEffect(() => {
         if(store.user.role === 'Admin' || store.user.role === "") window.location.replace("http://localhost:3000/unauthorized");
         getUserLikedOrDislikedPosts();
+        console.log(store)
     }, []);
 
     function getUserLikedOrDislikedPosts() {

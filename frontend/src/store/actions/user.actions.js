@@ -12,8 +12,13 @@ const followRequest = (data) => {
     return { type: userConstants.FOLLOW_REQUEST, data }
 }
 
+const setStory = (data) => {
+    return { type: userConstants.SET_STORY, data }
+}
+
 export const userActions = {
     registerRequest,
     loginRequest,
-    followRequest
+    followRequest,
+    setStory
 }
