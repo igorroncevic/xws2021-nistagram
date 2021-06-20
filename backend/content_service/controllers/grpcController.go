@@ -133,6 +133,10 @@ func (s *Server) GetAllCollections(ctx context.Context, in *protopb.RequestId) (
 	return s.favoritesController.GetAllCollections(ctx, in)
 }
 
+func (s *Server) GetUserFavoritesOptimized(ctx context.Context, in *protopb.RequestId) (*protopb.Favorites, error) {
+	return s.favoritesController.GetUserFavoritesOptimized(ctx, in)
+}
+
 func (s *Server) GetCollection(ctx context.Context, in *protopb.RequestId) (*protopb.Collection, error) {
 	return s.favoritesController.GetCollection(ctx, in)
 }

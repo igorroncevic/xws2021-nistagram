@@ -23,7 +23,7 @@ func SetupContentRBAC(db *gorm.DB) error {
 			createStory, getAllStories, getStoriesForUser, getMyStories, removeStory, getStoryById,
 			createComment, getCommentsForPost,
 			createLike, getLikesForPost, getDislikesForPost,
-			getAllCollections, getCollection, createCollection, removeCollection, getUserFavorites, createFavorite, removeFavorite,
+			getAllCollections, getCollection, createCollection, removeCollection, getUserFavorites, getUserFavoritesOptimized, createFavorite, removeFavorite,
 			createHashtag, getAllHashtags,
 			getAllHighlights, getHighlight, createHighlight, removeHighlight, createHighlightStory, removeHighlightStory, getUserLikedOrDislikedPosts,
 		}
@@ -52,6 +52,7 @@ func SetupContentRBAC(db *gorm.DB) error {
 			basicGetLikesForPost, agentGetLikesForPost, adminGetLikesForPost, nonregisteredGetLikesForPost, verifiedGetLikesForPost,
 			basicGetDislikesForPost, agentGetDislikesForPost, adminGetDislikesForPost, nonregisteredGetDislikesForPost, verifiedGetDislikesForPost,
 			basicGetAllCollections, agentGetAllCollections, verifiedGetAllCollections,
+			basicGetUserFavoritesOptimized, agentGetUserFavoritesOptimized, verifiedGetUserFavoritesOptimized,
 			basicGetCollection, agentGetCollection, verifiedGetCollection,
 			basicCreateCollection, agentCreateCollection, verifiedCreateCollection,
 			basicRemoveCollection, agentRemoveCollection, verifiedRemoveCollection,
@@ -117,6 +118,7 @@ var (
 	getUserLikedOrDislikedPosts = Permission{Id: "94ec116c-92fe-4cad-b262-a566d88c2041", Name: "GetUserLikedOrDislikedPosts"}
 
 	getAllCollections = Permission{Id: "f7ce029b-1d08-40d6-bf16-17a2e4b26c43", Name: "GetAllCollections"}
+	getUserFavoritesOptimized = Permission{Id: "f99726f8-f73b-49eb-806b-b0d45c0ae4f6", Name: "GetUserFavoritesOptimized"}
 	getCollection     = Permission{Id: "1c0d7507-4e50-49cf-ae3c-9d330583acdf", Name: "GetCollection"}
 	createCollection  = Permission{Id: "ebd1ebf8-07fb-4062-a5ee-cedb08a8236a", Name: "CreateCollection"}
 	removeCollection  = Permission{Id: "672eb20a-26e5-42b7-a666-708b80f983ee", Name: "RemoveCollection"}
@@ -249,6 +251,10 @@ var (
 	basicGetAllCollections    = RolePermission{RoleId: basic.Id, PermissionId: getAllCollections.Id}
 	verifiedGetAllCollections = RolePermission{RoleId: verified.Id, PermissionId: getAllCollections.Id}
 	agentGetAllCollections    = RolePermission{RoleId: agent.Id, PermissionId: getAllCollections.Id}
+
+	basicGetUserFavoritesOptimized    = RolePermission{RoleId: basic.Id, PermissionId: getUserFavoritesOptimized.Id}
+	verifiedGetUserFavoritesOptimized = RolePermission{RoleId: verified.Id, PermissionId: getUserFavoritesOptimized.Id}
+	agentGetUserFavoritesOptimized    = RolePermission{RoleId: agent.Id, PermissionId: getUserFavoritesOptimized.Id}
 
 	basicGetCollection    = RolePermission{RoleId: basic.Id, PermissionId: getCollection.Id}
 	verifiedGetCollection = RolePermission{RoleId: verified.Id, PermissionId: getCollection.Id}

@@ -49,6 +49,8 @@ type ContentClient interface {
 	CreateCollection(ctx context.Context, in *Collection, opts ...grpc.CallOption) (*Collection, error)
 	RemoveCollection(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetUserFavorites(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Favorites, error)
+	// Only fetching post ids, instead of all the data
+	GetUserFavoritesOptimized(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Favorites, error)
 	CreateFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	RemoveFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	// Hashtags
@@ -304,6 +306,15 @@ func (c *contentClient) GetUserFavorites(ctx context.Context, in *RequestId, opt
 	return out, nil
 }
 
+func (c *contentClient) GetUserFavoritesOptimized(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Favorites, error) {
+	out := new(Favorites)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetUserFavoritesOptimized", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *contentClient) CreateFavorite(ctx context.Context, in *FavoritesRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
 	out := new(EmptyResponseContent)
 	err := c.cc.Invoke(ctx, "/proto.Content/CreateFavorite", in, out, opts...)
@@ -420,6 +431,8 @@ type ContentServer interface {
 	CreateCollection(context.Context, *Collection) (*Collection, error)
 	RemoveCollection(context.Context, *RequestId) (*EmptyResponseContent, error)
 	GetUserFavorites(context.Context, *RequestId) (*Favorites, error)
+	// Only fetching post ids, instead of all the data
+	GetUserFavoritesOptimized(context.Context, *RequestId) (*Favorites, error)
 	CreateFavorite(context.Context, *FavoritesRequest) (*EmptyResponseContent, error)
 	RemoveFavorite(context.Context, *FavoritesRequest) (*EmptyResponseContent, error)
 	// Hashtags
@@ -515,6 +528,9 @@ func (UnimplementedContentServer) RemoveCollection(context.Context, *RequestId) 
 }
 func (UnimplementedContentServer) GetUserFavorites(context.Context, *RequestId) (*Favorites, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserFavorites not implemented")
+}
+func (UnimplementedContentServer) GetUserFavoritesOptimized(context.Context, *RequestId) (*Favorites, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserFavoritesOptimized not implemented")
 }
 func (UnimplementedContentServer) CreateFavorite(context.Context, *FavoritesRequest) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateFavorite not implemented")
@@ -1024,6 +1040,24 @@ func _Content_GetUserFavorites_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Content_GetUserFavoritesOptimized_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetUserFavoritesOptimized(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetUserFavoritesOptimized",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetUserFavoritesOptimized(ctx, req.(*RequestId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Content_CreateFavorite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FavoritesRequest)
 	if err := dec(in); err != nil {
@@ -1296,6 +1330,10 @@ var Content_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserFavorites",
 			Handler:    _Content_GetUserFavorites_Handler,
+		},
+		{
+			MethodName: "GetUserFavoritesOptimized",
+			Handler:    _Content_GetUserFavoritesOptimized_Handler,
 		},
 		{
 			MethodName: "CreateFavorite",

@@ -7,7 +7,7 @@ import PostPreviewModal from './../Post/PostPreviewModal';
 import "./../../style/PostPreviewGrid.css"
 
 const PostPreviewGrid = (props) => {
-    const { posts } = props;
+    const { posts, shouldReload } = props;
 
     const [selectedPost, setSelectedPost] = useState({});
     const [showModal, setShowModal] = useState(false);
@@ -25,6 +25,7 @@ const PostPreviewGrid = (props) => {
             <PostPreviewModal 
                 post={selectedPost} 
                 postUser={{ id: selectedPost.userId }} 
+                shouldReload={shouldReload}
                 showModal={showModal}
                 setShowModal={setShowModal}
             /> }

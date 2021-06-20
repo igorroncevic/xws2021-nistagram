@@ -182,6 +182,13 @@ service Content {
     };
   }
 
+  // Only fetching post ids, instead of all the data
+  rpc GetUserFavoritesOptimized (RequestId) returns (Favorites) {
+    option(google.api.http) = {
+      get: "/favorites/optimized/{id}"
+    };
+  }
+
   rpc CreateFavorite (FavoritesRequest) returns (EmptyResponseContent) {
     option(google.api.http) = {
       post: "/favorites/create",

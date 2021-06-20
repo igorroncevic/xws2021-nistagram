@@ -17,7 +17,7 @@ import PostMenu from "./PostMenu";
 import {Button, Dropdown, Modal} from "react-bootstrap";
 
 function Post (props) {
-    const { postUser } = props;
+    const { postUser, shouldReload } = props;
     const [post, setPost] = useState(props.post)
     const [user, setUser] = useState({});
     const [hoursAgo, setHoursAgo] = useState(0)
@@ -79,7 +79,7 @@ function Post (props) {
     }, [showSaveModal])
 
     const getUserCollections = () => { 
-        favoritesService.getUserFavorites({
+        favoritesService.getUserFavoritesOptimized({
             userId: store.user.id,
             jwt: store.user.jwt,
         }).then(response => {
@@ -99,6 +99,7 @@ function Post (props) {
                     setSavedInCollections([...savedInCollections, collection.id])
                 };
             })
+            console.log(response);
         }).catch(err => {
             toastService.show("error", "Could not load your collections. Please try again.")
         })
@@ -214,10 +215,10 @@ function Post (props) {
     const handleSaveClick = () => {
        store.user.id && setShowSaveModal(!showSaveModal);
     }
+
     const handleReportModal =()=>{
         setReportModal(!showReportModal)
     }
-
 
     return(
         <div className="Post">
@@ -298,9 +299,9 @@ function Post (props) {
                 setSavedInCollections={setSavedInCollections} 
                 postId={post.id} 
                 isSaved={isSaved}
-                setIsSaved={setIsSaved}    
+                setIsSaved={setIsSaved}   
+                shouldReload={shouldReload} 
             />
-
 
             <Modal show={showReportModal} onHide={setReportModal}>
                 <Modal.Header closeButton>

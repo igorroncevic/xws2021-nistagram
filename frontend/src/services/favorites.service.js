@@ -33,11 +33,11 @@ class FavoritesService extends RootService {
         return response
     }
     
-    async getUserFavorites(data){
+    async getUserFavoritesOptimized(data){
         const { userId, jwt } = data;
         const headers = this.setupHeaders(jwt);
 
-        const response = this.apiClient.get(`/${userId}`, { headers })
+        const response = this.apiClient.get(`/optimized/${userId}`, { headers })
             .then(res => {
                 return res
             }).catch(err => {

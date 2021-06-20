@@ -15,7 +15,8 @@ const CollectionsModal = (props) => {
         collections, 
         setCollections, 
         savedInCollections, 
-        setSavedInCollections 
+        setSavedInCollections,
+        shouldReload // shouldReload is used for refreshing page when a post is saved within collections menu
     } = props;
 
     const [newCollectionName, setNewCollectionName] = useState("");
@@ -49,6 +50,7 @@ const CollectionsModal = (props) => {
             setSavedInCollections([...savedInCollections, selectedCollection.id])
             setSelectedCollection({});
             setShowModal(!showModal);
+            shouldReload && window.location.reload()
         }else{
             toastService.show("error", "Could not save this post to " + collectionName + ".");
         }
@@ -67,8 +69,10 @@ const CollectionsModal = (props) => {
         const collectionName = selectedCollection.name ? selectedCollection.name : "unclassified posts" 
         if(response.status === 200){
             toastService.show("success", "Successfully removed this post from " + collectionName + ".");
+            setSavedInCollections([...savedInCollections.filter(collection => collection.id !== selectedCollection.id)])
             setSelectedCollection({});
             setShowModal(!showModal);
+            shouldReload && window.location.reload()
         }else{
             toastService.show("error", "Could not remove this post from " + collectionName + ".");
         }

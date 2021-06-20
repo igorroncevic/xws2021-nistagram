@@ -122,6 +122,55 @@ func (service *FavoritesService) GetUserFavorites(ctx context.Context, userId st
 	return favorites, nil
 }
 
+func (service *FavoritesService) GetUserFavoritesOptimized(ctx context.Context, userId string) (domain.Favorites, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserFavoritesOptimized")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+
+	collections, err := service.GetAllCollections(ctx, userId)
+	if err != nil {
+		return domain.Favorites{}, nil
+	}
+
+	reducedCollections := []domain.Collection{}
+	for _, collection := range collections {
+		reducedPosts := []domain.Post{}
+		for _, post := range collection.Posts{
+			reducedPosts = append(reducedPosts, domain.Post{
+				Objava: domain.Objava{Id: post.Id},
+			})
+		}
+
+		collections = append(collections, domain.Collection{
+			Id:     collection.Id,
+			Name:   collection.Name,
+			UserId: collection.UserId,
+			Posts:  reducedPosts,
+		})
+	}
+
+	dbUnclassified, err := service.favoritesRepository.GetUnclassifiedFavorites(ctx, userId)
+	if err != nil {
+		return domain.Favorites{}, err
+	}
+
+	unclassified := []domain.Post{}
+	for _, post := range dbUnclassified {
+		unclassified = append(unclassified, domain.Post{
+			Objava: domain.Objava{Id: post.Id},
+		})
+	}
+
+	favorites := domain.Favorites{
+		UserId:       userId,
+		Collections:  reducedCollections,
+		Unclassified: unclassified,
+	}
+
+	return favorites, nil
+}
+
 func (service *FavoritesService) CreateFavorite(ctx context.Context, favoritesRequest domain.FavoritesRequest) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateFavorite")
 	defer span.Finish()

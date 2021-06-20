@@ -7,6 +7,7 @@ import Navigation from "../HomePage/Navigation";
 import Spinner from './../../helpers/spinner';
 
 import favoritesService from './../../services/favorites.service' 
+import collectionsService from './../../services/collections.service' 
 import toastService from './../../services/toast.service' 
 
 import './../../style/Saved.css'
@@ -31,7 +32,6 @@ const Saved = () => {
             jwt: store.user.jwt
         }).then(res => {
             const allPosts = [];
-            console.log(res)
             res.data.collections.forEach(collection => allPosts.push(...collection.posts) )
             res.data.unclassified.forEach(post => allPosts.push(post) )
             setPosts(allPosts)
@@ -94,6 +94,27 @@ const Saved = () => {
         setNewCollectionName(e.target.value)
     }
 
+    const createNewCollection = async () => {
+        const collectionRequest = {
+            name: newCollectionName,
+            userId: store.user.id,
+            jwt: store.user.jwt
+        }
+        const response = await collectionsService.createCollection(collectionRequest)
+
+        if(response.status === 200) {
+            setNewCollectionName("");
+            setIsNewCollectionButtonDisabled(true)
+            setCollections([...collections, {
+                id: response.data.id,
+                name: collectionRequest.name,
+                userId: collectionRequest.userId,
+                posts: [],
+            }])
+            toastService.show("success", "Successfully created new collection called " + collectionRequest.name + ".");
+        }
+    }
+
     return (
         <div>
             <Navigation/>
@@ -102,7 +123,7 @@ const Saved = () => {
                     <div className="title">Saved Posts</div>
                     <div className="content">
                         { postsLoading ? <Spinner type="MutatingDots" /> : 
-                            (postsToRender.length > 0 ? <PostPreviewGrid posts={postsToRender} /> : <div>No saved posts in here!</div>) }
+                            (postsToRender.length > 0 ? <PostPreviewGrid shouldReload={true} posts={postsToRender} /> : <div>No saved posts in here!</div>) }
                     </div>
                 </div>
                 <div className="collections">
@@ -122,7 +143,7 @@ const Saved = () => {
                                 className="newCollectionButton" 
                                 variant="outline-primary" 
                                 disabled={isNewCollectionButtonDisabled} 
-                                onClick={console.log()}>Create</Button>
+                                onClick={createNewCollection}>Create</Button>
                         </div>
                     </div> 
                 </div>
