@@ -34,6 +34,19 @@ class PostService extends RootService {
         })
         return response
     }
+    async getPostById(data){
+        const { id, jwt } = data;
+        const headers = this.setupHeaders(jwt)
+
+        const response = this.apiClient.get(`/${id}`, { headers })
+            .then(res => {
+                return res
+            }).catch(err => {
+                console.error(err)
+                return err
+            })
+        return response
+    }
 }
 
 const postService = new PostService()

@@ -7,15 +7,21 @@ import followersService from "../../services/followers.service";
 import toastService from "../../services/toast.service";
 import moment from "moment";
 import "../../style/notification.css";
+import {contentService} from "../../backendPaths";
+import postService from "../../services/post.service";
+import PostPreviewModal from "../Post/PostPreviewModal";
 
 function Notification(props){
-    const {id,creatorId,userId,text,type,createdAt} = props;
+    const {id,creatorId,userId,text,type,createdAt,contentId} = props;
     const[user,setUser]=useState({});
     const[privateFollow,setPrivateFollow]=useState(false);
+    const[contentType,setContentType]=useState(false);
     const store = useSelector(state => state);
     const [hoursAgo, setHoursAgo] = useState(0)
     const [daysAgo, setDaysAgo] = useState(0);
     const [minutesAgo, setMinutesAgo] = useState(0)
+    const[post,setPost]=useState({})
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         setDate()
@@ -39,6 +45,9 @@ function Notification(props){
     function  checkType(){
         if(type==="FollowPrivate"){
             setPrivateFollow(true)
+        }
+        if(type==="Like" || type==="Dislike" || type==="Comment" ){
+            setContentType(true)
         }
     }
     
@@ -104,12 +113,28 @@ function Notification(props){
         }
     }
 
+    async function getPostById() {
+        const response = await postService.getPostById({
+            id: contentId,
+            jwt: store.user.jwt,
+        })
+        if (response.status === 200) {
+            setPost(response.data)
+                setShowModal(true);
+        } else {
+            toastService.show("error", "Something went wrong, please try again!");
+        }
+    }
 
     return(
         <div style={{display: "flex", marginLeft:'10%'}}>
             <ProfileForSug user={user} username={user.username} caption={user.biography} urlText="Follow" iconSize="big" captionSize="small" storyBorder={true}
                            firstName={user.firstName} lastName={user.lastName} image={user.profilePhoto}/>
-            <font face = "Comic Sans MS" size = "3" style={{marginRight:'5em', fontWeight:'bold'}}>{text}</font>
+            {contentType ?
+                <Button variant="link" onClick={getPostById}>{text}</Button>
+                :
+                <font face="Comic Sans MS" size="3" style={{marginRight: '5em', fontWeight: 'bold'}}>{text}</font>
+            }
             <div className="timePosted">
                 { daysAgo < 1 ? (
                         hoursAgo < 1 ? <p style={{fontSize:'11px'}}>{minutesAgo}  minutes ago</p>: <p> {hoursAgo}  hours ago</p>
@@ -121,9 +146,13 @@ function Notification(props){
 
                     <Button  style={{ height:'27px',  fontSize:'12px'}}  variant="success"  onClick={() => acceptRequest()}  >Accept</Button>
                     <Button  style={{marginLeft:'5px', height:'27px', fontSize:'12px'}}  variant="secondary"  onClick={() => handleReject()} >Reject</Button>
-
                 </div>
             }
+            <PostPreviewModal
+                post={post}
+                postUser={{ id: post.userId }}
+                showModal={showModal}
+                setShowModal={setShowModal}/>
         </div>
     );
 
