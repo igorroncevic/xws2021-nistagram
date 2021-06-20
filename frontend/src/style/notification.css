@@ -1,0 +1,13 @@
+.timePosted{
+    font-size: 0.75em;
+    padding-left: 1.4em;
+    padding-bottom: 0.2em;
+    padding-top: 1.5em;
+    color: var(--font-color-secondary);
+}
+.circle:before {
+    content: ' \25CF';
+    font-size: 25px;
+    margin-bottom: 4.2em;
+    color:red;
+}

@@ -68,10 +68,10 @@ func (repository *notificationRepository) CheckIfAlreadyExists(notification *per
 	if checkNotification.NotificationId != "" {
 		return errors.New("Notification already exists")
 	}
-	repository.DB.Where("creator_id = ?", notification.CreatorId).Where("type = ?", "Comment").Where("content_id = ?", notification.ContentId).Find(&checkNotification)
-	if checkNotification.NotificationId != "" {
-		return errors.New("Notification already exists")
-	}
+	//repository.DB.Where("creator_id = ?", notification.CreatorId).Where("type = ?", "Comment").Where("content_id = ?", notification.ContentId).Find(&checkNotification)
+	//if checkNotification.NotificationId != "" {
+	//	return errors.New("Notification already exists")
+	//}
 	return nil
 }
 

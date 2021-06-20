@@ -47,8 +47,8 @@ function Notifications(props) {
             <div style={{marginLeft:'20%', marginRight:'20%'}}>
                  <h3 style={{borderBottom:'1px solid black'}}>Notifications</h3>
                 <div style={{marginTop:'4%'}}>
-                    {notifications.map((notification, i) =>
-                       <Notification getUserNotifications={getUserNotifications} id={notification.id} creatorId={notification.creatorId} userId={notification.userId} text={notification.text} type={notification.type} />
+                    {notifications.reverse().map((notification, i) =>
+                       <Notification getUserNotifications={getUserNotifications} id={notification.id} creatorId={notification.creatorId} userId={notification.userId} text={notification.text} type={notification.type} createdAt={notification.createdAt}/>
                     ) }
                 </div>
             </div>

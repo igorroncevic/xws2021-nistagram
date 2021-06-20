@@ -12,6 +12,7 @@ func (notification UserNotification) ConvertToGrpc() *protopb.Notification {
 		UserId:    notification.UserId,
 		Type:      notification.Type,
 		ContentId: notification.ContentId,
+		IsRead: notification.IsRead,
 		CreatedAt: timestamppb.New(notification.CreatedAt),
 	}
 }

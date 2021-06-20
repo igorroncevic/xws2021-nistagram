@@ -5,14 +5,20 @@ import userService from "../../services/user.service";
 import {useSelector} from "react-redux";
 import followersService from "../../services/followers.service";
 import toastService from "../../services/toast.service";
+import moment from "moment";
+import "../../style/notification.css";
 
 function Notification(props){
-    const {id,creatorId,userId,text,type} = props;
+    const {id,creatorId,userId,text,type,createdAt} = props;
     const[user,setUser]=useState({});
     const[privateFollow,setPrivateFollow]=useState(false);
     const store = useSelector(state => state);
+    const [hoursAgo, setHoursAgo] = useState(0)
+    const [daysAgo, setDaysAgo] = useState(0);
+    const [minutesAgo, setMinutesAgo] = useState(0)
 
     useEffect(() => {
+        setDate()
         getUserById()
         checkType()
     }, []);
@@ -84,7 +90,19 @@ function Notification(props){
         }
     }
 
+    function setDate(){
+        const currentTime = moment(new Date())
 
+        if(Math.floor(moment.duration(currentTime.diff(createdAt)).asHours()) < 24){
+            if (Math.floor(moment.duration(currentTime.diff(createdAt)).asHours()) <= 0) {
+                setMinutesAgo(Math.floor(moment.duration(currentTime.diff(createdAt)).asMinutes()))
+            }
+            else{
+                setHoursAgo(Math.floor(moment.duration(currentTime.diff(createdAt)).asHours()))}
+        }else{
+            setDaysAgo(Math.floor(moment.duration(currentTime.diff(createdAt)).asDays()))
+        }
+    }
 
 
     return(
@@ -92,7 +110,12 @@ function Notification(props){
             <ProfileForSug user={user} username={user.username} caption={user.biography} urlText="Follow" iconSize="big" captionSize="small" storyBorder={true}
                            firstName={user.firstName} lastName={user.lastName} image={user.profilePhoto}/>
             <font face = "Comic Sans MS" size = "3" style={{marginRight:'5em', fontWeight:'bold'}}>{text}</font>
-
+            <div className="timePosted">
+                { daysAgo < 1 ? (
+                        hoursAgo < 1 ? <p style={{fontSize:'11px'}}>{minutesAgo}  minutes ago</p>: <p> {hoursAgo}  hours ago</p>
+                    ) : <p style={{fontSize:'11px'}}>{daysAgo} days ago</p>
+                }
+            </div>
             {privateFollow &&
                 <div  style={{display: "flex", marginLeft:'85px'}}>
 

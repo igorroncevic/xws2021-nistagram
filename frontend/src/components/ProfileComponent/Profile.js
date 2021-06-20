@@ -206,7 +206,7 @@ const Profile = () => {
                         <PostPreviewGrid posts={posts} />
                 )
                 }
-                {follow && publicProfile && isApprovedRequest &&
+                {follow && publicProfile  &&
                     (loading ? 
                         <div style={{ position: "relative", left: "45%", marginTop: "50px" }}>
                             <Spinner type="MutatingDots" height="100" width="100" />
