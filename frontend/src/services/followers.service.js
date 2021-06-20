@@ -39,11 +39,15 @@ class FollowersService extends RootService {
     }
 
     async createConnection(data){
-        const { userId,followerId,isApprovedRequest,isCloseFriends,isNotificationEnabled,requestIsPending,jwt} = data
+        const { userId,followerId,isApprovedRequest,isCloseFriends,isMuted,
+            isMessageNotificationEnabled,isPostNotificationEnabled, isStoryNotificationEnabled, isCommentNotificationEnabled,
+            requestIsPending,jwt} = data
         const headers=this.setupHeaders(jwt)
 
         const response = this.apiClient.post('/create_connection',{
-          follower:{  userId,followerId,isApprovedRequest,isCloseFriends,isNotificationEnabled,requestIsPending}
+          follower:{  userId,followerId,isApprovedRequest,isCloseFriends,isMuted,
+              isMessageNotificationEnabled,isPostNotificationEnabled, isStoryNotificationEnabled, isCommentNotificationEnabled,
+              requestIsPending}
         },{
             headers:headers
         }).then(res => {
@@ -70,11 +74,12 @@ class FollowersService extends RootService {
         return response
     }
     async updateUserConnection(data){
-        const { userId,followerId,isApprovedRequest,isCloseFriends,isMuted,isNotificationEnabled,requestIsPending,jwt} = data
+        const { userId,followerId,isApprovedRequest,isCloseFriends,isMuted,
+            isMessageNotificationEnabled,isPostNotificationEnabled, isStoryNotificationEnabled, isCommentNotificationEnabled,
+            requestIsPending,jwt} = data
         const headers=this.setupHeaders(jwt)
-
         const response = this.apiClient.post('/update_follower',{
-             userId,followerId,isApprovedRequest,isCloseFriends,isMuted,isNotificationEnabled,requestIsPending
+             userId,followerId,isApprovedRequest,isCloseFriends,isMuted,isMessageNotificationEnabled,isPostNotificationEnabled, isStoryNotificationEnabled, isCommentNotificationEnabled,requestIsPending
         },{
             headers:headers
         }).then(res => {
@@ -115,11 +120,13 @@ class FollowersService extends RootService {
     }
 
     async acceptRequest(data){
-        const { userId,followerId,isApprovedRequest,isCloseFriends,isMuted,isNotificationEnabled,requestIsPending,jwt} = data
+        const { userId,followerId,isApprovedRequest,isCloseFriends,isMuted,
+            isMessageNotificationEnabled,isPostNotificationEnabled, isStoryNotificationEnabled, isCommentNotificationEnabled,
+            requestIsPending,jwt} = data
         const headers=this.setupHeaders(jwt)
 
         const response = this.apiClient.post('/accept_request',{
-            userId,followerId,isApprovedRequest,isCloseFriends,isMuted,isNotificationEnabled,requestIsPending
+            userId,followerId,isApprovedRequest,isCloseFriends,isMuted, isMessageNotificationEnabled,isPostNotificationEnabled, isStoryNotificationEnabled, isCommentNotificationEnabled,requestIsPending
         },{
             headers:headers
         }).then(res => {

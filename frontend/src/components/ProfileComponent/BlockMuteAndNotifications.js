@@ -8,16 +8,15 @@ import {useHistory} from "react-router-dom";
 import Switch from "react-switch";
 
 function BlockMuteAndNotifications(props){
-    const {isApprovedRequest,isMuted,isNotificationEnabled} = props;
-    const [muted,setIsMuted]=useState({})
-    const [notifications,setNotifications]=useState({})
+    const {isApprovedRequest,isMuted,notifications} = props;
+    const[muted,setIsMuted]=useState({})
     const [showBlockModal, setBlockModal] = useState(false);
     const [showMuteModal, setMuteModal] = useState(false);
     const [showNotificationsModal, setNotificationsModal] = useState(false);
-    const [messagesNotifications, setMessagesNotifications] = useState(notifications);
-    const [postNotifications, setPostNotifications] = useState(notifications);
-    const [storyNotifications, setStoryNotifications] = useState(notifications);
-    const [commentsNotifications, setCommentsNotifications] = useState(notifications);
+    const [isMessageNotificationEnabled, setMessagesNotifications] = useState(notifications.isMessageNotificationEnabled);
+    const [isPostNotificationEnabled, setPostNotifications] = useState(notifications.isPostNotificationEnabled);
+    const [isStoryNotificationEnabled, setStoryNotifications] = useState(notifications.isStoryNotificationEnabled);
+    const [isCommentNotificationEnabled, setCommentsNotifications] = useState(notifications.isCommentNotificationEnabled);
     const [update, setUpdate] = useState(false);
 
     const store = useSelector(state => state);
@@ -28,8 +27,11 @@ function BlockMuteAndNotifications(props){
     },[isMuted]);
 
     useEffect(() => {
-        setNotifications(isNotificationEnabled)
-    },[isNotificationEnabled]);
+        setMessagesNotifications(isMessageNotificationEnabled)
+        setPostNotifications(isPostNotificationEnabled)
+        setStoryNotifications(isStoryNotificationEnabled)
+        setCommentsNotifications(isCommentNotificationEnabled)
+    },[isMessageNotificationEnabled,isPostNotificationEnabled,isStoryNotificationEnabled,isCommentNotificationEnabled]);
 
     function handleBlockModal(){
         setBlockModal(!showBlockModal)
@@ -42,19 +44,19 @@ function BlockMuteAndNotifications(props){
     }
     function handleMessagesNotifications(){
         if(!update) setUpdate(true)
-        setMessagesNotifications(!messagesNotifications)
+        setMessagesNotifications(!isMessageNotificationEnabled)
     }
     function handlePostNotifications(){
         if(!update) setUpdate(true)
-        setPostNotifications(!postNotifications)
+        setPostNotifications(!isPostNotificationEnabled)
     }
     function handleCommentNotifications(){
         if(!update) setUpdate(true)
-        setCommentsNotifications(!commentsNotifications)
+        setCommentsNotifications(!isCommentNotificationEnabled)
     }
     function handleStoryNotifications(){
         if(!update) setUpdate(true)
-        setStoryNotifications(!storyNotifications)
+        setStoryNotifications(!isStoryNotificationEnabled)
     }
 
     async function blockUser() {
@@ -79,7 +81,6 @@ function BlockMuteAndNotifications(props){
             isApprovedRequest: true,
             isCloseFriends: false,
             isMuted:true,
-            isNotificationEnabled:true,
             jwt: store.user.jwt,
         })
         if (response.status === 200) {
@@ -108,6 +109,7 @@ function BlockMuteAndNotifications(props){
             console.log("NIJE ")
         }
     }
+
     async function menageNotifications() {
         const response = await followersService.updateUserConnection({
             userId: store.followers.userId,
@@ -115,7 +117,10 @@ function BlockMuteAndNotifications(props){
             isApprovedRequest: true,
             isCloseFriends: false,
             isMuted:false,
-            isNotificationEnabled:messagesNotifications,
+            isMessageNotificationEnabled: isMessageNotificationEnabled,
+            isPostNotificationEnabled:isPostNotificationEnabled,
+            isStoryNotificationEnabled:isStoryNotificationEnabled,
+            isCommentNotificationEnabled:isCommentNotificationEnabled,
             jwt: store.user.jwt,
         })
         if (response.status === 200) {
@@ -186,23 +191,23 @@ function BlockMuteAndNotifications(props){
                 <Modal.Body>
                     <tr>
                         <td> <p style={{marginRight:'38px', fontWeight:'bold'}}>Message notifications:</p>  </td>
-                        <td > <Switch  onChange={handleMessagesNotifications} checked={messagesNotifications}/></td>
-                        <td> {messagesNotifications ? <p style={{marginLeft:'12px', color:'green'}} >enabled</p> :<p style={{marginLeft:'12px', color:'grey'}} >not enabled</p>}</td>
+                        <td > <Switch  onChange={handleMessagesNotifications} checked={isMessageNotificationEnabled}/></td>
+                        <td> {isMessageNotificationEnabled ? <p style={{marginLeft:'12px', color:'green'}} >enabled</p> :<p style={{marginLeft:'12px', color:'grey'}} >not enabled</p>}</td>
                     </tr>
                     <tr>
                         <td> <p style={{marginRight:'38px', fontWeight:'bold'}}>Post notifications:</p>  </td>
-                        <td > <Switch  onChange={handlePostNotifications} checked={postNotifications}/></td>
-                        <td> {postNotifications ? <p style={{marginLeft:'12px', color:'green'}} >enabled</p> :<p style={{marginLeft:'12px', color:'grey'}} >not enabled</p>}</td>
+                        <td > <Switch  onChange={handlePostNotifications} checked={isPostNotificationEnabled}/></td>
+                        <td> {isPostNotificationEnabled ? <p style={{marginLeft:'12px', color:'green'}} >enabled</p> :<p style={{marginLeft:'12px', color:'grey'}} >not enabled</p>}</td>
                     </tr>
                     <tr>
                         <td> <p style={{marginRight:'38px', fontWeight:'bold'}}>Story notifications:</p>  </td>
-                        <td > <Switch  onChange={handleStoryNotifications} checked={storyNotifications}/></td>
-                        <td> {storyNotifications ? <p style={{marginLeft:'12px', color:'green'}} >enabled</p> :<p style={{marginLeft:'12px', color:'grey'}} >not enabled</p>}</td>
+                        <td > <Switch  onChange={handleStoryNotifications} checked={isStoryNotificationEnabled}/></td>
+                        <td> {isStoryNotificationEnabled ? <p style={{marginLeft:'12px', color:'green'}} >enabled</p> :<p style={{marginLeft:'12px', color:'grey'}} >not enabled</p>}</td>
                     </tr>
                     <tr>
                         <td> <p style={{marginRight:'38px', fontWeight:'bold'}}>Comment notifications:</p>  </td>
-                        <td > <Switch  onChange={handleCommentNotifications} checked={commentsNotifications}/></td>
-                        <td> {commentsNotifications ? <p style={{marginLeft:'12px', color:'green'}} >enabled</p> :<p style={{marginLeft:'12px', color:'grey'}} >not enabled</p>}</td>
+                        <td > <Switch  onChange={handleCommentNotifications} checked={isCommentNotificationEnabled}/></td>
+                        <td> {isCommentNotificationEnabled ? <p style={{marginLeft:'12px', color:'green'}} >enabled</p> :<p style={{marginLeft:'12px', color:'grey'}} >not enabled</p>}</td>
                     </tr>
                     {update &&
                     <div style={{display: 'flex', float: 'right'}}>

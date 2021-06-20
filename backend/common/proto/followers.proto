@@ -82,6 +82,13 @@ service Followers {
             body: "*"
         };
     }
+
+    rpc GetUsersForNotificationEnabled (RequestForNotification) returns (CreateUserResponse) {
+        option(google.api.http) = {
+            post: "/api/followers/get_users_for_notifications",
+            body: "*"
+        };
+    }
 }
 
 message Follower {
@@ -90,8 +97,11 @@ message Follower {
     bool isMuted = 3;
     bool isCloseFriends = 4;
     bool isApprovedRequest = 5;
-    bool isNotificationEnabled = 6;
-    bool requestIsPending = 7;
+    bool isMessageNotificationEnabled = 6;
+    bool isPostNotificationEnabled = 7;
+    bool isStoryNotificationEnabled = 8;
+    bool isCommentNotificationEnabled = 9;
+    bool requestIsPending = 10;
 }
 
 message UserFollowers {
@@ -116,6 +126,11 @@ message CreateFollowerRequest {
 
 message RequestIdFollowers{
     string id = 1;
+}
+
+message RequestForNotification {
+    string userId = 1;
+    string notificationType = 2;
 }
 
 message EmptyResponseFollowers {}
