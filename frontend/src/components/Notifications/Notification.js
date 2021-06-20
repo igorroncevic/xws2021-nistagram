@@ -52,7 +52,7 @@ function Notification(props) {
     }
 
     async function acceptRequest() {
-        const response = await followersService.updateUserConnection({
+        const response = await followersService.acceptRequest({
             userId: creatorId,
             followerId: userId,
             isApprovedRequest: true,
@@ -63,7 +63,9 @@ function Notification(props) {
         })
         if (response.status === 200) {
             toastService.show("success", "Successfully accepted!");
-            deleteNotification()
+            //deleteNotification()
+            setPrivateFollow(false)
+            props.getUserNotifications()
         } else {
             toastService.show("error", "Something went wrong, please try again!");
         }
