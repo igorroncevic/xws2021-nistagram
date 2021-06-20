@@ -11,16 +11,16 @@ import {contentService} from "../../backendPaths";
 import postService from "../../services/post.service";
 import PostPreviewModal from "../Post/PostPreviewModal";
 
-function Notification(props){
-    const {id,creatorId,userId,text,type,createdAt,contentId} = props;
-    const[user,setUser]=useState({});
-    const[privateFollow,setPrivateFollow]=useState(false);
-    const[contentType,setContentType]=useState(false);
+function Notification(props) {
+    const {id, creatorId, userId, text, type, createdAt, contentId} = props;
+    const [user, setUser] = useState({});
+    const [privateFollow, setPrivateFollow] = useState(false);
+    const [contentType, setContentType] = useState(false);
     const store = useSelector(state => state);
     const [hoursAgo, setHoursAgo] = useState(0)
     const [daysAgo, setDaysAgo] = useState(0);
     const [minutesAgo, setMinutesAgo] = useState(0)
-    const[post,setPost]=useState({})
+    const [post, setPost] = useState({})
     const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
@@ -42,23 +42,23 @@ function Notification(props){
         }
     }
 
-    function  checkType(){
-        if(type==="FollowPrivate"){
+    function checkType() {
+        if (type === "FollowPrivate") {
             setPrivateFollow(true)
         }
-        if(type==="Like" || type==="Dislike" || type==="Comment" ){
+        if (type === "Like" || type === "Dislike" || type === "Comment") {
             setContentType(true)
         }
     }
-    
+
     async function acceptRequest() {
         const response = await followersService.updateUserConnection({
-            userId: creatorId ,
+            userId: creatorId,
             followerId: userId,
             isApprovedRequest: true,
             isCloseFriends: false,
-            isMuted:false,
-            requestIsPending:false,
+            isMuted: false,
+            requestIsPending: false,
             jwt: store.user.jwt,
         })
         if (response.status === 200) {
@@ -69,7 +69,7 @@ function Notification(props){
         }
     }
 
-    function handleReject(){
+    function handleReject() {
         unfollow()
         deleteNotification()
     }
@@ -77,7 +77,7 @@ function Notification(props){
     async function unfollow() {
         const response = await followersService.unfollow({
             userId: creatorId,
-            followerId:  userId,
+            followerId: userId,
             jwt: store.user.jwt,
         })
         if (response.status === 200) {
@@ -99,16 +99,16 @@ function Notification(props){
         }
     }
 
-    function setDate(){
+    function setDate() {
         const currentTime = moment(new Date())
 
-        if(Math.floor(moment.duration(currentTime.diff(createdAt)).asHours()) < 24){
+        if (Math.floor(moment.duration(currentTime.diff(createdAt)).asHours()) < 24) {
             if (Math.floor(moment.duration(currentTime.diff(createdAt)).asHours()) <= 0) {
                 setMinutesAgo(Math.floor(moment.duration(currentTime.diff(createdAt)).asMinutes()))
+            } else {
+                setHoursAgo(Math.floor(moment.duration(currentTime.diff(createdAt)).asHours()))
             }
-            else{
-                setHoursAgo(Math.floor(moment.duration(currentTime.diff(createdAt)).asHours()))}
-        }else{
+        } else {
             setDaysAgo(Math.floor(moment.duration(currentTime.diff(createdAt)).asDays()))
         }
     }
@@ -120,41 +120,45 @@ function Notification(props){
         })
         if (response.status === 200) {
             setPost(response.data)
-                setShowModal(true);
+            setShowModal(true);
         } else {
             toastService.show("error", "Something went wrong, please try again!");
         }
     }
 
-    return(
-        <div style={{display: "flex", marginLeft:'10%'}}>
-            <ProfileForSug user={user} username={user.username} caption={user.biography} urlText="Follow" iconSize="big" captionSize="small" storyBorder={true}
+    return (
+        <div style={{display: "flex", marginLeft: '10%'}}>
+            <ProfileForSug user={user} username={user.username} caption={user.biography} urlText="Follow" iconSize="big"
+                           captionSize="small" storyBorder={true}
                            firstName={user.firstName} lastName={user.lastName} image={user.profilePhoto}/>
             {contentType ?
-                <Button variant="link" onClick={getPostById}>{text}</Button>
+                <font face="Comic Sans MS" size="3" style={{marginRight: '5em', fontWeight: 'bold', color:'black'}}>
+                    <Button variant="link" style={{ color:'black' }} onClick={getPostById}>{text}</Button>
+                </font>
                 :
                 <font face="Comic Sans MS" size="3" style={{marginRight: '5em', fontWeight: 'bold'}}>{text}</font>
             }
             <div className="timePosted">
-                { daysAgo < 1 ? (
-                        hoursAgo < 1 ? <p style={{fontSize:'11px'}}>{minutesAgo}  minutes ago</p>: <p> {hoursAgo}  hours ago</p>
-                    ) : <p style={{fontSize:'11px'}}>{daysAgo} days ago</p>
+                {daysAgo < 1 ? (
+                    hoursAgo < 1 ? <p style={{fontSize: '11px'}}>{minutesAgo} minutes ago</p> :
+                        <p> {hoursAgo} hours ago</p>
+                ) : <p style={{fontSize: '11px'}}>{daysAgo} days ago</p>
                 }
             </div>
             {privateFollow &&
-                <div  style={{display: "flex", marginLeft:'85px'}}>
-
-                    <Button  style={{ height:'27px',  fontSize:'12px'}}  variant="success"  onClick={() => acceptRequest()}  >Accept</Button>
-                    <Button  style={{marginLeft:'5px', height:'27px', fontSize:'12px'}}  variant="secondary"  onClick={() => handleReject()} >Reject</Button>
-                </div>
+            <div style={{display: "flex", marginLeft: '85px'}}>
+                <Button style={{height: '27px', fontSize: '12px'}} variant="success"
+                        onClick={() => acceptRequest()}>Accept</Button>
+                <Button style={{marginLeft: '5px', height: '27px', fontSize: '12px'}} variant="secondary"
+                        onClick={() => handleReject()}>Reject</Button>
+            </div>
             }
             <PostPreviewModal
                 post={post}
-                postUser={{ id: post.userId }}
+                postUser={{id: post.userId}}
                 showModal={showModal}
                 setShowModal={setShowModal}/>
         </div>
     );
-
 }
 export default Notification;
