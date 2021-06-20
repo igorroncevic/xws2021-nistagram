@@ -139,5 +139,6 @@ func (n *UserNotification) ConvertFromGrpc(notification protopb.CreateNotificati
 		UserId: notification.UserId,
 		CreatorId: notification.CreatorId,
 		NotificationType: notification.Type,
+		ContentId: notification.ContentId,
 	}
 }

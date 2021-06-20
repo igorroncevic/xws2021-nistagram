@@ -5,6 +5,7 @@ import (
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
+	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/user_service/services"
 	"gorm.io/gorm"
 )
@@ -69,4 +70,55 @@ func (c *NotificationGrpcController) DeleteNotification(ctx context.Context, in 
 	}
 
 	return &protopb.EmptyResponse{}, nil
+}
+
+func (c *NotificationGrpcController) ReadAllNotifications(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.EmptyResponse,error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "ReadAllNotifications")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	err := c.service.ReadAllNotifications(ctx, in.Id)
+	if err != nil {
+		return &protopb.EmptyResponse{}, err
+	}
+
+	return &protopb.EmptyResponse{}, nil
+}
+
+func (c *NotificationGrpcController) DeleteByTypeAndCreator(ctx context.Context, in *protopb.Notification) (*protopb.EmptyResponse, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteByTypeAndCreator")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	err := c.service.DeleteByTypeAndCreator(ctx, &persistence.UserNotification{CreatorId: in.CreatorId, Type: in.Type, UserId: in.UserId})
+	if err != nil {
+		return &protopb.EmptyResponse{}, err
+	}
+
+	return &protopb.EmptyResponse{}, nil
+}
+
+func (c *NotificationGrpcController) UpdateNotification(ctx context.Context, in *protopb.Notification) (*protopb.EmptyResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateNotification")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	err := c.service.UpdateNotification(ctx, &persistence.UserNotification{NotificationId: in.Id, Type: in.Type, Text: in.Text})
+	if err != nil {
+		return &protopb.EmptyResponse{}, err
+	}
+	return &protopb.EmptyResponse{}, nil
+}
+
+func (c *NotificationGrpcController) GetByTypeAndCreator(ctx context.Context,in *protopb.Notification) (*protopb.Notification, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetByTypeAndCreator")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	notification, err := c.service.GetByTypeAndCreator(ctx, &persistence.UserNotification{UserId: in.UserId, CreatorId: in.CreatorId, Type: in.Type})
+	if err != nil {
+		return nil, err
+	}
+
+	return notification.ConvertToGrpc(), nil
 }

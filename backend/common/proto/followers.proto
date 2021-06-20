@@ -69,6 +69,13 @@ service Followers {
         };
     }
 
+    rpc AcceptFollowRequest (CreateFollowerRequest) returns (CreateFollowerResponse) {
+        option(google.api.http) = {
+            post: "/api/followers/accept_request",
+            body: "follower"
+        };
+    }
+
     rpc GetFollowersConnection (Follower) returns (Follower) {
         option(google.api.http) = {
             post: "/api/followers/connection",

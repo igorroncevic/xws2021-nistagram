@@ -144,6 +144,8 @@ type UserNotification struct {
 	Text string
 	Type string
 	IsRead bool
+	ContentId string
+	CreatedAt time.Time
 }
 func (notification *UserNotification) ConvertFromGrpc(n *protopb.Notification) *UserNotification {
 	return &UserNotification{

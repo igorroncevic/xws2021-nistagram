@@ -51,6 +51,7 @@ func (s NotificationService) CreateNotification(ctx context.Context, domainNotif
 	userNotification.CreatorId = domainNotification.CreatorId
 	userNotification.Type = domainNotification.NotificationType
 	userNotification.IsRead=false
+	userNotification.ContentId = domainNotification.ContentId
 
 	err := s.repository.CreateNotification(ctx, userNotification)
 	if err != nil {
@@ -80,10 +81,45 @@ func (s NotificationService) GetUserNotifications(ctx context.Context, userId st
 	return notifications, nil
 }
 
+func (s *NotificationService) ReadAllNotifications(ctx context.Context, userId string) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "ReadAllNotifications")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return s.repository.ReadAllNotifications(ctx, userId)
+
+
+}
+
 func (s NotificationService) DeleteNotification(ctx context.Context,  id string) (bool, error){
 	span := tracer.StartSpanFromContextMetadata(ctx, "UnBlockUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	return s.repository.DeleteNotification(ctx, id)
+}
+
+func (s NotificationService) DeleteByTypeAndCreator(ctx context.Context, notification *persistence.UserNotification) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteByTypeAndCreator")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return s.repository.DeleteByTypeAndCreator(ctx, notification)
+
+}
+
+func (s NotificationService) UpdateNotification(ctx context.Context, notification *persistence.UserNotification) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateNotification")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return s.repository.UpdateNotification(ctx, notification)
+}
+
+func (s NotificationService) GetByTypeAndCreator(ctx context.Context, notification *persistence.UserNotification) (*persistence.UserNotification, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetByTypeAndCreator")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return s.repository.GetByTypeAndCreator(ctx, notification)
 }

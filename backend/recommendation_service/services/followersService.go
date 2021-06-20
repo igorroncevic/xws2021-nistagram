@@ -41,7 +41,7 @@ func (service *FollowersService) CreateUserConnection(ctx context.Context, follo
 		if err != nil || res == false {
 			return err
 		}
-		return grpc_common.CreateNotification(ctx, follower.FollowerId, follower.UserId,  "FollowPrivate")
+		return grpc_common.CreateNotification(ctx, follower.FollowerId, follower.UserId,  "FollowPrivate", "")
 	}else {
 		follower.IsApprovedRequest = true
 		follower.RequestIsPending=false
@@ -49,9 +49,8 @@ func (service *FollowersService) CreateUserConnection(ctx context.Context, follo
 		if err != nil || res == false {
 			return err
 		}
-		return grpc_common.CreateNotification(ctx, follower.FollowerId ,follower.UserId, "FollowPublic")
+		return grpc_common.CreateNotification(ctx, follower.FollowerId ,follower.UserId, "FollowPublic", "")
 	}
-
 
 }
 
@@ -100,15 +99,41 @@ func (service *FollowersService) DeleteDirectedConnection(ctx context.Context, f
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	return service.repository.DeleteDirectedConnection(ctx, f)
+	_, err := service.repository.DeleteDirectedConnection(ctx, f)
+	if err != nil {
+		return false, err
+	}
+	err = grpc_common.DeleteByTypeAndCreator(ctx, "FollowPrivate", f.FollowerId, f.UserId)
+	if err != nil {
+		return false, err
+	}
+	err = grpc_common.DeleteByTypeAndCreator(ctx, "FollowPublic", f.FollowerId, f.UserId)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+
 }
 
 func (service *FollowersService) DeleteBiDirectedConnection(ctx context.Context, f model.Follower) (bool, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
+	_, err := service.repository.DeleteBiDirectedConnection(ctx, f)
+	if err != nil {
+		return false, err
+	}
+	err = grpc_common.DeleteByTypeAndCreator(ctx, "FollowPublic",  f.UserId, f.FollowerId)
+	if err != nil {
+		return false, err
+	}
+	err = grpc_common.DeleteByTypeAndCreator(ctx, "FollowPublic", f.FollowerId, f.UserId)
+	if err != nil {
+		return false, err
+	}
 
-	return service.repository.DeleteBiDirectedConnection(ctx, f)
+	return true, nil
 }
 
 func (service *FollowersService)  UpdateUserConnection(ctx context.Context, f model.Follower) (*model.Follower,error) {
@@ -125,6 +150,29 @@ func (service *FollowersService) GetFollowersConnection(ctx context.Context, f m
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	return service.repository.GetFollowersConnection(ctx, f)
+}
+
+func (service *FollowersService) AcceptFollowRequest(ctx context.Context, f model.Follower) (*model.Follower, error ){
+	span := tracer.StartSpanFromContextMetadata(ctx, "AcceptFollowRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	follower, err := service.UpdateUserConnection(ctx, f)
+	if err != nil {
+		return nil, err
+	}
+
+	notification, err := grpc_common.GetByTypeAndCreator(ctx, f.FollowerId, f.UserId, "FollowPrivate")
+	if err != nil {
+		return nil, err
+	}
+
+	err = grpc_common.UpdateNotification(ctx, notification.Id, "FollowPublic", " started following you.")
+	if err != nil {
+		return nil, err
+	}
+	return follower, nil
+
 }
 
 

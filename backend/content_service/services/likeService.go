@@ -83,9 +83,9 @@ func (service *LikeService) CreateLike(ctx context.Context, like domain.Like) er
 	}
 
 	if like.IsLike {
-		return grpc_common.CreateNotification(ctx, post.UserId, like.UserId, "Like")
+		return grpc_common.CreateNotification(ctx, post.UserId, like.UserId, "Like", post.Id)
 	}
-	return grpc_common.CreateNotification(ctx, post.UserId, like.UserId, "Dislike")
+	return grpc_common.CreateNotification(ctx, post.UserId, like.UserId, "Dislike", post.Id)
 }
 
 func (service *LikeService) GetUserLikedOrDislikedPosts(ctx context.Context, id string, isLike bool) ([]domain.Post, error) {

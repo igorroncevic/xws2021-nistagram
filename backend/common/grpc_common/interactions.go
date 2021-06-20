@@ -200,14 +200,14 @@ func GetPublicUsers(ctx context.Context) ([]string, error){
 	return userIds, nil
 }
 
-func CreateNotification(ctx context.Context, userId string, creatorId string, notifyType string) error {
+func CreateNotification(ctx context.Context, userId string, creatorId string, notifyType string, contentId string) error {
 	conn, err := CreateGrpcConnection(Users_service_address)
 	if err != nil{
 		return status.Errorf(codes.Unknown, err.Error())
 	}
 	defer conn.Close()
 	usersClient := GetUsersClient(conn)
-	_, err = usersClient.CreateNotification(ctx, &protopb.CreateNotificationRequest{UserId: userId, CreatorId: creatorId, Type: notifyType})
+	_, err = usersClient.CreateNotification(ctx, &protopb.CreateNotificationRequest{UserId: userId, CreatorId: creatorId, Type: notifyType, ContentId: contentId})
 	if err != nil {
 		return err
 	}
@@ -227,3 +227,46 @@ func CheckUserProfilePublic(ctx context.Context, userId string) (bool, error) {
 	}
 	return res.Response, nil
 }
+
+func DeleteByTypeAndCreator(ctx context.Context, notificationType string, userId string, creatorId string) (error){
+	conn, err := CreateGrpcConnection(Users_service_address)
+	if err != nil{
+		return status.Errorf(codes.Unknown, err.Error())
+	}
+	defer conn.Close()
+	usersClient := GetUsersClient(conn)
+	_ ,err = usersClient.DeleteByTypeAndCreator(ctx, &protopb.Notification{Type: notificationType, CreatorId: creatorId, UserId: userId})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateNotification (ctx context.Context, id string, notificationType string, text string) error{
+	conn, err := CreateGrpcConnection(Users_service_address)
+	if err != nil{
+		return status.Errorf(codes.Unknown, err.Error())
+	}
+	defer conn.Close()
+	usersClient := GetUsersClient(conn)
+	_, err = usersClient.UpdateNotification(ctx, &protopb.Notification{Id: id, Text: text, Type: notificationType})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetByTypeAndCreator(ctx context.Context, userId string, creatorId string, notificationType string) (*protopb.Notification, error) {
+	conn, err := CreateGrpcConnection(Users_service_address)
+	if err != nil{
+		return nil, status.Errorf(codes.Unknown, err.Error())
+	}
+	defer conn.Close()
+	usersClient := GetUsersClient(conn)
+	result, err := usersClient.GetByTypeAndCreator(ctx, &protopb.Notification{CreatorId: creatorId, UserId: userId, Type: notificationType})
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+

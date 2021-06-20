@@ -153,6 +153,35 @@ service Users {
     };
   }
 
+  rpc ReadAllNotifications(RequestIdUsers) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/read_notifications"
+      body: "*"
+    };
+  }
+
+  rpc GetByTypeAndCreator(Notification) returns (Notification) {
+    option(google.api.http) = {
+      post: "/api/users/getBy_type_creator"
+      body: "*"
+    };
+  }
+
+  rpc DeleteByTypeAndCreator(Notification) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/deleteBy_type_creator"
+      body: "*"
+    };
+  }
+  rpc UpdateNotification(Notification) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/update_notification"
+      body: "*"
+    };
+  }
+
+
+
   //* Verification requests *
   rpc SubmitVerificationRequest (VerificationRequest) returns (EmptyResponse) {
     option(google.api.http) = {
@@ -192,6 +221,7 @@ message CreateNotificationRequest {
   string userId = 1;
   string creatorId = 2;
   string type = 3;
+  string contentId = 4;
 }
 
 message Notification {
@@ -201,6 +231,8 @@ message Notification {
    string text = 4;
    string type = 5;
    bool isRead = 6;
+   string contentId = 7;
+   google.protobuf.Timestamp createdAt = 8;
 }
 
 message CreateNotificationResponse {

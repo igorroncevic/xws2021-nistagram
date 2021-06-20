@@ -75,3 +75,7 @@ func (s *Server) GetCloseFriends(ctx context.Context, in *protopb.RequestIdFollo
 func (s *Server) GetFollowersConnection(ctx context.Context, in *protopb.Follower) (*protopb.Follower, error) {
 	return s.followerController.GetFollowersConnection(ctx, in)
 }
+
+func (s *Server)  AcceptFollowRequest(ctx context.Context,in *protopb.CreateFollowerRequest) (*protopb.CreateFollowerResponse, error) {
+	return s.followerController.AcceptFollowRequest(ctx, in)
+}

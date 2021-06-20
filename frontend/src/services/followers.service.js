@@ -114,7 +114,21 @@ class FollowersService extends RootService {
         return response
     }
 
+    async acceptRequest(data){
+        const { userId,followerId,isApprovedRequest,isCloseFriends,isMuted,isNotificationEnabled,requestIsPending,jwt} = data
+        const headers=this.setupHeaders(jwt)
 
+        const response = this.apiClient.post('/accept_request',{
+            userId,followerId,isApprovedRequest,isCloseFriends,isMuted,isNotificationEnabled,requestIsPending
+        },{
+            headers:headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
 
 }const followersService = new FollowersService()
 

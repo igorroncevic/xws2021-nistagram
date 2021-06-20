@@ -5,14 +5,26 @@ import userService from "../../services/user.service";
 import {useSelector} from "react-redux";
 import followersService from "../../services/followers.service";
 import toastService from "../../services/toast.service";
+import moment from "moment";
+import "../../style/notification.css";
+import {contentService} from "../../backendPaths";
+import postService from "../../services/post.service";
+import PostPreviewModal from "../Post/PostPreviewModal";
 
-function Notification(props){
-    const {id,creatorId,userId,text,type,getUserNotifications} = props;
-    const[user,setUser]=useState({});
-    const[privateFollow,setPrivateFollow]=useState(false);
+function Notification(props) {
+    const {id, creatorId, userId, text, type, createdAt, contentId} = props;
+    const [user, setUser] = useState({});
+    const [privateFollow, setPrivateFollow] = useState(false);
+    const [contentType, setContentType] = useState(false);
     const store = useSelector(state => state);
+    const [hoursAgo, setHoursAgo] = useState(0)
+    const [daysAgo, setDaysAgo] = useState(0);
+    const [minutesAgo, setMinutesAgo] = useState(0)
+    const [post, setPost] = useState({})
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
+        setDate()
         getUserById()
         checkType()
     }, []);
@@ -24,38 +36,42 @@ function Notification(props){
         })
 
         if (response.status === 200) {
-        console.log(response.data)
             setUser(response.data)
         } else {
             console.log("getuserbyid error")
         }
     }
 
-    function  checkType(){
-        if(type==="FollowPrivate"){
+    function checkType() {
+        if (type === "FollowPrivate") {
             setPrivateFollow(true)
         }
+        if (type === "Like" || type === "Dislike" || type === "Comment") {
+            setContentType(true)
+        }
     }
-    
+
     async function acceptRequest() {
-        const response = await followersService.updateUserConnection({
-            userId: creatorId ,
+        const response = await followersService.acceptRequest({
+            userId: creatorId,
             followerId: userId,
             isApprovedRequest: true,
             isCloseFriends: false,
-            isMuted:false,
-            requestIsPending:false,
+            isMuted: false,
+            requestIsPending: false,
             jwt: store.user.jwt,
         })
         if (response.status === 200) {
             toastService.show("success", "Successfully accepted!");
-            deleteNotification()
+            //deleteNotification()
+            setPrivateFollow(false)
+            props.getUserNotifications()
         } else {
             toastService.show("error", "Something went wrong, please try again!");
         }
     }
 
-    function handleReject(){
+    function handleReject() {
         unfollow()
         deleteNotification()
     }
@@ -63,7 +79,7 @@ function Notification(props){
     async function unfollow() {
         const response = await followersService.unfollow({
             userId: creatorId,
-            followerId:  userId,
+            followerId: userId,
             jwt: store.user.jwt,
         })
         if (response.status === 200) {
@@ -85,23 +101,66 @@ function Notification(props){
         }
     }
 
+    function setDate() {
+        const currentTime = moment(new Date())
 
-    return(
-        <div style={{display: "flex", marginLeft:'10%'}}>
-            <ProfileForSug user={user} username={user.username} caption={user.biography} urlText="Follow" iconSize="big" captionSize="small" storyBorder={true}
-                           firstName={user.firstName} lastName={user.lastName} image={user.profilePhoto}/>
-            <font face = "Comic Sans MS" size = "3" style={{marginRight:'5em', fontWeight:'bold'}}>{text}</font>
-
-            {privateFollow &&
-                <div  style={{display: "flex", marginLeft:'85px'}}>
-
-                    <Button  style={{ height:'27px',  fontSize:'12px'}}  variant="success"  onClick={() => acceptRequest()}  >Accept</Button>
-                    <Button  style={{marginLeft:'5px', height:'27px', fontSize:'12px'}}  variant="secondary"  onClick={() => handleReject()} >Reject</Button>
-
-                </div>
+        if (Math.floor(moment.duration(currentTime.diff(createdAt)).asHours()) < 24) {
+            if (Math.floor(moment.duration(currentTime.diff(createdAt)).asHours()) <= 0) {
+                setMinutesAgo(Math.floor(moment.duration(currentTime.diff(createdAt)).asMinutes()))
+            } else {
+                setHoursAgo(Math.floor(moment.duration(currentTime.diff(createdAt)).asHours()))
             }
+        } else {
+            setDaysAgo(Math.floor(moment.duration(currentTime.diff(createdAt)).asDays()))
+        }
+    }
+
+    async function getPostById() {
+        const response = await postService.getPostById({
+            id: contentId,
+            jwt: store.user.jwt,
+        })
+        if (response.status === 200) {
+            setPost(response.data)
+            setShowModal(true);
+        } else {
+            toastService.show("error", "Something went wrong, please try again!");
+        }
+    }
+
+    return (
+        <div style={{display: "flex", marginLeft: '10%'}}>
+            <ProfileForSug user={user} username={user.username} caption={user.biography} urlText="Follow" iconSize="big"
+                           captionSize="small" storyBorder={true}
+                           firstName={user.firstName} lastName={user.lastName} image={user.profilePhoto}/>
+            {contentType ?
+                <font face="Comic Sans MS" size="3" style={{marginRight: '5em', fontWeight: 'bold', color:'black'}}>
+                    <Button variant="link" style={{ color:'black' }} onClick={getPostById}>{text}</Button>
+                </font>
+                :
+                <font face="Comic Sans MS" size="3" style={{marginRight: '5em', fontWeight: 'bold'}}>{text}</font>
+            }
+            <div className="timePosted">
+                {daysAgo < 1 ? (
+                    hoursAgo < 1 ? <p style={{fontSize: '11px'}}>{minutesAgo} minutes ago</p> :
+                        <p> {hoursAgo} hours ago</p>
+                ) : <p style={{fontSize: '11px'}}>{daysAgo} days ago</p>
+                }
+            </div>
+            {privateFollow &&
+            <div style={{display: "flex", marginLeft: '85px'}}>
+                <Button style={{height: '27px', fontSize: '12px'}} variant="success"
+                        onClick={() => acceptRequest()}>Accept</Button>
+                <Button style={{marginLeft: '5px', height: '27px', fontSize: '12px'}} variant="secondary"
+                        onClick={() => handleReject()}>Reject</Button>
+            </div>
+            }
+            <PostPreviewModal
+                post={post}
+                postUser={{id: post.userId}}
+                showModal={showModal}
+                setShowModal={setShowModal}/>
         </div>
     );
-
 }
 export default Notification;
