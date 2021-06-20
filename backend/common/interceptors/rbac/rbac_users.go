@@ -21,7 +21,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			updateUserPassword, updateUserProfile, searchUser, checkIsApproved,
 			getUserByUsername, submitVerificationRequest,
 			updatePrivacy, blockUser, unBlockUser, checkIfBlocked, checkUserProfilePublic, getAllPublicUsers, approveAccount, getUserPrivacy,
-			createNotification,
+			createNotification, readAllNotifications,
 			getPendingVerificationRequests, changeVerificationRequestStatus, getVerificationRequestsByUserId, getAllVerificationRequests,
 			updateUserPhoto, getUserNotifications,getBlockedUsers, deleteNotification,
 		}
@@ -57,6 +57,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			basicGetBlockedUsers, agentGetBlockedUsers, adminGetBlockedUsers, verifiedGetBlockedUsers,
 			basicGetUserNotifications, adminGetUserNotifications, verifiedGetUserNotifications, nonregisteredGetUserNotifications,
 			basicDeleteNotification, adminDeleteNotification, verifiedDeleteNotification, agentDeleteNotification,
+			basicReadAllNotifications, adminReadAllNotifications, verifiedReadAllNotifications, agentReadAllNotifications, nonregisteredReadAllNotifications,
 		}
 		result = db.Create(&rolePermissions)
 		if result.Error != nil {
@@ -110,7 +111,8 @@ var (
 	getUserPrivacy                  = Permission{Id: "221ee966-d025-11eb-b8bc-0242ac130003", Name: "GetUserPrivacy"}
 	getBlockedUsers                  = Permission{Id: "bb400be1-7dcb-439c-9aba-235b566ec1fd", Name: "GetBlockedUsers"}
 	deleteNotification                  = Permission{Id: "3bc6fa56-2a22-4cb5-8176-ea5c8314bc3c", Name: "DeleteNotification"}
-)
+	readAllNotifications           = Permission{Id : "602c1d0e-d1ac-11eb-b8bc-0242ac130003", Name: "ReadAllNotifications"}
+	)
 
 var (
 	basicGetUserById         = RolePermission{RoleId: basic.Id, PermissionId: getUserById.Id}
@@ -243,5 +245,11 @@ var (
 	agentDeleteNotification         = RolePermission{RoleId: agent.Id, PermissionId: deleteNotification.Id}
 	adminDeleteNotification         = RolePermission{RoleId: admin.Id, PermissionId: deleteNotification.Id}
 	verifiedDeleteNotification      = RolePermission{RoleId: verified.Id, PermissionId: deleteNotification.Id}
+
+	basicReadAllNotifications        = RolePermission{RoleId: basic.Id, PermissionId: readAllNotifications.Id}
+	adminReadAllNotifications         = RolePermission{RoleId: admin.Id, PermissionId: readAllNotifications.Id}
+	verifiedReadAllNotifications      = RolePermission{RoleId: verified.Id, PermissionId: readAllNotifications.Id}
+	nonregisteredReadAllNotifications = RolePermission{RoleId: nonregistered.Id, PermissionId: readAllNotifications.Id}
+	agentReadAllNotifications         = RolePermission{RoleId: agent.Id, PermissionId: readAllNotifications.Id}
 
 )

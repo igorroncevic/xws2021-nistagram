@@ -7,12 +7,14 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"time"
 )
 
 type NotificationRepository interface {
 	CreateNotification(context.Context, *persistence.UserNotification) error
 	GetUserNotifications( context.Context,  string) ([]persistence.UserNotification, error)
-	DeleteNotification(ctx context.Context,   id string ) (bool, error)
+	DeleteNotification(context.Context, string ) (bool, error)
+	ReadAllNotifications( context.Context,  string) error
 }
 type notificationRepository struct {
 	DB *gorm.DB
@@ -31,13 +33,62 @@ func (repository *notificationRepository) CreateNotification(ctx context.Context
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	//Check if already exists notification
+	err := repository.CheckIfAlreadyExists(notification)
+	if err != nil {
+		return err
+	}
+
 	notification.NotificationId = uuid.New().String()
+	notification.CreatedAt = time.Now()
 	result := repository.DB.Create(&notification)
 	if result.Error != nil || result.RowsAffected != 1 {
 		return errors.New("Could not create notification in repository")
 	}
 	return nil
 }
+
+func (repository *notificationRepository) CheckIfAlreadyExists(notification *persistence.UserNotification) error {
+	var checkNotification *persistence.UserNotification
+
+	repository.DB.Where("creator_id = ?", notification.CreatorId).Where("type = ?", "FollowPublic").Where("user_id = ?", notification.UserId).Find(&checkNotification)
+	if checkNotification.NotificationId != "" {
+		return errors.New("Notification already exists")
+	}
+	repository.DB.Where("creator_id = ?", notification.CreatorId).Where("type = ?", "FollowPrivate").Where("user_id = ?", notification.UserId).Find(&checkNotification)
+	if checkNotification.NotificationId != "" {
+		return errors.New("Notification already exists")
+	}
+	repository.DB.Where("creator_id = ?", notification.CreatorId).Where("type = ?", "Like").Where("content_id = ?", notification.ContentId).Find(&checkNotification)
+	if checkNotification.NotificationId != "" {
+		return errors.New("Notification already exists")
+	}
+	repository.DB.Where("creator_id = ?", notification.CreatorId).Where("type = ?", "Dislike").Where("content_id = ?", notification.ContentId).Find(&checkNotification)
+	if checkNotification.NotificationId != "" {
+		return errors.New("Notification already exists")
+	}
+	repository.DB.Where("creator_id = ?", notification.CreatorId).Where("type = ?", "Comment").Where("content_id = ?", notification.ContentId).Find(&checkNotification)
+	if checkNotification.NotificationId != "" {
+		return errors.New("Notification already exists")
+	}
+	return nil
+}
+
+func (repository *notificationRepository) ReadAllNotifications(ctx context.Context, userId string) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "ReadAllNotifications")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	result := repository.DB.Model(&persistence.UserNotification{}).Where("user_id = ?", userId ).Updates(persistence.UserNotification{IsRead: true})
+	if result.Error != nil {
+		return errors.New("Could not read notifications!")
+	}else if result.RowsAffected == 0 {
+		return errors.New("Could not read notifications!")
+	}
+
+	return nil
+}
+
 func (repository *notificationRepository) GetUserNotifications(ctx context.Context,userId string) ([]persistence.UserNotification, error){
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserNotifications")
 	defer span.Finish()
@@ -83,3 +134,4 @@ func (repository *notificationRepository) DeleteNotification(ctx context.Context
 
 	return true, nil
 }
+

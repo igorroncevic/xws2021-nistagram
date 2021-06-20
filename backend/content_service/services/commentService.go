@@ -51,7 +51,7 @@ func (service CommentService) CreateComment(ctx context.Context, comment *domain
 		return err
 	}
 
-	return grpc_common.CreateNotification(ctx, post.UserId, comment.UserId, "Comment")
+	return grpc_common.CreateNotification(ctx, post.UserId, comment.UserId, "Comment", post.Id)
 }
 
 func (service CommentService) GetCommentsForPost(ctx context.Context, id string) ([]domain.Comment, error) {

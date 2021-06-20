@@ -70,3 +70,17 @@ func (c *NotificationGrpcController) DeleteNotification(ctx context.Context, in 
 
 	return &protopb.EmptyResponse{}, nil
 }
+
+func (c *NotificationGrpcController) ReadAllNotifications(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.EmptyResponse,error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "ReadAllNotifications")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	err := c.service.ReadAllNotifications(ctx, in.Id)
+	if err != nil {
+		return &protopb.EmptyResponse{}, err
+	}
+
+	return &protopb.EmptyResponse{}, nil
+}
+

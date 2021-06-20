@@ -40,6 +40,7 @@ type UsersClient interface {
 	GoogleAuth(ctx context.Context, in *GoogleAuthRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	CreateNotification(ctx context.Context, in *CreateNotificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	DeleteNotification(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*EmptyResponse, error)
+	ReadAllNotifications(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*EmptyResponse, error)
 	//* Verification requests *
 	SubmitVerificationRequest(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GetPendingVerificationRequests(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*VerificationRequestsArray, error)
@@ -254,6 +255,15 @@ func (c *usersClient) DeleteNotification(ctx context.Context, in *RequestIdUsers
 	return out, nil
 }
 
+func (c *usersClient) ReadAllNotifications(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Users/ReadAllNotifications", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *usersClient) SubmitVerificationRequest(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	out := new(EmptyResponse)
 	err := c.cc.Invoke(ctx, "/proto.Users/SubmitVerificationRequest", in, out, opts...)
@@ -325,6 +335,7 @@ type UsersServer interface {
 	GoogleAuth(context.Context, *GoogleAuthRequest) (*LoginResponse, error)
 	CreateNotification(context.Context, *CreateNotificationRequest) (*EmptyResponse, error)
 	DeleteNotification(context.Context, *RequestIdUsers) (*EmptyResponse, error)
+	ReadAllNotifications(context.Context, *RequestIdUsers) (*EmptyResponse, error)
 	//* Verification requests *
 	SubmitVerificationRequest(context.Context, *VerificationRequest) (*EmptyResponse, error)
 	GetPendingVerificationRequests(context.Context, *EmptyRequest) (*VerificationRequestsArray, error)
@@ -403,6 +414,9 @@ func (UnimplementedUsersServer) CreateNotification(context.Context, *CreateNotif
 }
 func (UnimplementedUsersServer) DeleteNotification(context.Context, *RequestIdUsers) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteNotification not implemented")
+}
+func (UnimplementedUsersServer) ReadAllNotifications(context.Context, *RequestIdUsers) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReadAllNotifications not implemented")
 }
 func (UnimplementedUsersServer) SubmitVerificationRequest(context.Context, *VerificationRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitVerificationRequest not implemented")
@@ -828,6 +842,24 @@ func _Users_DeleteNotification_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_ReadAllNotifications_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestIdUsers)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).ReadAllNotifications(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/ReadAllNotifications",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).ReadAllNotifications(ctx, req.(*RequestIdUsers))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Users_SubmitVerificationRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(VerificationRequest)
 	if err := dec(in); err != nil {
@@ -1012,6 +1044,10 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteNotification",
 			Handler:    _Users_DeleteNotification_Handler,
+		},
+		{
+			MethodName: "ReadAllNotifications",
+			Handler:    _Users_ReadAllNotifications_Handler,
 		},
 		{
 			MethodName: "SubmitVerificationRequest",

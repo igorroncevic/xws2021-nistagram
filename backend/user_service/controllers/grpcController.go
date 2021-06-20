@@ -189,3 +189,7 @@ func (s *Server) GetBlockedUsers(ctx context.Context, in *protopb.RequestIdUsers
 func (s *Server) GetUserPrivacy(ctx context.Context, in *protopb.RequestIdPrivacy) (*protopb.PrivacyMessage, error) {
 	return s.privacyController.GetUserPrivacy(ctx, in)
 }
+
+func (s *Server) ReadAllNotifications(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.EmptyResponse,error) {
+	return s.notificationController.ReadAllNotifications(ctx, in)
+}

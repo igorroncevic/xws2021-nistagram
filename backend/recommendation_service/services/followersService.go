@@ -41,7 +41,7 @@ func (service *FollowersService) CreateUserConnection(ctx context.Context, follo
 		if err != nil || res == false {
 			return err
 		}
-		return grpc_common.CreateNotification(ctx, follower.FollowerId, follower.UserId,  "FollowPrivate")
+		return grpc_common.CreateNotification(ctx, follower.FollowerId, follower.UserId,  "FollowPrivate", "")
 	}else {
 		follower.IsApprovedRequest = true
 		follower.RequestIsPending=false
@@ -49,9 +49,8 @@ func (service *FollowersService) CreateUserConnection(ctx context.Context, follo
 		if err != nil || res == false {
 			return err
 		}
-		return grpc_common.CreateNotification(ctx, follower.FollowerId ,follower.UserId, "FollowPublic")
+		return grpc_common.CreateNotification(ctx, follower.FollowerId ,follower.UserId, "FollowPublic", "")
 	}
-
 
 }
 

@@ -51,6 +51,7 @@ func (s NotificationService) CreateNotification(ctx context.Context, domainNotif
 	userNotification.CreatorId = domainNotification.CreatorId
 	userNotification.Type = domainNotification.NotificationType
 	userNotification.IsRead=false
+	userNotification.ContentId = domainNotification.ContentId
 
 	err := s.repository.CreateNotification(ctx, userNotification)
 	if err != nil {
@@ -78,6 +79,16 @@ func (s NotificationService) GetUserNotifications(ctx context.Context, userId st
 	}
 
 	return notifications, nil
+}
+
+func (s *NotificationService) ReadAllNotifications(ctx context.Context, userId string) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "ReadAllNotifications")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return s.repository.ReadAllNotifications(ctx, userId)
+
+
 }
 
 func (s NotificationService) DeleteNotification(ctx context.Context,  id string) (bool, error){

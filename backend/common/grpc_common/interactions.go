@@ -200,14 +200,14 @@ func GetPublicUsers(ctx context.Context) ([]string, error){
 	return userIds, nil
 }
 
-func CreateNotification(ctx context.Context, userId string, creatorId string, notifyType string) error {
+func CreateNotification(ctx context.Context, userId string, creatorId string, notifyType string, contentId string) error {
 	conn, err := CreateGrpcConnection(Users_service_address)
 	if err != nil{
 		return status.Errorf(codes.Unknown, err.Error())
 	}
 	defer conn.Close()
 	usersClient := GetUsersClient(conn)
-	_, err = usersClient.CreateNotification(ctx, &protopb.CreateNotificationRequest{UserId: userId, CreatorId: creatorId, Type: notifyType})
+	_, err = usersClient.CreateNotification(ctx, &protopb.CreateNotificationRequest{UserId: userId, CreatorId: creatorId, Type: notifyType, ContentId: contentId})
 	if err != nil {
 		return err
 	}
