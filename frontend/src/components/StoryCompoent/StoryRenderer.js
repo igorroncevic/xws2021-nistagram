@@ -32,6 +32,7 @@ const StoryRenderer = ({ story, action, isPaused, config }) => {
         }
         if(timeCreated) newHeader["subheading"] = timeCreated;
         if(header.profileImage) newHeader["profileImage"] = header.profileImage;
+        if(story.isCloseFriends) newHeader.heading += " - Close Friends"
 
         setLocalStory({
             ...story,

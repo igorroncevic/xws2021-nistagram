@@ -97,7 +97,7 @@ function Menu() {
 
     return (
         <div className="menu">
-            <NavLink to={{pathname: "/home"}}>
+            <NavLink to={{pathname: "/"}}>
                 <Home className="icon"/>
             </NavLink>
             {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/chats"}}> <Inbox className="icon"/> </NavLink>) }

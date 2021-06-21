@@ -29,6 +29,7 @@ import EditProfileImage from "./components/UserData/EditProfileImage";
 import Notifications from "./components/Notifications/Notifications";
 
 import AuthenticatedRoute from './AuthenticatedRoute';
+import AdminRoute from './AdminRoute';
 
 const App = () => {
     return (
@@ -50,8 +51,8 @@ const App = () => {
                 <AuthenticatedRoute path='/notifications' exact component={Notifications} isAdminProhibited={true} />
                 <AuthenticatedRoute path='/submit-verification-request' exact component={SubmitVerificationRequest} isAdminProhibited={true} />
                 <AuthenticatedRoute path='/view-my-verification-request' exact component={ViewMyVerificationRequests} isAdminProhibited={true} />
-                <AuthenticatedRoute path='/view-pending-verification-request' exact component={ViewPendingVerificationRequests} />
-                <AuthenticatedRoute path='/view-all-verification-request' exact component={ViewAllVerificationRequests} />
+                <AdminRoute path='/view-pending-verification-request' exact component={ViewPendingVerificationRequests} />
+                <AdminRoute path='/view-all-verification-request' exact component={ViewAllVerificationRequests} />
 
                 <AuthenticatedRoute path='/blocked' exact component={BlockedUsers} />
                 <AuthenticatedRoute path='/close_friends' exact component={CloseFriends} />

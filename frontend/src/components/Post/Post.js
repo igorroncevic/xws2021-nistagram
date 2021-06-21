@@ -223,18 +223,24 @@ function Post (props) {
         store.user.jwt && setShowSaveModal(!showSaveModal);
     }
 
-    const handleReportModal =()=>{
-        setReportCategory("");
-        setReportCategoryErr("");
-        setReportModal(!showReportModal)
+    const handleReportModal = () => {
+        if(store.user.jwt !== ""){
+            setReportCategory("");
+            setReportCategoryErr("");
+            setReportModal(!showReportModal)
+        }
     }
 
     const handleReportCategoryChange = (event) => {
-        setReportCategory(event.target.value);
-        setReportCategoryErr("");
+        if(store.user.jwt !== ""){
+            setReportCategory(event.target.value);
+            setReportCategoryErr("");
+        }
     }
 
     const sendReport = async () => {
+        if(store.user.jwt !== "") return;
+
         if (reportCategory === "") {
             console.log(reportCategory);
             setReportCategoryErr("Select report category");
@@ -270,14 +276,16 @@ function Post (props) {
                     image={user.profilePhoto}
                     iconSize="medium"
                     />
-                    <Dropdown>
-                        <Dropdown.Toggle variant="link" id="dropdown-basic">
-                            <CardButton className="cardButton" />
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu>
-                            <Dropdown.Item onClick={handleReportModal}>Report</Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
+                    { store.user.jwt !== "" &&
+                        <Dropdown>
+                            <Dropdown.Toggle variant="link" id="dropdown-basic">
+                                <CardButton className="cardButton" />
+                            </Dropdown.Toggle>
+                            <Dropdown.Menu>
+                                <Dropdown.Item onClick={handleReportModal}>Report</Dropdown.Item>
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    }
             </header>
 
             <div className="slider">
