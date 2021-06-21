@@ -15,6 +15,7 @@ type HashtagRepository interface {
 	GetPostIdsByHashtag(ctx context.Context, hashtag persistence.Hashtag) ([]string, error)
 	GetAllHashtags(ctx context.Context) ([]domain.Hashtag, error)
 	BindPostWithHashtags(ctx context.Context, post *persistence.Post, hashtags []persistence.Hashtag) error
+	GetPostHashtags(ctx context.Context, postId string) ([]domain.Hashtag, error)
 }
 
 type hashtagRepository struct {
@@ -116,4 +117,34 @@ func (repository *hashtagRepository) BindPostWithHashtags(ctx context.Context, p
 	}
 
 	return nil
+}
+
+func (repository *hashtagRepository) GetPostHashtags(ctx context.Context, postId string) ([]domain.Hashtag, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetPostHashtags")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var hashtags []persistence.Hashtag
+	var hashtagsObjavas []persistence.HashtagObjava
+	var hashtagsDomain []domain.Hashtag
+
+	result := repository.DB.Where("objava_id = ?", postId).Find(&hashtagsObjavas)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	for _, hashtagObjava := range hashtagsObjavas {
+		var hashtag persistence.Hashtag
+		result = repository.DB.Where("id = ?", hashtagObjava.HashtagId).Find(&hashtag)
+		if result.Error != nil {
+			return nil, result.Error
+		}
+		hashtags = append(hashtags, hashtag)
+	}
+
+	for _, hashtag := range hashtags {
+		hashtagsDomain = append(hashtagsDomain, domain.Hashtag{Id: hashtag.Id, Text: hashtag.Text})
+	}
+
+	return hashtagsDomain, nil
 }
