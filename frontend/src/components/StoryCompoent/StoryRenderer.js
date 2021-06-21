@@ -5,13 +5,15 @@ import moment from 'moment';
 
 
 const StoryRenderer = ({ story, action, isPaused, config }) => {
-    const { width, height, loader, storyStyles, header } = config;
+    const { header } = config;
 
     const [localStory, setLocalStory] = useState(story);
     const [caption, setCaption] = useState("");
 
     useEffect(()=>{
         let timeCreated = "";
+
+        header.setStoryId(story.id)
 
         if(story.createdAt){
             const currentTime = moment(new Date())
@@ -41,7 +43,7 @@ const StoryRenderer = ({ story, action, isPaused, config }) => {
         })
 
         const hashtags = "";
-        story.hashtags && story.hashtags.forEach(hashtag => hashtags + ` #${hashtag.text}`) 
+        story.hashtags && story.hashtags.forEach(hashtag => hashtags + ` #${hashtag.text}`)
         const caption = story.description + hashtags
         setCaption(caption)
 
@@ -52,7 +54,7 @@ const StoryRenderer = ({ story, action, isPaused, config }) => {
         <WithHeader story={localStory}>
             <Slider 
                 showStoryCaption={true}
-                storyCaption={caption} 
+                storyCaption={caption}
                 showTags={true} 
                 media={story.media}
                 />

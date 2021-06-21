@@ -15,6 +15,7 @@ function Liked() {
 
     useEffect(() => {
         getUserLikedOrDislikedPosts();
+        console.log(store)
     }, []);
 
     function getUserLikedOrDislikedPosts() {
