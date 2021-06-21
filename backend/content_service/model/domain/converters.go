@@ -42,6 +42,7 @@ func (p Post) ConvertToGrpc() *protopb.Post {
 		Comments:    ConvertMultipleCommentsToGrpc(p.Comments),
 		Likes:       ConvertMultipleLikesToGrpc(p.Likes),
 		Dislikes:    ConvertMultipleLikesToGrpc(p.Dislikes),
+		Hashtags:    ConvertMultipleHashtagToGrpc(p.Hashtags),
 	}
 }
 
@@ -484,6 +485,13 @@ func (h *Hashtag) ConvertFromGrpc(hashtag *protopb.Hashtag) *Hashtag {
 	}
 }
 
+func (h *Hashtag) ConvertToGrpc() *protopb.Hashtag {
+	return &protopb.Hashtag{
+		Id:   h.Id,
+		Text: h.Text,
+	}
+}
+
 func ConvertMultipleHashtagFromGrpc(t []*protopb.Hashtag) []Hashtag {
 	hashtags := []Hashtag{}
 	if t != nil {
@@ -495,6 +503,16 @@ func ConvertMultipleHashtagFromGrpc(t []*protopb.Hashtag) []Hashtag {
 	}
 
 	return hashtags
+}
+
+func ConvertMultipleHashtagToGrpc(hashtags []Hashtag) []*protopb.Hashtag {
+	response := []*protopb.Hashtag{}
+	if hashtags != nil {
+		for _, domainHashtag := range hashtags {
+			response = append(response, domainHashtag.ConvertToGrpc())
+		}
+	}
+	return response
 }
 
 func (c *ContentComplaint) ConvertFromGrpc(contentComplaint *protopb.ContentComplaint) *ContentComplaint {

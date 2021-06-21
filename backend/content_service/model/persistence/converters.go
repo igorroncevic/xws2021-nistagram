@@ -8,9 +8,9 @@ import (
 	"time"
 )
 
-func (p Post) ConvertToDomain(comments []domain.Comment, likes []domain.Like, dislikes []domain.Like, media []domain.Media) domain.Post{
+func (p Post) ConvertToDomain(comments []domain.Comment, likes []domain.Like, dislikes []domain.Like, media []domain.Media, hashtags []domain.Hashtag) domain.Post {
 	return domain.Post{
-		Objava:   domain.Objava{
+		Objava: domain.Objava{
 			Id:          p.Id,
 			UserId:      p.UserId,
 			IsAd:        p.IsAd,
@@ -23,12 +23,13 @@ func (p Post) ConvertToDomain(comments []domain.Comment, likes []domain.Like, di
 		Comments: comments,
 		Likes:    likes,
 		Dislikes: dislikes,
+		Hashtags: hashtags,
 	}
 }
 
-func (p Post) ConvertToDomainReduced(commentsNum int, likesNum int, dislikesNum int, media []domain.Media) domain.ReducedPost{
+func (p Post) ConvertToDomainReduced(commentsNum int, likesNum int, dislikesNum int, media []domain.Media) domain.ReducedPost {
 	return domain.ReducedPost{
-		Objava:   domain.Objava{
+		Objava: domain.Objava{
 			Id:          p.Id,
 			UserId:      p.UserId,
 			IsAd:        p.IsAd,
@@ -38,9 +39,9 @@ func (p Post) ConvertToDomainReduced(commentsNum int, likesNum int, dislikesNum 
 			CreatedAt:   p.CreatedAt,
 			Media:       media,
 		},
-		CommentsNum: 	int32(commentsNum),
-		LikesNum:    	int32(likesNum),
-		DislikesNum: 	int32(dislikesNum),
+		CommentsNum: int32(commentsNum),
+		LikesNum:    int32(likesNum),
+		DislikesNum: int32(dislikesNum),
 	}
 }
 
@@ -58,7 +59,7 @@ func (p Post) ConvertToPersistence(post domain.Post) Post {
 
 func (s Story) ConvertToPersistence(story domain.Story) Story {
 	return Story{
-		Post: Post {
+		Post: Post{
 			Id:          uuid.NewV4().String(),
 			UserId:      story.UserId,
 			IsAd:        story.IsAd,
@@ -73,7 +74,7 @@ func (s Story) ConvertToPersistence(story domain.Story) Story {
 
 func (s Story) ConvertToDomain(media []domain.Media) domain.Story {
 	return domain.Story{
-		Objava: domain.Objava {
+		Objava: domain.Objava{
 			Id:          s.Id,
 			UserId:      s.UserId,
 			IsAd:        s.IsAd,
@@ -81,7 +82,7 @@ func (s Story) ConvertToDomain(media []domain.Media) domain.Story {
 			Description: s.Description,
 			Location:    s.Location,
 			CreatedAt:   s.CreatedAt,
-			Media: media,
+			Media:       media,
 		},
 		IsCloseFriends: s.IsCloseFriends,
 	}
@@ -89,7 +90,7 @@ func (s Story) ConvertToDomain(media []domain.Media) domain.Story {
 
 func (c Comment) ConvertToDomain(username string) domain.Comment {
 	return domain.Comment{
-		Id:		   c.Id,
+		Id:        c.Id,
 		PostId:    c.PostId,
 		UserId:    c.UserId,
 		Username:  username,
@@ -98,10 +99,12 @@ func (c Comment) ConvertToDomain(username string) domain.Comment {
 	}
 }
 
-func (c *Comment) ConvertToPersistence(comment domain.Comment) *Comment{
-	if c == nil { c = &Comment{} }
+func (c *Comment) ConvertToPersistence(comment domain.Comment) *Comment {
+	if c == nil {
+		c = &Comment{}
+	}
 	return &Comment{
-		Id:		   uuid.NewV4().String(),
+		Id:        uuid.NewV4().String(),
 		PostId:    comment.PostId,
 		UserId:    comment.UserId,
 		Content:   comment.Content,
@@ -111,24 +114,28 @@ func (c *Comment) ConvertToPersistence(comment domain.Comment) *Comment{
 
 func (l Like) ConvertToDomain(username string) domain.Like {
 	return domain.Like{
-		PostId: l.PostId,
-		UserId: l.UserId,
-		IsLike: l.IsLike,
+		PostId:   l.PostId,
+		UserId:   l.UserId,
+		IsLike:   l.IsLike,
 		Username: username,
 	}
 }
 
-func (l *Like) ConvertToPersistence(like domain.Like) *Like{
-	if l == nil { l = &Like{} }
+func (l *Like) ConvertToPersistence(like domain.Like) *Like {
+	if l == nil {
+		l = &Like{}
+	}
 	return &Like{
-		PostId:    	like.PostId,
-		UserId:    	like.UserId,
-		IsLike:		like.IsLike,
+		PostId: like.PostId,
+		UserId: like.UserId,
+		IsLike: like.IsLike,
 	}
 }
 
-func (m *Media) ConvertToDomain(tags []domain.Tag) (domain.Media, error){
-	if m == nil { m = &Media{} }
+func (m *Media) ConvertToDomain(tags []domain.Tag) (domain.Media, error) {
+	if m == nil {
+		m = &Media{}
+	}
 	filename, err := images.LoadImageToBase64(util.GetContentLocation(m.Filename))
 	if err != nil {
 		return domain.Media{}, err
@@ -139,12 +146,14 @@ func (m *Media) ConvertToDomain(tags []domain.Tag) (domain.Media, error){
 		PostId:   m.PostId,
 		Content:  filename,
 		OrderNum: int32(m.OrderNum),
-		Tags:	  tags,
+		Tags:     tags,
 	}, nil
 }
 
-func (m *Media) ConvertToPersistence(media domain.Media, filename string) *Media{
-	if m == nil { m = &Media{} }
+func (m *Media) ConvertToPersistence(media domain.Media, filename string) *Media {
+	if m == nil {
+		m = &Media{}
+	}
 	return &Media{
 		Id:       uuid.NewV4().String(),
 		Type:     media.Type,
@@ -156,17 +165,19 @@ func (m *Media) ConvertToPersistence(media domain.Media, filename string) *Media
 
 func (t Tag) ConvertToDomain(username string) domain.Tag {
 	return domain.Tag{
-		MediaId:   t.MediaId,
-		UserId:    t.UserId,
-		Username:  username,
+		MediaId:  t.MediaId,
+		UserId:   t.UserId,
+		Username: username,
 	}
 }
 
-func (t *Tag) ConvertToPersistence(tag domain.Tag) *Tag{
-	if t == nil { t = &Tag{} }
+func (t *Tag) ConvertToPersistence(tag domain.Tag) *Tag {
+	if t == nil {
+		t = &Tag{}
+	}
 	return &Tag{
-		MediaId:    tag.MediaId,
-		UserId:    	tag.UserId,
+		MediaId: tag.MediaId,
+		UserId:  tag.UserId,
 	}
 }
 
@@ -178,12 +189,14 @@ func (f Favorites) ConvertToDomain(collections []domain.Collection, unclassified
 	}
 }
 
-func (f *Favorites) ConvertToPersistence(favorites domain.FavoritesRequest) *Favorites{
-	if f == nil { f = &Favorites{} }
+func (f *Favorites) ConvertToPersistence(favorites domain.FavoritesRequest) *Favorites {
+	if f == nil {
+		f = &Favorites{}
+	}
 	return &Favorites{
 		PostId:       favorites.PostId,
 		CollectionId: favorites.CollectionId,
-		UserId: 	  favorites.UserId,
+		UserId:       favorites.UserId,
 	}
 }
 
@@ -196,8 +209,10 @@ func (c Collection) ConvertToDomain(posts []domain.Post) domain.Collection {
 	}
 }
 
-func (c *Collection) ConvertToPersistence(collection domain.Collection) *Collection{
-	if c == nil { c = &Collection{} }
+func (c *Collection) ConvertToPersistence(collection domain.Collection) *Collection {
+	if c == nil {
+		c = &Collection{}
+	}
 	return &Collection{
 		Id:     uuid.NewV4().String(),
 		Name:   collection.Name,
@@ -215,8 +230,10 @@ func (h Highlight) ConvertToDomain(stories []domain.Story) domain.Highlight {
 	}
 }
 
-func (h *Highlight) ConvertToPersistence(highlight domain.Highlight) *Highlight{
-	if h == nil { h = &Highlight{} }
+func (h *Highlight) ConvertToPersistence(highlight domain.Highlight) *Highlight {
+	if h == nil {
+		h = &Highlight{}
+	}
 	return &Highlight{
 		Id:     uuid.NewV4().String(),
 		UserId: highlight.UserId,
@@ -224,8 +241,10 @@ func (h *Highlight) ConvertToPersistence(highlight domain.Highlight) *Highlight{
 	}
 }
 
-func (c *HighlightStory) ConvertToPersistence(request domain.HighlightRequest) *HighlightStory{
-	if c == nil { c = &HighlightStory{} }
+func (c *HighlightStory) ConvertToPersistence(request domain.HighlightRequest) *HighlightStory {
+	if c == nil {
+		c = &HighlightStory{}
+	}
 	return &HighlightStory{
 		HighlightId: request.HighlightId,
 		StoryId:     request.StoryId,

@@ -122,7 +122,7 @@ func (service *PostService) CreatePost(ctx context.Context, post *domain.Post) e
 		return errors.New("cannot create empty post")
 	}
 
-	err :=  service.postRepository.CreatePost(ctx, post)
+	err := service.postRepository.CreatePost(ctx, post)
 	if err != nil {
 		return err
 	}
@@ -159,6 +159,19 @@ func (service *PostService) GetPostById(ctx context.Context, id string) (domain.
 	dbComments, err := service.commentRepository.GetCommentsForPost(ctx, dbPost.Id)
 	if err != nil {
 		return domain.Post{}, err
+	}
+
+	dbHashtags, err := service.hashtagRepository.GetPostHashtags(ctx, dbPost.Id)
+	if err != nil {
+		return domain.Post{}, err
+	}
+
+	hashtags := []domain.Hashtag{}
+	for _, hashtag := range dbHashtags {
+		hashtags = append(hashtags, domain.Hashtag{
+			Id:   hashtag.Id,
+			Text: hashtag.Text,
+		})
 	}
 
 	comments := []domain.Comment{}
@@ -220,7 +233,7 @@ func (service *PostService) GetPostById(ctx context.Context, id string) (domain.
 		media = append(media, converted)
 	}
 
-	post := dbPost.ConvertToDomain(comments, likes, dislikes, media)
+	post := dbPost.ConvertToDomain(comments, likes, dislikes, media, hashtags)
 
 	return post, nil
 }
