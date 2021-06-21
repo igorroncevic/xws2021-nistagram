@@ -11,12 +11,13 @@ import BlockMuteAndNotifications from "./BlockMuteAndNotifications";
 import Highlight from './../StoryCompoent/Highlight';
 import PostPreviewGrid from './../Post/PostPreviewGrid';
 import Spinner from './../../helpers/spinner';
-
+import Story from './../StoryCompoent/Story';
 
 import userService from "../../services/user.service";
 import privacyService from "../../services/privacy.service";
 import followersService from "../../services/followers.service";
 import postService from './../../services/post.service';
+import storyService from './../../services/story.service';
 import highlightsService from './../../services/highlights.service';
 import toastService from './../../services/toast.service';
 
@@ -24,14 +25,14 @@ import '../../style/Profile.css';
 
 
 const Profile = () => {
-    const { username } = useParams()
+    const {username} = useParams()
 
     const [loadingPosts, setLoadingPosts] = useState(true);
     const [loadingHighlights, setLoadingHighlights] = useState(true);
 
     const [user, setUser] = useState({});
     const [follow, setFollow] = useState({});
-    const [publicProfile,setPublicProfile] = useState(false);
+    const [publicProfile, setPublicProfile] = useState(false);
 
     const [showModalFollowers, setModalFollowers] = useState(false);
     const [showModalFollowings, setModalFollowings] = useState(false);
@@ -41,18 +42,29 @@ const Profile = () => {
     const [closeFriend, setCloseFriend] = useState(false);
     const [isApprovedRequest, setIsApprovedRequest] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
-    const [isNotificationEnabled, setNotifications] = useState(false);
+    const [notifications, setNotifications] = useState({
+        isMessageNotificationEnabled: false,
+        isPostNotificationEnabled: false,
+        isStoryNotificationEnabled: false,
+        isCommentNotificationEnabled: false
+    })
+
+    const [isMessageNotificationEnabled, setMessageNotifications] = useState(false);
+    const [isPostNotificationEnabled, setPostNotifications] = useState(false);
+    const [isStoryNotificationEnabled, setStoryNotifications] = useState(false);
+    const [isCommentNotificationEnabled, setCommentNotifications] = useState(false);
 
     const [posts, setPosts] = useState([]);
+    const [stories, setStories] = useState([]);
     const [highlights, setHighlights] = useState([]);
 
     const dispatch = useDispatch()
     const store = useSelector(state => state);
 
     useEffect(() => {
-        (async function(){
+        (async function () {
             const tempUser = await getUserByUsername(); // Since it doesn't get saved in time for other requests
-            if(tempUser) {
+            if (tempUser) {
                 getUserPrivacy(tempUser.id);
                 getFollowers(tempUser.id)
                 getFollowing(tempUser.id)
@@ -61,6 +73,7 @@ const Profile = () => {
                 getFollowers(tempUser.id);
                 getFollowing(tempUser.id);
                 getPosts(tempUser.id);
+                getStories(tempUser);
                 getHighlights(tempUser.id);
             }
         })();
@@ -71,14 +84,32 @@ const Profile = () => {
             jwt: store.user.jwt,
             userId: userId
         })
-        
-        if (response.status === 200){ 
+
+        if (response.status === 200) {
             setPosts([...response.data.posts])
             setLoadingPosts(false);
+        } else {
+            console.log(response);
+            toastService.show("error", "Could not retrieve user's posts.")
+        }
+    }
+
+    const getStories = async (user) => {
+        const response = await storyService.getUsersStories({
+            jwt: store.user.jwt,
+            userId: user.id
+        })
+        
+        if (response.status === 200){ 
+            setStories({
+                username: user.username,
+                userPhoto: user.profilePhoto,
+                stories: [...response.data.stories]
+            })
         }
         else{
             console.log(response);
-            toastService.show("error", "Could not retrieve user's posts.")
+            toastService.show("error", "Could not retrieve user's stories.")
         }
     }
 
@@ -87,12 +118,11 @@ const Profile = () => {
             jwt: store.user.jwt,
             userId: userId
         })
-        
-        if (response.status === 200){ 
+
+        if (response.status === 200) {
             setHighlights([...response.data.highlights])
             setLoadingHighlights(false);
-        }
-        else{
+        } else {
             console.log(response);
             toastService.show("error", "Could not retrieve user's highlights.")
         }
@@ -106,6 +136,7 @@ const Profile = () => {
 
         if (response.status === 200) {
             setUser(response.data)
+            console.log(response.data)
             return response.data
         } else {
             console.log("getuserbyusername error")
@@ -134,7 +165,14 @@ const Profile = () => {
             setCloseFriend(response.data.isCloseFriends)
             setIsApprovedRequest(response.data.isApprovedRequest)
             setIsMuted(response.data.isMuted)
-            setNotifications(response.data.isNotificationEnabled)
+            setNotifications({
+                ...notifications,
+                isMessageNotificationEnabled: response.data.isMessageNotificationEnabled,
+                isPostNotificationEnabled: response.data.isPostNotificationEnabled,
+                isStoryNotificationEnabled: response.data.isStoryNotificationEnabled,
+                isCommentNotificationEnabled: response.data.isCommentNotificationEnabled
+            });
+
         } else {
             console.log("followings ne radi")
         }
@@ -155,7 +193,7 @@ const Profile = () => {
 
     async function getFollowing(value) {
         const response = await followersService.getFollowing({
-            userId:value,
+            userId: value,
             jwt: store.user.jwt,
         })
 
@@ -177,16 +215,15 @@ const Profile = () => {
         } else {
             console.log("followers ne radi")
         }
-
     }
 
     function handleModalFollowers() {
-        if(publicProfile || isApprovedRequest || !follow)
-         setModalFollowers(!showModalFollowers)
+        if (publicProfile || isApprovedRequest || !follow)
+            setModalFollowers(!showModalFollowers)
     }
 
     function handleModalFollowings() {
-        if(publicProfile || isApprovedRequest || !follow)
+        if (publicProfile || isApprovedRequest || !follow)
             setModalFollowings(!showModalFollowings)
     }
 
@@ -195,80 +232,89 @@ const Profile = () => {
             <Navigation/>
             <div className="profileGrid">
                     <div className="profileHeader">
-                        <img alt="" src={user.profilePhoto ? user.profilePhoto : ""}/>
+                        { stories.stories && stories.stories.length > 0 && 
+                        (!follow || // Moj profil
+                        (follow && publicProfile) || // Tudji javan 
+                        (follow && !publicProfile  && isApprovedRequest)) ?
+                            <Story story={stories} iconSize={"xxl"} hideUsername={true} /> :
+                            <img style={{marginLeft: "-1em", paddingRight: "4px"}} alt="" src={user.profilePhoto}/>
+                        }
                         <div className="info">
                             <div className="fullname">
                                 {user.firstName} {user.lastName}
                                 {follow && <span className="blockMute">
                                     <BlockMuteAndNotifications 
-                                        isApprovedRequest={isApprovedRequest} isMuted={isMuted} isNotificationEnabled={isNotificationEnabled}/>
+                                        isApprovedRequest={isApprovedRequest} isMuted={isMuted} notifications={notifications} />
                                 </span>
-                                }
+                            }
+                        </div>
+                        <div className="username">@{user.username}</div>
+                        <div className="stats">
+                            <div class="single-stat postsNum"><strong>{posts.length ? posts.length : 0}</strong> posts
                             </div>
-                            <div className="username">@{user.username}</div>
-                            <div className="stats">
-                                <div class="single-stat postsNum"><strong>{posts.length ? posts.length : 0}</strong> posts</div>
-                                <div class="single-stat">
-                                    <Button variant="link" style={{color:'black'}} onClick={handleModalFollowers}>
-                                        <strong>{followers.length}</strong> followers
-                                    </Button>
-                                </div>
-                                <div class="single-stat">
-                                    <Button variant="link" style={{color:'black'}} onClick={handleModalFollowings}>
-                                        <strong>{following.length}</strong> following 
-                                    </Button>
-                                </div>
+                            <div class="single-stat">
+                                <Button variant="link" style={{color: 'black'}} onClick={handleModalFollowers}>
+                                    <strong>{followers.length}</strong> followers
+                                </Button>
                             </div>
-                            { user.biography && <div>{user.biography}</div> }
-                            { user.website && 
-                                <a className="website" target="_blank" rel="noreferrer"
-                                   href={user.website.includes('http://') ? user.website : 'http://' + user.website}> 
-                                    {user.website} 
-                                </a> }
-                            { follow && 
-                            <FollowAndUnfollow className="followUnfollow" user={user} isCloseFriends={closeFriend} funcIsCloseFriend={isCloseFriend} 
-                                followers={followers} 
-                                getFollowers={getFollowers}
-                            /> }
-                        </div>                        
+                            <div class="single-stat">
+                                <Button variant="link" style={{color: 'black'}} onClick={handleModalFollowings}>
+                                    <strong>{following.length}</strong> following
+                                </Button>
+                            </div>
+                        </div>
+                        {user.biography && <div>{user.biography}</div>}
+                        {user.website &&
+                        <a className="website" target="_blank" rel="noreferrer"
+                           href={user.website.includes('http://') ? user.website : 'http://' + user.website}>
+                            {user.website}
+                        </a>}
+                        {follow &&
+                        <FollowAndUnfollow className="followUnfollow" user={user} isCloseFriends={closeFriend}
+                                           funcIsCloseFriend={isCloseFriend}
+                                           followers={followers}
+                                           getFollowers={getFollowers}
+                        />}
                     </div>
+                </div>
 
                 <div className="content">
                     {!follow || // Moj profil 
                     (follow && publicProfile) || // Tudji javan 
-                    (follow && !publicProfile  && isApprovedRequest) && // Tudji privatan koji ja pratim
-                        (<div className="highlights">
-                            { loadingHighlights ? 
-                                <div style={{ position: "relative", left: "45%", marginTop: "50px" }}>
-                                    <Spinner type="MutatingDots" height="100" width="100" />
-                                </div> :
-                                highlights.map(highlight => {
-                                    highlight["profileImage"] = highlight.stories.length > 0 ? highlight.stories[0].media[0].content : "" ; // check
-                                    return <Highlight highlight={highlight} />
-                                })
-                            }
-                        </div>)
+                    (follow && !publicProfile && isApprovedRequest) && // Tudji privatan koji ja pratim
+                    (<div className="highlights">
+                        {loadingHighlights ?
+                            <div style={{position: "relative", left: "45%", marginTop: "50px"}}>
+                                <Spinner type="MutatingDots" height="100" width="100"/>
+                            </div> :
+                            highlights.map(highlight => {
+                                highlight["profileImage"] = highlight.stories.length > 0 ? highlight.stories[0].media[0].content : ""; // check
+                                return <Highlight highlight={highlight}/>
+                            })
+                        }
+                    </div>)
                     }
 
                     {
-                    (!follow || // Moj profil 
-                    (follow && publicProfile) || // Tudji javan 
-                    (follow && !publicProfile  && isApprovedRequest)) && // Tudji privatan koji ja pratim
+                        (!follow || // Moj profil
+                            (follow && publicProfile) || // Tudji javan
+                            (follow && !publicProfile && isApprovedRequest)) && // Tudji privatan koji ja pratim
                         <div className="posts">
-                            { loadingPosts ? 
-                                <div style={{ position: "relative", left: "45%", marginTop: "50px" }}>
-                                    <Spinner type="MutatingDots" height="100" width="100" />
+                            {loadingPosts ?
+                                <div style={{position: "relative", left: "45%", marginTop: "50px"}}>
+                                    <Spinner type="MutatingDots" height="100" width="100"/>
                                 </div> :
-                                <PostPreviewGrid posts={posts} />
+                                <PostPreviewGrid posts={posts}/>
                             }
                         </div>
                     }
 
                     {(follow && !publicProfile && !isApprovedRequest) && // Tudji koji je privatan i nije approve-ovan
-                        <div style={{ borderTop: '1px solid black'}}>
-                            <p style={{textAlign: 'center', marginTop:'6%', fontWeight:'bold'}}> This Account is Private </p>
-                            <p style={{textAlign: 'center', marginTop:'2%'}}>Follow to see their photos and videos!</p>
-                        </div>
+                    <div style={{borderTop: '1px solid black'}}>
+                        <p style={{textAlign: 'center', marginTop: '6%', fontWeight: 'bold'}}> This Account is
+                            Private </p>
+                        <p style={{textAlign: 'center', marginTop: '2%'}}>Follow to see their photos and videos!</p>
+                    </div>
                     }
                 </div>
 
@@ -293,5 +339,4 @@ const Profile = () => {
         </div>
     );
 }
-
 export default Profile;

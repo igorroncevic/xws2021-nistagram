@@ -26,7 +26,10 @@ func (service *FollowersService) CreateUserConnection(ctx context.Context, follo
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	follower.IsNotificationEnabled = true
+	follower.IsCommentNotificationEnabled = true
+	follower.IsMessageNotificationEnabled = true
+	follower.IsPostNotificationEnabled = true
+	follower.IsStoryNotificationEnabled = true
 	follower.IsCloseFriends = false
 	follower.IsMuted = false
 
@@ -174,5 +177,15 @@ func (service *FollowersService) AcceptFollowRequest(ctx context.Context, f mode
 	return follower, nil
 
 }
+
+func (service *FollowersService) GetUsersForNotificationEnabled(ctx context.Context, userId string,notification string) ([]model.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUsersForNotificationEnabled")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.GetUsersForNotificationEnabled(ctx, userId, notification)
+
+}
+
 
 

@@ -11,10 +11,8 @@ import complaintService from "../../services/complaint.service";
 import toastService from "../../services/toast.service";
 import {useSelector} from "react-redux";
 
-
-
 function Story(props) {
-    const { story } = props;
+    const { story, iconSize, hideUsername, fixMargins } = props;
     const [showModal, setModal] = useState(false);
     const [showModalReport, setModalReport] = useState(false);
     const [convertedStory, setConvertedStory] = useState([])
@@ -33,7 +31,7 @@ function Story(props) {
         setConvertedStory(convertedStories);
 
         setHeader({
-            username: story.username,
+            heading: story.username,
             profileImage: story.userPhoto
         })
     }, [])
@@ -77,11 +75,11 @@ function Story(props) {
 
     return (
         <div>
-            <div className="story">
+            <div className={`story ${fixMargins ? "fixMargins" : ""}`}>
                 <div className={true ? "storyBorder" : ""}>
-                    <img className={`profileIcon big`} src={story.userPhoto} alt="" onClick={() => setModal(!showModal)}/>
+                    <img className={`profileIcon ${iconSize ? iconSize : "big"}`} src={story.userPhoto} alt="" onClick={() => setModal(!showModal)}/>
                 </div>
-                <span className="accountName">{story.username}</span>
+                {!hideUsername ? <span className="accountName">{story.username}</span> : null}
             </div>
             
             <Modal show={showModal} onHide={() => setModal(!showModal)}>

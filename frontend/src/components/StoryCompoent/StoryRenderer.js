@@ -8,6 +8,7 @@ const StoryRenderer = ({ story, action, isPaused, config }) => {
     const { header } = config;
 
     const [localStory, setLocalStory] = useState(story);
+    const [caption, setCaption] = useState("");
 
     useEffect(()=>{
         let timeCreated = "";
@@ -19,11 +20,11 @@ const StoryRenderer = ({ story, action, isPaused, config }) => {
             const difference = moment.duration(currentTime.diff(story.createdAt))
 
             if(difference.asHours() < 1){
-                difference.asMinutes() < 1 ?
-                    timeCreated = Math.floor(difference.asSeconds()) + "s ago @ " + story.location :
-                    timeCreated = Math.floor(difference.asMinutes()) + + "h ago @ " + story.location
+                difference.asMinutes() < 1 ? 
+                    timeCreated = Math.floor(difference.asSeconds()) + "s ago @ " + story.location : 
+                    timeCreated = Math.floor(difference.asMinutes()) + "m ago @ " + story.location
             }else{
-                difference.asHours() > 24 ?
+                difference.asHours() > 24 ? 
                     timeCreated = Math.floor(difference.asDays()) + "d ago @ " + story.location :
                     timeCreated = Math.floor(difference.asHours()) + "h ago @ " + story.location
             }
@@ -34,23 +35,29 @@ const StoryRenderer = ({ story, action, isPaused, config }) => {
         }
         if(timeCreated) newHeader["subheading"] = timeCreated;
         if(header.profileImage) newHeader["profileImage"] = header.profileImage;
+        if(story.isCloseFriends) newHeader.heading += " - Close Friends"
 
         setLocalStory({
             ...story,
             header: newHeader
         })
 
+        const hashtags = "";
+        story.hashtags && story.hashtags.forEach(hashtag => hashtags + ` #${hashtag.text}`)
+        const caption = story.description + hashtags
+        setCaption(caption)
+
         action('play'); // Doesn't auto start if there are multiple stories
     }, [story])
 
     return (
         <WithHeader story={localStory}>
-            <Slider
+            <Slider 
                 showStoryCaption={true}
-                storyCaption={story.description}
-                showTags={true}
+                storyCaption={caption}
+                showTags={true} 
                 media={story.media}
-            />
+                />
         </WithHeader>
     )
 }

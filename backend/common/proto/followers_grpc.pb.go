@@ -29,6 +29,7 @@ type FollowersClient interface {
 	UpdateUserConnection(ctx context.Context, in *CreateFollowerRequest, opts ...grpc.CallOption) (*CreateFollowerResponse, error)
 	AcceptFollowRequest(ctx context.Context, in *CreateFollowerRequest, opts ...grpc.CallOption) (*CreateFollowerResponse, error)
 	GetFollowersConnection(ctx context.Context, in *Follower, opts ...grpc.CallOption) (*Follower, error)
+	GetUsersForNotificationEnabled(ctx context.Context, in *RequestForNotification, opts ...grpc.CallOption) (*CreateUserResponse, error)
 }
 
 type followersClient struct {
@@ -138,6 +139,15 @@ func (c *followersClient) GetFollowersConnection(ctx context.Context, in *Follow
 	return out, nil
 }
 
+func (c *followersClient) GetUsersForNotificationEnabled(ctx context.Context, in *RequestForNotification, opts ...grpc.CallOption) (*CreateUserResponse, error) {
+	out := new(CreateUserResponse)
+	err := c.cc.Invoke(ctx, "/proto.Followers/GetUsersForNotificationEnabled", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FollowersServer is the server API for Followers service.
 // All implementations must embed UnimplementedFollowersServer
 // for forward compatibility
@@ -153,6 +163,7 @@ type FollowersServer interface {
 	UpdateUserConnection(context.Context, *CreateFollowerRequest) (*CreateFollowerResponse, error)
 	AcceptFollowRequest(context.Context, *CreateFollowerRequest) (*CreateFollowerResponse, error)
 	GetFollowersConnection(context.Context, *Follower) (*Follower, error)
+	GetUsersForNotificationEnabled(context.Context, *RequestForNotification) (*CreateUserResponse, error)
 	mustEmbedUnimplementedFollowersServer()
 }
 
@@ -192,6 +203,9 @@ func (UnimplementedFollowersServer) AcceptFollowRequest(context.Context, *Create
 }
 func (UnimplementedFollowersServer) GetFollowersConnection(context.Context, *Follower) (*Follower, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFollowersConnection not implemented")
+}
+func (UnimplementedFollowersServer) GetUsersForNotificationEnabled(context.Context, *RequestForNotification) (*CreateUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUsersForNotificationEnabled not implemented")
 }
 func (UnimplementedFollowersServer) mustEmbedUnimplementedFollowersServer() {}
 
@@ -404,6 +418,24 @@ func _Followers_GetFollowersConnection_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Followers_GetUsersForNotificationEnabled_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestForNotification)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FollowersServer).GetUsersForNotificationEnabled(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Followers/GetUsersForNotificationEnabled",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FollowersServer).GetUsersForNotificationEnabled(ctx, req.(*RequestForNotification))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Followers_ServiceDesc is the grpc.ServiceDesc for Followers service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -454,6 +486,10 @@ var Followers_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetFollowersConnection",
 			Handler:    _Followers_GetFollowersConnection_Handler,
+		},
+		{
+			MethodName: "GetUsersForNotificationEnabled",
+			Handler:    _Followers_GetUsersForNotificationEnabled_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

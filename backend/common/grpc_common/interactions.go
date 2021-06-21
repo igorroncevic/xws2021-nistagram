@@ -270,3 +270,18 @@ func GetByTypeAndCreator(ctx context.Context, userId string, creatorId string, n
 	return result, nil
 }
 
+func GetUsersForNotificationEnabled(ctx context.Context,  userId string, notificationType string) (*protopb.CreateUserResponse, error) {
+	conn, err := CreateGrpcConnection(Recommendation_service_address)
+	if err != nil{
+		return nil, status.Errorf(codes.Unknown, err.Error())
+	}
+	defer conn.Close()
+
+	followerClient := GetFollowersClient(conn)
+	result, err := followerClient.GetUsersForNotificationEnabled(ctx, &protopb.RequestForNotification{NotificationType: notificationType, UserId: userId})
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}

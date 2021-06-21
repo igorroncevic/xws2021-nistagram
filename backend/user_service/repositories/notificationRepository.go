@@ -54,26 +54,24 @@ func (repository *notificationRepository) CreateNotification(ctx context.Context
 func (repository *notificationRepository) CheckIfAlreadyExists(notification *persistence.UserNotification) error {
 	var checkNotification *persistence.UserNotification
 
-	repository.DB.Where("creator_id = ?", notification.CreatorId).Where("type = ?", "FollowPublic").Where("user_id = ?", notification.UserId).Find(&checkNotification)
-	if checkNotification.NotificationId != "" {
-		return errors.New("Notification already exists")
+	if notification.Type!="Comment" {
+		repository.DB.Where("creator_id = ?", notification.CreatorId).Where("type = ?", notification.Type).Where("user_id = ?", notification.UserId).Find(&checkNotification)
+		if checkNotification.NotificationId != "" && (notification.Type=="FollowPublic" || notification.Type=="FollowPrivate"){
+			return errors.New("Notification already exists")
+		}
+		repository.DB.Where("creator_id = ?", notification.CreatorId).Where("type = ?", "Like").Where("content_id = ?", notification.ContentId).Find(&checkNotification)
+		if checkNotification.NotificationId != "" && notification.Type=="Like"{
+			return errors.New("Notification already exists")
+		}
+		repository.DB.Where("creator_id = ?", notification.CreatorId).Where("type = ?", "Dislike").Where("content_id = ?", notification.ContentId).Find(&checkNotification)
+		if checkNotification.NotificationId != "" && notification.Type=="Dislike"{
+			return errors.New("Notification already exists")
+		}
+
 	}
-	repository.DB.Where("creator_id = ?", notification.CreatorId).Where("type = ?", "FollowPrivate").Where("user_id = ?", notification.UserId).Find(&checkNotification)
-	if checkNotification.NotificationId != "" {
-		return errors.New("Notification already exists")
-	}
-	repository.DB.Where("creator_id = ?", notification.CreatorId).Where("type = ?", "Like").Where("content_id = ?", notification.ContentId).Find(&checkNotification)
-	if checkNotification.NotificationId != "" {
-		return errors.New("Notification already exists")
-	}
-	repository.DB.Where("creator_id = ?", notification.CreatorId).Where("type = ?", "Dislike").Where("content_id = ?", notification.ContentId).Find(&checkNotification)
-	if checkNotification.NotificationId != "" {
-		return errors.New("Notification already exists")
-	}
-	//repository.DB.Where("creator_id = ?", notification.CreatorId).Where("type = ?", "Comment").Where("content_id = ?", notification.ContentId).Find(&checkNotification)
-	//if checkNotification.NotificationId != "" {
-	//	return errors.New("Notification already exists")
-	//}
+
+
+
 	return nil
 }
 
