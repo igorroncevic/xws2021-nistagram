@@ -1,28 +1,24 @@
 import React, {useEffect, useState} from 'react';
-import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
 import Navigation from "../HomePage/Navigation";
 import {Button, Modal} from "react-bootstrap";
-import RegistrationPage from "../../pages/RegistrationPage";
 import UserAutocomplete from "../Post/UserAutocomplete";
 import ProfileForAutocomplete from "../Post/ProfileForAutocomplete";
 import AutocompleteHashtags from "../Post/AutocompleteHashtags";
 import userService from "../../services/user.service";
-import {useDispatch, useSelector} from "react-redux";
 import postService from "../../services/post.service";
-import {toast} from "react-toastify";
 import toastService from "../../services/toast.service";
 import hashtagService from "../../services/hashtag.service";
 
 function NewPost(props) {
-    // const [user,setUser] =useState(props.location.state.user);
-    const [user,setUser] =useState({});
+    const [user, setUser] = useState({});
 
-    const[description,setDescription]=useState('');
-    const[location,setLocation]=useState('');
-    const[image,setImage]=useState('');
+    const [description, setDescription] =useState('');
+    const [location, setLocation] = useState('');
+    const [image, setImage] = useState('');
     const [hashtagList, setHashtagList] = useState([]);
     const [hashtagListForPrint, setHashtagListForPrint] = useState([]);
-    const[showModal,setShowModal]=useState(false);
+    const [showModal,setShowModal] =useState(false);
     const [tagList, setTagList] = useState([]);
     const [tagListForPrint, setTagListForPrint] = useState([]);
     const [mediaList, setMediaList] = useState([]);
@@ -31,18 +27,12 @@ function NewPost(props) {
     const [allUsers, setAllUsers] = useState([]);
     const [allHashtags, setAllHashtags] = useState([]);
 
-    const dispatch = useDispatch()
     const store = useSelector(state => state);
 
     useEffect(() => {
-        if(store.user.role === 'Admin' || store.user.role === "") window.location.replace("http://localhost:3000/unauthorized");
-        console.log(props);
-        //setUser(props.location.state.user);
         getUserInfo();
         getAllUsers();
         getAllHashtags();
-        console.log("all users:")
-        console.log(allUsers)
     }, []);
 
     async function getUserInfo() {
@@ -57,23 +47,14 @@ function NewPost(props) {
             console.log("getuser error")
         }
     }
-
-
-    function setupHeaders(){
-        return {
-            Accept: 'application/json',
-            Authorization: 'Bearer ' + store.user.jwt,
-        }
-    }
-
+    
     async function getAllUsers() {
-        const response = await userService.getAllUsers({jwt : store.user.jwt});
+        const response = await userService.getAllUsers({jwt: store.user.jwt});
         await setAllUsers(response.data.users);
-
     }
 
     async function getAllHashtags() {
-        const response = await hashtagService.getAllHashtags({jwt : store.user.jwt});
+        const response = await hashtagService.getAllHashtags({ jwt: store.user.jwt });
         setAllHashtags(response.data.hashtags)
     }
 
@@ -129,19 +110,16 @@ function NewPost(props) {
             month = "0" + month;
         let jsonDate = date.getFullYear() + "-" + month + "-" + date.getDate() + "T01:30:15.01Z";
         const response = await postService.createPost({
-            id:'1',
-            userId : user.id,
-            isAd : false,
-            type : 'Post',
-            description : description,
-            location : location,
-            createdAt : jsonDate,
-            media : mediaList,
-            comments : [],
-            likes : [],
-            dislikes : [],
-            hashtags : hashtagList,
-            jwt : store.user.jwt
+            id: '1',
+            userId: user.id,
+            isAd: false,
+            type: 'Post',
+            description: description,
+            location: location,
+            createdAt: jsonDate,
+            media: mediaList,
+            hashtags: hashtagList,
+            jwt: store.user.jwt
         });
         if (response.status === 200)
             toastService.show("success", "New post successfully created!");
@@ -152,7 +130,6 @@ function NewPost(props) {
     function handleChangeImage(evt) {
         console.log("Uploading");
         setImageName(evt.target.files[0].name);
-        var self = this;
         var reader = new FileReader();
         var file = evt.target.files[0];
 
@@ -176,15 +153,15 @@ function NewPost(props) {
     async function saveModal() {
         let tagListFilter = await tagList.filter(tag => tag.userId !== "");
         let media = {
-            id : "1",
+            id: "1",
             type: "Image",
-            postId : "1",
+            postId: "1",
             content: image,
-            orderNum : 1,
+            orderNum: 1,
             tags: tagListFilter
         };
         setMediaList([...mediaList, media]);
-        setPostPrint([...postPrint, {filename : imageName, tags : tagListFilter}]);
+        setPostPrint([...postPrint, {filename: imageName, tags: tagListFilter}]);
 
         setTagList([]);
         setTagListForPrint([]);
@@ -204,7 +181,7 @@ function NewPost(props) {
 
                 <br/>
                 <AutocompleteHashtags addToHashtaglist={handleHashtagAutocompleteClick}
-                                  suggestions={allHashtags} handleHashtagAutocompleteNewSuggestion={handleHashtagAutocompleteNewSuggestion}
+                        suggestions={allHashtags} handleHashtagAutocompleteNewSuggestion={handleHashtagAutocompleteNewSuggestion}
                 />
                 <br/><br/>
                 <h3>Hashtags:</h3>
@@ -248,18 +225,16 @@ function NewPost(props) {
                            onChange={handleChangeImage}
                            formEncType="multipart/form-data"
                            required />
-
                     <br/><br/>
-                    <UserAutocomplete addToTaglist={handleTagAutocompleteClick}
-                        suggestions={allUsers}
-                    />
+                    <UserAutocomplete addToTaglist={handleTagAutocompleteClick} suggestions={allUsers} />
                     <h3>Tags:</h3>
                     <div>
                         <ul>
                         {tagListForPrint.map((tag, i) => {
                             return (
                                 <li>
-                                    <ProfileForAutocomplete username={tag.username} firstName={tag.firstName} lastName={tag.lastName}  caption={tag.biography} urlText="Follow" iconSize="medium" captionSize="small" storyBorder={true} />
+                                    <ProfileForAutocomplete username={tag.username} firstName={tag.firstName} lastName={tag.lastName} 
+                                        caption={tag.biography} urlText="Follow" iconSize="medium" captionSize="small" storyBorder={true} />
                                 </li>
                             );
                         })}
@@ -270,7 +245,7 @@ function NewPost(props) {
                 </Modal.Body>
             </Modal>
         </div>
-
     );
+}
 
-}export default NewPost;
+export default NewPost;

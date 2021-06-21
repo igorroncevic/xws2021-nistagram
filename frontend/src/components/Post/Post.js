@@ -62,7 +62,7 @@ function Post (props) {
         }
         changeLikesText();
         changeDislikesText()
-        getUserCollections()
+        if(store.user.jwt !== "") getUserCollections()
     }, [])
 
     useEffect(()=>{
@@ -81,10 +81,10 @@ function Post (props) {
     }, [newComment])
 
     useEffect(() => {
-        getUserCollections()
+        if(store.user.jwt !== "") getUserCollections()
     }, [showSaveModal])
 
-    const getUserCollections = () => { 
+    const getUserCollections = () => {
         favoritesService.getUserFavoritesOptimized({
             userId: store.user.id,
             jwt: store.user.jwt,
@@ -105,7 +105,6 @@ function Post (props) {
                     setSavedInCollections([...savedInCollections, collection.id])
                 };
             })
-            console.log(response);
         }).catch(err => {
             toastService.show("error", "Could not load your collections. Please try again.")
         })
@@ -127,7 +126,7 @@ function Post (props) {
         if(postUser && postUser.id && postUser.id !== store.user.id){
             const response = await userService.getUserById({
                 id: postUser.id,
-                jwt:store.user.jwt
+                jwt: store.user.jwt
             })
             
             if(response.status === 200){
@@ -144,8 +143,8 @@ function Post (props) {
         }
     }
 
-    const handleLikeClick = async () => await _handleLikeDislikeClick(true)
-    const handleDislikeClick = async () => await _handleLikeDislikeClick(false)
+    const handleLikeClick = async () => store.user.jwt && await _handleLikeDislikeClick(true)
+    const handleDislikeClick = async () => store.user.jwt && await _handleLikeDislikeClick(false)
 
     const _handleLikeDislikeClick = async (isLike) => {
         const response = await likeService.addLike({
@@ -195,6 +194,7 @@ function Post (props) {
     }
 
     const postNewComment = async () => {
+        if(!store.user.jwt) return
         const comment = {
             userId: store.user.id,
             postId: post.id,
@@ -220,7 +220,7 @@ function Post (props) {
     }
 
     const handleSaveClick = () => {
-       store.user.id && setShowSaveModal(!showSaveModal);
+        store.user.jwt && setShowSaveModal(!showSaveModal);
     }
 
     const handleReportModal =()=>{
@@ -241,13 +241,13 @@ function Post (props) {
             return;
         }
         const response = await complaintService.createComplaint({
-            id : "",
-            category : reportCategory,
-            postId : post.id,
-            status : "",
-            isPost : true,
-            userId : store.user.id,
-            jwt : store.user.jwt
+            id: "",
+            category: reportCategory,
+            postId: post.id,
+            status: "",
+            isPost: true,
+            userId: store.user.id,
+            jwt: store.user.jwt
         });
         
         if(response.status === 200){
@@ -330,7 +330,7 @@ function Post (props) {
             </div>
 
             <CollectionsModal 
-                showModal={showSaveModal} 
+                showModal={store.user.jwt !== "" && showSaveModal} 
                 setShowModal={handleSaveClick}
                 collections={collections}
                 setCollections={setCollections}

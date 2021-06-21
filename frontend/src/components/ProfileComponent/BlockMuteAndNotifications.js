@@ -65,8 +65,7 @@ function BlockMuteAndNotifications(props){
         })
         if (response.status === 200) {
            console.log("USPEO")
-            history.push({ pathname: '/home' })
-
+            history.push({ pathname: '/' })
         } else {
             console.log("Nije uspeo")
         }
