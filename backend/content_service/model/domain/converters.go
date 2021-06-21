@@ -510,3 +510,14 @@ func (c *ContentComplaint) ConvertFromGrpc(contentComplaint *protopb.ContentComp
 		UserId:   contentComplaint.UserId,
 	}
 }
+
+func (c *ContentComplaint) ConvertToGrpc() *protopb.ContentComplaint {
+	return &protopb.ContentComplaint{
+		Id:       c.Id,
+		Category: string(c.Category),
+		PostId:   c.PostId,
+		Status:   string(c.Status),
+		IsPost:   c.IsPost,
+		UserId:   c.UserId,
+	}
+}

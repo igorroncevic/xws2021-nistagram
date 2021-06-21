@@ -21,6 +21,7 @@ function Story(props) {
     const [header, setHeader] = useState({})
     const [reportCategory, setReportCategory] = useState("");
     const [reportCategoryErr, setReportCategoryErr] = useState("Select report category");
+    const [storyId, setStoryId] = useState("");
     const store = useSelector(state => state)
 
     // Convert story with multiple media to multiple stories with single media, to comply with react-insta-stories
@@ -38,6 +39,8 @@ function Story(props) {
     }, [])
 
     async function sendReport() {
+        console.log("storyId");
+        console.log(storyId);
         if (reportCategory === "") {
             console.log(reportCategory);
             setReportCategoryErr("Select report category");
@@ -46,7 +49,7 @@ function Story(props) {
         const response = await complaintService.createComplaint({
             id : "",
             category : reportCategory,
-            postId : store.storyForReport.storyId,
+            postId : storyId,
             status : "",
             isPost : false,
             userId : store.user.id,
@@ -66,6 +69,12 @@ function Story(props) {
         setReportCategoryErr("");
     }
 
+    const handleModalReport = () => {
+        setReportCategory("");
+        setReportCategoryErr("");
+        setModalReport(!showModalReport)
+    }
+
     return (
         <div>
             <div className="story">
@@ -77,19 +86,20 @@ function Story(props) {
             
             <Modal show={showModal} onHide={() => setModal(!showModal)}>
                 <div  >
-                    <Button variant={"outline-danger"} onClick={() => setModalReport(!showModalReport)}>Report story</Button>
+                    <Button variant={"outline-danger"} onClick={handleModalReport}>Report story</Button>
                 <Stories
                     onAllStoriesEnd={() => setModal(!showModal)}
                     renderers={[renderer]}
                     stories={convertedStory} 
                     defaultInterval={10000} 
-                    header={header}
+                    header={{...header, setStoryId}}
                     width={600}
-                    height={800}/>
+                    height={800}
+                />
                 </div>
             </Modal>
 
-            <Modal show={showModalReport} onHide={() => setModalReport(!showModalReport)} style={{ 'height': 650 }} >
+            <Modal show={showModalReport} onHide={handleModalReport} style={{ 'height': 650 }} >
                 <Modal.Header closeButton>
                     <Modal.Title>Report this post?</Modal.Title>
                 </Modal.Header>

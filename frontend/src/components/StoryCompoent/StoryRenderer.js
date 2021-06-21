@@ -5,23 +5,25 @@ import moment from 'moment';
 
 
 const StoryRenderer = ({ story, action, isPaused, config }) => {
-    const { width, height, loader, storyStyles, header } = config;
+    const { header } = config;
 
     const [localStory, setLocalStory] = useState(story);
 
     useEffect(()=>{
         let timeCreated = "";
 
+        header.setStoryId(story.id)
+
         if(story.createdAt){
             const currentTime = moment(new Date())
             const difference = moment.duration(currentTime.diff(story.createdAt))
 
             if(difference.asHours() < 1){
-                difference.asMinutes() < 1 ? 
-                    timeCreated = Math.floor(difference.asSeconds()) + "s ago @ " + story.location : 
+                difference.asMinutes() < 1 ?
+                    timeCreated = Math.floor(difference.asSeconds()) + "s ago @ " + story.location :
                     timeCreated = Math.floor(difference.asMinutes()) + + "h ago @ " + story.location
             }else{
-                difference.asHours() > 24 ? 
+                difference.asHours() > 24 ?
                     timeCreated = Math.floor(difference.asDays()) + "d ago @ " + story.location :
                     timeCreated = Math.floor(difference.asHours()) + "h ago @ " + story.location
             }
@@ -43,12 +45,12 @@ const StoryRenderer = ({ story, action, isPaused, config }) => {
 
     return (
         <WithHeader story={localStory}>
-            <Slider 
+            <Slider
                 showStoryCaption={true}
-                storyCaption={story.description} 
-                showTags={true} 
+                storyCaption={story.description}
+                showTags={true}
                 media={story.media}
-                />
+            />
         </WithHeader>
     )
 }
