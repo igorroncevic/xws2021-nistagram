@@ -153,6 +153,8 @@ func (c *StoryGrpcController) GetAllStories(ctx context.Context, in *protopb.Emp
 
 			allStories.Stories = nonCloseFriendsStories.Stories
 
+			closeFriends = append(closeFriends, claims.UserId) // Get my close friends stories too
+
 			if len(closeFriends) > 0 {
 				closeFriendsStories, err := c.service.GetAllHomeStories(ctx, closeFriends, true)
 				if err != nil {
@@ -208,6 +210,40 @@ func (c *StoryGrpcController) CreateStory(ctx context.Context, in *protopb.Story
 
 	var story *domain.Story
 	story = story.ConvertFromGrpc(in)
+
+	for _, media := range story.Media {
+		for _, tag := range media.Tags {
+			following, err := grpc_common.CheckFollowInteraction(ctx, tag.UserId, story.UserId)
+			if err != nil {
+				c.logger.ToStdoutAndFile("CreateStory", "Story creation attempt failed by " + claims.UserId + ", cannot tag "+tag.UserId, logger.Error)
+				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
+			}
+
+			isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.UserId)
+			if err != nil {
+				c.logger.ToStdoutAndFile("CreateStory", "Story creation attempt failed by " + claims.UserId + ", cannot tag "+tag.UserId, logger.Error)
+				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
+			}
+
+			isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.UserId, claims.UserId)
+			if err != nil {
+				c.logger.ToStdoutAndFile("CreateStory", "Story creation attempt failed by " + claims.UserId + ", cannot tag "+tag.UserId, logger.Error)
+				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
+			}
+
+			// If used is blocked or his profile is private and did not approve your request
+			if isBlocked || (!isPublic && !following.IsApprovedRequest) {
+				c.logger.ToStdoutAndFile("CreateStory", "Story creation attempt failed by " + claims.UserId + ", cannot tag "+tag.UserId, logger.Error)
+				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
+			}
+
+			username, err := grpc_common.GetUsernameById(ctx, tag.UserId)
+			if username == "" || err != nil {
+				c.logger.ToStdoutAndFile("CreateStory", "Story creation attempt failed by " + claims.UserId+ ", cannot tag "+tag.UserId, logger.Error)
+				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
+			}
+		}
+	}
 
 	err = c.service.CreateStory(ctx, story)
 	if err != nil {

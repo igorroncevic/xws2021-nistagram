@@ -26,7 +26,7 @@ const Stories = () => {
             })
     }, [])
     
-    const convertToComponentArray = (stories) => stories.map((story) => <Story story={story} /> )
+    const convertToComponentArray = (stories) => stories.map((story) => <Story fixMargins={true} story={story} /> )
 
     return (
         <div className={`stories ${loading ? "loading" : ""}`}>

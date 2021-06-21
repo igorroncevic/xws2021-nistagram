@@ -4,18 +4,22 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 1em 0.5em;
+    
 }
 
 .accountName{
     color: var(--font-color-primary) !important;
 }
 
-.story:first-child {
+.fixMargins {
+    margin: 1em 0.5em;
+}
+
+.fixMargins:first-child {
     margin-left: 1em;
 }
 
-.story:last-child {
+.fixMargins:last-child {
     margin-right: 1em;
 }
 
