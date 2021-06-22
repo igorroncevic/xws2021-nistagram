@@ -15,6 +15,7 @@ const Stories = () => {
     useEffect(()=>{
         storyService.getHomepageStories({ jwt: store.user.jwt })
             .then(response => {
+                console.log(response)
                 if(response.status === 200) {
                     setStories(convertToComponentArray([...response.data.stories]));
                     setLoading(false);

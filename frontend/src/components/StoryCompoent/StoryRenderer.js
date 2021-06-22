@@ -13,7 +13,7 @@ const StoryRenderer = ({ story, action, isPaused, config }) => {
     useEffect(()=>{
         let timeCreated = "";
 
-        header.setStoryId(story.id)
+        header.setStoryId && header.setStoryId(story.id)
 
         if(story.createdAt){
             const currentTime = moment(new Date())
@@ -42,8 +42,8 @@ const StoryRenderer = ({ story, action, isPaused, config }) => {
             header: newHeader
         })
 
-        const hashtags = "";
-        story.hashtags && story.hashtags.forEach(hashtag => hashtags + ` #${hashtag.text}`)
+        let hashtags = "";
+        story.hashtags && story.hashtags.forEach(hashtag => hashtags += ` #${hashtag.text}`)
         const caption = story.description + hashtags
         setCaption(caption)
 

@@ -52,7 +52,7 @@ const Slider = (props) => {
                 })}
             </div>
         )}
-
+        
     const StoryCaption = () => (
         <div className="storyCaptionWrapepr">
             <div className="storyCaptionText">{storyCaption}</div>

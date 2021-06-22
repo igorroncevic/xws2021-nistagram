@@ -12,9 +12,10 @@ import (
 )
 
 type StoryService struct {
-	storyRepository repositories.StoryRepository
-	mediaRepository   repositories.MediaRepository
-	tagRepository	  repositories.TagRepository
+	storyRepository   	repositories.StoryRepository
+	mediaRepository   	repositories.MediaRepository
+	tagRepository	  	repositories.TagRepository
+	hashtagRepository	repositories.HashtagRepository
 }
 
 func NewStoryService(db *gorm.DB) (*StoryService, error){
@@ -33,10 +34,16 @@ func NewStoryService(db *gorm.DB) (*StoryService, error){
 		return nil, err
 	}
 
+	hashtagRepository, err := repositories.NewHashtagRepo(db)
+	if err != nil {
+		return nil, err
+	}
+
 	return &StoryService{
 		storyRepository,
 		mediaRepository,
 		tagRepository,
+		hashtagRepository,
 	}, err
 }
 
@@ -219,7 +226,10 @@ func (service *StoryService) retrieveStoryAdditionalData(ctx context.Context, st
 		media = append(media, converted)
 	}
 
-	converted := story.ConvertToDomain(media)
+	hashtags, err := service.hashtagRepository.GetPostHashtags(ctx, story.Id)
+	if err != nil { return domain.Story{}, err }
+
+	converted := story.ConvertToDomain(media, hashtags)
 
 	return converted, nil
 }

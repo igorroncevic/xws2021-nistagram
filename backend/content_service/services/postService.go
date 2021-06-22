@@ -193,6 +193,9 @@ func (service *PostService) GetPostById(ctx context.Context, id string) (domain.
 		}
 	}
 
+	hashtags, err := service.hashtagRepository.GetPostHashtags(ctx, dbPost.Id)
+	if err != nil { return domain.Post{}, err }
+
 	dbMedia, err := service.mediaRepository.GetMediaForPost(ctx, dbPost.Id)
 	if err != nil {
 		return domain.Post{}, err
@@ -220,7 +223,7 @@ func (service *PostService) GetPostById(ctx context.Context, id string) (domain.
 		media = append(media, converted)
 	}
 
-	post := dbPost.ConvertToDomain(comments, likes, dislikes, media)
+	post := dbPost.ConvertToDomain(comments, likes, dislikes, media, hashtags)
 
 	return post, nil
 }

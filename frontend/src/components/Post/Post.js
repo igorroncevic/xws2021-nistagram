@@ -96,6 +96,7 @@ function Post (props) {
                 name: "Unclassified",
                 posts: [...response.data.unclassified],
             }];
+            console.log(newCollections)
             setCollections(newCollections)
 
             // Check in which collection the post has been saved

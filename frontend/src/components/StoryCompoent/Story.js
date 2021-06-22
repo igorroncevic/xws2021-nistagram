@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Stories from "react-insta-stories";
 import {Button, Modal} from "react-bootstrap";
-import Slider from './../Post/Slider';
 import renderer from './StoryRenderer';
 import storyService from './../../services/story.service'
 import '../../style/Story.css';
 import '../../style/ProfileIcon.css';
-import RegistrationPage from "../../pages/RegistrationPage";
 import complaintService from "../../services/complaint.service";
 import toastService from "../../services/toast.service";
 import {useSelector} from "react-redux";
@@ -37,21 +35,18 @@ function Story(props) {
     }, [])
 
     async function sendReport() {
-        console.log("storyId");
-        console.log(storyId);
         if (reportCategory === "") {
-            console.log(reportCategory);
             setReportCategoryErr("Select report category");
             return;
         }
         const response = await complaintService.createComplaint({
-            id : "",
-            category : reportCategory,
-            postId : storyId,
-            status : "",
-            isPost : false,
-            userId : store.user.id,
-            jwt : store.user.jwt
+            id: "",
+            category: reportCategory,
+            postId: storyId,
+            status: "",
+            isPost: false,
+            userId: store.user.id,
+            jwt: store.user.jwt
         });
 
         if(response.status === 200){
@@ -91,8 +86,8 @@ function Story(props) {
                     stories={convertedStory} 
                     defaultInterval={10000} 
                     header={{...header, setStoryId}}
-                    width={600}
-                    height={800}
+                    width={500}
+                    height={700}
                 />
                 </div>
             </Modal>
