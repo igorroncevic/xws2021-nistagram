@@ -261,6 +261,12 @@ service Content {
     };
   }
 
+  rpc GetAllContentComplaints (EmptyRequestContent) returns (ContentComplaintArray) {
+    option(google.api.http) = {
+      get: "/complaint/get",
+    };
+  }
+
   /* * * * * * * * * * * * */
 
 }
@@ -453,6 +459,10 @@ message ContentComplaint {
   string status = 4;
   bool isPost = 5;
   string userId = 6;
+}
+
+message ContentComplaintArray {
+  repeated ContentComplaint content_complaints = 1;
 }
 
 /* * * * * * * * * * * * */
