@@ -109,17 +109,17 @@ function Menu() {
             {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/story-archive"}}> <StoryArchive className="icon" />  </NavLink>) }
             {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/newpost"}}> <Plus className="icon" />  </NavLink>) }
             {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/info"}}> <Explore className="icon"/> </NavLink>) }
-            {store.user.role !== 'Admin' && store.user.jwt !== "" && (
+            {store.user.jwt !== "" && (
                 <Dropdown>
                     <Dropdown.Toggle variant="link" id="dropdown-basic">
                         <VerificationSymbol className="icon"/>
                     </Dropdown.Toggle>
 
                     <Dropdown.Menu>
-                        <Dropdown.Item onClick={() => verificationRedirect('submit-verification-request')}>Submit verification request</Dropdown.Item>
-                        <Dropdown.Item onClick={() => verificationRedirect('view-my-verification-request')}>View my verification requests</Dropdown.Item>
-                        <Dropdown.Item onClick={() => verificationRedirect('view-pending-verification-request')}>View pending verification requests</Dropdown.Item>
-                        <Dropdown.Item onClick={() => verificationRedirect('view-all-verification-request')}>View all verification requests</Dropdown.Item>
+                        {store.user.role !== 'Admin' && <Dropdown.Item onClick={() => verificationRedirect('submit-verification-request')}>Submit verification request</Dropdown.Item>}
+                        {store.user.role !== 'Admin' && <Dropdown.Item onClick={() => verificationRedirect('view-my-verification-request')}>View my verification requests</Dropdown.Item>}
+                        {store.user.role === 'Admin' && <Dropdown.Item onClick={() => verificationRedirect('view-pending-verification-request')}>View pending verification requests</Dropdown.Item>}
+                        {store.user.role === 'Admin' && <Dropdown.Item onClick={() => verificationRedirect('view-all-verification-request')}>View all verification requests</Dropdown.Item>}
                     </Dropdown.Menu>
                 </Dropdown>
             )}

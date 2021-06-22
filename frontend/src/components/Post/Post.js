@@ -82,7 +82,7 @@ function Post (props) {
     }, [newComment])
 
     useEffect(() => {
-        if(store.user.jwt !== "") getUserCollections()
+        if(store.user.jwt !== "" && store.user.role !== "Admin") getUserCollections()
     }, [showSaveModal])
 
     const getUserCollections = () => {

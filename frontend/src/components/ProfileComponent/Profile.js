@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Modal } from "react-bootstrap";
 import { useParams } from 'react-router-dom'
+import { ReactComponent as VerificationSymbol } from "../../images/icons/verification-symbol.svg";
 
 import FollowAndUnfollow from "./FollowAndUnfollow";
 import Navigation from "../HomePage/Navigation";
@@ -238,7 +239,8 @@ const Profile = () => {
                         }
                         <div className="info">
                             <div className="fullname">
-                                {user.firstName} {user.lastName}
+                                {user.firstName} {user.lastName} 
+                                {user.role === "Verified" && <span><VerificationSymbol style={{width: "20px", height: "20px", marginLeft: "10px", display: "inline-block"}} fill="#0095f6" /></span>}
                                 {follow && <span className="blockMute">
                                     <BlockMuteAndNotifications 
                                         isApprovedRequest={isApprovedRequest} isMuted={isMuted} notifications={notifications} />
