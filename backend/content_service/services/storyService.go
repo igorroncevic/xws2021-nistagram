@@ -160,9 +160,7 @@ func (service *StoryService) CreateStory(ctx context.Context, story *domain.Stor
 		return errors.New("Could not create notification")
 	}
 	for _, u := range users.Users {
-		if u.UserId == story.UserId {
 			grpc_common.CreateNotification(ctx, u.UserId, story.UserId, "Story", story.Id)
-		}
 	}
 	return nil
 }
