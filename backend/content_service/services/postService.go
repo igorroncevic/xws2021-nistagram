@@ -131,9 +131,7 @@ func (service *PostService) CreatePost(ctx context.Context, post *domain.Post) e
 		return errors.New("Could not create notification")
 	}
 	for _, u := range users.Users {
-		if u.UserId == post.UserId {
 			grpc_common.CreateNotification(ctx, u.UserId, post.UserId, "Post", post.Id)
-		}
 	}
 	return nil
 }

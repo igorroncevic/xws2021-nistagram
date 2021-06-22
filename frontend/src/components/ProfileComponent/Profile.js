@@ -48,11 +48,6 @@ const Profile = () => {
         isCommentNotificationEnabled: false
     })
 
-    const [isMessageNotificationEnabled, setMessageNotifications] = useState(false);
-    const [isPostNotificationEnabled, setPostNotifications] = useState(false);
-    const [isStoryNotificationEnabled, setStoryNotifications] = useState(false);
-    const [isCommentNotificationEnabled, setCommentNotifications] = useState(false);
-
     const [posts, setPosts] = useState([]);
     const [highlights, setHighlights] = useState([]);
 
