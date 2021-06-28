@@ -205,3 +205,6 @@ func (s *Server) GetByTypeAndCreator(ctx context.Context,in *protopb.Notificatio
 func (s *Server) UpdateNotification(ctx context.Context, in *protopb.Notification) (*protopb.EmptyResponse, error) {
 	return s.notificationController.UpdateNotification(ctx, in)
 }
+func (s *Server) CheckIsActive(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.BooleanResponseUsers, error) {
+ 	return s.userController.CheckIsActive(ctx, in)
+}

@@ -36,6 +36,7 @@ type UsersClient interface {
 	ValidateResetCode(ctx context.Context, in *RequestResetCode, opts ...grpc.CallOption) (*EmptyResponse, error)
 	ChangeForgottenPass(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	CheckIsApproved(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*BooleanResponseUsers, error)
+	CheckIsActive(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*BooleanResponseUsers, error)
 	ApproveAccount(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GoogleAuth(ctx context.Context, in *GoogleAuthRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	CreateNotification(ctx context.Context, in *CreateNotificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
@@ -222,6 +223,15 @@ func (c *usersClient) CheckIsApproved(ctx context.Context, in *RequestIdUsers, o
 	return out, nil
 }
 
+func (c *usersClient) CheckIsActive(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*BooleanResponseUsers, error) {
+	out := new(BooleanResponseUsers)
+	err := c.cc.Invoke(ctx, "/proto.Users/CheckIsActive", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *usersClient) ApproveAccount(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	out := new(EmptyResponse)
 	err := c.cc.Invoke(ctx, "/proto.Users/ApproveAccount", in, out, opts...)
@@ -361,6 +371,7 @@ type UsersServer interface {
 	ValidateResetCode(context.Context, *RequestResetCode) (*EmptyResponse, error)
 	ChangeForgottenPass(context.Context, *CreatePasswordRequest) (*EmptyResponse, error)
 	CheckIsApproved(context.Context, *RequestIdUsers) (*BooleanResponseUsers, error)
+	CheckIsActive(context.Context, *RequestIdUsers) (*BooleanResponseUsers, error)
 	ApproveAccount(context.Context, *CreatePasswordRequest) (*EmptyResponse, error)
 	GoogleAuth(context.Context, *GoogleAuthRequest) (*LoginResponse, error)
 	CreateNotification(context.Context, *CreateNotificationRequest) (*EmptyResponse, error)
@@ -435,6 +446,9 @@ func (UnimplementedUsersServer) ChangeForgottenPass(context.Context, *CreatePass
 }
 func (UnimplementedUsersServer) CheckIsApproved(context.Context, *RequestIdUsers) (*BooleanResponseUsers, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckIsApproved not implemented")
+}
+func (UnimplementedUsersServer) CheckIsActive(context.Context, *RequestIdUsers) (*BooleanResponseUsers, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckIsActive not implemented")
 }
 func (UnimplementedUsersServer) ApproveAccount(context.Context, *CreatePasswordRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ApproveAccount not implemented")
@@ -812,6 +826,24 @@ func _Users_CheckIsApproved_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_CheckIsActive_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestIdUsers)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).CheckIsActive(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/CheckIsActive",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).CheckIsActive(ctx, req.(*RequestIdUsers))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Users_ApproveAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreatePasswordRequest)
 	if err := dec(in); err != nil {
@@ -1124,6 +1156,10 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CheckIsApproved",
 			Handler:    _Users_CheckIsApproved_Handler,
+		},
+		{
+			MethodName: "CheckIsActive",
+			Handler:    _Users_CheckIsActive_Handler,
 		},
 		{
 			MethodName: "ApproveAccount",

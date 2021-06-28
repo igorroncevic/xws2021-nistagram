@@ -126,6 +126,13 @@ service Users {
     };
   }
 
+  rpc CheckIsActive (RequestIdUsers) returns (BooleanResponseUsers) {
+    option(google.api.http) = {
+      post: "/api/users/checkIsActive"
+      body: "*"
+    };
+  }
+
   rpc ApproveAccount (CreatePasswordRequest) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/api/users/approveAccount"

@@ -410,3 +410,17 @@ func (s *UserGrpcController) GetUserByUsername(ctx context.Context, in *protopb.
 
 	return userResponse, nil
 }
+
+func (s *UserGrpcController) CheckIsActive(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.BooleanResponseUsers, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CheckIsActive")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	retVal, err := s.service.CheckIsActive(ctx, in.Id)
+
+	if err != nil {
+		return &protopb.BooleanResponseUsers{}, err
+	}
+
+	return &protopb.BooleanResponseUsers{Response: retVal}, nil
+}

@@ -341,3 +341,11 @@ func (service *UserService) GetUserPhoto(ctx context.Context, userId string) (st
 
 	return service.userRepository.GetUserPhoto(ctx, userId)
 }
+
+func (service *UserService) CheckIsActive(ctx context.Context, id string) (bool , error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CheckIsActive")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.userRepository.CheckIsActive(ctx, id)
+}

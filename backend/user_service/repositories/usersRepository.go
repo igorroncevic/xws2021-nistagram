@@ -36,6 +36,7 @@ type UserRepository interface {
 	CheckIsApproved(ctx context.Context, id string) (bool, error)
 	GetUserByUsername(username string) (domain.User, error)
 	GetUserPhoto(context.Context, string) (string, error)
+	CheckIsActive(context.Context, string) (bool, error)
 }
 
 type userRepository struct {
@@ -527,3 +528,17 @@ func (repository *userRepository) GetUserPhoto(ctx context.Context, userId strin
 
 	return "", nil
 }
+
+func (repository *userRepository) CheckIsActive(ctx context.Context, id string) (bool, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "CheckIsActive")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	user, err := repository.GetUserById(ctx, id)
+	if err != nil {
+		return false, err
+	}
+	return user.IsActive, nil
+
+}
+
