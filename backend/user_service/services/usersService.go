@@ -52,6 +52,13 @@ func (service *UserService) GetUser(ctx context.Context, requestedUserId string)
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	res, err := service.CheckIsActive(ctx, requestedUserId)
+	if err != nil {
+		return domain.User{}, err
+	}else if res == false {
+		return domain.User{}, errors.New("User is not active!")
+	}
+
 	dbUser, err := service.userRepository.GetUserById(ctx, requestedUserId)
 	if err != nil {
 		return domain.User{}, err
@@ -349,3 +356,4 @@ func (service *UserService) CheckIsActive(ctx context.Context, id string) (bool 
 
 	return service.userRepository.CheckIsActive(ctx, id)
 }
+

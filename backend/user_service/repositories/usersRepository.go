@@ -125,7 +125,7 @@ func (repository *userRepository) GetUserByUsername(username string) (domain.Use
 	var dbUser persistence.User
 	var dbUserAdditionalInfo persistence.UserAdditionalInfo
 
-	db := repository.DB.Where("username = ?", username).Find(&dbUser)
+	db := repository.DB.Where("is_active = ?", true).Where("username = ?", username).Find(&dbUser)
 	if db.Error != nil {
 		return domain.User{}, db.Error
 	}
@@ -153,7 +153,7 @@ func (repository *userRepository) GetUserByEmail(email string) (domain.User, err
 	var dbUser persistence.User
 	var dbUserAdditionalInfo persistence.UserAdditionalInfo
 
-	db := repository.DB.Where("email = ?", email).Find(&dbUser)
+	db := repository.DB.Where("email = ?", email).Where("is_active = ?", true).Find(&dbUser)
 	if db.Error != nil {
 		return domain.User{}, db.Error
 	}
@@ -186,7 +186,7 @@ func (repository *userRepository) GetAllUsers(ctx context.Context) ([]domain.Use
 	var dbUserAdditionalInfo persistence.UserAdditionalInfo
 	var usersDomain []domain.User
 
-	result := repository.DB.Find(&users)
+	result := repository.DB.Where("is_active = ?", true).Find(&users)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -217,7 +217,7 @@ func (repository *userRepository) LoginUser(ctx context.Context, request domain.
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var dbUser persistence.User
-	result := repository.DB.Where("email = ?", request.Email).First(&dbUser)
+	result := repository.DB.Where("email = ?", request.Email).Where("is_active = ?", true).First(&dbUser)
 	if result.Error != nil || result.RowsAffected != 1 {
 		return persistence.User{}, result.Error
 	}
@@ -349,19 +349,19 @@ func (repository *userRepository) SearchUsersByUsernameAndName(ctx context.Conte
 	var users []persistence.User
 
 	if user.Username != "" && user.FirstName != "" && user.LastName != "" {
-		repository.DB.Where("username ILIKE ? AND first_name ILIKE ? AND last_name ILIKE ? AND role != 'Admin'", "%"+user.Username+"%", "%"+user.FirstName+"%", "%"+user.LastName+"%").Find(&users)
+		repository.DB.Where("is_active = ?", true).Where("username ILIKE ? AND first_name ILIKE ? AND last_name ILIKE ? AND role != 'Admin'", "%"+user.Username+"%", "%"+user.FirstName+"%", "%"+user.LastName+"%").Find(&users)
 	} else if user.Username != "" && user.FirstName != "" && user.LastName == "" {
-		repository.DB.Where("username ILIKE ? AND first_name ILIKE ? AND role != 'Admin'", "%"+user.Username+"%", "%"+user.FirstName+"%").Find(&users)
+		repository.DB.Where("is_active = ?", true).Where("username ILIKE ? AND first_name ILIKE ? AND role != 'Admin'", "%"+user.Username+"%", "%"+user.FirstName+"%").Find(&users)
 	} else if user.Username != "" && user.FirstName == "" && user.LastName != "" {
-		repository.DB.Where("username ILIKE ? AND last_name ILIKE ? AND role != 'Admin'", "%"+user.Username+"%", "%"+user.LastName+"%").Find(&users)
+		repository.DB.Where("is_active = ?", true).Where("username ILIKE ? AND last_name ILIKE ? AND role != 'Admin'", "%"+user.Username+"%", "%"+user.LastName+"%").Find(&users)
 	} else if user.Username == "" && user.FirstName != "" && user.LastName != "" {
-		repository.DB.Where("first_name ILIKE ? AND last_name ILIKE ? AND role != 'Admin'", "%"+user.FirstName+"%", "%"+user.LastName+"%").Find(&users)
+		repository.DB.Where("is_active = ?", true).Where("first_name ILIKE ? AND last_name ILIKE ? AND role != 'Admin'", "%"+user.FirstName+"%", "%"+user.LastName+"%").Find(&users)
 	} else if user.Username != "" && user.FirstName == "" && user.LastName == "" {
-		repository.DB.Where("username ILIKE ? AND role != 'Admin'", "%"+user.Username+"%").Find(&users)
+		repository.DB.Where("is_active = ?", true).Where("username ILIKE ? AND role != 'Admin'", "%"+user.Username+"%").Find(&users)
 	} else if user.Username == "" && user.FirstName != "" && user.LastName == "" {
-		repository.DB.Where("first_name ILIKE ? AND role != 'Admin'", "%"+user.FirstName+"%").Find(&users)
+		repository.DB.Where("is_active = ?", true).Where("first_name ILIKE ? AND role != 'Admin'", "%"+user.FirstName+"%").Find(&users)
 	} else if user.Username == "" && user.FirstName == "" && user.LastName != "" {
-		repository.DB.Where("last_name ILIKE ? AND role != 'Admin'", "%"+user.LastName+"%").Find(&users)
+		repository.DB.Where("is_active = ?", true).Where("last_name ILIKE ? AND role != 'Admin'", "%"+user.LastName+"%").Find(&users)
 	}
 
 	var usersDomain []domain.User
