@@ -357,3 +357,11 @@ func (service *UserService) CheckIsActive(ctx context.Context, id string) (bool 
 	return service.userRepository.CheckIsActive(ctx, id)
 }
 
+func (service UserService) ChangeUserActiveStatus(ctx context.Context, id string) (error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "ChangeUserActiveStatus")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.userRepository.ChangeUserActiveStatus(ctx, id)
+
+}

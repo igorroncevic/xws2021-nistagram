@@ -37,6 +37,7 @@ type UserRepository interface {
 	GetUserByUsername(username string) (domain.User, error)
 	GetUserPhoto(context.Context, string) (string, error)
 	CheckIsActive(context.Context, string) (bool, error)
+	ChangeUserActiveStatus(context.Context, string) (error)
 }
 
 type userRepository struct {
@@ -541,4 +542,23 @@ func (repository *userRepository) CheckIsActive(ctx context.Context, id string) 
 	return user.IsActive, nil
 
 }
+
+func (repository userRepository) ChangeUserActiveStatus(ctx context.Context, id string) (error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "CheckIsActive")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var user persistence.User
+	user, _ = repository.GetUserById(ctx, id)
+	user.IsActive = !user.IsActive
+	_, err := repository.SaveUserProfilePhoto(ctx, &user)
+	if err != nil {
+		return err
+
+	}
+
+	return nil
+
+}
+
 

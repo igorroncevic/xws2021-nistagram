@@ -267,6 +267,13 @@ service Content {
     };
   }
 
+  rpc RejectById(RequestId) returns (EmptyResponseContent) {
+    option(google.api.http) = {
+      post: "/complaint/reject",
+      body: "*"
+    };
+  }
+
   /* * * * * * * * * * * * */
 
 }

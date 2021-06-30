@@ -208,3 +208,7 @@ func (s *Server) UpdateNotification(ctx context.Context, in *protopb.Notificatio
 func (s *Server) CheckIsActive(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.BooleanResponseUsers, error) {
  	return s.userController.CheckIsActive(ctx, in)
 }
+
+func (s *Server) ChangeUserActiveStatus(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.EmptyResponse ,error) {
+	return s.userController.ChangeUserActiveStatus(ctx, in)
+}

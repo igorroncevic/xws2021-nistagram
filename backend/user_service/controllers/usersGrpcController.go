@@ -424,3 +424,13 @@ func (s *UserGrpcController) CheckIsActive(ctx context.Context, in *protopb.Requ
 
 	return &protopb.BooleanResponseUsers{Response: retVal}, nil
 }
+
+func (s *UserGrpcController) ChangeUserActiveStatus(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.EmptyResponse ,error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CheckIsActive")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	err := s.service.ChangeUserActiveStatus(ctx, in.Id)
+
+	return &protopb.EmptyResponse{}, err
+}

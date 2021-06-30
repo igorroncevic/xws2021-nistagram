@@ -133,6 +133,13 @@ service Users {
     };
   }
 
+  rpc ChangeUserActiveStatus(RequestIdUsers)returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/change_active_status"
+      body: "*"
+    };
+  }
+
   rpc ApproveAccount (CreatePasswordRequest) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/api/users/approveAccount"
