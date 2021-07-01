@@ -30,6 +30,8 @@ import Notifications from "./components/Notifications/Notifications";
 
 import AuthenticatedRoute from './AuthenticatedRoute';
 import AdminRoute from './AdminRoute';
+import AgentReg from "./components/AdminComponents/AgentReg";
+import AgentCheck from "./components/AdminComponents/AgentCheck";
 
 const App = () => {
     return (
@@ -44,7 +46,7 @@ const App = () => {
                 <Route path='/profile/:username' exact component={Profile}/>
                 <Route path='/info' exact component={ProfileInfo}/>
 
-                <AuthenticatedRoute path='/newpost' exact component={NewPost} isAdminProhibited={true} />
+                <AuthenticatedRoute path='/new_post' exact component={NewPost} isAdminProhibited={true} />
                 <AuthenticatedRoute path='/chats' exact component={Chats} isAdminProhibited={true} />
                 <AuthenticatedRoute path='/saved' exact component={Saved} isAdminProhibited={true} />
                 <AuthenticatedRoute path='/story-archive' exact component={StoryArchive} isAdminProhibited={true} />
@@ -63,6 +65,8 @@ const App = () => {
                 <AuthenticatedRoute path='/password' exact component={ChangePassword} />
                 <AuthenticatedRoute path='/privacy' exact component={EditUserPrivacy} />
                 <AuthenticatedRoute path='/edit_photo' exact component={EditProfileImage} />
+                <AuthenticatedRoute path='/agent_registration' exact component={AgentReg} />
+                <AuthenticatedRoute path='/agent_check' exact component={AgentCheck} />
             </Router>
         </div>
     );

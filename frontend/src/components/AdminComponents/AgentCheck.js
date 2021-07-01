@@ -1,0 +1,81 @@
+import React, { useEffect, useState } from 'react';
+import {Button, Modal, ListGroup, Table} from "react-bootstrap";
+import { useSelector } from 'react-redux';
+import { ReactComponent as Check } from './../../images/icons/check.svg'
+import collectionsService from './../../services/collections.service'
+import favoritesService from './../../services/favorites.service'
+import toastService from './../../services/toast.service'
+import './../../style/CollectionsModal.css'
+import RegistrationPage from "../../pages/RegistrationPage";
+import Navigation from "../HomePage/Navigation";
+import verificationRequestService from "../../services/verificationRequest.service";
+
+const AgentCheck = (props) => {
+    const[users,setUsers]=useState( [{firstName:'MArko', lastName:'Markovic', username:'markic', email:'markic@gmail.com', website:'idemo.com'},
+        {firstName:'Jovan', lastName:'Jokic',username:'joks', email:'joki@gmail.com', website:'facebook.com'}])
+
+    async function changeRequestStatus(user, status) {
+        /*const response = await neka metoda koja belezi promenu da li je zahtev prihvacen ili odbijen({
+            id : user.id,
+            status : status,
+            jwt : store.user.jwt
+        });
+        if (response.status === 200) {
+            toastService.show("success", "Verification request status changed successfully")
+            getPendingVerificationRequests();
+        }
+        else
+            toastService.show("error", "Something went wrong. Try again")
+        */
+    }
+
+    return (
+        <div>
+            <Navigation/>
+            <div style={{marginTop:'5%',marginLeft:'20%', marginRight:'20%', marginBottom:'20%'}}>
+                <h3 style={{borderBottom:'1px solid black'}}>Registration requests</h3>
+                    <Table striped bordered hover>
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>First name</th>
+                            <th>Last name</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Website</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {users.map((user,index) => {
+                            return (
+                                <tr>
+                                    <td>{index+1}</td>
+                                    <td>{user.firstName}</td>
+                                    <td>{user.lastName}</td>
+                                    <td>{user.username}</td>
+                                    <td>{user.email}</td>
+                                    <td>
+                                        <a className="website" target="_blank" rel="noreferrer"
+                                             href={user.website.includes('https://') ? user.website : `https://${user.website}`}>
+                                        {user.website}
+                                    </a>
+                                    </td>
+                                    <td>
+                                        <Button variant={"success"} onClick={() => changeRequestStatus(user,'Accepted')}>Accept</Button>
+                                        <span  style={{marginLeft: '5%'}}/>
+                                        <Button variant={"danger"} onClick={() => changeRequestStatus(user,'Refused')}>Refuse</Button>
+
+                                    </td>
+                                </tr>
+                            )
+                        })}
+                        </tbody>
+                    </Table>
+                </div>
+        </div>
+
+    )
+}
+
+export default AgentCheck;

@@ -4,7 +4,7 @@ import PasswordStrengthBar from 'react-password-strength-bar';
 import {Alert, Button, FormControl} from "react-bootstrap";
 import userService from "../services/user.service";
 
-const RegistrationPage = () => {
+const RegistrationPage = (props) => {
     // Declare a new state variable, which we'll call "count"
     const [password, setPassword] = useState("");
     const [passwordStrength, setPasswordStrength] = useState("");
@@ -33,6 +33,7 @@ const RegistrationPage = () => {
     const [blacklistedPasswords, setBlacklistedPasswords] = useState([]);
     const [website, setWebsite] = useState("");
     const [profilePhoto, setProfilePhoto] = useState("");
+    const [role, setRole] = useState("");
 
 
     useEffect(() => {
@@ -45,7 +46,18 @@ const RegistrationPage = () => {
         setEmailErr(isValidEmail(email) && email.length > 1 ? '' : 'Email is not valid!')
         setLastNameErr(checkNameAndSurname(lastName) ? '' : 'EnterLastName')
         setFirstNameErr(checkNameAndSurname(firstName) ? '' : 'EnterFirstName')
+        checkRole()
     }, [birthDate,sex,username,phoneNumber,rePassword,password,email,lastName,firstName])
+
+    const checkRole=()=>{
+        console.log(props)
+        if(props.role!=undefined){
+            setRole(props.role)
+        }else{
+            setRole('Basic')
+        }
+        console.log(role)
+    }
 
     const handleInputChange = (event) => {
         const target = event.target;
@@ -205,7 +217,7 @@ const RegistrationPage = () => {
             birthdate: jsonDate,
             profilePhoto: profilePhoto,
             phoneNumber: phoneNumber,
-            sex: 'MAN',
+            sex: sex,
             isActive: true,
             biography: biography,
             website: website,
