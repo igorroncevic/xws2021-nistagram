@@ -9,7 +9,7 @@ class AgentService extends RootService {
 
     async login(data){
         const { email, password } = data
-        const response = this.apiClient.post('/login', {
+        const response = axios.post('http://localhost:8080/api/agent/login', {
             email,
             password
         }).then(res => {

@@ -13,20 +13,23 @@ import (
 
 type Server struct {
 	protopb.UnimplementedAgentServer
-	userController *UserGrpcController
-	tracer         otgo.Tracer
-	closer         io.Closer
+	userController    *UserGrpcController
+	productController *ProductGrpcController
+	tracer            otgo.Tracer
+	closer            io.Closer
 }
 
 func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger) (*Server, error) {
 	newUserController, _ := NewUserController(db, jwtManager, logger)
+	newProductController, _ := NewProductController(db, jwtManager, logger)
 
 	tracer, closer := tracer.Init("agentService")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
-		userController: newUserController,
-		tracer:         tracer,
-		closer:         closer,
+		userController:    newUserController,
+		productController: newProductController,
+		tracer:            tracer,
+		closer:            closer,
 	}, nil
 }
 
@@ -39,11 +42,11 @@ func (s *Server) GetCloser() io.Closer {
 }
 
 func (s *Server) CreateProduct(ctx context.Context, product *protopb.Product) (*protopb.EmptyResponseAgent, error) {
-	panic("implement me")
+	return s.productController.CreateProduct(ctx, product)
 }
 
-func (s *Server) LoginUserInAgentApp(ctx context.Context, product *protopb.LoginRequestAgentApp) (*protopb.LoginResponseAgentApp, error) {
-	panic("implement me")
+func (s *Server) LoginUserInAgentApp(ctx context.Context, login *protopb.LoginRequestAgentApp) (*protopb.LoginResponseAgentApp, error) {
+	return s.userController.LoginUserInAgentApp(ctx, login)
 }
 
 func (s *Server) CreateUserInAgentApp(ctx context.Context, user *protopb.CreateUserRequestAgentApp) (*protopb.EmptyResponseAgent, error) {

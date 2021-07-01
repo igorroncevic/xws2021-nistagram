@@ -11,14 +11,14 @@ service Agent {
   /*    Posts    */
   rpc CreateProduct (Product) returns (EmptyResponseAgent) {
     option(google.api.http) = {
-      post: "/agent/product",
+      post: "/product/create-product",
       body: "*"
     };
   }
 
   rpc LoginUserInAgentApp (LoginRequestAgentApp) returns (LoginResponseAgentApp) {
     option(google.api.http) = {
-      post: "/agent/login",
+      post: "/login",
       body: "*"
     };
   }
@@ -35,6 +35,12 @@ service Agent {
 /*    Posts    */
 message Product {
   string id = 1;
+  string name = 2;
+  double price = 3;
+  bool isActive = 4;
+  int32 quantity = 5;
+  string photo = 6;
+  string agentId = 7;
 }
 
 message EmptyRequestAgent {}

@@ -7,12 +7,13 @@ import (
 )
 
 type Product struct {
-	Id        string `gorm:"primaryKey"`
-	Name      string
-	Price     float32
-	IsActive  bool
-	Quantity  int
-	PhotoLink string
+	Id       string `gorm:"primaryKey"`
+	Name     string
+	Price    float32
+	IsActive bool
+	Quantity int
+	Photo    string
+	AgentId  string
 }
 
 type PaymentType string
@@ -89,4 +90,18 @@ func (u *User) ConvertFromGrpc(user *protopb.UserAgentApp) *User {
 	}
 
 	return newUser
+}
+
+func (u *Product) ConvertFromGrpc(product *protopb.Product) *Product {
+	newProduct := &Product{
+		Id:       product.Id,
+		Name:     product.Name,
+		Price:    float32(product.Price),
+		IsActive: product.IsActive,
+		Quantity: int(product.Quantity),
+		Photo:    product.Photo,
+		AgentId:  product.AgentId,
+	}
+
+	return newProduct
 }

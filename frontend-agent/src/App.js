@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import RegistrationPage from "./pages/RegistrationPage";
 import Saved from "./components/HomePageComponents/Saved";
+import NewProduct from "./components/Product/NewProduct";
 import Home from "./components/HomePage/Home";
 import UnauthorizedPage from "./helpers/UnauthorizedPage";
 
@@ -28,6 +29,7 @@ const App = () => {
                 <Route path='/forgotten' exact={true} component={ForgotPasswordPage}/>
                 <Route path='/registration' exact={true} component={RegistrationPage}/>
                 <Route path='/info' exact component={ProfileInfo}/>
+                <Route path='/newproduct' exact component={NewProduct}/>
 
                 <AuthenticatedRoute path='/saved' exact component={Saved} isAdminProhibited={true} />
                 <AuthenticatedRoute path='/notifications' exact component={Notifications} isAdminProhibited={true} />

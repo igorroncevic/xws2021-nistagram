@@ -13,6 +13,8 @@ const RegistrationPage = () => {
     const [birthDate, setBirthDate] = useState("");
     const [birthDateErr, setBirthDateErr] = useState("Enter birthdate");
     const [sex, setSex] = useState("");
+    const [userRole, setUserRole] = useState("");
+    const [userRoleErr, setUserRoleErr] = useState("Select role");
     const [sexErr, setSexErr] = useState("Select sex");
     const [username, setUsername] = useState("");
     const [usernameErr, setUsernameErr] = useState("Enter username");
@@ -77,6 +79,9 @@ const RegistrationPage = () => {
             case "sex" :
                 setSex(target.value);
                 break;
+            case "userRole" :
+                setUserRole(target.value);
+                break;
             case "phoneNumber" :
                 setPhoneNumber(target.value);
                 break;
@@ -116,6 +121,9 @@ const RegistrationPage = () => {
                 break;
             case 'sex':
                 setSexErr( sex !== "" ? '' : 'Select sex')
+                break;
+            case 'userRole':
+                setUserRoleErr( userRole !== "" ? '' : 'Select role')
                 break;
             case 'birthDate':
                 setBirthDateErr( birthDate !== "" ? '' : 'Enter birthdate')
@@ -204,7 +212,7 @@ const RegistrationPage = () => {
             email : email,
             username : username,
             password : password,
-            role : 'Basic',
+            role : userRole,
             birthdate : jsonDate,
             profilePhoto : profilePhoto,
             phoneNumber : phoneNumber,
@@ -271,6 +279,19 @@ const RegistrationPage = () => {
                         <option value="OTHER">Other</option>
                     </select>
                     {submitted && sexErr.length > 0 && <span className="text-danger">{sexErr}</span>}
+                </div>
+                <div className="col-sm-4">
+                </div>
+            </div>
+            <div className="row" style={{marginTop: '1rem'}}>
+                <label  className="col-sm-2 col-form-label">*Role</label>
+                <div className="col-sm-6 mb-2">
+                    <select onChange={(e) => handleInputChange(e)} name={"userRole"} value={userRole}>
+                        <option disabled={true} value="">Select role</option>
+                        <option value="Basic">Basic</option>
+                        <option value="Agent">Agent</option>
+                    </select>
+                    {submitted && userRoleErr.length > 0 && <span className="text-danger">{userRoleErr}</span>}
                 </div>
                 <div className="col-sm-4">
                 </div>

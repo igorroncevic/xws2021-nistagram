@@ -313,9 +313,9 @@ func RegisterAgentHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 }
 
 var (
-	pattern_Agent_CreateProduct_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"agent", "product"}, ""))
+	pattern_Agent_CreateProduct_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"product", "create-product"}, ""))
 
-	pattern_Agent_LoginUserInAgentApp_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"agent", "login"}, ""))
+	pattern_Agent_LoginUserInAgentApp_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"login"}, ""))
 
 	pattern_Agent_CreateUserInAgentApp_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"create-user"}, ""))
 )

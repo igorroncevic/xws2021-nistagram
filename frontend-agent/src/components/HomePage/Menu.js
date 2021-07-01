@@ -28,8 +28,8 @@ function Menu() {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        store.user.jwt && getUsernameById();
-        getUserNotifications()
+        // store.user.jwt && getUsernameById();
+        // getUserNotifications()
     }, []);
 
     async function getUserNotifications() {
@@ -99,30 +99,30 @@ function Menu() {
             <NavLink to={{pathname: "/"}}>
                 <Home className="icon"/>
             </NavLink>
-            {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/chats"}}> <Inbox className="icon"/> </NavLink>) }
-            {store.user.role !== 'Admin' && store.user.jwt !== "" && 
-                (<NavLink to={{pathname: "/notifications", state: {notifications: notifications}}}>
-                    {newIcon ? <NewNotifications className="icon"/> : <Notifications className="icon"/>}
-                </NavLink>) 
-            }
-            {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/saved"}}>  <Bookmark className="icon"/> </NavLink>) }
-            {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/story-archive"}}> <StoryArchive className="icon" />  </NavLink>) }
-            {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/newpost"}}> <Plus className="icon" />  </NavLink>) }
+            {/*{store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/chats"}}> <Inbox className="icon"/> </NavLink>) }*/}
+            {/*{store.user.role !== 'Admin' && store.user.jwt !== "" && */}
+            {/*    (<NavLink to={{pathname: "/notifications", state: {notifications: notifications}}}>*/}
+            {/*        {newIcon ? <NewNotifications className="icon"/> : <Notifications className="icon"/>}*/}
+            {/*    </NavLink>) */}
+            {/*}*/}
+            {/*{store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/saved"}}>  <Bookmark className="icon"/> </NavLink>) }*/}
+            {/*{store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/story-archive"}}> <StoryArchive className="icon" />  </NavLink>) }*/}
+            {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/newproduct"}}> <Plus className="icon" />  </NavLink>) }
             {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/info"}}> <Explore className="icon"/> </NavLink>) }
-            {store.user.role !== 'Admin' && store.user.jwt !== "" && (
-                <Dropdown>
-                    <Dropdown.Toggle variant="link" id="dropdown-basic">
-                        <VerificationSymbol className="icon"/>
-                    </Dropdown.Toggle>
+            {/*{store.user.role !== 'Admin' && store.user.jwt !== "" && (*/}
+            {/*    <Dropdown>*/}
+            {/*        <Dropdown.Toggle variant="link" id="dropdown-basic">*/}
+            {/*            <VerificationSymbol className="icon"/>*/}
+            {/*        </Dropdown.Toggle>*/}
 
-                    <Dropdown.Menu>
-                        <Dropdown.Item onClick={() => verificationRedirect('submit-verification-request')}>Submit verification request</Dropdown.Item>
-                        <Dropdown.Item onClick={() => verificationRedirect('view-my-verification-request')}>View my verification requests</Dropdown.Item>
-                        <Dropdown.Item onClick={() => verificationRedirect('view-pending-verification-request')}>View pending verification requests</Dropdown.Item>
-                        <Dropdown.Item onClick={() => verificationRedirect('view-all-verification-request')}>View all verification requests</Dropdown.Item>
-                    </Dropdown.Menu>
-                </Dropdown>
-            )}
+            {/*        <Dropdown.Menu>*/}
+            {/*            <Dropdown.Item onClick={() => verificationRedirect('submit-verification-request')}>Submit verification request</Dropdown.Item>*/}
+            {/*            <Dropdown.Item onClick={() => verificationRedirect('view-my-verification-request')}>View my verification requests</Dropdown.Item>*/}
+            {/*            <Dropdown.Item onClick={() => verificationRedirect('view-pending-verification-request')}>View pending verification requests</Dropdown.Item>*/}
+            {/*            <Dropdown.Item onClick={() => verificationRedirect('view-all-verification-request')}>View all verification requests</Dropdown.Item>*/}
+            {/*        </Dropdown.Menu>*/}
+            {/*    </Dropdown>*/}
+            {/*)}*/}
             {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={"/profile/" + username}> 
                 <ProfileIcon iconSize="medium"
                     image={store.user.photo ? store.user.photo : 'https://i.pravatar.cc/150?img=1'}/>
