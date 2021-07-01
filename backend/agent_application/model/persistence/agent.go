@@ -1,6 +1,10 @@
-package model
+package persistence
 
-import "time"
+import (
+	"github.com/david-drvar/xws2021-nistagram/agent_application/model"
+	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
+	"time"
+)
 
 type Product struct {
 	Id        string `gorm:"primaryKey"`
@@ -57,19 +61,32 @@ type User struct {
 	Id           string `gorm:"primaryKey"`
 	FirstName    string
 	LastName     string
-	Email        string
-	Username     string
-	Role         UserRole
+	Email        string `gorm:"unique"`
+	Username     string `gorm:"unique"`
+	Role         model.UserRole
 	BirthDate    time.Time
 	ProfilePhoto string
 	PhoneNumber  string
 	Sex          string
+	Password     string
 	IsActive     bool
 }
 
-type UserRole string
+func (u *User) ConvertFromGrpc(user *protopb.UserAgentApp) *User {
+	newUser := &User{
+		Id:           user.Id,
+		FirstName:    user.FirstName,
+		LastName:     user.LastName,
+		Email:        user.Email,
+		Username:     user.Username,
+		Password:     user.Password,
+		Role:         model.GetUserRole(user.Role),
+		BirthDate:    user.Birthdate.AsTime(),
+		ProfilePhoto: user.ProfilePhoto,
+		PhoneNumber:  user.PhoneNumber,
+		Sex:          user.Sex,
+		IsActive:     user.IsActive,
+	}
 
-const (
-	Basic UserRole = "Basic"
-	Agent          = "Agent"
-)
+	return newUser
+}

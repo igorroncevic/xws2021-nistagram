@@ -19,6 +19,8 @@ const _ = grpc.SupportPackageIsVersion7
 type AgentClient interface {
 	//    Posts
 	CreateProduct(ctx context.Context, in *Product, opts ...grpc.CallOption) (*EmptyResponseAgent, error)
+	LoginUserInAgentApp(ctx context.Context, in *LoginRequestAgentApp, opts ...grpc.CallOption) (*LoginResponseAgentApp, error)
+	CreateUserInAgentApp(ctx context.Context, in *CreateUserRequestAgentApp, opts ...grpc.CallOption) (*EmptyResponseAgent, error)
 }
 
 type agentClient struct {
@@ -38,12 +40,32 @@ func (c *agentClient) CreateProduct(ctx context.Context, in *Product, opts ...gr
 	return out, nil
 }
 
+func (c *agentClient) LoginUserInAgentApp(ctx context.Context, in *LoginRequestAgentApp, opts ...grpc.CallOption) (*LoginResponseAgentApp, error) {
+	out := new(LoginResponseAgentApp)
+	err := c.cc.Invoke(ctx, "/proto.Agent/LoginUserInAgentApp", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentClient) CreateUserInAgentApp(ctx context.Context, in *CreateUserRequestAgentApp, opts ...grpc.CallOption) (*EmptyResponseAgent, error) {
+	out := new(EmptyResponseAgent)
+	err := c.cc.Invoke(ctx, "/proto.Agent/CreateUserInAgentApp", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AgentServer is the server API for Agent service.
 // All implementations must embed UnimplementedAgentServer
 // for forward compatibility
 type AgentServer interface {
 	//    Posts
 	CreateProduct(context.Context, *Product) (*EmptyResponseAgent, error)
+	LoginUserInAgentApp(context.Context, *LoginRequestAgentApp) (*LoginResponseAgentApp, error)
+	CreateUserInAgentApp(context.Context, *CreateUserRequestAgentApp) (*EmptyResponseAgent, error)
 	mustEmbedUnimplementedAgentServer()
 }
 
@@ -53,6 +75,12 @@ type UnimplementedAgentServer struct {
 
 func (UnimplementedAgentServer) CreateProduct(context.Context, *Product) (*EmptyResponseAgent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateProduct not implemented")
+}
+func (UnimplementedAgentServer) LoginUserInAgentApp(context.Context, *LoginRequestAgentApp) (*LoginResponseAgentApp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LoginUserInAgentApp not implemented")
+}
+func (UnimplementedAgentServer) CreateUserInAgentApp(context.Context, *CreateUserRequestAgentApp) (*EmptyResponseAgent, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateUserInAgentApp not implemented")
 }
 func (UnimplementedAgentServer) mustEmbedUnimplementedAgentServer() {}
 
@@ -85,6 +113,42 @@ func _Agent_CreateProduct_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Agent_LoginUserInAgentApp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginRequestAgentApp)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).LoginUserInAgentApp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Agent/LoginUserInAgentApp",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).LoginUserInAgentApp(ctx, req.(*LoginRequestAgentApp))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agent_CreateUserInAgentApp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateUserRequestAgentApp)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).CreateUserInAgentApp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Agent/CreateUserInAgentApp",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).CreateUserInAgentApp(ctx, req.(*CreateUserRequestAgentApp))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Agent_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.Agent",
 	HandlerType: (*AgentServer)(nil),
@@ -92,6 +156,14 @@ var _Agent_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateProduct",
 			Handler:    _Agent_CreateProduct_Handler,
+		},
+		{
+			MethodName: "LoginUserInAgentApp",
+			Handler:    _Agent_LoginUserInAgentApp_Handler,
+		},
+		{
+			MethodName: "CreateUserInAgentApp",
+			Handler:    _Agent_CreateUserInAgentApp_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

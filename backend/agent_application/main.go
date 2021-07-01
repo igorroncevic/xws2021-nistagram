@@ -19,7 +19,7 @@ func main() {
 		panic("Cannot setup database tables. Error message: " + err.Error())
 	}
 
-	err = rbac.SetupUsersRBAC(db) //todo change
+	err = rbac.SetupAgentsRBAC(db)
 	if err != nil {
 		panic("Cannot setup rbac tables. Error message: " + err.Error())
 	}

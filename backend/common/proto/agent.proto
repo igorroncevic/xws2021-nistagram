@@ -11,8 +11,22 @@ service Agent {
   /*    Posts    */
   rpc CreateProduct (Product) returns (EmptyResponseAgent) {
     option(google.api.http) = {
-      post: "/agent",
+      post: "/agent/product",
       body: "*"
+    };
+  }
+
+  rpc LoginUserInAgentApp (LoginRequestAgentApp) returns (LoginResponseAgentApp) {
+    option(google.api.http) = {
+      post: "/agent/login",
+      body: "*"
+    };
+  }
+
+  rpc CreateUserInAgentApp (CreateUserRequestAgentApp) returns (EmptyResponseAgent) {
+    option(google.api.http) = {
+      post: "/create-user",
+      body: "user"
     };
   }
 
@@ -25,4 +39,40 @@ message Product {
 
 message EmptyRequestAgent {}
 message EmptyResponseAgent {}
+
+message UserAgentApp {
+  string id = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string email = 4;
+  string username = 5;
+  string password = 6;
+  string role = 7;
+  google.protobuf.Timestamp birthdate = 8;
+  string profilePhoto = 9;
+  string phoneNumber = 10;
+  string sex = 11;
+  bool isActive = 12;
+  bool approvedAccount=16;
+  google.protobuf.Timestamp tokenEnd=17;
+}
+
+message CreateUserRequestAgentApp {
+  UserAgentApp user = 1;
+}
+
+message LoginRequestAgentApp {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponseAgentApp {
+  string accessToken = 1;
+  string userId = 2;
+  string role = 3;
+  string username = 4;
+  bool   isSSO = 5;
+  string photo = 6;
+}
+
 
