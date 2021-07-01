@@ -3,15 +3,16 @@ package model
 import "time"
 
 type Product struct {
-	Id string `gorm:"primaryKey"`
-	Name string
-	Price float32
-	IsActive bool
-	Quantity int
+	Id        string `gorm:"primaryKey"`
+	Name      string
+	Price     float32
+	IsActive  bool
+	Quantity  int
 	PhotoLink string
 }
 
 type PaymentType string
+
 const (
 	Cash      PaymentType = "Cash"
 	PayPal                = "PayPal"
@@ -23,43 +24,43 @@ type Order struct {
 	Id           string `gorm:"primaryKey"`
 	UserId       string
 	PaymentType  PaymentType
-	ShippingDate time.Time //TODO
+	ShippingDate time.Time
 	Referral     int
 }
 
-type OrderProducts struct{
-	OrderId string `gorm:"primaryKey"`
+type OrderProducts struct {
+	OrderId   string `gorm:"primaryKey"`
 	ProductId string `gorm:"primaryKey"`
 }
 
-type CommonReport struct{
-	Id string `gorm:"primaryKey"`
-	CampaignId string
+type CommonReport struct {
+	Id           string `gorm:"primaryKey"`
+	CampaignId   string
 	PlacementNum int
 	LinkClickNum int
-	Revenue float32
+	Revenue      float32
 }
 
 type PostReport struct {
 	CommonReport
-	LikesNum int
+	LikesNum    int
 	DislikesNum int
 	CommentsNum int
 }
 
-type StoryReport struct{
+type StoryReport struct {
 	CommonReport
 	ViewsNum int
 }
 
-type User struct{
+type User struct {
 	Id           string `gorm:"primaryKey"`
 	FirstName    string
 	LastName     string
 	Email        string
 	Username     string
 	Role         UserRole
-	BirthDate    time.Time // TODO
+	BirthDate    time.Time
 	ProfilePhoto string
 	PhoneNumber  string
 	Sex          string
@@ -67,7 +68,8 @@ type User struct{
 }
 
 type UserRole string
+
 const (
 	Basic UserRole = "Basic"
-	Agent           = "Agent"
+	Agent          = "Agent"
 )

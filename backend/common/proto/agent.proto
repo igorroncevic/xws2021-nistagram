@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package proto;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/xws2021-nistagram/common/proto";
+
+service Agent {
+  /*    Posts    */
+  rpc CreateProduct (Product) returns (EmptyResponseAgent) {
+    option(google.api.http) = {
+      post: "/agent",
+      body: "*"
+    };
+  }
+
+}
+
+/*    Posts    */
+message Product {
+  string id = 1;
+}
+
+message EmptyRequestAgent {}
+message EmptyResponseAgent {}
+
