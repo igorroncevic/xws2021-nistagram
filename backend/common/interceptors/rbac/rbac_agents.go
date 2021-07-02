@@ -18,7 +18,7 @@ func SetupAgentsRBAC(db *gorm.DB) error {
 
 		permissions := []Permission{
 			createProduct, getUserByUsernameAgent, getAllProductsByAgentId, getAllProducts,
-			getProductById, deleteProduct,
+			getProductById, deleteProduct, updateProduct,
 		}
 		result = db.Create(&permissions)
 		if result.Error != nil {
@@ -32,6 +32,7 @@ func SetupAgentsRBAC(db *gorm.DB) error {
 			basicGetAllProducts, agentGetAllProducts,
 			basicGetProductById, agentGetProductById,
 			agentDeleteProduct,
+			agentUpdateProduct,
 		}
 		result = db.Create(&rolePermissions)
 		if result.Error != nil {
@@ -63,6 +64,7 @@ var (
 	getAllProducts          = Permission{Id: "d149a012-4b67-4525-82cb-66e9b2fccd54", Name: "GetAllProducts"}
 	getProductById          = Permission{Id: "5ce5d04c-c936-4ace-bada-7ebb89255ffb", Name: "GetProductById"}
 	deleteProduct           = Permission{Id: "e447ab3f-2a85-4fd2-a025-07c117674de5", Name: "DeleteProduct"}
+	updateProduct           = Permission{Id: "331282b9-1572-4919-b506-94aaf8091994", Name: "UpdateProduct"}
 )
 
 var (
@@ -81,4 +83,6 @@ var (
 	agentGetProductById = RolePermission{RoleId: agent.Id, PermissionId: getProductById.Id}
 
 	agentDeleteProduct = RolePermission{RoleId: agent.Id, PermissionId: deleteProduct.Id}
+
+	agentUpdateProduct = RolePermission{RoleId: agent.Id, PermissionId: updateProduct.Id}
 )

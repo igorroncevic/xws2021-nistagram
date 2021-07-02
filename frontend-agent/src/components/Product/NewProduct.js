@@ -5,6 +5,7 @@ import { Button, Modal, Dropdown } from "react-bootstrap";
 
 import toastService from "../../services/toast.service";
 import productService from "../../services/product.service";
+import {useHistory} from "react-router-dom";
 
 
 
@@ -21,6 +22,7 @@ function NewProduct(props) {
     const [name, setName] = useState('');
     const [image, setImage] = useState('');
     const [price, setPrice] = useState("")
+    const history = useHistory()
 
     const store = useSelector(state => state);
 
@@ -28,26 +30,9 @@ function NewProduct(props) {
         console.log(store);
     }, []);
 
-    async function getUserInfo() {
-        // const response = await userService.getUserById({
-        //     id: store.user.id,
-        //     jwt: store.user.jwt,
-        // })
-        //
-        // if (response.status === 200) {
-        //     setUser(response.data)
-        // } else {
-        //     console.log("getuser error")
-        // }
-    }
 
 
     const createProduct = async () => {
-        // let date = new Date();
-        // let month = date.getMonth() + 1;
-        // if (month < 10) month = "0" + month;
-        // const jsonDate = date.getFullYear() + "-" + month + "-" + date.getDate() + "T01:30:15.01Z";
-
         const productInfo = {
             id: "1",
             name: name,
@@ -58,12 +43,14 @@ function NewProduct(props) {
             jwt: store.user.jwt,
             agentId : store.user.id
         };
-        // if(isStory) contentRequest["isCloseFriends"] = closeFriends;
-        //
+
         let response =  await productService.createProduct(productInfo)
 
-        if (response.status === 200)
+        if (response.status === 200) {
             toastService.show("success", `New product successfully created!`);
+            history.push({ pathname: '/profile/' + store.user.username });
+        }
+
         else
             toastService.show("error", "Something went wrong, please try again!");
     }

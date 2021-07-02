@@ -108,13 +108,32 @@ func (s *ProductGrpcController) GetProductById(ctx context.Context, in *protopb.
 }
 
 func (s *ProductGrpcController) DeleteProduct(ctx context.Context, in *protopb.Product) (*protopb.EmptyResponseAgent, error) {
-	span := tracer.StartSpanFromContextMetadata(ctx, "GetProductById")
+	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteProduct")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	productId := in.Id
 
 	err := s.service.DeleteProduct(ctx, productId)
+	if err != nil {
+		return &protopb.EmptyResponseAgent{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	return &protopb.EmptyResponseAgent{}, nil
+}
+
+func (s *ProductGrpcController) UpdateProduct(ctx context.Context, in *protopb.Product) (*protopb.EmptyResponseAgent, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateProduct")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var product *persistence.Product
+	product = product.ConvertFromGrpc(in)
+	if product == nil {
+		return &protopb.EmptyResponseAgent{}, status.Errorf(codes.Unknown, "cannot create product")
+	}
+
+	err := s.service.UpdateProduct(ctx, product)
 	if err != nil {
 		return &protopb.EmptyResponseAgent{}, status.Errorf(codes.Unknown, err.Error())
 	}

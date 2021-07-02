@@ -61,6 +61,10 @@ func (s *Server) DeleteProduct(ctx context.Context, in *protopb.Product) (*proto
 	return s.productController.DeleteProduct(ctx, in)
 }
 
+func (s *Server) UpdateProduct(ctx context.Context, in *protopb.Product) (*protopb.EmptyResponseAgent, error) {
+	return s.productController.UpdateProduct(ctx, in)
+}
+
 func (s *Server) LoginUserInAgentApp(ctx context.Context, login *protopb.LoginRequestAgentApp) (*protopb.LoginResponseAgentApp, error) {
 	return s.userController.LoginUserInAgentApp(ctx, login)
 }

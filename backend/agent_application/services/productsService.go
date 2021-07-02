@@ -108,3 +108,11 @@ func (service *ProductService) DeleteProduct(ctx context.Context, id string) err
 
 	return service.productRepository.DeleteProduct(ctx, id)
 }
+
+func (service *ProductService) UpdateProduct(ctx context.Context, product *persistence.Product) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateProduct")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.productRepository.UpdateProduct(ctx, product)
+}

@@ -9,8 +9,6 @@ import {useHistory} from "react-router-dom";
 const ProductPreviewGrid = (props) => {
     const { posts, shouldReload } = props;
 
-    const [selectedPost, setSelectedPost] = useState({});
-    const [showModal, setShowModal] = useState(false);
     const history = useHistory()
 
 
@@ -23,15 +21,6 @@ const ProductPreviewGrid = (props) => {
         <div class="postPreviewGrid__Wrapper">
             { posts.map(post => <ProductPreviewThumbnail post={post} openPost={openPost} /> ) }
 
-            {/*{ showModal && */}
-            {/*<ProductPreviewModal */}
-            {/*    post={selectedPost} */}
-            {/*    postUser={{ id: selectedPost.agentId }} */}
-            {/*    shouldReload={shouldReload}*/}
-            {/*    showModal={showModal}*/}
-            {/*    setShowModal={setShowModal}*/}
-            {/*/> */}
-            {/*}*/}
         </div>
         )
     )

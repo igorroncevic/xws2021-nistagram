@@ -19,6 +19,7 @@ type ProductRepository interface {
 	GetAllProducts(ctx context.Context) ([]persistence.Product, error)
 	GetProductById(ctx context.Context, id string) (persistence.Product, error)
 	DeleteProduct(ctx context.Context, id string) error
+	UpdateProduct(ctx context.Context, product *persistence.Product) error
 }
 
 type productRepository struct {
@@ -94,6 +95,34 @@ func (repository *productRepository) DeleteProduct(ctx context.Context, id strin
 	}
 	product.IsActive = false
 	return repository.DB.Model(&product).Update("is_active", false).Error
+}
+
+func (repository *productRepository) UpdateProduct(ctx context.Context, product *persistence.Product) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateProduct")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	productDB, err := repository.GetProductById(ctx, product.Id)
+	if err != nil {
+		return err
+	}
+	productDB.Name = product.Name
+	productDB.Quantity = product.Quantity
+	productDB.Price = product.Price
+
+	err = repository.DB.Model(&productDB).Updates(persistence.Product{Price: productDB.Price, Name: productDB.Name, Quantity: productDB.Quantity}).Error
+	if err != nil {
+		return err
+	}
+
+	if product.Photo != "" {
+		productDB.Photo = product.Photo
+		err := repository.SaveProductPhoto(ctx, productDB)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (repository *productRepository) GetAllProducts(ctx context.Context) ([]persistence.Product, error) {

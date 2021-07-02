@@ -43,6 +43,13 @@ service Agent {
     };
   }
 
+  rpc UpdateProduct (Product) returns (EmptyResponseAgent) {
+    option(google.api.http) = {
+      post: "/product/update",
+      body : "*"
+    };
+  }
+
   /*    Users    */
   rpc LoginUserInAgentApp (LoginRequestAgentApp) returns (LoginResponseAgentApp) {
     option(google.api.http) = {
