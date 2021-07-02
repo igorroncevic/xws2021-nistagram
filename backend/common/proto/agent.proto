@@ -50,6 +50,13 @@ service Agent {
     };
   }
 
+  rpc OrderProduct (Order) returns (EmptyResponseAgent) {
+    option(google.api.http) = {
+      post: "/product/order",
+      body : "*"
+    };
+  }
+
   /*    Users    */
   rpc LoginUserInAgentApp (LoginRequestAgentApp) returns (LoginResponseAgentApp) {
     option(google.api.http) = {
@@ -103,8 +110,9 @@ message UserAgentApp {
   string profilePhoto = 9;
   string phoneNumber = 10;
   string sex = 11;
-  bool isActive = 12;
-  google.protobuf.Timestamp tokenEnd=17;
+  string address = 12;
+  bool isActive = 13;
+  google.protobuf.Timestamp tokenEnd=14;
 }
 
 message CreateUserRequestAgentApp {
@@ -127,5 +135,14 @@ message LoginResponseAgentApp {
 
 message RequestUsernameAgent {
   string username = 1;
+}
+
+message Order {
+  string id = 1;
+  string userId = 2;
+  string productId = 3;
+  int32 quantity = 4;
+  int32 referral = 5;
+  google.protobuf.Timestamp dateCreated = 6;
 }
 

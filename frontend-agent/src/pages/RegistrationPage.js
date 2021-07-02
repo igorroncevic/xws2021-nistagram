@@ -24,6 +24,8 @@ const RegistrationPage = () => {
     const [email, setEmail] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
+    const [address, setAddress] = useState("");
+    const [addressErr, setAddressErr] = useState("Enter address");
     const [rePassword, setRePassword] = useState("");
     const [emailErr, setEmailErr] = useState("Enter email");
     const [passwordErr, setPasswordErr] = useState("Enter password");
@@ -53,7 +55,8 @@ const RegistrationPage = () => {
         setEmailErr(isValidEmail(email) && email.length > 1 ? '' : 'Email is not valid!')
         setLastNameErr(checkNameAndSurname(lastName) ? '' : 'EnterLastName')
         setFirstNameErr(checkNameAndSurname(firstName) ? '' : 'EnterFirstName')
-    }, [birthDate,sex,username,phoneNumber,rePassword,password,email,lastName,firstName])
+        setAddressErr(address !== "" ? '' : 'Enter address')
+    }, [birthDate,sex,username,phoneNumber,rePassword,password,email,lastName,firstName, address])
 
     const handleInputChange = (event) => {
         const target = event.target;
@@ -84,6 +87,9 @@ const RegistrationPage = () => {
                 break;
             case "phoneNumber" :
                 setPhoneNumber(target.value);
+                break;
+            case "address" :
+                setAddress(target.value);
                 break;
 
             case "username" :
@@ -127,6 +133,9 @@ const RegistrationPage = () => {
                 break;
             case 'birthDate':
                 setBirthDateErr( birthDate !== "" ? '' : 'Enter birthdate')
+                break;
+            case 'address':
+                setAddressErr( address !== "" ? '' : 'Enter address')
                 break;
             default:
                 /*this.setState({
@@ -175,7 +184,7 @@ const RegistrationPage = () => {
         setSubmitted(true);
 
         event.preventDefault();
-        const errors = ['email', 'password', 'firstName', 'rePassword', 'lastName', 'username', 'birthDate', 'sex', 'phoneNumber'];
+        const errors = ['email', 'password', 'firstName', 'rePassword', 'lastName', 'username', 'birthDate', 'sex', 'phoneNumber', 'address'];
         if (validateForm(errors)) {
             await sendParams()
         } else {
@@ -191,7 +200,7 @@ const RegistrationPage = () => {
 
         if(emailErr !== "" || passwordErr !== "" || firstNameErr !== "" ||
             lastNameErr !== "" || rePasswordErr !== "" || usernameErr !== "" || phoneNumberErr !== "" ||
-            sexErr !== "" || birthDateErr !== "")
+            sexErr !== "" || birthDateErr !== "" || addressErr !== "")
             return !valid;
         return valid;
     }
@@ -218,6 +227,7 @@ const RegistrationPage = () => {
             phoneNumber : phoneNumber,
             sex : sex,
             isActive : true,
+            address : address
         })
         if (response.status === 200) {
                 console.log(response.data)
@@ -301,6 +311,16 @@ const RegistrationPage = () => {
                 <div className="col-sm-6 mb-2">
                     <input  disabled = {(disabled)? "disabled" : ""}   type="text" value={phoneNumber} name="phoneNumber" onChange={(e) => handleInputChange(e) } className="form-control" id="phoneNumber" placeholder="+38160123456" />
                     {submitted && phoneNumberErr.length > 0 && <span className="text-danger">{phoneNumberErr}</span>}
+
+                </div>
+                <div className="col-sm-4">
+                </div>
+            </div>
+            <div className="row" style={{marginTop: '1rem'}}>
+                <label  className="col-sm-2 col-form-label">*Address</label>
+                <div className="col-sm-6 mb-2">
+                    <input  disabled = {(disabled)? "disabled" : ""}   type="text" value={address} name="address" onChange={(e) => handleInputChange(e) } className="form-control" id="address" placeholder="Trg Dositeja Obradovica 6, 21000 Novi Sad, Serbia" />
+                    {submitted && addressErr.length > 0 && <span className="text-danger">{addressErr}</span>}
 
                 </div>
                 <div className="col-sm-4">

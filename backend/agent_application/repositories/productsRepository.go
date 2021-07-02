@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/david-drvar/xws2021-nistagram/agent_application/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/agent_application/util"
@@ -20,6 +21,7 @@ type ProductRepository interface {
 	GetProductById(ctx context.Context, id string) (persistence.Product, error)
 	DeleteProduct(ctx context.Context, id string) error
 	UpdateProduct(ctx context.Context, product *persistence.Product) error
+	OrderProduct(ctx context.Context, order *persistence.Order) error
 }
 
 type productRepository struct {
@@ -165,4 +167,25 @@ func (repository *productRepository) SaveProductPhoto(ctx context.Context, produ
 	}
 
 	return nil
+}
+
+func (repository *productRepository) OrderProduct(ctx context.Context, order *persistence.Order) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "OrderProduct")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var product persistence.Product
+	product, err := repository.GetProductById(ctx, order.ProductId)
+	if err != nil {
+		return err
+	}
+	if order.Quantity > product.Quantity {
+		return errors.New("Order quantity cannot exceed product quantity")
+	}
+
+	order.Id = uuid.New().String()
+	order.DateCreated = time.Now()
+
+	return repository.DB.Create(&order).Error
+
 }

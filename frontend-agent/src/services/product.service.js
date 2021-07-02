@@ -83,6 +83,20 @@ class ProductService extends RootService {
         })
         return response
     }
+
+    async orderProduct(data){
+        const { productId, userId, quantity, jwt} = data
+        const response = axios.post('http://localhost:8080/api/agent/product/order',{
+             userId,productId, quantity
+        }, {
+            headers : this.setupHeaders(jwt)
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
 }
 
 const productService = new ProductService()

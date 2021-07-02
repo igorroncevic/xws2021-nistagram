@@ -123,10 +123,10 @@ class AgentService extends RootService {
 
     async createUser(data){
         const { id, firstName, lastName, email, username, password, role, birthdate, profilePhoto,
-        phoneNumber, sex, isActive} = data
+        phoneNumber, sex, isActive, address} = data
         const response = axios.post('http://localhost:8080/api/agent/create-user',{
             id, firstName, lastName, email, username, password, role, birthdate, profilePhoto,
-            phoneNumber, sex, isActive
+            phoneNumber, sex, isActive, address
         }).then(res => {
             return res
         }).catch(err => {

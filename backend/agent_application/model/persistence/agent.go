@@ -19,19 +19,20 @@ type Product struct {
 
 type PaymentType string
 
-const (
-	Cash      PaymentType = "Cash"
-	PayPal                = "PayPal"
-	Cripto                = "Cripto"
-	DebitCard             = "DebitCard"
-)
+//const (
+//	Cash      PaymentType = "Cash"
+//	PayPal                = "PayPal"
+//	Cripto                = "Cripto"
+//	DebitCard             = "DebitCard"
+//)
 
 type Order struct {
-	Id           string `gorm:"primaryKey"`
-	UserId       string
-	PaymentType  PaymentType
-	ShippingDate time.Time
-	Referral     int
+	Id          string `gorm:"primaryKey"`
+	UserId      string
+	ProductId   string
+	Quantity    int
+	DateCreated time.Time
+	Referral    int
 }
 
 type OrderProducts struct {
@@ -70,6 +71,7 @@ type User struct {
 	ProfilePhoto string
 	PhoneNumber  string
 	Sex          string
+	Address      string
 	Password     string
 	IsActive     bool
 }
@@ -88,6 +90,7 @@ func (u *User) ConvertFromGrpc(user *protopb.UserAgentApp) *User {
 		PhoneNumber:  user.PhoneNumber,
 		Sex:          user.Sex,
 		IsActive:     user.IsActive,
+		Address:      user.Address,
 	}
 
 	return newUser
@@ -107,6 +110,7 @@ func (u User) ConvertToGrpc() *protopb.UserAgentApp {
 		PhoneNumber:  u.PhoneNumber,
 		Sex:          u.Sex,
 		IsActive:     u.IsActive,
+		Address:      u.Address,
 	}
 }
 
@@ -133,5 +137,29 @@ func (p Product) ConvertToGrpc() *protopb.Product {
 		Quantity: int32(p.Quantity),
 		Photo:    p.Photo,
 		AgentId:  p.AgentId,
+	}
+}
+
+func (o *Order) ConvertFromGrpc(order *protopb.Order) *Order {
+	newOrder := &Order{
+		Id:          order.Id,
+		UserId:      order.UserId,
+		ProductId:   order.ProductId,
+		Quantity:    int(order.Quantity),
+		DateCreated: order.DateCreated.AsTime(),
+		Referral:    int(order.Referral),
+	}
+
+	return newOrder
+}
+
+func (o Order) ConvertToGrpc() *protopb.Order {
+	return &protopb.Order{
+		Id:          o.Id,
+		UserId:      o.UserId,
+		ProductId:   o.ProductId,
+		Quantity:    int32(o.Quantity),
+		Referral:    int32(o.Referral),
+		DateCreated: timestamppb.New(o.DateCreated),
 	}
 }

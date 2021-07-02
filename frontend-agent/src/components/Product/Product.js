@@ -26,7 +26,10 @@ const Product = () => {
     const [productQuantityEditErr, setProductQuantityEditErr] = useState("Enter quantity");
     const [productImageEdit, setProductImageEdit] = useState("");
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showOrderModal, setShowOrderModal] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+
+    const [orderQuantity, setOrderQuantity] = useState("");
 
     const history = useHistory()
 
@@ -71,6 +74,10 @@ const Product = () => {
         setProductQuantityEdit(product.quantity);
         setProductPriceEdit(product.price);
         setShowEditModal(!showEditModal)
+    }
+
+    function handleOrderModal() {
+        setShowOrderModal(!showOrderModal);
     }
 
     function handleInputChange(event) {
@@ -167,6 +174,31 @@ const Product = () => {
         reader.readAsDataURL(file);
     }
 
+    async function submitOrder() {
+        if (orderQuantity > product.quantity) {
+            alert("Cannot exceed quantity of product");
+            return;
+        }
+
+        const response = await productService.orderProduct({
+            productId : id,
+            userId : store.user.id,
+            quantity: orderQuantity,
+            jwt: store.user.jwt,
+        })
+
+        if (response.status === 200) {
+            toastService.show("success", "Product successfully ordered")
+            setShowOrderModal(!showOrderModal);
+
+            //todo push to all orders
+
+        } else {
+            console.log(response);
+            toastService.show("error", "Could not retrieve products")
+        }
+    }
+
 
     return (
         <div>
@@ -181,10 +213,8 @@ const Product = () => {
                         <p className="price">${product.price}</p>
                         <p>Quantity : {product.quantity}</p>
                         <p>
-                            <button>Add to Cart</button>
+                            {store.user.role === 'Basic' && <Button onClick={handleOrderModal}>Add to Cart</Button>}
                         </p>
-
-
                 </div>
             </div>
 
@@ -227,6 +257,25 @@ const Product = () => {
                     </div>
                     <br/>
                     <Button onClick={submitEdit}>Submit</Button>
+                </Modal.Body>
+            </Modal>
+
+
+
+            <Modal show={showOrderModal} onHide={setShowOrderModal} style={{ 'height': 650 }} >
+                <Modal.Header closeButton style={{ 'background': 'silver' }}>
+                    <Modal.Title>Order product</Modal.Title>
+                </Modal.Header>
+                <Modal.Body style={{ 'background': 'silver' }}>
+                    <div className="row">
+                        <label className="col-sm-2 col-form-label">*Quantity</label>
+                        <div className="col-sm-5 mb-2">
+                            <input  type="number" value={orderQuantity} name="orderQuantity" onChange={(e) =>
+                                setOrderQuantity(e.target.value) } className="form-control" placeholder="order quantity"/>
+                        </div>
+                    </div>
+                    <br/>
+                    <Button onClick={submitOrder}>Submit</Button>
                 </Modal.Body>
             </Modal>
         </div>

@@ -140,3 +140,22 @@ func (s *ProductGrpcController) UpdateProduct(ctx context.Context, in *protopb.P
 
 	return &protopb.EmptyResponseAgent{}, nil
 }
+
+func (s *ProductGrpcController) OrderProduct(ctx context.Context, in *protopb.Order) (*protopb.EmptyResponseAgent, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateProduct")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var order *persistence.Order
+	order = order.ConvertFromGrpc(in)
+	if order == nil {
+		return &protopb.EmptyResponseAgent{}, status.Errorf(codes.Unknown, "cannot create product")
+	}
+
+	err := s.service.OrderProduct(ctx, order)
+	if err != nil {
+		return &protopb.EmptyResponseAgent{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	return &protopb.EmptyResponseAgent{}, nil
+}

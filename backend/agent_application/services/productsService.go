@@ -116,3 +116,11 @@ func (service *ProductService) UpdateProduct(ctx context.Context, product *persi
 
 	return service.productRepository.UpdateProduct(ctx, product)
 }
+
+func (service *ProductService) OrderProduct(ctx context.Context, order *persistence.Order) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "OrderProduct")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.productRepository.OrderProduct(ctx, order)
+}
