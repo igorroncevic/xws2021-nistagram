@@ -17,6 +17,8 @@ type ProductRepository interface {
 	SaveProductPhoto(ctx context.Context, product persistence.Product) error
 	GetAllProductsByAgentId(ctx context.Context, id string) ([]persistence.Product, error)
 	GetAllProducts(ctx context.Context) ([]persistence.Product, error)
+	GetProductById(ctx context.Context, id string) (persistence.Product, error)
+	DeleteProduct(ctx context.Context, id string) error
 }
 
 type productRepository struct {
@@ -58,12 +60,40 @@ func (repository *productRepository) GetAllProductsByAgentId(ctx context.Context
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var products []persistence.Product
-	resultUser := repository.DB.Where("agent_id = ?", id).Find(&products)
+	resultUser := repository.DB.Where("agent_id = ? AND is_active = true", id).Find(&products)
 	if resultUser.Error != nil {
 		return nil, resultUser.Error
 	}
 
 	return products, nil
+}
+
+func (repository *productRepository) GetProductById(ctx context.Context, id string) (persistence.Product, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetProductById")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var product persistence.Product
+	resultUser := repository.DB.Where("id = ? AND is_active = true", id).Find(&product)
+	if resultUser.Error != nil {
+		return persistence.Product{}, resultUser.Error
+	}
+
+	return product, nil
+}
+
+func (repository *productRepository) DeleteProduct(ctx context.Context, id string) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteProduct")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var product persistence.Product
+	product, err := repository.GetProductById(ctx, id)
+	if err != nil {
+		return err
+	}
+	product.IsActive = false
+	return repository.DB.Model(&product).Update("is_active", false).Error
 }
 
 func (repository *productRepository) GetAllProducts(ctx context.Context) ([]persistence.Product, error) {
@@ -72,7 +102,7 @@ func (repository *productRepository) GetAllProducts(ctx context.Context) ([]pers
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var products []persistence.Product
-	resultUser := repository.DB.Find(&products)
+	resultUser := repository.DB.Where("is_active = true").Find(&products)
 	if resultUser.Error != nil {
 		return nil, resultUser.Error
 	}

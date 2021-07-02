@@ -53,6 +53,14 @@ func (s *Server) GetAllProducts(ctx context.Context, in *protopb.EmptyRequestAge
 	return s.productController.GetAllProducts(ctx, in)
 }
 
+func (s *Server) GetProductById(ctx context.Context, in *protopb.Product) (*protopb.Product, error) {
+	return s.productController.GetProductById(ctx, in)
+}
+
+func (s *Server) DeleteProduct(ctx context.Context, in *protopb.Product) (*protopb.EmptyResponseAgent, error) {
+	return s.productController.DeleteProduct(ctx, in)
+}
+
 func (s *Server) LoginUserInAgentApp(ctx context.Context, login *protopb.LoginRequestAgentApp) (*protopb.LoginResponseAgentApp, error) {
 	return s.userController.LoginUserInAgentApp(ctx, login)
 }

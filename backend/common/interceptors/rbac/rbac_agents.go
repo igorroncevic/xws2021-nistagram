@@ -18,6 +18,7 @@ func SetupAgentsRBAC(db *gorm.DB) error {
 
 		permissions := []Permission{
 			createProduct, getUserByUsernameAgent, getAllProductsByAgentId, getAllProducts,
+			getProductById, deleteProduct,
 		}
 		result = db.Create(&permissions)
 		if result.Error != nil {
@@ -29,6 +30,8 @@ func SetupAgentsRBAC(db *gorm.DB) error {
 			agentGetUserByUsernameAgent, basicGetUserByUsernameAgent,
 			basicGetAllProductsByAgentId, agentGetAllProductsByAgentId,
 			basicGetAllProducts, agentGetAllProducts,
+			basicGetProductById, agentGetProductById,
+			agentDeleteProduct,
 		}
 		result = db.Create(&rolePermissions)
 		if result.Error != nil {
@@ -58,6 +61,8 @@ var (
 	getUserByUsernameAgent  = Permission{Id: "98ec230f-7995-4970-87be-a71e2efbcbd2", Name: "GetUserByUsername"}
 	getAllProductsByAgentId = Permission{Id: "9f0095b3-0c0a-42c8-908a-dc05757a1453", Name: "GetAllProductsByAgentId"}
 	getAllProducts          = Permission{Id: "d149a012-4b67-4525-82cb-66e9b2fccd54", Name: "GetAllProducts"}
+	getProductById          = Permission{Id: "5ce5d04c-c936-4ace-bada-7ebb89255ffb", Name: "GetProductById"}
+	deleteProduct           = Permission{Id: "e447ab3f-2a85-4fd2-a025-07c117674de5", Name: "DeleteProduct"}
 )
 
 var (
@@ -71,4 +76,9 @@ var (
 
 	basicGetAllProducts = RolePermission{RoleId: basic.Id, PermissionId: getAllProducts.Id}
 	agentGetAllProducts = RolePermission{RoleId: agent.Id, PermissionId: getAllProducts.Id}
+
+	basicGetProductById = RolePermission{RoleId: basic.Id, PermissionId: getProductById.Id}
+	agentGetProductById = RolePermission{RoleId: agent.Id, PermissionId: getProductById.Id}
+
+	agentDeleteProduct = RolePermission{RoleId: agent.Id, PermissionId: deleteProduct.Id}
 )

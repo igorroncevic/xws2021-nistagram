@@ -81,3 +81,30 @@ func (service *ProductService) GetAllProducts(ctx context.Context) ([]persistenc
 
 	return finalProducts, nil
 }
+
+func (service *ProductService) GetProductById(ctx context.Context, id string) (persistence.Product, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetProductById")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	product, err := service.productRepository.GetProductById(ctx, id)
+	if err != nil {
+		return persistence.Product{}, err
+	}
+
+	base64Image, err := images.LoadImageToBase64(product.Photo)
+	if err != nil {
+		return persistence.Product{}, err
+	}
+	product.Photo = base64Image
+
+	return product, nil
+}
+
+func (service *ProductService) DeleteProduct(ctx context.Context, id string) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteProduct")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.productRepository.DeleteProduct(ctx, id)
+}

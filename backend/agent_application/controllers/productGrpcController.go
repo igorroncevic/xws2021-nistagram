@@ -88,3 +88,36 @@ func (s *ProductGrpcController) GetAllProducts(ctx context.Context, in *protopb.
 
 	return &protopb.ProductsArray{Products: responseProducts}, nil
 }
+
+func (s *ProductGrpcController) GetProductById(ctx context.Context, in *protopb.Product) (*protopb.Product, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetProductById")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	productId := in.Id
+
+	product, err := s.service.GetProductById(ctx, productId)
+	if err != nil {
+		return &protopb.Product{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	var responseProduct *protopb.Product
+	responseProduct = product.ConvertToGrpc()
+
+	return responseProduct, nil
+}
+
+func (s *ProductGrpcController) DeleteProduct(ctx context.Context, in *protopb.Product) (*protopb.EmptyResponseAgent, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetProductById")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	productId := in.Id
+
+	err := s.service.DeleteProduct(ctx, productId)
+	if err != nil {
+		return &protopb.EmptyResponseAgent{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	return &protopb.EmptyResponseAgent{}, nil
+}

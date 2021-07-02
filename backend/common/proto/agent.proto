@@ -23,9 +23,23 @@ service Agent {
     };
   }
 
+  rpc GetProductById (Product) returns (Product) {
+    option(google.api.http) = {
+      post: "/product/get-by-id",
+      body: "*"
+    };
+  }
+
   rpc GetAllProducts (EmptyRequestAgent) returns (ProductsArray) {
     option(google.api.http) = {
       get: "/product/get-all",
+    };
+  }
+
+  rpc DeleteProduct (Product) returns (EmptyResponseAgent) {
+    option(google.api.http) = {
+      post: "/product/delete",
+      body : "*"
     };
   }
 
