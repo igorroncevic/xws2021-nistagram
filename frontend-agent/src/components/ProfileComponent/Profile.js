@@ -40,12 +40,11 @@ const Profile = () => {
 
     useEffect(() => {
         (async function () {
-            const tempUser = await getUserByUsername(); // Since it doesn't get saved in time for other requests
-            if (tempUser) {
-                await getProducts();
-            }
+            await getUserByUsername(); // Since it doesn't get saved in time for other requests
+            await getProducts();
+
         })();
-    }, [username]);
+    }, [username, user]);
 
     const getProducts = async () => {
         const response = await productService.getProductsByAgent({
