@@ -123,7 +123,7 @@ function Menu() {
             {/*        </Dropdown.Menu>*/}
             {/*    </Dropdown>*/}
             {/*)}*/}
-            {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={"/profile/" + username}> 
+            {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={"/profile/" + store.user.username}>
                 <ProfileIcon iconSize="medium"
                     image={store.user.photo ? store.user.photo : 'https://i.pravatar.cc/150?img=1'}/>
             </NavLink>

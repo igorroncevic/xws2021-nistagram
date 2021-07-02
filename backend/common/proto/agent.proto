@@ -8,7 +8,7 @@ import "google/protobuf/timestamp.proto";
 option go_package = "github.com/xws2021-nistagram/common/proto";
 
 service Agent {
-  /*    Posts    */
+  /*    Products    */
   rpc CreateProduct (Product) returns (EmptyResponseAgent) {
     option(google.api.http) = {
       post: "/product/create-product",
@@ -16,6 +16,20 @@ service Agent {
     };
   }
 
+  rpc GetAllProductsByAgentId (UserAgentApp) returns (ProductsArray) {
+    option(google.api.http) = {
+      post: "/product/get-by-agent",
+      body: "*"
+    };
+  }
+
+  rpc GetAllProducts (EmptyRequestAgent) returns (ProductsArray) {
+    option(google.api.http) = {
+      get: "/product/get-all",
+    };
+  }
+
+  /*    Users    */
   rpc LoginUserInAgentApp (LoginRequestAgentApp) returns (LoginResponseAgentApp) {
     option(google.api.http) = {
       post: "/login",
@@ -30,6 +44,12 @@ service Agent {
     };
   }
 
+  rpc GetUserByUsername (RequestUsernameAgent) returns (UserAgentApp) {
+    option(google.api.http) = {
+      get: "/getUserByUsername/{username}"
+    };
+  }
+
 }
 
 /*    Posts    */
@@ -41,6 +61,10 @@ message Product {
   int32 quantity = 5;
   string photo = 6;
   string agentId = 7;
+}
+
+message ProductsArray {
+  repeated Product products = 1;
 }
 
 message EmptyRequestAgent {}
@@ -59,7 +83,6 @@ message UserAgentApp {
   string phoneNumber = 10;
   string sex = 11;
   bool isActive = 12;
-  bool approvedAccount=16;
   google.protobuf.Timestamp tokenEnd=17;
 }
 
@@ -81,4 +104,7 @@ message LoginResponseAgentApp {
   string photo = 6;
 }
 
+message RequestUsernameAgent {
+  string username = 1;
+}
 

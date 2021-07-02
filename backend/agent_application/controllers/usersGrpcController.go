@@ -88,3 +88,19 @@ func (s *UserGrpcController) CreateUserInAgentApp(ctx context.Context, in *proto
 
 	return &protopb.EmptyResponseAgent{}, nil
 }
+
+func (s *UserGrpcController) GetUserByUsername(ctx context.Context, in *protopb.RequestUsernameAgent) (*protopb.UserAgentApp, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserByEmail")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	user, err := s.service.GetUserByUsername(ctx, in.Username)
+
+	if err != nil {
+		return &protopb.UserAgentApp{}, err
+	}
+
+	userResponse := user.ConvertToGrpc()
+
+	return userResponse, nil
+}

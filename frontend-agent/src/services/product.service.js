@@ -22,6 +22,31 @@ class ProductService extends RootService {
         return response
     }
 
+    async getProductsByAgent(data) {
+        const { id, jwt} = data
+        const response = axios.post('http://localhost:8080/api/agent/product/get-by-agent',{
+            id
+        }, {
+            headers : this.setupHeaders(jwt)
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
+
+    async getAllProducts(data) {
+        const { jwt} = data
+        const response = axios.get('http://localhost:8080/api/agent/product/get-all', {
+            headers : this.setupHeaders(jwt)
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
 }
 
 const productService = new ProductService()

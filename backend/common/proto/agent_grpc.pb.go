@@ -17,10 +17,14 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AgentClient interface {
-	//    Posts
+	//    Products
 	CreateProduct(ctx context.Context, in *Product, opts ...grpc.CallOption) (*EmptyResponseAgent, error)
+	GetAllProductsByAgentId(ctx context.Context, in *UserAgentApp, opts ...grpc.CallOption) (*ProductsArray, error)
+	GetAllProducts(ctx context.Context, in *EmptyRequestAgent, opts ...grpc.CallOption) (*ProductsArray, error)
+	//    Users
 	LoginUserInAgentApp(ctx context.Context, in *LoginRequestAgentApp, opts ...grpc.CallOption) (*LoginResponseAgentApp, error)
 	CreateUserInAgentApp(ctx context.Context, in *CreateUserRequestAgentApp, opts ...grpc.CallOption) (*EmptyResponseAgent, error)
+	GetUserByUsername(ctx context.Context, in *RequestUsernameAgent, opts ...grpc.CallOption) (*UserAgentApp, error)
 }
 
 type agentClient struct {
@@ -34,6 +38,24 @@ func NewAgentClient(cc grpc.ClientConnInterface) AgentClient {
 func (c *agentClient) CreateProduct(ctx context.Context, in *Product, opts ...grpc.CallOption) (*EmptyResponseAgent, error) {
 	out := new(EmptyResponseAgent)
 	err := c.cc.Invoke(ctx, "/proto.Agent/CreateProduct", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentClient) GetAllProductsByAgentId(ctx context.Context, in *UserAgentApp, opts ...grpc.CallOption) (*ProductsArray, error) {
+	out := new(ProductsArray)
+	err := c.cc.Invoke(ctx, "/proto.Agent/GetAllProductsByAgentId", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentClient) GetAllProducts(ctx context.Context, in *EmptyRequestAgent, opts ...grpc.CallOption) (*ProductsArray, error) {
+	out := new(ProductsArray)
+	err := c.cc.Invoke(ctx, "/proto.Agent/GetAllProducts", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -58,14 +80,27 @@ func (c *agentClient) CreateUserInAgentApp(ctx context.Context, in *CreateUserRe
 	return out, nil
 }
 
+func (c *agentClient) GetUserByUsername(ctx context.Context, in *RequestUsernameAgent, opts ...grpc.CallOption) (*UserAgentApp, error) {
+	out := new(UserAgentApp)
+	err := c.cc.Invoke(ctx, "/proto.Agent/GetUserByUsername", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AgentServer is the server API for Agent service.
 // All implementations must embed UnimplementedAgentServer
 // for forward compatibility
 type AgentServer interface {
-	//    Posts
+	//    Products
 	CreateProduct(context.Context, *Product) (*EmptyResponseAgent, error)
+	GetAllProductsByAgentId(context.Context, *UserAgentApp) (*ProductsArray, error)
+	GetAllProducts(context.Context, *EmptyRequestAgent) (*ProductsArray, error)
+	//    Users
 	LoginUserInAgentApp(context.Context, *LoginRequestAgentApp) (*LoginResponseAgentApp, error)
 	CreateUserInAgentApp(context.Context, *CreateUserRequestAgentApp) (*EmptyResponseAgent, error)
+	GetUserByUsername(context.Context, *RequestUsernameAgent) (*UserAgentApp, error)
 	mustEmbedUnimplementedAgentServer()
 }
 
@@ -76,11 +111,20 @@ type UnimplementedAgentServer struct {
 func (UnimplementedAgentServer) CreateProduct(context.Context, *Product) (*EmptyResponseAgent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateProduct not implemented")
 }
+func (UnimplementedAgentServer) GetAllProductsByAgentId(context.Context, *UserAgentApp) (*ProductsArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllProductsByAgentId not implemented")
+}
+func (UnimplementedAgentServer) GetAllProducts(context.Context, *EmptyRequestAgent) (*ProductsArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllProducts not implemented")
+}
 func (UnimplementedAgentServer) LoginUserInAgentApp(context.Context, *LoginRequestAgentApp) (*LoginResponseAgentApp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginUserInAgentApp not implemented")
 }
 func (UnimplementedAgentServer) CreateUserInAgentApp(context.Context, *CreateUserRequestAgentApp) (*EmptyResponseAgent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUserInAgentApp not implemented")
+}
+func (UnimplementedAgentServer) GetUserByUsername(context.Context, *RequestUsernameAgent) (*UserAgentApp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserByUsername not implemented")
 }
 func (UnimplementedAgentServer) mustEmbedUnimplementedAgentServer() {}
 
@@ -109,6 +153,42 @@ func _Agent_CreateProduct_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AgentServer).CreateProduct(ctx, req.(*Product))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agent_GetAllProductsByAgentId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserAgentApp)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).GetAllProductsByAgentId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Agent/GetAllProductsByAgentId",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).GetAllProductsByAgentId(ctx, req.(*UserAgentApp))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agent_GetAllProducts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EmptyRequestAgent)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).GetAllProducts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Agent/GetAllProducts",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).GetAllProducts(ctx, req.(*EmptyRequestAgent))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -149,6 +229,24 @@ func _Agent_CreateUserInAgentApp_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Agent_GetUserByUsername_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestUsernameAgent)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).GetUserByUsername(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Agent/GetUserByUsername",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).GetUserByUsername(ctx, req.(*RequestUsernameAgent))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Agent_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.Agent",
 	HandlerType: (*AgentServer)(nil),
@@ -158,12 +256,24 @@ var _Agent_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Agent_CreateProduct_Handler,
 		},
 		{
+			MethodName: "GetAllProductsByAgentId",
+			Handler:    _Agent_GetAllProductsByAgentId_Handler,
+		},
+		{
+			MethodName: "GetAllProducts",
+			Handler:    _Agent_GetAllProducts_Handler,
+		},
+		{
 			MethodName: "LoginUserInAgentApp",
 			Handler:    _Agent_LoginUserInAgentApp_Handler,
 		},
 		{
 			MethodName: "CreateUserInAgentApp",
 			Handler:    _Agent_CreateUserInAgentApp_Handler,
+		},
+		{
+			MethodName: "GetUserByUsername",
+			Handler:    _Agent_GetUserByUsername_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -45,10 +45,22 @@ func (s *Server) CreateProduct(ctx context.Context, product *protopb.Product) (*
 	return s.productController.CreateProduct(ctx, product)
 }
 
+func (s *Server) GetAllProductsByAgentId(ctx context.Context, agent *protopb.UserAgentApp) (*protopb.ProductsArray, error) {
+	return s.productController.GetAllProductsByAgentId(ctx, agent)
+}
+
+func (s *Server) GetAllProducts(ctx context.Context, in *protopb.EmptyRequestAgent) (*protopb.ProductsArray, error) {
+	return s.productController.GetAllProducts(ctx, in)
+}
+
 func (s *Server) LoginUserInAgentApp(ctx context.Context, login *protopb.LoginRequestAgentApp) (*protopb.LoginResponseAgentApp, error) {
 	return s.userController.LoginUserInAgentApp(ctx, login)
 }
 
 func (s *Server) CreateUserInAgentApp(ctx context.Context, user *protopb.CreateUserRequestAgentApp) (*protopb.EmptyResponseAgent, error) {
 	return s.userController.CreateUserInAgentApp(ctx, user)
+}
+
+func (s *Server) GetUserByUsername(ctx context.Context, in *protopb.RequestUsernameAgent) (*protopb.UserAgentApp, error) {
+	return s.userController.GetUserByUsername(ctx, in)
 }

@@ -20,6 +20,7 @@ type UserRepository interface {
 	CreateUser(context.Context, persistence.User) error
 	SaveUserProfilePhoto(context.Context, persistence.User) error
 	GetUserPhoto(ctx context.Context, id string) (string, error)
+	GetUserByUsername(ctx context.Context, username string) (persistence.User, error)
 }
 
 type userRepository struct {
@@ -124,4 +125,18 @@ func (repository *userRepository) SaveUserProfilePhoto(ctx context.Context, user
 	}
 
 	return nil
+}
+
+func (repository *userRepository) GetUserByUsername(ctx context.Context, username string) (persistence.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserByUsername")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var dbUser persistence.User
+	result := repository.DB.Where("username = ?", username).First(&dbUser)
+	if result.Error != nil || result.RowsAffected != 1 {
+		return persistence.User{}, result.Error
+	}
+
+	return dbUser, nil
 }

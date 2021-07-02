@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/david-drvar/xws2021-nistagram/agent_application/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/agent_application/repositories"
+	"github.com/david-drvar/xws2021-nistagram/agent_application/util/images"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"gorm.io/gorm"
 )
@@ -31,4 +32,52 @@ func (service *ProductService) CreateProduct(ctx context.Context, product persis
 	}
 
 	return nil
+}
+
+func (service *ProductService) GetAllProductsByAgentId(ctx context.Context, id string) ([]persistence.Product, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllProductsByAgentId")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	products, err := service.productRepository.GetAllProductsByAgentId(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	var finalProducts []persistence.Product
+
+	for _, product := range products {
+		base64Image, err := images.LoadImageToBase64(product.Photo)
+		if err != nil {
+			return nil, err
+		}
+		product.Photo = base64Image
+		finalProducts = append(finalProducts, product)
+	}
+
+	return finalProducts, nil
+}
+
+func (service *ProductService) GetAllProducts(ctx context.Context) ([]persistence.Product, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllProducts")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	products, err := service.productRepository.GetAllProducts(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var finalProducts []persistence.Product
+
+	for _, product := range products {
+		base64Image, err := images.LoadImageToBase64(product.Photo)
+		if err != nil {
+			return nil, err
+		}
+		product.Photo = base64Image
+		finalProducts = append(finalProducts, product)
+	}
+
+	return finalProducts, nil
 }

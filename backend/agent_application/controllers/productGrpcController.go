@@ -50,3 +50,41 @@ func (s *ProductGrpcController) CreateProduct(ctx context.Context, in *protopb.P
 
 	return &protopb.EmptyResponseAgent{}, nil
 }
+
+func (s *ProductGrpcController) GetAllProductsByAgentId(ctx context.Context, in *protopb.UserAgentApp) (*protopb.ProductsArray, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllProductsByAgentId")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	agentId := in.Id
+
+	products, err := s.service.GetAllProductsByAgentId(ctx, agentId)
+	if err != nil {
+		return &protopb.ProductsArray{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	responseProducts := []*protopb.Product{}
+	for _, product := range products {
+		responseProducts = append(responseProducts, product.ConvertToGrpc())
+	}
+
+	return &protopb.ProductsArray{Products: responseProducts}, nil
+}
+
+func (s *ProductGrpcController) GetAllProducts(ctx context.Context, in *protopb.EmptyRequestAgent) (*protopb.ProductsArray, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllProducts")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	products, err := s.service.GetAllProducts(ctx)
+	if err != nil {
+		return &protopb.ProductsArray{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	responseProducts := []*protopb.Product{}
+	for _, product := range products {
+		responseProducts = append(responseProducts, product.ConvertToGrpc())
+	}
+
+	return &protopb.ProductsArray{Products: responseProducts}, nil
+}

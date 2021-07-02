@@ -58,3 +58,15 @@ func (service *UserService) GetUserPhoto(ctx context.Context, userId string) (st
 
 	return service.userRepository.GetUserPhoto(ctx, userId)
 }
+
+func (service *UserService) GetUserByUsername(ctx context.Context, username string) (persistence.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserByUsername")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if username == "" {
+		return persistence.User{}, errors.New("can't find photo from non-existing user")
+	}
+
+	return service.userRepository.GetUserByUsername(ctx, username)
+}

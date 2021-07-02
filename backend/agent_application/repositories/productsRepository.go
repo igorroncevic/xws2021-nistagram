@@ -15,6 +15,8 @@ import (
 type ProductRepository interface {
 	CreateProduct(context.Context, persistence.Product) error
 	SaveProductPhoto(ctx context.Context, product persistence.Product) error
+	GetAllProductsByAgentId(ctx context.Context, id string) ([]persistence.Product, error)
+	GetAllProducts(ctx context.Context) ([]persistence.Product, error)
 }
 
 type productRepository struct {
@@ -48,6 +50,34 @@ func (repository *productRepository) CreateProduct(ctx context.Context, product 
 	}
 
 	return nil
+}
+
+func (repository *productRepository) GetAllProductsByAgentId(ctx context.Context, id string) ([]persistence.Product, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllProductsByAgentId")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var products []persistence.Product
+	resultUser := repository.DB.Where("agent_id = ?", id).Find(&products)
+	if resultUser.Error != nil {
+		return nil, resultUser.Error
+	}
+
+	return products, nil
+}
+
+func (repository *productRepository) GetAllProducts(ctx context.Context) ([]persistence.Product, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllProducts")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var products []persistence.Product
+	resultUser := repository.DB.Find(&products)
+	if resultUser.Error != nil {
+		return nil, resultUser.Error
+	}
+
+	return products, nil
 }
 
 func (repository *productRepository) SaveProductPhoto(ctx context.Context, product persistence.Product) error {

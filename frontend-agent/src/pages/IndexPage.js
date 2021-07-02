@@ -95,37 +95,7 @@ const IndexPage = () => {
         setShowModal(!showModal)
     }
 
-    const successGoogleLogin = (googleUser) => {
-        const googleToken = googleUser.getAuthResponse().id_token
-        const response = userService.googleLogin({
-            token: googleToken
-            })
-            .then(res => {
-                dispatch(userActions.loginRequest({
-                    jwt: response.data.accessToken,
-                    id: response.data.userId,
-                    role: response.data.role,
-                    isSSO: response.data.isSSO,
-                    username: response.data.username,
-                    photo: response.data.photo,
-                }))
-                history.push({ pathname: '/' })
-            })
-            .catch(err => {
-                if (reCaptcha >= 2) {
-                    setCaptcha(reCaptcha+1);
-                    setLogInDisabled(true);
-                    setCredentials(false);
-                } else {
-                    setCaptcha(reCaptcha+1);
-                    setCredentials(false);
-                }
-            })
-    }
 
-    const errorGoogleLogin = (err) => {
-        console.log(err)
-    }
 
     return (
         <div style={{ padding: '60px 0', margin: '0 auto', maxWidth: '320px' }}>
@@ -154,12 +124,6 @@ const IndexPage = () => {
                 />
                 }
                 <Button disabled={logInDisabled} block size="lg" onClick={submitHandler}>Login </Button>
-                <GoogleLogin
-                    clientId="1033035332377-1qa39htnroucmro5bpmghhm797ldljrl.apps.googleusercontent.com"
-                    buttonText="Login"
-                    onSuccess={successGoogleLogin}
-                    onFailure={errorGoogleLogin}
-                />
             </Form>
             <br />
             <div style={{ display: " table" }}>

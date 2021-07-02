@@ -3,6 +3,7 @@ package persistence
 import (
 	"github.com/david-drvar/xws2021-nistagram/agent_application/model"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 )
 
@@ -92,6 +93,23 @@ func (u *User) ConvertFromGrpc(user *protopb.UserAgentApp) *User {
 	return newUser
 }
 
+func (u User) ConvertToGrpc() *protopb.UserAgentApp {
+	return &protopb.UserAgentApp{
+		Id:           u.Id,
+		FirstName:    u.FirstName,
+		LastName:     u.LastName,
+		Email:        u.Email,
+		Username:     u.Username,
+		Password:     "",
+		Role:         string(u.Role),
+		Birthdate:    timestamppb.New(u.BirthDate),
+		ProfilePhoto: u.ProfilePhoto,
+		PhoneNumber:  u.PhoneNumber,
+		Sex:          u.Sex,
+		IsActive:     u.IsActive,
+	}
+}
+
 func (u *Product) ConvertFromGrpc(product *protopb.Product) *Product {
 	newProduct := &Product{
 		Id:       product.Id,
@@ -104,4 +122,16 @@ func (u *Product) ConvertFromGrpc(product *protopb.Product) *Product {
 	}
 
 	return newProduct
+}
+
+func (p Product) ConvertToGrpc() *protopb.Product {
+	return &protopb.Product{
+		Id:       p.Id,
+		Name:     p.Name,
+		Price:    float64(p.Price),
+		IsActive: p.IsActive,
+		Quantity: int32(p.Quantity),
+		Photo:    p.Photo,
+		AgentId:  p.AgentId,
+	}
 }

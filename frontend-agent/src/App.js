@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import RegistrationPage from "./pages/RegistrationPage";
 import Saved from "./components/HomePageComponents/Saved";
+import Profile from "./components/ProfileComponent/Profile";
 import NewProduct from "./components/Product/NewProduct";
 import Home from "./components/HomePage/Home";
 import UnauthorizedPage from "./helpers/UnauthorizedPage";
@@ -18,6 +19,7 @@ import Notifications from "./components/Notifications/Notifications";
 
 import AuthenticatedRoute from './AuthenticatedRoute';
 import AdminRoute from './AdminRoute';
+import Product from "./components/Product/Product";
 
 const App = () => {
     return (
@@ -30,6 +32,9 @@ const App = () => {
                 <Route path='/registration' exact={true} component={RegistrationPage}/>
                 <Route path='/info' exact component={ProfileInfo}/>
                 <Route path='/newproduct' exact component={NewProduct}/>
+                <Route path='/profile/:username' exact component={Profile}/>
+                <Route path='/product/:id' exact component={Product}/>
+
 
                 <AuthenticatedRoute path='/saved' exact component={Saved} isAdminProhibited={true} />
                 <AuthenticatedRoute path='/notifications' exact component={Notifications} isAdminProhibited={true} />

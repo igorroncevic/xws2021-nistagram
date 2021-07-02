@@ -24,7 +24,7 @@ class AgentService extends RootService {
     async getUserByUsername(data){
         const { username, jwt } = data
         const headers = this.setupHeaders(jwt)
-        const response = this.apiClient.get('/getUserByUsername/'+username,{
+        const response = axios.get('http://localhost:8080/api/agent/getUserByUsername/'+username,{
             headers: headers
         }).then(res => {
             return res
