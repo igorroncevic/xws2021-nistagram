@@ -50,12 +50,29 @@ service Agent {
     };
   }
 
+  /*    Orders    */
   rpc OrderProduct (Order) returns (EmptyResponseAgent) {
     option(google.api.http) = {
       post: "/product/order",
       body : "*"
     };
   }
+
+  rpc GetOrdersByUser (UserAgentApp) returns (OrdersArray) {
+    option(google.api.http) = {
+      post: "/product/order/get-by-user",
+      body : "*"
+    };
+  }
+
+  rpc GetOrdersByAgent (UserAgentApp) returns (OrdersArray) {
+    option(google.api.http) = {
+      post: "/product/order/get-by-agent",
+      body : "*"
+    };
+  }
+
+
 
   /*    Users    */
   rpc LoginUserInAgentApp (LoginRequestAgentApp) returns (LoginResponseAgentApp) {
@@ -144,5 +161,12 @@ message Order {
   int32 quantity = 4;
   int32 referral = 5;
   google.protobuf.Timestamp dateCreated = 6;
+  float totalPrice = 7;
+  string username = 8; //it will contain basic or agent username depending on who views order
+  string productName = 9;
+}
+
+message OrdersArray {
+  repeated Order orders = 1;
 }
 

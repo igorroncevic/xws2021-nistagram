@@ -270,4 +270,6 @@ function EditProfile () {
             </div>
         </div>
     );
-};export default EditProfile;
+}
+
+export default EditProfile;

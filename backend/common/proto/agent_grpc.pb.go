@@ -24,7 +24,10 @@ type AgentClient interface {
 	GetAllProducts(ctx context.Context, in *EmptyRequestAgent, opts ...grpc.CallOption) (*ProductsArray, error)
 	DeleteProduct(ctx context.Context, in *Product, opts ...grpc.CallOption) (*EmptyResponseAgent, error)
 	UpdateProduct(ctx context.Context, in *Product, opts ...grpc.CallOption) (*EmptyResponseAgent, error)
+	//    Orders
 	OrderProduct(ctx context.Context, in *Order, opts ...grpc.CallOption) (*EmptyResponseAgent, error)
+	GetOrdersByUser(ctx context.Context, in *UserAgentApp, opts ...grpc.CallOption) (*OrdersArray, error)
+	GetOrdersByAgent(ctx context.Context, in *UserAgentApp, opts ...grpc.CallOption) (*OrdersArray, error)
 	//    Users
 	LoginUserInAgentApp(ctx context.Context, in *LoginRequestAgentApp, opts ...grpc.CallOption) (*LoginResponseAgentApp, error)
 	CreateUserInAgentApp(ctx context.Context, in *CreateUserRequestAgentApp, opts ...grpc.CallOption) (*EmptyResponseAgent, error)
@@ -102,6 +105,24 @@ func (c *agentClient) OrderProduct(ctx context.Context, in *Order, opts ...grpc.
 	return out, nil
 }
 
+func (c *agentClient) GetOrdersByUser(ctx context.Context, in *UserAgentApp, opts ...grpc.CallOption) (*OrdersArray, error) {
+	out := new(OrdersArray)
+	err := c.cc.Invoke(ctx, "/proto.Agent/GetOrdersByUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentClient) GetOrdersByAgent(ctx context.Context, in *UserAgentApp, opts ...grpc.CallOption) (*OrdersArray, error) {
+	out := new(OrdersArray)
+	err := c.cc.Invoke(ctx, "/proto.Agent/GetOrdersByAgent", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *agentClient) LoginUserInAgentApp(ctx context.Context, in *LoginRequestAgentApp, opts ...grpc.CallOption) (*LoginResponseAgentApp, error) {
 	out := new(LoginResponseAgentApp)
 	err := c.cc.Invoke(ctx, "/proto.Agent/LoginUserInAgentApp", in, out, opts...)
@@ -140,7 +161,10 @@ type AgentServer interface {
 	GetAllProducts(context.Context, *EmptyRequestAgent) (*ProductsArray, error)
 	DeleteProduct(context.Context, *Product) (*EmptyResponseAgent, error)
 	UpdateProduct(context.Context, *Product) (*EmptyResponseAgent, error)
+	//    Orders
 	OrderProduct(context.Context, *Order) (*EmptyResponseAgent, error)
+	GetOrdersByUser(context.Context, *UserAgentApp) (*OrdersArray, error)
+	GetOrdersByAgent(context.Context, *UserAgentApp) (*OrdersArray, error)
 	//    Users
 	LoginUserInAgentApp(context.Context, *LoginRequestAgentApp) (*LoginResponseAgentApp, error)
 	CreateUserInAgentApp(context.Context, *CreateUserRequestAgentApp) (*EmptyResponseAgent, error)
@@ -172,6 +196,12 @@ func (UnimplementedAgentServer) UpdateProduct(context.Context, *Product) (*Empty
 }
 func (UnimplementedAgentServer) OrderProduct(context.Context, *Order) (*EmptyResponseAgent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OrderProduct not implemented")
+}
+func (UnimplementedAgentServer) GetOrdersByUser(context.Context, *UserAgentApp) (*OrdersArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOrdersByUser not implemented")
+}
+func (UnimplementedAgentServer) GetOrdersByAgent(context.Context, *UserAgentApp) (*OrdersArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOrdersByAgent not implemented")
 }
 func (UnimplementedAgentServer) LoginUserInAgentApp(context.Context, *LoginRequestAgentApp) (*LoginResponseAgentApp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginUserInAgentApp not implemented")
@@ -321,6 +351,42 @@ func _Agent_OrderProduct_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Agent_GetOrdersByUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserAgentApp)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).GetOrdersByUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Agent/GetOrdersByUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).GetOrdersByUser(ctx, req.(*UserAgentApp))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agent_GetOrdersByAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserAgentApp)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).GetOrdersByAgent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Agent/GetOrdersByAgent",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).GetOrdersByAgent(ctx, req.(*UserAgentApp))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Agent_LoginUserInAgentApp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(LoginRequestAgentApp)
 	if err := dec(in); err != nil {
@@ -406,6 +472,14 @@ var _Agent_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "OrderProduct",
 			Handler:    _Agent_OrderProduct_Handler,
+		},
+		{
+			MethodName: "GetOrdersByUser",
+			Handler:    _Agent_GetOrdersByUser_Handler,
+		},
+		{
+			MethodName: "GetOrdersByAgent",
+			Handler:    _Agent_GetOrdersByAgent_Handler,
 		},
 		{
 			MethodName: "LoginUserInAgentApp",

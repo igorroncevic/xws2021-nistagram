@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"github.com/david-drvar/xws2021-nistagram/agent_application/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/agent_application/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/agent_application/repositories"
 	"github.com/david-drvar/xws2021-nistagram/agent_application/util/images"
@@ -123,4 +124,20 @@ func (service *ProductService) OrderProduct(ctx context.Context, order *persiste
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	return service.productRepository.OrderProduct(ctx, order)
+}
+
+func (service *ProductService) GetOrdersByUser(ctx context.Context, userId string) ([]domain.Order, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "OrderProduct")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.productRepository.GetOrdersByUser(ctx, userId)
+}
+
+func (service *ProductService) GetOrdersByAgent(ctx context.Context, agentId string) ([]domain.Order, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetOrdersByAgent")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.productRepository.GetOrdersByAgent(ctx, agentId)
 }

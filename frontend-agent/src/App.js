@@ -20,6 +20,7 @@ import Notifications from "./components/Notifications/Notifications";
 import AuthenticatedRoute from './AuthenticatedRoute';
 import AdminRoute from './AdminRoute';
 import Product from "./components/Product/Product";
+import Orders from "./components/UserData/Orders";
 
 const App = () => {
     return (
@@ -34,10 +35,9 @@ const App = () => {
                 <Route path='/newproduct' exact component={NewProduct}/>
                 <Route path='/profile/:username' exact component={Profile}/>
                 <Route path='/product/:id' exact component={Product}/>
+                <Route path='/my-orders' exact component={Orders}/>
 
 
-                <AuthenticatedRoute path='/saved' exact component={Saved} isAdminProhibited={true} />
-                <AuthenticatedRoute path='/notifications' exact component={Notifications} isAdminProhibited={true} />
                 <AuthenticatedRoute path='/edit_profile' exact component={EditProfile} />
                 <AuthenticatedRoute path='/password' exact component={ChangePassword} />
                 <AuthenticatedRoute path='/edit_photo' exact component={EditProfileImage} />

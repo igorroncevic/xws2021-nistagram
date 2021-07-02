@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/david-drvar/xws2021-nistagram/agent_application/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/agent_application/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/agent_application/util"
 	"github.com/david-drvar/xws2021-nistagram/agent_application/util/images"
@@ -19,21 +20,27 @@ type ProductRepository interface {
 	GetAllProductsByAgentId(ctx context.Context, id string) ([]persistence.Product, error)
 	GetAllProducts(ctx context.Context) ([]persistence.Product, error)
 	GetProductById(ctx context.Context, id string) (persistence.Product, error)
+	GetProductByAgentId(ctx context.Context, id string) ([]persistence.Product, error)
 	DeleteProduct(ctx context.Context, id string) error
 	UpdateProduct(ctx context.Context, product *persistence.Product) error
 	OrderProduct(ctx context.Context, order *persistence.Order) error
+	GetOrdersByUser(ctx context.Context, userId string) ([]domain.Order, error)
+	GetOrdersByAgent(ctx context.Context, agentId string) ([]domain.Order, error)
+	GetOrdersByProductId(ctx context.Context, productId string) ([]persistence.Order, error)
 }
 
 type productRepository struct {
-	DB *gorm.DB
+	DB             *gorm.DB
+	userRepository UserRepository
 }
 
 func NewProductRepo(db *gorm.DB) (*productRepository, error) {
 	if db == nil {
 		panic("UserRepository not created, gorm.DB is nil")
 	}
+	userRepository, _ := NewUserRepo(db)
 
-	return &productRepository{DB: db}, nil
+	return &productRepository{DB: db, userRepository: userRepository}, nil
 }
 
 func (repository *productRepository) CreateProduct(ctx context.Context, product persistence.Product) error {
@@ -83,6 +90,20 @@ func (repository *productRepository) GetProductById(ctx context.Context, id stri
 	}
 
 	return product, nil
+}
+
+func (repository *productRepository) GetProductByAgentId(ctx context.Context, id string) ([]persistence.Product, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetProductById")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var products []persistence.Product
+	resultUser := repository.DB.Where("agent_id = ? AND is_active = true", id).Find(&products)
+	if resultUser.Error != nil {
+		return nil, resultUser.Error
+	}
+
+	return products, nil
 }
 
 func (repository *productRepository) DeleteProduct(ctx context.Context, id string) error {
@@ -185,7 +206,112 @@ func (repository *productRepository) OrderProduct(ctx context.Context, order *pe
 
 	order.Id = uuid.New().String()
 	order.DateCreated = time.Now()
+	order.TotalPrice = float32(order.Quantity) * product.Price
 
 	return repository.DB.Create(&order).Error
+}
 
+func (repository *productRepository) GetOrdersByUser(ctx context.Context, userId string) ([]domain.Order, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetOrdersByUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var orders []persistence.Order
+	resultUser := repository.DB.Where("user_id = ?", userId).Find(&orders)
+	if resultUser.Error != nil {
+		return nil, resultUser.Error
+	}
+
+	var finalOrders []domain.Order
+	for _, order := range orders {
+		product, err := repository.GetProductById(ctx, order.ProductId)
+		if err != nil {
+			return nil, err
+		}
+		user, err := repository.userRepository.GetUserById(ctx, product.AgentId)
+		if err != nil {
+			return nil, err
+		}
+		finalOrders = append(finalOrders, domain.Order{
+			Id:          order.Id,
+			UserId:      order.UserId,
+			ProductId:   order.ProductId,
+			Quantity:    order.Quantity,
+			DateCreated: order.DateCreated,
+			TotalPrice:  order.TotalPrice,
+			Referral:    order.Referral,
+			Username:    user.Username,
+			ProductName: product.Name,
+		})
+
+	}
+
+	return finalOrders, nil
+}
+
+func (repository *productRepository) GetOrdersByProductId(ctx context.Context, productId string) ([]persistence.Order, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetOrdersByUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var orders []persistence.Order
+	resultUser := repository.DB.Where("product_id = ?", productId).Find(&orders)
+	if resultUser.Error != nil {
+		return nil, resultUser.Error
+	}
+
+	return orders, nil
+}
+
+func (repository *productRepository) GetOrdersByAgent(ctx context.Context, agentId string) ([]domain.Order, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetOrdersByAgent")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	products, err := repository.GetProductByAgentId(ctx, agentId)
+	if err != nil {
+		return nil, err
+	}
+
+	var orders []domain.Order
+	for _, product := range products {
+		tempOrders, err := repository.GetOrdersByProductId(ctx, product.Id)
+		if err != nil {
+			return nil, err
+		}
+		for _, order := range tempOrders {
+			orders = append(orders, domain.Order{
+				Id:          order.Id,
+				UserId:      order.UserId,
+				ProductId:   order.ProductId,
+				Quantity:    order.Quantity,
+				DateCreated: order.DateCreated,
+				TotalPrice:  order.TotalPrice,
+				Referral:    order.Referral,
+				Username:    "",
+				ProductName: product.Name,
+			})
+		}
+	}
+
+	var finalOrders []domain.Order
+	for _, order := range orders {
+		user, err := repository.userRepository.GetUserById(ctx, order.UserId)
+		if err != nil {
+			return nil, err
+		}
+		finalOrders = append(finalOrders, domain.Order{
+			Id:          order.Id,
+			UserId:      order.UserId,
+			ProductId:   order.ProductId,
+			Quantity:    order.Quantity,
+			DateCreated: order.DateCreated,
+			TotalPrice:  order.TotalPrice,
+			Referral:    order.Referral,
+			Username:    user.Username,
+			ProductName: order.ProductName,
+		})
+	}
+
+	return finalOrders, nil
 }

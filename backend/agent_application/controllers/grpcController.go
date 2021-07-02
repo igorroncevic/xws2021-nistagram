@@ -69,6 +69,14 @@ func (s *Server) OrderProduct(ctx context.Context, in *protopb.Order) (*protopb.
 	return s.productController.OrderProduct(ctx, in)
 }
 
+func (s *Server) GetOrdersByUser(ctx context.Context, in *protopb.UserAgentApp) (*protopb.OrdersArray, error) {
+	return s.productController.GetOrdersByUser(ctx, in)
+}
+
+func (s *Server) GetOrdersByAgent(ctx context.Context, in *protopb.UserAgentApp) (*protopb.OrdersArray, error) {
+	return s.productController.GetOrdersByAgent(ctx, in)
+}
+
 func (s *Server) LoginUserInAgentApp(ctx context.Context, login *protopb.LoginRequestAgentApp) (*protopb.LoginResponseAgentApp, error) {
 	return s.userController.LoginUserInAgentApp(ctx, login)
 }

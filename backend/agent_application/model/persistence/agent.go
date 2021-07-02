@@ -32,6 +32,7 @@ type Order struct {
 	ProductId   string
 	Quantity    int
 	DateCreated time.Time
+	TotalPrice  float32
 	Referral    int
 }
 
@@ -148,6 +149,7 @@ func (o *Order) ConvertFromGrpc(order *protopb.Order) *Order {
 		Quantity:    int(order.Quantity),
 		DateCreated: order.DateCreated.AsTime(),
 		Referral:    int(order.Referral),
+		TotalPrice:  order.TotalPrice,
 	}
 
 	return newOrder
@@ -161,5 +163,6 @@ func (o Order) ConvertToGrpc() *protopb.Order {
 		Quantity:    int32(o.Quantity),
 		Referral:    int32(o.Referral),
 		DateCreated: timestamppb.New(o.DateCreated),
+		TotalPrice:  o.TotalPrice,
 	}
 }

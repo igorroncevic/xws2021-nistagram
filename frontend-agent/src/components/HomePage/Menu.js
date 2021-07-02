@@ -32,59 +32,6 @@ function Menu() {
         // getUserNotifications()
     }, []);
 
-    async function getUserNotifications() {
-        const response = await userService.getUserNotifications({
-            id: store.user.id,
-            jwt: store.user.jwt,
-        })
-        if (response.status === 200) {
-            setNotifications(response.data.notifications)
-            checkNotificationIcon(response.data.notifications)
-        } else {
-            console.log("NIJE nasao notifikacije")
-        }
-    }
-
-    function checkNotificationIcon(value){
-        if(value.some(item => item.isRead === false)){
-            setNewIcon(true)
-            console.log("TU SI")
-        }
-    }
-
-
-    async function getUsernameById() {
-        const response = await userService.getUsernameById({
-            id: store.user.id,
-            jwt: store.user.jwt,
-        })
-
-        if (response.status === 200) {
-            setUsername(response.data.username)
-        } else {
-            console.log("getuserbyusername error")
-        }
-    }
-
-    function verificationRedirect(text) {
-        switch (text) {
-            case 'submit-verification-request' :
-                history.push({pathname: '/submit-verification-request'});
-                break;
-            case 'view-my-verification-request' :
-                history.push({pathname: '/view-my-verification-request'})
-                break;
-            case 'view-pending-verification-request' :
-                history.push({pathname: '/view-pending-verification-request'})
-                break;
-            case 'view-all-verification-request' :
-                history.push({pathname: '/view-all-verification-request'})
-                break;
-            default:
-                return;
-        }
-    }
-
     const logout = () => {
         dispatch(userActions.logoutRequest())
         history.push({ pathname: '/login' })
@@ -99,35 +46,16 @@ function Menu() {
             <NavLink to={{pathname: "/"}}>
                 <Home className="icon"/>
             </NavLink>
-            {/*{store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/chats"}}> <Inbox className="icon"/> </NavLink>) }*/}
-            {/*{store.user.role !== 'Admin' && store.user.jwt !== "" && */}
-            {/*    (<NavLink to={{pathname: "/notifications", state: {notifications: notifications}}}>*/}
-            {/*        {newIcon ? <NewNotifications className="icon"/> : <Notifications className="icon"/>}*/}
-            {/*    </NavLink>) */}
-            {/*}*/}
-            {/*{store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/saved"}}>  <Bookmark className="icon"/> </NavLink>) }*/}
-            {/*{store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/story-archive"}}> <StoryArchive className="icon" />  </NavLink>) }*/}
-            {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/newproduct"}}> <Plus className="icon" />  </NavLink>) }
-            {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/info"}}> <Explore className="icon"/> </NavLink>) }
-            {/*{store.user.role !== 'Admin' && store.user.jwt !== "" && (*/}
-            {/*    <Dropdown>*/}
-            {/*        <Dropdown.Toggle variant="link" id="dropdown-basic">*/}
-            {/*            <VerificationSymbol className="icon"/>*/}
-            {/*        </Dropdown.Toggle>*/}
 
-            {/*        <Dropdown.Menu>*/}
-            {/*            <Dropdown.Item onClick={() => verificationRedirect('submit-verification-request')}>Submit verification request</Dropdown.Item>*/}
-            {/*            <Dropdown.Item onClick={() => verificationRedirect('view-my-verification-request')}>View my verification requests</Dropdown.Item>*/}
-            {/*            <Dropdown.Item onClick={() => verificationRedirect('view-pending-verification-request')}>View pending verification requests</Dropdown.Item>*/}
-            {/*            <Dropdown.Item onClick={() => verificationRedirect('view-all-verification-request')}>View all verification requests</Dropdown.Item>*/}
-            {/*        </Dropdown.Menu>*/}
-            {/*    </Dropdown>*/}
-            {/*)}*/}
-            {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={"/profile/" + store.user.username}>
+            {store.user.role === 'Agent' && store.user.jwt !== "" && (<NavLink to={{pathname: "/newproduct"}}> <Plus className="icon" />  </NavLink>) }
+            <NavLink to={{pathname: "/info"}}> <Explore className="icon"/> </NavLink>
+
+            {store.user.role === 'Agent' && store.user.jwt !== "" && (<NavLink to={"/profile/" + store.user.username}>
                 <ProfileIcon iconSize="medium"
                     image={store.user.photo ? store.user.photo : 'https://i.pravatar.cc/150?img=1'}/>
             </NavLink>
             )}
+            <span style={{marginLeft: "20px"}}/>
 
             {store.user.jwt !== "" ? 
                 <Button variant="outline-danger" onClick={logout} style={{width: "220px", display: "block"}}>Logout</Button> :

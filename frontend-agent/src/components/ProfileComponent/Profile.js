@@ -42,14 +42,14 @@ const Profile = () => {
         (async function () {
             const tempUser = await getUserByUsername(); // Since it doesn't get saved in time for other requests
             if (tempUser) {
-                getPosts();
+                await getProducts();
             }
         })();
     }, [username]);
 
-    const getPosts = async () => {
+    const getProducts = async () => {
         const response = await productService.getProductsByAgent({
-            id: store.user.id,
+            id: user.id,
             jwt: store.user.jwt,
         })
 
@@ -63,8 +63,6 @@ const Profile = () => {
     }
 
     async function getUserByUsername() {
-        console.log("username")
-        console.log(username)
         const response = await agentService.getUserByUsername({
             username: username,
             jwt: store.user.jwt,

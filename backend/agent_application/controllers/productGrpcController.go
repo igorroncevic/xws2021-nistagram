@@ -159,3 +159,39 @@ func (s *ProductGrpcController) OrderProduct(ctx context.Context, in *protopb.Or
 
 	return &protopb.EmptyResponseAgent{}, nil
 }
+
+func (s *ProductGrpcController) GetOrdersByUser(ctx context.Context, in *protopb.UserAgentApp) (*protopb.OrdersArray, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetOrdersByUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	orders, err := s.service.GetOrdersByUser(ctx, in.Id)
+	if err != nil {
+		return &protopb.OrdersArray{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	responseOrders := []*protopb.Order{}
+	for _, order := range orders {
+		responseOrders = append(responseOrders, order.ConvertToGrpc())
+	}
+
+	return &protopb.OrdersArray{Orders: responseOrders}, nil
+}
+
+func (s *ProductGrpcController) GetOrdersByAgent(ctx context.Context, in *protopb.UserAgentApp) (*protopb.OrdersArray, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetOrdersByAgent")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	orders, err := s.service.GetOrdersByAgent(ctx, in.Id)
+	if err != nil {
+		return &protopb.OrdersArray{}, status.Errorf(codes.Unknown, err.Error())
+	}
+
+	responseOrders := []*protopb.Order{}
+	for _, order := range orders {
+		responseOrders = append(responseOrders, order.ConvertToGrpc())
+	}
+
+	return &protopb.OrdersArray{Orders: responseOrders}, nil
+}

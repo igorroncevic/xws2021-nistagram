@@ -17,7 +17,7 @@ function Navigation() {
         <div className="navigation">
             <div className="container">
                 <font face = "Comic Sans MS" size = "5" style={{marginRight:'5em'}}>Agentska</font>
-                <Button variant="outline-dark" style={{marginRight:'25em'}} onClick={redirectToSearch}>Search...</Button>
+                {/*<Button variant="outline-dark" style={{marginRight:'25em'}} onClick={redirectToSearch}>Search...</Button>*/}
             </div>
             <Menu className="menu" />
         </div>
