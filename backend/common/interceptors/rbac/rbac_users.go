@@ -24,7 +24,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			createNotification, readAllNotifications, deleteByTypeAndCreator,
 			getPendingVerificationRequests, changeVerificationRequestStatus, getVerificationRequestsByUserId, getAllVerificationRequests,
 			updateUserPhoto, getUserNotifications, getBlockedUsers, deleteNotification,
-			updateNotification, getByTypeAndCreator,
+			updateNotification, getByTypeAndCreator, checkIsActive, changeUserActiveStatus,
 		}
 		result = db.Create(&permissions)
 		if result.Error != nil {
@@ -62,6 +62,8 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			basicDeleteByTypeAndCreator, adminDeleteByTypeAndCreator, verifiedDeleteByTypeAndCreator, agentDeleteByTypeAndCreator, nonregisteredDeleteByTypeAndCreator,
 			basicGetByTypeAndCreator, adminGetByTypeAndCreator, verifiedGetByTypeAndCreator, agentGetByTypeAndCreator, nonregisteredGetByTypeAndCreator,
 			basicUpdateNotification, adminUpdateNotification, verifiedUpdateNotification, agentUpdateNotification, nonregisteredUpdateNotification,
+			basicCheckIsActive, adminCheckIsActive, verifiedCheckIsActive, agentCheckIsActive, nonregisteredCheckIsActive,
+			basicChangeUserActiveStatus, adminChangeUserActiveStatus, verifiedChangeUserActiveStatus, agentChangeUserActiveStatus, nonregisteredChangeUserActiveStatus,
 		}
 		result = db.Create(&rolePermissions)
 		if result.Error != nil {
@@ -119,6 +121,8 @@ var (
 	deleteByTypeAndCreator         = Permission{Id : "b841f8f6-d1c5-11eb-b8bc-0242ac130003", Name: "DeleteByTypeAndCreator"}
 	updateNotification				= Permission{Id: "868d6039-d195-4b7d-b637-825cb780fcb1", Name : "UpdateNotification"}
 	getByTypeAndCreator				= Permission{Id: "98660578-e608-42ca-b7ee-7d7a9732607b\n", Name : "GetByTypeAndCreator"}
+	checkIsActive					= Permission{Id: "419fa77e-dc3e-11eb-ba80-0242ac130004", Name : "CheckIsActive"}
+	changeUserActiveStatus			= Permission{Id: "ab876e7e-dc3e-11eb-ba80-0242ac130004", Name : "ChangeUserActiveStatus"}
 	)
 
 var (
@@ -276,4 +280,16 @@ var (
 	verifiedUpdateNotification      = RolePermission{RoleId: verified.Id, PermissionId: updateNotification.Id}
 	nonregisteredUpdateNotification = RolePermission{RoleId: nonregistered.Id, PermissionId: updateNotification.Id}
 	agentUpdateNotification         = RolePermission{RoleId: agent.Id, PermissionId: updateNotification.Id}
+
+	basicCheckIsActive        = RolePermission{RoleId: basic.Id, PermissionId: checkIsActive.Id}
+	adminCheckIsActive         = RolePermission{RoleId: admin.Id, PermissionId: checkIsActive.Id}
+	verifiedCheckIsActive      = RolePermission{RoleId: verified.Id, PermissionId: checkIsActive.Id}
+	nonregisteredCheckIsActive = RolePermission{RoleId: nonregistered.Id, PermissionId: checkIsActive.Id}
+	agentCheckIsActive         = RolePermission{RoleId: agent.Id, PermissionId: checkIsActive.Id}
+
+	basicChangeUserActiveStatus        = RolePermission{RoleId: basic.Id, PermissionId: changeUserActiveStatus.Id}
+	adminChangeUserActiveStatus         = RolePermission{RoleId: admin.Id, PermissionId: changeUserActiveStatus.Id}
+	verifiedChangeUserActiveStatus      = RolePermission{RoleId: verified.Id, PermissionId: changeUserActiveStatus.Id}
+	nonregisteredChangeUserActiveStatus = RolePermission{RoleId: nonregistered.Id, PermissionId: changeUserActiveStatus.Id}
+	agentChangeUserActiveStatus         = RolePermission{RoleId: agent.Id, PermissionId: changeUserActiveStatus.Id}
 )
