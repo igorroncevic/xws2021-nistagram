@@ -18,6 +18,7 @@ type Server struct {
 	privacyController      *PrivacyGrpcController
 	emailController   	   *EmailGrpcController
 	notificationController *NotificationGrpcController
+	registrationRequestController *RegistrationRequestController
 	tracer            otgo.Tracer
 	closer            io.Closer
 	verificationController *VerificationGrpcController
@@ -30,6 +31,7 @@ func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger
 	newEmailController, _ := NewEmailController(db)
 	notificationController, _ := NewNotificationController(db)
 	newVerificationController, _ := NewVerificationController(db, jwtManager, logger)
+	newRegistrationRequestController, _ := NewRegistrationRequestController(db, jwtManager, logger)
 
 	tracer, closer := tracer.Init("userService")
 	otgo.SetGlobalTracer(tracer)
@@ -39,6 +41,7 @@ func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger
 		emailController:        newEmailController,
 		notificationController: notificationController,
 		verificationController: newVerificationController,
+		registrationRequestController: newRegistrationRequestController,
 		tracer:                 tracer,
 		closer:                 closer,
 	}, nil
@@ -204,4 +207,23 @@ func (s *Server) GetByTypeAndCreator(ctx context.Context,in *protopb.Notificatio
 
 func (s *Server) UpdateNotification(ctx context.Context, in *protopb.Notification) (*protopb.EmptyResponse, error) {
 	return s.notificationController.UpdateNotification(ctx, in)
+}
+func (s *Server) CheckIsActive(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.BooleanResponseUsers, error) {
+ 	return s.userController.CheckIsActive(ctx, in)
+}
+
+func (s *Server) ChangeUserActiveStatus(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.EmptyResponse ,error) {
+	return s.userController.ChangeUserActiveStatus(ctx, in)
+}
+
+func (s *Server) CreateAgentUser(ctx context.Context, in *protopb.CreateUserRequest) (*protopb.UsersDTO, error) {
+	return s.userController.CreateAgentUser(ctx, in)
+}
+
+func (s *Server) GetAllPendingRequests(ctx context.Context, in *protopb.EmptyRequest) (*protopb.ResponseRequests, error) {
+	return s.registrationRequestController.GetAllPendingRequests(ctx, in)
+}
+
+func (s *Server) UpdateRequest(ctx context.Context, in *protopb.RegistrationRequest) (*protopb.EmptyResponse, error) {
+	return s.registrationRequestController.UpdateRequest(ctx, in)
 }

@@ -228,6 +228,17 @@ func CheckUserProfilePublic(ctx context.Context, userId string) (bool, error) {
 	return res.Response, nil
 }
 
+func CheckIsActive(ctx context.Context, userId string) (bool, error) {
+	conn, err := CreateGrpcConnection(Users_service_address)
+	if err != nil{
+		return false, status.Errorf(codes.Unknown, err.Error())
+	}
+	defer conn.Close()
+	userClient := GetUsersClient(conn)
+	res, err := userClient.CheckIsActive(ctx, &protopb.RequestIdUsers{Id: userId})
+	return res.Response, err
+}
+
 func DeleteByTypeAndCreator(ctx context.Context, notificationType string, userId string, creatorId string) (error){
 	conn, err := CreateGrpcConnection(Users_service_address)
 	if err != nil{

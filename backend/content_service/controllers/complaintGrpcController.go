@@ -69,3 +69,13 @@ func (c *ComplaintGrpcController) GetAllContentComplaints(ctx context.Context, i
 
 	return &protopb.ContentComplaintArray{ContentComplaints: responseComplaints}, nil
 }
+
+func (c *ComplaintGrpcController) RejectById (ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent,error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "RejectById")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	err := c.service.RejectById(ctx, in.Id)
+
+	return &protopb.EmptyResponseContent{}, err
+}

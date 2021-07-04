@@ -222,7 +222,12 @@ func (service *PostService) GetPostById(ctx context.Context, id string) (domain.
 	}
 
 	post := dbPost.ConvertToDomain(comments, likes, dislikes, media, hashtags)
-
+	res, err := grpc_common.CheckIsActive(ctx, post.UserId)
+	if err != nil {
+		return domain.Post{}, err
+	}else if res == false {
+		return domain.Post{}, errors.New("User is not active!")
+	}
 	return post, nil
 }
 
@@ -329,7 +334,11 @@ func (service *PostService) SearchContentByLocation(ctx context.Context, locatio
 			log.Fatalf("Error when calling CheckUserProfilePublic: %s", err)
 		}
 		if response.Response {
-			finalPosts = append(finalPosts, post)
+			res, _ := grpc_common.CheckIsActive(ctx, post.UserId)
+			if res {
+				finalPosts = append(finalPosts, post)
+			}
+
 		}
 	}
 
@@ -391,7 +400,10 @@ func (service *PostService) GetPostsByHashtag(ctx context.Context, text string) 
 			log.Fatalf("Error when calling CheckUserProfilePublic: %s", err)
 		}
 		if response.Response {
-			postsWithPublicAccess = append(postsWithPublicAccess, post)
+			res, _ := grpc_common.CheckIsActive(ctx, post.UserId)
+			if res {
+				postsWithPublicAccess = append(postsWithPublicAccess, post)
+			}
 		}
 	}
 
@@ -404,6 +416,13 @@ func (service *PostService) GetPostsForUser(ctx context.Context, id string) ([]d
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	posts := []domain.Post{}
+
+	res, err := grpc_common.CheckIsActive(ctx, id)
+	if err != nil {
+		return nil, err
+	}else if res == false {
+		return nil, errors.New("User is not active!")
+	}
 
 	dbPosts, err := service.postRepository.GetPostsForUser(ctx, id)
 	if err != nil {
