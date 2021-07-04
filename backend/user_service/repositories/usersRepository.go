@@ -559,11 +559,15 @@ func (repository userRepository) ChangeUserActiveStatus(ctx context.Context, id 
 	var user persistence.User
 	user, _ = repository.GetUserById(ctx, id)
 	user.IsActive = !user.IsActive
-	_, err := repository.SaveUserProfilePhoto(ctx, &user)
-	if err != nil {
-		return err
 
+	db := repository.DB.Model(&user).Where("id = ?",id).Updates(map[string]interface{}{"IsActive": user.IsActive})
+	if db.Error != nil {
+		return  db.Error
+	} else if db.RowsAffected == 0 {
+		return errors.New("rows affected is equal to zero")
 	}
+
+
 
 	return nil
 

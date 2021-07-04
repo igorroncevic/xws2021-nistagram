@@ -296,11 +296,11 @@ class UserService extends RootService {
     }
 
     async agentUpdateRequest(data) {
-        const {id, status, jwt} = data
+        const {id,userId, status, jwt} = data
         const headers = this.setupHeaders(jwt)
 
-        const response = this.apiClient.post('/updateRequest', {
-            id, status
+        const response = this.apiClient.post('/agent/updateRequest', {
+            id, userId, status
         }, {
             headers: headers
         }).then(res => {
@@ -313,7 +313,6 @@ class UserService extends RootService {
 
     async getAllPendingRequests(data) {
         const {jwt} = data
-        console.log(jwt)
 
         const headers = this.setupHeaders(jwt)
         const response = this.apiClient.get('/agent/get_requests', {
@@ -324,7 +323,22 @@ class UserService extends RootService {
             return err
         })
         return response
+    }
 
+    async changeUserActiveStatus(data) {
+        const {id, jwt} = data
+        const headers = this.setupHeaders(jwt)
+
+        const response = this.apiClient.post('/change_active_status', {
+            id
+        }, {
+            headers: headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
     }
 }
 

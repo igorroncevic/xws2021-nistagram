@@ -14,6 +14,7 @@ import likeService from "../../services/like.service";
 import complaintService from "../../services/complaint.service";
 import userService from "../../services/user.service";
 import {NavLink} from "react-router-dom";
+import storyService from "../../services/story.service";
 
 const ComplaintPreview = (props) => {
     const [posts, setPosts] = useState([]);
@@ -25,7 +26,6 @@ const ComplaintPreview = (props) => {
     }, []);
 
     function getComplaints() {
-        console.log("EVE ME")
         complaintService.getAllContentComplaints({ jwt: store.user.jwt })
             .then(response => {
                 if(response.status === 200)
@@ -37,7 +37,6 @@ const ComplaintPreview = (props) => {
     }
 
     async function  setParams(complaints){
-        console.log("I tu sam")
         complaints.map((complaint, i) =>
              getUserById(complaint.userId)
         );
@@ -46,13 +45,10 @@ const ComplaintPreview = (props) => {
 
 
      async function getUserById(id) {
-         console.log("I ovde")
-         console.log(id)
 
         await userService.getUserById({id: id, jwt: store.user.jwt})
              .then(response => {
                  setUsers(users => [...users, response.data])
-                 console.log(users)
              })
              .catch(err => {
                  console.log("BLA")
@@ -61,11 +57,67 @@ const ComplaintPreview = (props) => {
 
     }
 
+    function  changeStatus(post,status){
+        if(status==="Refused"){
+            rejectComplaint(post.id)
+        }else if(status==="Block"){
+            changeUserActiveStatus(post.userId)
+        }else if(status==="Delete"){
+            if(post.isPost===false){
+                deleteStory(post.postId)
+            }else{
+                deletePost(post.postId)
+            }
+        }
+    }
 
+    async function rejectComplaint(complaintId) {
+        await complaintService.rejectById({id: complaintId, jwt: store.user.jwt})
+            .then(response => {
+                toastService.show("success", "Successfully rejected!")
+                getComplaints()
+            })
+            .catch(err => {
+                console.log("BLA")
+                toastService.show("error", "Error")
+            })
+    }
+
+    async function changeUserActiveStatus(userId) {
+        console.log(userId)
+        await userService.changeUserActiveStatus({id: userId, jwt: store.user.jwt})
+            .then(response => {
+                toastService.show("success", "Successfully updated!")
+                getComplaints()
+            })
+            .catch(err => {
+                console.log("BLA")
+                toastService.show("error", "Error")
+            })
+    }
+
+    async function deleteStory(storyId) {
+        console.log(storyId)
+        console.log("DOSAO")
+        await storyService.deleteStory({id: storyId, jwt: store.user.jwt})
+            .then(response => {
+                toastService.show("success", "Successfully updated!")
+                getComplaints()
+            })
+            .catch(err => {
+                console.log("BLA")
+                toastService.show("error", "Error")
+            })
+    }
+
+    function deletePost(postId){
+        console.log(postId)
+
+    }
     return (
         <div>
             <Navigation/>
-            <div style={{marginTop:'5%',marginLeft:'20%', marginRight:'20%', marginBottom:'20%'}}>
+            <div style={{marginTop:'5%',marginLeft:'10%', marginRight:'10%', marginBottom:'20%'}}>
                 <h3 style={{borderBottom:'1px solid black'}}>Complaints</h3>
                 <Table striped bordered hover>
                     <thead>
@@ -87,7 +139,18 @@ const ComplaintPreview = (props) => {
                                 <td>bla</td>
                                 <td>bla</td>
                                 <td>{post.status}</td>
+                                {post.status === "Pending" && <td>
+                                    <Button variant={"danger"} onClick={() => changeStatus(post, 'Delete')}>Delete
+                                        content</Button>
+                                    <span style={{marginLeft: '5%'}}/>
+                                    <Button variant={"danger"} onClick={() => changeStatus(post, 'Block')}>Block
+                                        account</Button>
+                                    <span style={{marginLeft: '5%'}}/>
+                                    <Button variant={"success"} onClick={() => changeStatus(post, 'Refused')}>Refuse
+                                        complaint</Button>
 
+                                </td>
+                                }
                             </tr>
                         )
                     })}

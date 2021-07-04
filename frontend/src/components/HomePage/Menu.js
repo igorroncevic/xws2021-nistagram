@@ -147,7 +147,7 @@ function Menu() {
             )}
 
             {store.user.jwt !== "" && store.user.role === 'Admin' &&  (
-                <NavLink to={{pathname: "/complaints"}}> <Complaint className="icon"/>  </NavLink>)}
+                <NavLink style={{ maxWidth: '35px'}} to={{pathname: "/complaints"}}> <Complaint className="icon"/>  </NavLink>)}
 
             {store.user.jwt !== "" && (
                 <Dropdown>

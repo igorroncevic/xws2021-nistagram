@@ -2938,7 +2938,7 @@ var (
 
 	pattern_Users_GetAllPendingRequests_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "users", "agent", "get_requests"}, ""))
 
-	pattern_Users_UpdateRequest_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "users", "updateRequest"}, ""))
+	pattern_Users_UpdateRequest_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "users", "agent", "updateRequest"}, ""))
 
 	pattern_Users_LoginUser_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "users", "login"}, ""))
 
