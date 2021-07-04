@@ -452,6 +452,10 @@ func (s *UserGrpcController) ChangeUserActiveStatus(ctx context.Context, in *pro
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	err := s.service.ChangeUserActiveStatus(ctx, in.Id)
+	if err != nil {
+		return  nil, err
+	}
 
+	_, err = grpc_common.DeleteComplaintByUserId(ctx, in.Id)
 	return &protopb.EmptyResponse{}, err
 }

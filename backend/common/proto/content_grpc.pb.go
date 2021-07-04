@@ -64,6 +64,7 @@ type ContentClient interface {
 	RemoveHighlightStory(ctx context.Context, in *HighlightRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	//   Content complaints
 	CreateContentComplaint(ctx context.Context, in *ContentComplaint, opts ...grpc.CallOption) (*EmptyResponseContent, error)
+	DeleteComplaintByUserId(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	GetAllContentComplaints(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*ContentComplaintArray, error)
 	RejectById(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 }
@@ -409,6 +410,15 @@ func (c *contentClient) CreateContentComplaint(ctx context.Context, in *ContentC
 	return out, nil
 }
 
+func (c *contentClient) DeleteComplaintByUserId(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
+	out := new(EmptyResponseContent)
+	err := c.cc.Invoke(ctx, "/proto.Content/DeleteComplaintByUserId", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *contentClient) GetAllContentComplaints(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*ContentComplaintArray, error) {
 	out := new(ContentComplaintArray)
 	err := c.cc.Invoke(ctx, "/proto.Content/GetAllContentComplaints", in, out, opts...)
@@ -477,6 +487,7 @@ type ContentServer interface {
 	RemoveHighlightStory(context.Context, *HighlightRequest) (*EmptyResponseContent, error)
 	//   Content complaints
 	CreateContentComplaint(context.Context, *ContentComplaint) (*EmptyResponseContent, error)
+	DeleteComplaintByUserId(context.Context, *RequestId) (*EmptyResponseContent, error)
 	GetAllContentComplaints(context.Context, *EmptyRequestContent) (*ContentComplaintArray, error)
 	RejectById(context.Context, *RequestId) (*EmptyResponseContent, error)
 	mustEmbedUnimplementedContentServer()
@@ -596,6 +607,9 @@ func (UnimplementedContentServer) RemoveHighlightStory(context.Context, *Highlig
 }
 func (UnimplementedContentServer) CreateContentComplaint(context.Context, *ContentComplaint) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateContentComplaint not implemented")
+}
+func (UnimplementedContentServer) DeleteComplaintByUserId(context.Context, *RequestId) (*EmptyResponseContent, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteComplaintByUserId not implemented")
 }
 func (UnimplementedContentServer) GetAllContentComplaints(context.Context, *EmptyRequestContent) (*ContentComplaintArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllContentComplaints not implemented")
@@ -1282,6 +1296,24 @@ func _Content_CreateContentComplaint_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Content_DeleteComplaintByUserId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).DeleteComplaintByUserId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/DeleteComplaintByUserId",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).DeleteComplaintByUserId(ctx, req.(*RequestId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Content_GetAllContentComplaints_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(EmptyRequestContent)
 	if err := dec(in); err != nil {
@@ -1472,6 +1504,10 @@ var Content_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateContentComplaint",
 			Handler:    _Content_CreateContentComplaint_Handler,
+		},
+		{
+			MethodName: "DeleteComplaintByUserId",
+			Handler:    _Content_DeleteComplaintByUserId_Handler,
 		},
 		{
 			MethodName: "GetAllContentComplaints",

@@ -218,3 +218,7 @@ func (s *Server) GetAllContentComplaints(ctx context.Context, in *protopb.EmptyR
 func (c *Server) RejectById (ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent,error) {
 	return c.complaintController.RejectById(ctx, in)
 }
+
+func (c *Server) DeleteComplaintByUserId(ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent, error) {
+	return c.complaintController.DeleteComplaintByUserId(ctx, in)
+}

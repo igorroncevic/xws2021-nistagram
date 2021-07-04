@@ -79,3 +79,12 @@ func (c *ComplaintGrpcController) RejectById (ctx context.Context, in *protopb.R
 
 	return &protopb.EmptyResponseContent{}, err
 }
+
+func (c *ComplaintGrpcController) DeleteComplaintByUserId(ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteComplaintByUserId")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	err := c.service.DeleteComplaintByUserId(ctx, in.Id)
+	return &protopb.EmptyResponseContent{}, err
+}

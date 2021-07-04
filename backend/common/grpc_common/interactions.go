@@ -296,3 +296,18 @@ func GetUsersForNotificationEnabled(ctx context.Context,  userId string, notific
 
 	return result, nil
 }
+
+func DeleteComplaintByUserId(ctx context.Context, userId string) (*protopb.EmptyResponseContent, error){
+	conn, err := CreateGrpcConnection(Content_service_address)
+	if err != nil{
+		return nil, status.Errorf(codes.Unknown, err.Error())
+	}
+	defer conn.Close()
+
+	contetnClient := GetContentClient(conn)
+	result, err := contetnClient.DeleteComplaintByUserId(ctx, &protopb.RequestId{Id: userId})
+	if err != nil {
+		return nil, err
+	}
+	return result, err
+}
