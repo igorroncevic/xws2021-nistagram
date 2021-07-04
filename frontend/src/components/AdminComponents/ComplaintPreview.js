@@ -35,6 +35,7 @@ const ComplaintPreview = (props) => {
                 toastService.show("error", "Error")
             })
     }
+
     async function  setParams(complaints){
         console.log("I tu sam")
         complaints.map((complaint, i) =>
@@ -84,7 +85,6 @@ const ComplaintPreview = (props) => {
                                 <td>{index+1}</td>
                                 <td>{post.category}</td>
                                 <td>bla</td>
-                                <td><a href={`/profile/${users[index].username}`}> {users[index].username} </a></td>
                                 <td>bla</td>
                                 <td>{post.status}</td>
 

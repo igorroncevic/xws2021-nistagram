@@ -29,7 +29,7 @@ function Menu() {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        store.user.jwt && getUsernameById();
+        store.user.jwt && getUsername();
         getUserNotifications()
     }, []);
 
@@ -54,7 +54,7 @@ function Menu() {
     }
 
 
-    async function getUsernameById() {
+    /*async function getUsernameById() {
         const response = await userService.getUsernameById({
             id: store.user.id,
             jwt: store.user.jwt,
@@ -66,7 +66,10 @@ function Menu() {
             console.log("getuserbyusername error")
         }
     }
-
+*/
+    function getUsername(){
+        setUsername(store.user.username)
+    }
     function verificationRedirect(text) {
         switch (text) {
             case 'submit-verification-request' :

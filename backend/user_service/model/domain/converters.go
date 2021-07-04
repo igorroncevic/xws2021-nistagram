@@ -62,6 +62,7 @@ func (req *RegistrationRequest) ConvertToGrpc() *protopb.RegistrationRequest{
 		Id: req.Id,
 		UserId: req.UserId,
 		Website: req.Website,
+		Status: model.ToStringRequestStatus(req.Status),
 	}
 }
 

@@ -6,27 +6,46 @@ import collectionsService from './../../services/collections.service'
 import favoritesService from './../../services/favorites.service'
 import toastService from './../../services/toast.service'
 import './../../style/CollectionsModal.css'
-import RegistrationPage from "../../pages/RegistrationPage";
 import Navigation from "../HomePage/Navigation";
-import verificationRequestService from "../../services/verificationRequest.service";
+import complaintService from "../../services/complaint.service";
+import userService from "../../services/user.service";
+import followersService from "../../services/followers.service";
 
 const AgentCheck = (props) => {
-    const[users,setUsers]=useState( [{firstName:'MArko', lastName:'Markovic', username:'markic', email:'markic@gmail.com', website:'idemo.com'},
-        {firstName:'Jovan', lastName:'Jokic',username:'joks', email:'joki@gmail.com', website:'facebook.com'}])
+    const[users,setUsers]=useState( [])
+    const store = useSelector(state => state);
+
+
+    useEffect(() => {
+        getAllPendingRequests()
+    }, []);
+
+    async function getAllPendingRequests() {
+        const response = await userService.getAllPendingRequests(
+            {
+                     jwt: store.user.jwt
+                 })
+
+        if (response.status === 200) {
+           setUsers(response.data.registrationRequests)
+        } else {
+            toastService.show("error", "Something went wrong, please try again!");
+        }
+    }
 
     async function changeRequestStatus(user, status) {
-        /*const response = await neka metoda koja belezi promenu da li je zahtev prihvacen ili odbijen({
+    /*    const response = await userService.agentUpdateRequest({
             id : user.id,
             status : status,
             jwt : store.user.jwt
         });
         if (response.status === 200) {
             toastService.show("success", "Verification request status changed successfully")
-            getPendingVerificationRequests();
+            //getPendingVerificationRequests();
         }
         else
             toastService.show("error", "Something went wrong. Try again")
-        */
+*/
     }
 
     return (

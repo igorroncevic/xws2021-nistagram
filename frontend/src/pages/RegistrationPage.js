@@ -4,7 +4,7 @@ import PasswordStrengthBar from 'react-password-strength-bar';
 import {Alert, Button, FormControl} from "react-bootstrap";
 import userService from "../services/user.service";
 
-const RegistrationPage = (props) => {
+const RegistrationPage = () => {
     // Declare a new state variable, which we'll call "count"
     const [password, setPassword] = useState("");
     const [passwordStrength, setPasswordStrength] = useState("");
@@ -32,13 +32,10 @@ const RegistrationPage = (props) => {
     const [errorMessage, setErrorMessage] = useState(false);
     const [blacklistedPasswords, setBlacklistedPasswords] = useState([]);
     const [website, setWebsite] = useState("");
-    const [websiteErr, setWebsiteErr] = useState('');
     const [profilePhoto, setProfilePhoto] = useState("");
-    const [role, setRole] = useState("");
 
 
     useEffect(() => {
-        checkRole()
         setBirthDateErr( birthDate !== "" ? '' : 'Enter birthdate')
         setSexErr( sex !== "" ? '' : 'Select sex')
         setUsernameErr( isUsernameValid(username) ? '' : 'Enter username')
@@ -48,20 +45,7 @@ const RegistrationPage = (props) => {
         setEmailErr(isValidEmail(email) && email.length > 1 ? '' : 'Email is not valid!')
         setLastNameErr(checkNameAndSurname(lastName) ? '' : 'EnterLastName')
         setFirstNameErr(checkNameAndSurname(firstName) ? '' : 'EnterFirstName')
-
-    }, [birthDate,sex,username,phoneNumber,rePassword,password,email,lastName,firstName,website])
-
-    const checkRole=()=>{
-        console.log(props)
-        if(props.role!=undefined){
-            setRole(props.role)
-            setWebsiteErr(checkWebsite(website) ? '' : 'Enter website')
-
-        }else{
-            setRole('Basic')
-        }
-        console.log(role)
-    }
+    }, [birthDate,sex,username,phoneNumber,rePassword,password,email,lastName,firstName])
 
     const handleInputChange = (event) => {
         const target = event.target;
@@ -134,10 +118,6 @@ const RegistrationPage = (props) => {
             case 'birthDate':
                 setBirthDateErr( birthDate !== "" ? '' : 'Enter birthdate')
                 break;
-            case 'website':
-                if(role==='Agent')
-                    setWebsiteErr(checkWebsite(website) ? '' : 'Enter website')
-                break;
             default:
                 /*this.setState({
                     validForm: true
@@ -158,10 +138,6 @@ const RegistrationPage = (props) => {
     function checkNameAndSurname(value) {
         return /^[a-zA-Z ,.'-]+$/.test(value);
 
-    }
-
-    function checkWebsite(value){
-        return /^(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/.test(value)
     }
 
     function checkPassword (password) {
@@ -235,10 +211,10 @@ const RegistrationPage = (props) => {
             website: website,
         })
         if (response.status === 200) {
-                console.log(response.data)
-                setErrorMessage(false);
-                setSuccessfullyReg(true);
-                setDisabled(!disabled);
+            console.log(response.data)
+            setErrorMessage(false);
+            setSuccessfullyReg(true);
+            setDisabled(!disabled);
         } else {
             setErrorMessage(true);
             console.log("NE RADI")
@@ -312,7 +288,7 @@ const RegistrationPage = (props) => {
                 <label  className="col-sm-2 col-form-label">Website</label>
                 <div className="col-sm-6 mb-2">
                     <input  disabled = {(disabled)? "disabled" : ""}   type="text" value={website} name="website" onChange={(e) => handleInputChange(e) } className="form-control" id="website" placeholder="www.example.com" />
-                    {submitted && websiteErr.length > 0 && <span className="text-danger">{websiteErr}</span>}
+                    {/*{submitted && website.length > 0 && <span className="text-danger">{phoneNumberErr}</span>}*/}
 
                 </div>
                 <div className="col-sm-4">

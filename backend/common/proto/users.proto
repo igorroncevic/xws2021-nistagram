@@ -19,7 +19,7 @@ service Users {
 
   rpc GetAllPendingRequests(EmptyRequest) returns (ResponseRequests) {
     option(google.api.http) = {
-      get: "/api/users/get_requests"
+      get: "/api/users/agent/get_requests"
     };
   }
 

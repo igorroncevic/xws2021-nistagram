@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"time"
 )
@@ -32,7 +33,7 @@ func (repo *registrationRequestRepository) 	CreateRegistrationRequest(ctx contex
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	result := repo.DB.Create(&persistence.RegistrationRequest{CreatedAt: time.Now(), UserId: userId, Status: "Pending"})
+	result := repo.DB.Create(&persistence.RegistrationRequest{CreatedAt: time.Now(),Id:uuid.New().String(), UserId: userId, Status: "Pending"})
 	if result.Error != nil {
 		return errors.New("Could not create registration request!")
 	}else if result.RowsAffected != 1 {
