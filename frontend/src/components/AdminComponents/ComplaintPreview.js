@@ -15,6 +15,7 @@ import complaintService from "../../services/complaint.service";
 import userService from "../../services/user.service";
 import {NavLink} from "react-router-dom";
 import storyService from "../../services/story.service";
+import postService from "../../services/post.service";
 
 const ComplaintPreview = (props) => {
     const [posts, setPosts] = useState([]);
@@ -91,29 +92,34 @@ const ComplaintPreview = (props) => {
                 getComplaints()
             })
             .catch(err => {
-                console.log("BLA")
                 toastService.show("error", "Error")
             })
     }
 
     async function deleteStory(storyId) {
-        console.log(storyId)
-        console.log("DOSAO")
         await storyService.deleteStory({id: storyId, jwt: store.user.jwt})
             .then(response => {
                 toastService.show("success", "Successfully updated!")
                 getComplaints()
             })
             .catch(err => {
-                console.log("BLA")
                 toastService.show("error", "Error")
             })
     }
 
-    function deletePost(postId){
-        console.log(postId)
-
+    async function deletePost(postId) {
+        await postService.deletePost({id: postId, jwt: store.user.jwt})
+            .then(response => {
+                toastService.show("success", "Successfully updated!")
+                getComplaints()
+            })
+            .catch(err => {
+                toastService.show("error", "Error")
+            })
     }
+
+
+
     return (
         <div>
             <Navigation/>
@@ -160,7 +166,7 @@ const ComplaintPreview = (props) => {
         </div>
 
 
-    )
+    );
 }
 
 export default ComplaintPreview;
