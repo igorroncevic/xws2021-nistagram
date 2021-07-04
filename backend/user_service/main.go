@@ -15,10 +15,14 @@ func main() {
 	db := common.InitDatabase(common.UserDatabase)
 
 	err := setup.FillDatabase(db)
-	if err != nil { panic("Cannot setup database tables. Error message: " + err.Error()) }
+	if err != nil {
+		panic("Cannot setup database tables. Error message: " + err.Error())
+	}
 
 	err = rbac.SetupUsersRBAC(db)
-	if err != nil { panic("Cannot setup rbac tables. Error message: " + err.Error()) }
+	if err != nil {
+		panic("Cannot setup rbac tables. Error message: " + err.Error())
+	}
 
 	setup.GRPCServer(db)
 }
@@ -29,4 +33,3 @@ func SetupEnvVariables() {
 	os.Setenv("DB_USER", "postgres")
 	os.Setenv("DB_PW", "root")
 }
-

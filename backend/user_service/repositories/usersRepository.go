@@ -8,6 +8,7 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/user_service/model"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
+	"github.com/david-drvar/xws2021-nistagram/user_service/saga"
 	"github.com/david-drvar/xws2021-nistagram/user_service/util"
 	"github.com/david-drvar/xws2021-nistagram/user_service/util/encryption"
 	"github.com/david-drvar/xws2021-nistagram/user_service/util/images"
@@ -41,15 +42,16 @@ type UserRepository interface {
 type userRepository struct {
 	DB                *gorm.DB
 	privacyRepository PrivacyRepository
+	redisServer       saga.RedisServer
 }
 
-func NewUserRepo(db *gorm.DB) (*userRepository, error) {
+func NewUserRepo(db *gorm.DB, redisServer *saga.RedisServer) (*userRepository, error) {
 	if db == nil {
 		panic("UserRepository not created, gorm.DB is nil")
 	}
 	privacyRepository, _ := NewPrivacyRepo(db)
 
-	return &userRepository{DB: db, privacyRepository: privacyRepository}, nil
+	return &userRepository{DB: db, privacyRepository: privacyRepository, redisServer: *redisServer}, nil
 }
 
 func (repository *userRepository) UpdateUserPassword(ctx context.Context, password domain.Password) (bool, error) {
@@ -323,6 +325,10 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 
 	var userReturn *domain.User
 	userReturn = userReturn.GenerateUserDTO(*user, *userAdditionalInfo)
+
+	//todo SAGA
+	m := saga.Message{Service: saga.ServiceRecommendation, SenderService: saga.ServiceUser, Action: saga.ActionStart, UserId: user.Id}
+	repository.redisServer.Orchestrator.Next(saga.RecommendationChannel, saga.ServiceRecommendation, m)
 
 	return userReturn, nil
 }
