@@ -7,6 +7,7 @@ import { ReactComponent as Bookmark } from "../../images/icons/bookmark.svg";
 import { ReactComponent as StoryArchive } from "../../images/icons/story-archive.svg";
 import { ReactComponent as Plus } from "../../images/icons/plus.svg";
 import { ReactComponent as Explore } from "../../images/icons/more.svg";
+import { ReactComponent as Complaint } from "../../images/icons/complaint.svg";
 import { ReactComponent as VerificationSymbol } from "../../images/icons/verification-symbol.svg";
 
 import ProfileIcon from "../ProfileComponent/ProfileIcon";
@@ -128,6 +129,7 @@ function Menu() {
             {store.user.role !== 'Admin' && store.user.jwt !== "" && (
                 <NavLink to={{pathname: "/info"}}> <Explore className="icon"/> </NavLink>)}
 
+
             {store.user.jwt !== "" && store.user.role === 'Admin' &&  (
                 <Dropdown>
                     <Dropdown.Toggle variant="link" id="dropdown-basic">
@@ -141,6 +143,8 @@ function Menu() {
                 </Dropdown>
             )}
 
+            {store.user.jwt !== "" && store.user.role === 'Admin' &&  (
+                <NavLink to={{pathname: "/complaints"}}> <Complaint className="icon"/>  </NavLink>)}
 
             {store.user.jwt !== "" && (
                 <Dropdown>

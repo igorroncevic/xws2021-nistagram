@@ -32,6 +32,7 @@ import AuthenticatedRoute from './AuthenticatedRoute';
 import AdminRoute from './AdminRoute';
 import AgentReg from "./components/AdminComponents/AgentReg";
 import AgentCheck from "./components/AdminComponents/AgentCheck";
+import ComplaintPreview from "./components/AdminComponents/ComplaintPreview";
 
 const App = () => {
     return (
@@ -67,6 +68,7 @@ const App = () => {
                 <AuthenticatedRoute path='/edit_photo' exact component={EditProfileImage} />
                 <AuthenticatedRoute path='/agent_registration' exact component={AgentReg} />
                 <AuthenticatedRoute path='/agent_check' exact component={AgentCheck} />
+                <AuthenticatedRoute path='/complaints' exact component={ComplaintPreview} />
             </Router>
         </div>
     );
