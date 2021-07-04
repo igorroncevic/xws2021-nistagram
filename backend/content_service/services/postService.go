@@ -131,9 +131,7 @@ func (service *PostService) CreatePost(ctx context.Context, post *domain.Post) e
 		return errors.New("Could not create notification")
 	}
 	for _, u := range users.Users {
-		if u.UserId == post.UserId {
 			grpc_common.CreateNotification(ctx, u.UserId, post.UserId, "Post", post.Id)
-		}
 	}
 	return nil
 }
@@ -205,6 +203,9 @@ func (service *PostService) GetPostById(ctx context.Context, id string) (domain.
 			dislikes = append(dislikes, dislike.ConvertToDomain(username))
 		}
 	}
+
+	hashtags, err := service.hashtagRepository.GetPostHashtags(ctx, dbPost.Id)
+	if err != nil { return domain.Post{}, err }
 
 	dbMedia, err := service.mediaRepository.GetMediaForPost(ctx, dbPost.Id)
 	if err != nil {

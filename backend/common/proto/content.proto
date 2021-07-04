@@ -346,6 +346,7 @@ message Story {
   google.protobuf.Timestamp createdAt = 7;
   repeated Media media = 8;
   bool isCloseFriends = 9;
+  repeated Hashtag hashtags = 10;
 }
 
 message StoriesArray {

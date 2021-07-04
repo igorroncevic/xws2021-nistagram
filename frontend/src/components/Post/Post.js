@@ -82,7 +82,7 @@ function Post (props) {
     }, [newComment])
 
     useEffect(() => {
-        if(store.user.jwt !== "") getUserCollections()
+        if(store.user.jwt !== "" && store.user.role !== "Admin") getUserCollections()
     }, [showSaveModal])
 
     const getUserCollections = () => {
@@ -96,6 +96,7 @@ function Post (props) {
                 name: "Unclassified",
                 posts: [...response.data.unclassified],
             }];
+            console.log(newCollections)
             setCollections(newCollections)
 
             // Check in which collection the post has been saved

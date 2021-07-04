@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Modal } from "react-bootstrap";
 import { useParams } from 'react-router-dom'
+import { ReactComponent as VerificationSymbol } from "../../images/icons/verification-symbol.svg";
 
 import FollowAndUnfollow from "./FollowAndUnfollow";
 import Navigation from "../HomePage/Navigation";
@@ -48,11 +49,6 @@ const Profile = () => {
         isStoryNotificationEnabled: false,
         isCommentNotificationEnabled: false
     })
-
-    const [isMessageNotificationEnabled, setMessageNotifications] = useState(false);
-    const [isPostNotificationEnabled, setPostNotifications] = useState(false);
-    const [isStoryNotificationEnabled, setStoryNotifications] = useState(false);
-    const [isCommentNotificationEnabled, setCommentNotifications] = useState(false);
 
     const [posts, setPosts] = useState([]);
     const [stories, setStories] = useState([]);
@@ -118,6 +114,8 @@ const Profile = () => {
             jwt: store.user.jwt,
             userId: userId
         })
+
+        console.log(response);
 
         if (response.status === 200) {
             setHighlights([...response.data.highlights])
@@ -241,7 +239,8 @@ const Profile = () => {
                         }
                         <div className="info">
                             <div className="fullname">
-                                {user.firstName} {user.lastName}
+                                {user.firstName} {user.lastName} 
+                                {user.role === "Verified" && <span><VerificationSymbol style={{width: "20px", height: "20px", marginLeft: "10px", display: "inline-block"}} fill="#0095f6" /></span>}
                                 {follow && <span className="blockMute">
                                     <BlockMuteAndNotifications 
                                         isApprovedRequest={isApprovedRequest} isMuted={isMuted} notifications={notifications} />
@@ -266,7 +265,7 @@ const Profile = () => {
                         {user.biography && <div>{user.biography}</div>}
                         {user.website &&
                         <a className="website" target="_blank" rel="noreferrer"
-                           href={user.website.includes('http://') ? user.website : 'http://' + user.website}>
+                           href={user.website.includes('https://') ? user.website : `https://${user.website}`}>
                             {user.website}
                         </a>}
                         {follow &&
@@ -279,9 +278,9 @@ const Profile = () => {
                 </div>
 
                 <div className="content">
-                    {!follow || // Moj profil 
+                    {(!follow || // Moj profil 
                     (follow && publicProfile) || // Tudji javan 
-                    (follow && !publicProfile && isApprovedRequest) && // Tudji privatan koji ja pratim
+                    (follow && !publicProfile && isApprovedRequest)) && // Tudji privatan koji ja pratim
                     (<div className="highlights">
                         {loadingHighlights ?
                             <div style={{position: "relative", left: "45%", marginTop: "50px"}}>
@@ -295,10 +294,9 @@ const Profile = () => {
                     </div>)
                     }
 
-                    {
-                        (!follow || // Moj profil
-                            (follow && publicProfile) || // Tudji javan
-                            (follow && !publicProfile && isApprovedRequest)) && // Tudji privatan koji ja pratim
+                    {(!follow || // Moj profil
+                    (follow && publicProfile) || // Tudji javan
+                    (follow && !publicProfile && isApprovedRequest)) && // Tudji privatan koji ja pratim
                         <div className="posts">
                             {loadingPosts ?
                                 <div style={{position: "relative", left: "45%", marginTop: "50px"}}>

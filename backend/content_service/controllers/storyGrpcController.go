@@ -142,27 +142,26 @@ func (c *StoryGrpcController) GetAllStories(ctx context.Context, in *protopb.Emp
 					break
 				}
 			}
-			if !found {
-				nonCloseFriends = append(nonCloseFriends, userId)
-			}
+			// My stories will be counter as closefriends+nonclosefriends in the loop below
+			if !found && userId != claims.UserId { nonCloseFriends = append(nonCloseFriends, userId) }
+		}
 
-			nonCloseFriendsStories, err := c.service.GetAllHomeStories(ctx, nonCloseFriends, false)
+		nonCloseFriendsStories, err := c.service.GetAllHomeStories(ctx, nonCloseFriends, false)
+		if err != nil {
+			return &protopb.StoriesHome{}, status.Errorf(codes.Unknown, err.Error())
+		}
+
+		allStories.Stories = nonCloseFriendsStories.Stories
+
+		closeFriends = append(closeFriends, claims.UserId) // Get my close friends stories too
+
+		if len(closeFriends) > 0 {
+			closeFriendsStories, err := c.service.GetAllHomeStories(ctx, closeFriends, true)
 			if err != nil {
 				return &protopb.StoriesHome{}, status.Errorf(codes.Unknown, err.Error())
 			}
-
-			allStories.Stories = nonCloseFriendsStories.Stories
-
-			closeFriends = append(closeFriends, claims.UserId) // Get my close friends stories too
-
-			if len(closeFriends) > 0 {
-				closeFriendsStories, err := c.service.GetAllHomeStories(ctx, closeFriends, true)
-				if err != nil {
-					return &protopb.StoriesHome{}, status.Errorf(codes.Unknown, err.Error())
-				}
-				for _, storyHome := range closeFriendsStories.Stories {
-					allStories.Stories = append(allStories.Stories, storyHome)
-				}
+			for _, storyHome := range closeFriendsStories.Stories {
+				allStories.Stories = append(allStories.Stories, storyHome)
 			}
 		}
 	}
