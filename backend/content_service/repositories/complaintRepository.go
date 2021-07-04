@@ -15,6 +15,7 @@ type ComplaintRepository interface {
 	GetAllContentComplaints(context.Context) ([]domain.ContentComplaint, error)
 	DeleteByPostId (context.Context, string) error
 	RejectById (context.Context, string) error
+	DeleteComplaintByUserId( context.Context,  string) error
 }
 
 type complaintRepository struct {
@@ -30,6 +31,23 @@ func NewComplaintRepo(db *gorm.DB) (*complaintRepository, error) {
 		DB: db,
 	}, nil
 }
+
+func (repo *complaintRepository) DeleteComplaintByUserId(ctx context.Context,id string) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteComplaintByUserId")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	result := repo.DB.Where("user_id = ?", id).Delete(&persistence.ContentComplaint{})
+	if result.Error != nil {
+		return errors.New("Could not delete all user complaints!")
+	}else if result.RowsAffected == 0 {
+		return errors.New("Could not delete all user complaints!")
+
+	}
+	return nil
+
+}
+
 
 func (repository *complaintRepository) CreateContentComplaint(ctx context.Context, contentComplaint domain.ContentComplaint) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateContentComplaint")
