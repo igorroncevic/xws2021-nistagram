@@ -3,19 +3,22 @@ package services
 import (
 	"context"
 	"errors"
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/security"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/user_service/repositories"
+	"github.com/david-drvar/xws2021-nistagram/user_service/saga"
+
+	//"github.com/david-drvar/xws2021-nistagram/user_service/saga"
 	"github.com/david-drvar/xws2021-nistagram/user_service/util"
 	"github.com/david-drvar/xws2021-nistagram/user_service/util/encryption"
+	//"github.com/david-drvar/xws2021-nistagram/user_service/util/setup"
+
+	//"github.com/david-drvar/xws2021-nistagram/user_service/util/setup"
 	uuid "github.com/satori/go.uuid"
-	"google.golang.org/grpc"
 	"gorm.io/gorm"
-	"log"
 	"time"
 )
 
@@ -24,13 +27,12 @@ type UserService struct {
 	privacyRepository repositories.PrivacyRepository
 }
 
-func NewUserService(db *gorm.DB) (*UserService, error) {
-	userRepository, err := repositories.NewUserRepo(db)
+func NewUserService(db *gorm.DB, redis *saga.RedisServer) (*UserService, error) {
+	userRepository, err := repositories.NewUserRepo(db, redis)
 	privacyRepository, err := repositories.NewPrivacyRepo(db)
 
 	return &UserService{
-		userRepository,
-		privacyRepository,
+		userRepository, privacyRepository,
 	}, err
 }
 
@@ -113,25 +115,31 @@ func (service *UserService) CreateUserWithAdditionalInfo(ctx context.Context, us
 	}
 
 	//create user node in graph database
-	var conn *grpc.ClientConn
-	conn, err = grpc.Dial(":8095", grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("did not connect: %s", err)
-	}
-	defer conn.Close()
 
-	c := protopb.NewFollowersClient(conn)
+	//todo ovde pozivas SAGA-u
+	//todo popravi userId
+	//m := saga.Message{Service: saga.ServiceRecommendation, SenderService: saga.ServiceUser, Action: saga.ActionStart, UserId: user.Id}
+	//service.redisServer.Orchestrator.Next(saga.RecommendationChannel, saga.ServiceRecommendation, m)
 
-	createUserRequest := protopb.CreateUserRequestFollowers{
-		User: &protopb.UserFollowers{
-			UserId: user.Id,
-		},
-	}
-
-	_, err = c.CreateUser(context.Background(), &createUserRequest)
-	if err != nil {
-		log.Fatalf("could not create node user: %s", err)
-	}
+	//var conn *grpc.ClientConn
+	//conn, err = grpc.Dial(":8095", grpc.WithInsecure())
+	//if err != nil {
+	//	log.Fatalf("did not connect: %s", err)
+	//}
+	//defer conn.Close()
+	//
+	//c := protopb.NewFollowersClient(conn)
+	//
+	//createUserRequest := protopb.CreateUserRequestFollowers{
+	//	User: &protopb.UserFollowers{
+	//		UserId: user.Id,
+	//	},
+	//}
+	//
+	//_, err = c.CreateUser(context.Background(), &createUserRequest)
+	//if err != nil {
+	//	log.Fatalf("could not create node user: %s", err)
+	//}
 
 	return userResult, nil
 }

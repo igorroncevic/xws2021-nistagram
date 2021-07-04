@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
+	"github.com/david-drvar/xws2021-nistagram/user_service/saga"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"time"
@@ -19,13 +20,15 @@ type RegistrationRequestRepository interface {
 
 type registrationRequestRepository struct {
 	DB                *gorm.DB
+	redisServer       saga.RedisServer
+
 }
 
-func NewRegistrationRequestRepo(db *gorm.DB) (*registrationRequestRepository, error) {
+func NewRegistrationRequestRepo(db *gorm.DB, redisServer *saga.RedisServer) (*registrationRequestRepository, error) {
 	if db == nil {
 		panic("RegistrationRequestRepo not created, gorm.DB is nil")
 	}
-	return &registrationRequestRepository{DB: db}, nil
+	return &registrationRequestRepository{DB: db, redisServer: *redisServer}, nil
 }
 
 func (repo *registrationRequestRepository) 	CreateRegistrationRequest(ctx context.Context, userId  string) error{

@@ -88,10 +88,6 @@ function NewPost(props) {
             toastService.show("warning", "Please add media for post")
             return;
         }
-        let date = new Date();
-        let month = date.getMonth() + 1;
-        if (month < 10) month = "0" + month;
-        const jsonDate = date.getFullYear() + "-" + month + "-" + date.getDate() + "T01:30:15.01Z";
 
         const contentRequest = {
             id: "1",
@@ -100,7 +96,6 @@ function NewPost(props) {
             type: isStory ? "Story" : "Post",
             description: description,
             location: location,
-            createdAt: jsonDate,
             media: mediaList,
             hashtags: hashtagList,
             jwt: store.user.jwt

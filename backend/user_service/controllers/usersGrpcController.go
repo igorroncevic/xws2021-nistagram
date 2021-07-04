@@ -9,7 +9,9 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
+	"github.com/david-drvar/xws2021-nistagram/user_service/saga"
 	"github.com/david-drvar/xws2021-nistagram/user_service/services"
+	//"github.com/david-drvar/xws2021-nistagram/user_service/util/setup"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -22,12 +24,12 @@ type UserGrpcController struct {
 	logger     *logger.Logger
 }
 
-func NewUserController(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger) (*UserGrpcController, error) {
-	service, err := services.NewUserService(db)
+func NewUserController(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger, redis *saga.RedisServer) (*UserGrpcController, error) {
+	service, err := services.NewUserService(db, redis)
 	if err != nil {
 		return nil, err
 	}
-	requestService, err := services.NewRegistrationRequestService(db)
+	requestService, err := services.NewRegistrationRequestService(db,redis)
 
 	return &UserGrpcController{
 		service,
@@ -231,7 +233,7 @@ func (s *UserGrpcController) GetPhotoById(ctx context.Context, in *protopb.Reque
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	photo, err := s.service.GetUserPhoto(ctx, in.Id)
-	if err != nil{
+	if err != nil {
 		return &protopb.UserPhoto{}, err
 	}
 
@@ -270,7 +272,7 @@ func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginReq
 		return &protopb.LoginResponse{}, err
 	}
 
-	s.logger.ToStdoutAndFile("LoginUser", "Successful login by " + in.Email, logger.Info)
+	s.logger.ToStdoutAndFile("LoginUser", "Successful login by "+in.Email, logger.Info)
 
 	return &protopb.LoginResponse{
 		AccessToken: token,
@@ -278,7 +280,7 @@ func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginReq
 		Username:    user.Username,
 		Role:        user.Role.String(),
 		IsSSO:       false,
-		Photo:		 photo,
+		Photo:       photo,
 	}, nil
 }
 

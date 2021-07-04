@@ -6,6 +6,9 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/common/logger"
 	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
+	"github.com/david-drvar/xws2021-nistagram/user_service/saga"
+
+	//"github.com/david-drvar/xws2021-nistagram/user_service/util/setup"
 	otgo "github.com/opentracing/opentracing-go"
 	"gorm.io/gorm"
 	"io"
@@ -16,22 +19,23 @@ type Server struct {
 	protopb.UnimplementedPrivacyServer
 	userController         *UserGrpcController
 	privacyController      *PrivacyGrpcController
-	emailController   	   *EmailGrpcController
+	emailController        *EmailGrpcController
 	notificationController *NotificationGrpcController
 	registrationRequestController *RegistrationRequestController
 	tracer            otgo.Tracer
 	closer            io.Closer
 	verificationController *VerificationGrpcController
-
 }
 
-func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger) (*Server, error) {
-	newUserController, _ := NewUserController(db, jwtManager, logger)
-	newPrivacyController, _ := NewPrivacyController(db)
-	newEmailController, _ := NewEmailController(db)
-	notificationController, _ := NewNotificationController(db)
-	newVerificationController, _ := NewVerificationController(db, jwtManager, logger)
-	newRegistrationRequestController, _ := NewRegistrationRequestController(db, jwtManager, logger)
+
+func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger, redis *saga.RedisServer) (*Server, error) {
+	newUserController, _ := NewUserController(db, jwtManager, logger, redis)
+	newPrivacyController, _ := NewPrivacyController(db, redis)
+	newEmailController, _ := NewEmailController(db, redis)
+	notificationController, _ := NewNotificationController(db, redis)
+	newVerificationController, _ := NewVerificationController(db, jwtManager, logger, redis)
+	newRegistrationRequestController, _ := NewRegistrationRequestController(db,jwtManager, logger,  redis)
+
 
 	tracer, closer := tracer.Init("userService")
 	otgo.SetGlobalTracer(tracer)
@@ -193,7 +197,7 @@ func (s *Server) GetUserPrivacy(ctx context.Context, in *protopb.RequestIdPrivac
 	return s.privacyController.GetUserPrivacy(ctx, in)
 }
 
-func (s *Server) ReadAllNotifications(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.EmptyResponse,error) {
+func (s *Server) ReadAllNotifications(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.EmptyResponse, error) {
 	return s.notificationController.ReadAllNotifications(ctx, in)
 }
 
@@ -201,13 +205,14 @@ func (s *Server) DeleteByTypeAndCreator(ctx context.Context, in *protopb.Notific
 	return s.notificationController.DeleteByTypeAndCreator(ctx, in)
 }
 
-func (s *Server) GetByTypeAndCreator(ctx context.Context,in *protopb.Notification) (*protopb.Notification, error) {
+func (s *Server) GetByTypeAndCreator(ctx context.Context, in *protopb.Notification) (*protopb.Notification, error) {
 	return s.notificationController.GetByTypeAndCreator(ctx, in)
 }
 
 func (s *Server) UpdateNotification(ctx context.Context, in *protopb.Notification) (*protopb.EmptyResponse, error) {
 	return s.notificationController.UpdateNotification(ctx, in)
 }
+
 func (s *Server) CheckIsActive(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.BooleanResponseUsers, error) {
  	return s.userController.CheckIsActive(ctx, in)
 }
@@ -227,3 +232,4 @@ func (s *Server) GetAllPendingRequests(ctx context.Context, in *protopb.EmptyReq
 func (s *Server) UpdateRequest(ctx context.Context, in *protopb.RegistrationRequest) (*protopb.EmptyResponse, error) {
 	return s.registrationRequestController.UpdateRequest(ctx, in)
 }
+
