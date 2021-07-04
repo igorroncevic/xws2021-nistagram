@@ -18,6 +18,10 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UsersClient interface {
+	//registration requests!
+	CreateAgentUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*UsersDTO, error)
+	GetAllPendingRequests(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*ResponseRequests, error)
+	UpdateRequest(ctx context.Context, in *RegistrationRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	LoginUser(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*UsersDTO, error)
 	GetUserById(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*UsersDTO, error)
@@ -60,6 +64,33 @@ type usersClient struct {
 
 func NewUsersClient(cc grpc.ClientConnInterface) UsersClient {
 	return &usersClient{cc}
+}
+
+func (c *usersClient) CreateAgentUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*UsersDTO, error) {
+	out := new(UsersDTO)
+	err := c.cc.Invoke(ctx, "/proto.Users/CreateAgentUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) GetAllPendingRequests(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*ResponseRequests, error) {
+	out := new(ResponseRequests)
+	err := c.cc.Invoke(ctx, "/proto.Users/GetAllPendingRequests", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) UpdateRequest(ctx context.Context, in *RegistrationRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Users/UpdateRequest", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *usersClient) LoginUser(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
@@ -363,6 +394,10 @@ func (c *usersClient) GetAllVerificationRequests(ctx context.Context, in *EmptyR
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
 type UsersServer interface {
+	//registration requests!
+	CreateAgentUser(context.Context, *CreateUserRequest) (*UsersDTO, error)
+	GetAllPendingRequests(context.Context, *EmptyRequest) (*ResponseRequests, error)
+	UpdateRequest(context.Context, *RegistrationRequest) (*EmptyResponse, error)
 	LoginUser(context.Context, *LoginRequest) (*LoginResponse, error)
 	CreateUser(context.Context, *CreateUserRequest) (*UsersDTO, error)
 	GetUserById(context.Context, *RequestIdUsers) (*UsersDTO, error)
@@ -404,6 +439,15 @@ type UsersServer interface {
 type UnimplementedUsersServer struct {
 }
 
+func (UnimplementedUsersServer) CreateAgentUser(context.Context, *CreateUserRequest) (*UsersDTO, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateAgentUser not implemented")
+}
+func (UnimplementedUsersServer) GetAllPendingRequests(context.Context, *EmptyRequest) (*ResponseRequests, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllPendingRequests not implemented")
+}
+func (UnimplementedUsersServer) UpdateRequest(context.Context, *RegistrationRequest) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateRequest not implemented")
+}
 func (UnimplementedUsersServer) LoginUser(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginUser not implemented")
 }
@@ -514,6 +558,60 @@ type UnsafeUsersServer interface {
 
 func RegisterUsersServer(s grpc.ServiceRegistrar, srv UsersServer) {
 	s.RegisterService(&Users_ServiceDesc, srv)
+}
+
+func _Users_CreateAgentUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).CreateAgentUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/CreateAgentUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).CreateAgentUser(ctx, req.(*CreateUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_GetAllPendingRequests_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EmptyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).GetAllPendingRequests(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/GetAllPendingRequests",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).GetAllPendingRequests(ctx, req.(*EmptyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_UpdateRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegistrationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).UpdateRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/UpdateRequest",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).UpdateRequest(ctx, req.(*RegistrationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Users_LoginUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -1117,6 +1215,18 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.Users",
 	HandlerType: (*UsersServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateAgentUser",
+			Handler:    _Users_CreateAgentUser_Handler,
+		},
+		{
+			MethodName: "GetAllPendingRequests",
+			Handler:    _Users_GetAllPendingRequests_Handler,
+		},
+		{
+			MethodName: "UpdateRequest",
+			Handler:    _Users_UpdateRequest_Handler,
+		},
 		{
 			MethodName: "LoginUser",
 			Handler:    _Users_LoginUser_Handler,

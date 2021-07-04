@@ -223,6 +223,14 @@ func (repository *userRepository) LoginUser(ctx context.Context, request domain.
 		return persistence.User{}, result.Error
 	}
 
+	if dbUser.Role == "Agent" {
+		var request *persistence.RegistrationRequest
+		repository.DB.Where("user_id = ?", dbUser.Id).Find(&request)
+		if request.Status != "Accepted" {
+			return persistence.User{}, errors.New("Request is not Accepted!")
+		}
+	}
+
 	err := encryption.CompareHashAndPassword([]byte(dbUser.Password), []byte(request.Password))
 	if err != nil {
 		return persistence.User{}, errors.New("passwords do not match")

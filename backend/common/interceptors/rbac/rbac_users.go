@@ -25,6 +25,8 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			getPendingVerificationRequests, changeVerificationRequestStatus, getVerificationRequestsByUserId, getAllVerificationRequests,
 			updateUserPhoto, getUserNotifications, getBlockedUsers, deleteNotification,
 			updateNotification, getByTypeAndCreator, checkIsActive, changeUserActiveStatus,
+			createAgentUser,
+			getAllPendingRequests, updateRequest,
 		}
 		result = db.Create(&permissions)
 		if result.Error != nil {
@@ -64,6 +66,9 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			basicUpdateNotification, adminUpdateNotification, verifiedUpdateNotification, agentUpdateNotification, nonregisteredUpdateNotification,
 			basicCheckIsActive, adminCheckIsActive, verifiedCheckIsActive, agentCheckIsActive, nonregisteredCheckIsActive,
 			basicChangeUserActiveStatus, adminChangeUserActiveStatus, verifiedChangeUserActiveStatus, agentChangeUserActiveStatus, nonregisteredChangeUserActiveStatus,
+			adminCreateAgentUser, basicCreateAgentUser, verifiedCreateAgentUser, nonregisteredCreateAgentUser,
+			adminGetAllPendingRequests,
+			adminUpdateRequest,
 		}
 		result = db.Create(&rolePermissions)
 		if result.Error != nil {
@@ -123,6 +128,10 @@ var (
 	getByTypeAndCreator				= Permission{Id: "98660578-e608-42ca-b7ee-7d7a9732607b\n", Name : "GetByTypeAndCreator"}
 	checkIsActive					= Permission{Id: "419fa77e-dc3e-11eb-ba80-0242ac130004", Name : "CheckIsActive"}
 	changeUserActiveStatus			= Permission{Id: "ab876e7e-dc3e-11eb-ba80-0242ac130004", Name : "ChangeUserActiveStatus"}
+
+	getAllPendingRequests 			= Permission{Id: "85fa9d3e-dc52-11eb-ba80-0242ac130004", Name: "GetAllPendingRequests"}
+	createAgentUser 				= Permission{Id: "4f8f5246-dc4b-11eb-ba80-0242ac130004", Name : "CreateAgentUser"}
+	updateRequest 					= Permission{Id : "e18e7370-dca0-11eb-ba80-0242ac130004", Name : "UpdateRequest"}
 	)
 
 var (
@@ -292,4 +301,12 @@ var (
 	verifiedChangeUserActiveStatus      = RolePermission{RoleId: verified.Id, PermissionId: changeUserActiveStatus.Id}
 	nonregisteredChangeUserActiveStatus = RolePermission{RoleId: nonregistered.Id, PermissionId: changeUserActiveStatus.Id}
 	agentChangeUserActiveStatus         = RolePermission{RoleId: agent.Id, PermissionId: changeUserActiveStatus.Id}
-)
+
+	adminCreateAgentUser 				= RolePermission{RoleId: agent.Id, PermissionId: createAgentUser.Id}
+	basicCreateAgentUser 				= RolePermission{RoleId: basic.Id, PermissionId: createAgentUser.Id}
+	nonregisteredCreateAgentUser 				= RolePermission{RoleId: nonregistered.Id, PermissionId: createAgentUser.Id}
+	verifiedCreateAgentUser 				= RolePermission{RoleId: verified.Id, PermissionId: createAgentUser.Id}
+
+	adminGetAllPendingRequests 			= RolePermission{RoleId: admin.Id, PermissionId: getAllPendingRequests.Id}
+	adminUpdateRequest					= RolePermission{RoleId: admin.Id, PermissionId: updateRequest.Id}
+	)

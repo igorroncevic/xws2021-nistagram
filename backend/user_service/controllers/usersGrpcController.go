@@ -17,6 +17,7 @@ import (
 
 type UserGrpcController struct {
 	service    *services.UserService
+	requestService *services.RegistrationRequestService
 	jwtManager *common.JWTManager
 	logger     *logger.Logger
 }
@@ -26,12 +27,32 @@ func NewUserController(db *gorm.DB, jwtManager *common.JWTManager, logger *logge
 	if err != nil {
 		return nil, err
 	}
+	requestService, err := services.NewRegistrationRequestService(db)
 
 	return &UserGrpcController{
 		service,
+		requestService,
 		jwtManager,
 		logger,
 	}, nil
+}
+
+func (s *UserGrpcController) CreateAgentUser(ctx context.Context, in *protopb.CreateUserRequest) (*protopb.UsersDTO, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateAdminUser")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+	in.User.Role = "Agent"
+	user, err := s.CreateUser(ctx, in)
+	if err != nil {
+		return user, err
+	}
+
+	err = s.requestService.CreateRegistrationRequest(ctx, user.Id)
+	if err != nil {
+		return user, err
+	}
+	return user, nil
+
 }
 
 func (s *UserGrpcController) CreateUser(ctx context.Context, in *protopb.CreateUserRequest) (*protopb.UsersDTO, error) {
