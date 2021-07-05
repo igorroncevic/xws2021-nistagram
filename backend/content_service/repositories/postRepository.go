@@ -12,7 +12,7 @@ import (
 
 type PostRepository interface {
 	GetAllPosts(context.Context, []string) ([]persistence.Post, error)
-	CreatePost(context.Context, *domain.Post) error
+	CreatePost(context.Context, *domain.Post) (persistence.Post, error)
 	GetPostById(context.Context, string) (*persistence.Post, error)
 	RemovePost(context.Context, string, string) error
 	GetPostsByLocation(ctx context.Context, location string) ([]persistence.Post, error)
@@ -50,7 +50,7 @@ func (repository *postRepository) GetAllPosts(ctx context.Context, followings []
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	posts := []persistence.Post{}
-	result := repository.DB.Order("created_at desc").Where("user_id IN (?)", followings).Find(&posts)
+	result := repository.DB.Order("created_at desc").Where("is_ad = false AND user_id IN (?)", followings).Find(&posts)
 	if result.Error != nil {
 		return posts, result.Error
 	}
@@ -86,15 +86,14 @@ func (repository *postRepository) GetPostById(ctx context.Context, id string) (*
 	return post, nil
 }
 
-func (repository *postRepository) CreatePost(ctx context.Context, post *domain.Post) error {
+func (repository *postRepository) CreatePost(ctx context.Context, post *domain.Post) (persistence.Post, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreatePost")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	var postToSave persistence.Post
+	postToSave = postToSave.ConvertToPersistence(*post)
 	err := repository.DB.Transaction(func(tx *gorm.DB) error {
-		var postToSave persistence.Post
-		postToSave = postToSave.ConvertToPersistence(*post)
-
 		result := repository.DB.Create(&postToSave)
 		if result.Error != nil || result.RowsAffected != 1 {
 			return errors.New("cannot save post")
@@ -138,10 +137,8 @@ func (repository *postRepository) CreatePost(ctx context.Context, post *domain.P
 		return nil
 	})
 
-	if err != nil {
-		return err
-	}
-	return nil
+	if err != nil { return persistence.Post{}, err }
+	return postToSave, nil
 }
 
 func (repository *postRepository) RemovePost(ctx context.Context, postId string, userId string) error {
@@ -150,7 +147,8 @@ func (repository *postRepository) RemovePost(ctx context.Context, postId string,
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	err := repository.DB.Transaction(func(tx *gorm.DB) error {
-		post := &persistence.Post{Id: postId, UserId: userId}
+		post := &persistence.Post{ Id: postId }
+		if userId != "" { post.UserId = userId }	// Removing post from campaign/ad repo won't contain userId
 		result := repository.DB.First(&post)
 
 		if result.Error != nil || result.RowsAffected != 1 {
