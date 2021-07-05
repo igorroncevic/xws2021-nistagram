@@ -345,7 +345,7 @@ class UserService extends RootService {
         const {id, jwt} = data
         const headers = this.setupHeaders(jwt)
 
-        const response = this.apiClient.get('/get_influencers', {
+        const response = this.apiClient.get('/get-all-influencers', {
             headers: headers
         }).then(res => {
             return res

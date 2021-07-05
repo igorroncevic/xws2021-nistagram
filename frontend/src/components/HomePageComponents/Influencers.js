@@ -15,20 +15,20 @@ const Influencers = () => {
     const [influencers, setInfluencers] = useState([])
     const [renderInfluencers, setRenderInfluencers] = useState([])
     const store = useSelector(state => state);
-    const [privacy, setPrivacy] = useState(false)
-    const [isApprovedRequest, setIsApprovedRequest] = useState()
-    const [requestIsPending, setRequestIsPending] = useState()
 
     useEffect(() => {
         getInfluencers()
     }, []);
 
+
+
     async function getInfluencers() {
-        const response = await userService.getAllUsers({
+        const response = await userService.getInfluencers({
             //   id: store.user.id,
             jwt: store.user.jwt,
         })
         if (response.status === 200) {
+            console.log(response.data.users)
             setInfluencers(response.data.users)
             checkConnection(response.data.users)
         } else {
@@ -37,17 +37,15 @@ const Influencers = () => {
     }
 
      function checkConnection(users){
-        console.log(users)
-         //STAVI IF DA PROVERAVA SAMO Z APRIVATNE else odmah napuni u listu
         users.map((user, i) => {
-            if(privacy){
+            if(user.isProfilePublic==false){
                 GetFollowersConnection(user)
             }else{
-                let temp={username:'', firstname:'', isApprovedRequest:true,requestIsPending:true }
-                setRenderInfluencers([...renderInfluencers, temp])
+                let temp={username:user.username, firstname:user.firstname, lastname:user.lastname,profilePhoto:user.profilePhoto,isApprovedRequest:true,requestIsPending:false}
+                setRenderInfluencers(renderInfluencers=>[...renderInfluencers, temp])
+
             }
-            }
-        );
+        });
     }
 
     async function GetFollowersConnection(value) {
@@ -56,8 +54,8 @@ const Influencers = () => {
             followerId: value.id,
         })
         if (response.status === 200) {
-            let temp={username:'', firstname:'', isApprovedRequest:response.data.isApprovedRequest,requestIsPending:response.data.requestIsPending }
-            setRenderInfluencers([...renderInfluencers, temp])
+            let temp={username:value.username, firstname:value.firstname, lastname:value.lastname,profilePhoto:value.profilePhoto, isApprovedRequest:response.data.isApprovedRequest,requestIsPending:response.data.requestIsPending }
+            setRenderInfluencers(renderInfluencers=>[...renderInfluencers, temp])
         } else {
             console.log("followings ne radi")
         }
@@ -69,24 +67,24 @@ const Influencers = () => {
             <div style={{marginLeft: '20%', marginRight: '20%'}}>
                 <h3 style={{borderBottom: '1px solid black'}}>Influencers</h3>
                 <div style={{marginTop: '4%'}}>
-                    {influencers.map((user, i) =>
+                    {renderInfluencers.map((user, i) =>
                         <div style={{display: 'flex', borderBottom: '1px solid #dbe0de', marginTop: '5px'}}>
                             <ProfileForSug user={user} username={user.username} firstName={user.firstName}
-                                           lastName={user.lastName}
-                                           caption={user.biography} urlText="Follow" iconSize="big" captionSize="small"
+                                           lastName={user.lastName} urlText="Follow" iconSize="big" captionSize="small" caption="influencer"
                                            image={user.profilePhoto} storyBorder={true}/>
-                            {!privacy ?
+                            {(!user.isProfilePublic && !user.isApprovedRequest && ! user.requestIsPending) &&
                                 <div>
-                                    <p style={{
-                                        fontSize: '0.75em',
-                                        paddingLeft: '250px',
-                                        paddingBottom: '0.2em',
-                                        paddingTop: '1.5em',
-                                        color: 'red'
-                                    }}>
+                                    <p style={{fontSize: '0.75em', paddingLeft: '250px',paddingBottom: '0.2em', paddingTop: '1.5em', color: 'red'}}>
                                         This account is private. Follow for more info.</p>
                                 </div>
-                                :
+                            }
+                            { user.requestIsPending &&
+                                <div>
+                                    <p style={{fontSize: '0.75em', paddingLeft: '250px',paddingBottom: '0.2em', paddingTop: '1.5em', color: 'green'}}>
+                                        Follow request is pending</p>
+                                </div>
+                            }
+                            { (user.isProfilePublic || (!user.isProfilePublic && user.isApprovedRequest && !user.requestIsPending)) &&
                                 <div style={{paddingLeft: '250px'}}>
                                     <Button
                                         style={{marginLeft: '5px', marginTop: '22px', height: '32px', fontSize: '15px'}}
