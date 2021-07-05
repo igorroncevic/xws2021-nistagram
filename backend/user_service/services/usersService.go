@@ -385,7 +385,7 @@ func (service *UserService) CreateCampaignRequest(ctx context.Context, request *
 		return err
 	}
 
-	return grpc_common.CreateNotification(ctx, request.AgentId, request.InfluencerId, "Campaign", request.CampaignId)
+	return grpc_common.CreateNotification(ctx,  request.InfluencerId,request.AgentId, "Campaign", request.CampaignId)
 }
 
 func (service *UserService) GetAllInfluncers(ctx context.Context) ([]domain.InfluencerSearchResult, error) {

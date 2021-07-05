@@ -614,9 +614,9 @@ func (repository userRepository) CreateCampaignRequest(ctx context.Context, requ
 		return nil, errors.New("cannot create campaign")
 	}
 
-	if request.PostAt.Before(time.Now()) {
-		return nil, errors.New("cannot create campaign")
-	}
+	//if request.PostAt.Before(time.Now()) {
+	//	return nil, errors.New("cannot create campaign")
+	//}
 
 	request.Id = uuid.New().String()
 	db = repository.DB.Create(&request)

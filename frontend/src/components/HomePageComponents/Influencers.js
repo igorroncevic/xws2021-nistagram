@@ -1,20 +1,23 @@
-import ProfileInfo from "../UserData/ProfileInfo";
-import Spinner from "../../helpers/spinner";
-import PostPreviewGrid from "../Post/PostPreviewGrid";
 import React, {useEffect, useState} from "react";
 import Navigation from "../HomePage/Navigation";
-import Notification from "../Notifications/Notification";
 import userService from "../../services/user.service";
 import toastService from "../../services/toast.service";
 import {useSelector} from "react-redux";
 import ProfileForSug from "../HomePage/ProfileForSug";
-import {Button} from "react-bootstrap";
+import {Button, Dropdown, FormControl, Modal} from "react-bootstrap";
 import followersService from "../../services/followers.service";
+import {ReactComponent as Plus} from "../../images/icons/plus.svg";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const Influencers = () => {
     const [influencers, setInfluencers] = useState([])
     const [renderInfluencers, setRenderInfluencers] = useState([])
     const store = useSelector(state => state);
+    const [showModal, setShowModal] = useState(false);
+    const [dateTime, setDateTime] = useState(new Date());
+    const [startDate, setStartDate] = useState(new Date());
+    const [modalUser, setModalUser] = useState({});
 
     useEffect(() => {
         getInfluencers()
@@ -28,7 +31,6 @@ const Influencers = () => {
             jwt: store.user.jwt,
         })
         if (response.status === 200) {
-            console.log(response.data.users)
             setInfluencers(response.data.users)
             checkConnection(response.data.users)
         } else {
@@ -41,7 +43,8 @@ const Influencers = () => {
             if(user.isProfilePublic==false){
                 GetFollowersConnection(user)
             }else{
-                let temp={username:user.username, firstname:user.firstname, lastname:user.lastname,profilePhoto:user.profilePhoto,isApprovedRequest:true,requestIsPending:false}
+                console.log(user)
+                let temp={id:user.id,username:user.username, firstname:user.firstName, lastname:user.lastName,profilePhoto:user.profilePhoto,isApprovedRequest:true,requestIsPending:false}
                 setRenderInfluencers(renderInfluencers=>[...renderInfluencers, temp])
 
             }
@@ -54,10 +57,38 @@ const Influencers = () => {
             followerId: value.id,
         })
         if (response.status === 200) {
-            let temp={username:value.username, firstname:value.firstname, lastname:value.lastname,profilePhoto:value.profilePhoto, isApprovedRequest:response.data.isApprovedRequest,requestIsPending:response.data.requestIsPending }
+            let temp={id:value.id,username:value.username,firstname:value.firstName, lastname:value.lastName,profilePhoto:value.profilePhoto, isApprovedRequest:response.data.isApprovedRequest,requestIsPending:response.data.requestIsPending }
             setRenderInfluencers(renderInfluencers=>[...renderInfluencers, temp])
         } else {
             console.log("followings ne radi")
+        }
+    }
+
+    function handleModal(user) {
+        setModalUser(user)
+        setShowModal(!showModal)
+
+    }
+
+    function closeModal(user) {
+        setShowModal(!showModal)
+    }
+
+    async function createCampaignRequest(modalUser) {
+        console.log(modalUser)
+        const response = await userService.createCampaignRequest({
+            agentId: store.user.id,
+            influencerId:modalUser.id,
+            campaignId:'',
+            status:'Pending',
+            jwt: store.user.jwt,
+            //postAt
+        })
+        if (response.status === 200) {
+            toastService.show("success", "Successfully created!!");
+
+        } else {
+            toastService.show("error", "Something went wrong.Please try again!");
         }
     }
 
@@ -88,7 +119,8 @@ const Influencers = () => {
                                 <div style={{paddingLeft: '250px'}}>
                                     <Button
                                         style={{marginLeft: '5px', marginTop: '22px', height: '32px', fontSize: '15px'}}
-                                        variant="success">Hire for compaign </Button>
+                                        variant="success"  onClick={() => handleModal(user)}>Hire for compaign </Button>
+
                                 </div>
                             }
                         </div>
@@ -96,6 +128,68 @@ const Influencers = () => {
 
                 </div>
             </div>
+
+            <Modal show={showModal} onHide={closeModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Hire for campaign</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div>
+                        <div style={{borderBottom: '1px solid #dbe0de'}}>
+                            <h6>Influencers info:</h6>
+                            <tr>
+                                <td>Username:</td>
+                                <td ><p style={{marginLeft:'15px'}}>{modalUser.username}</p></td>
+                            </tr>
+
+                            <tr>
+                                <td>First name:</td>
+                                <td ><p style={{marginLeft:'15px'}}>{modalUser.firstname}</p></td>
+                            </tr>
+                            <tr>
+                                <td>Last name:</td>
+                                <td ><p style={{marginLeft:'15px'}}>{modalUser.lastname}</p></td>
+                            </tr>
+                        </div>
+                      <tr>
+                          <td>Campaign:</td>
+                          <Dropdown>
+                              <Dropdown.Toggle variant="link" id="dropdown-basic">
+                                  <Plus className="icon" style={{maxWidth:'20px', marginLeft:'20px'}}/>
+                              </Dropdown.Toggle>
+
+                              <Dropdown.Menu>
+                                  kampanja1
+                                  kampanja2
+                              </Dropdown.Menu>
+                          </Dropdown>
+                      </tr>
+                        <tr>
+                            <td>Date and time posted at:  </td>
+                            <DatePicker
+                                onChange={date => setDateTime(date)}
+
+                                selected={dateTime}
+                                onChange={date => setDateTime(date)}
+                                showTimeSelect
+                                timeFormat="HH:mm"
+                                timeIntervals={15}
+                                timeCaption="time"
+                                dateFormat="MMMM d, yyyy h:mm aa"
+                                startDate={startDate}
+                                minDate={startDate}
+                            />
+
+                        </tr>
+                        <tr>
+                            <Button
+                                style={{marginLeft: '5px', marginTop: '22px', height: '32px', fontSize: '15px'}}
+                                variant="success"  onClick={() => createCampaignRequest(modalUser)}>Create campaign request</Button>
+                        </tr>
+                    </div>
+
+                </Modal.Body>
+            </Modal>
         </div>
     );
 }

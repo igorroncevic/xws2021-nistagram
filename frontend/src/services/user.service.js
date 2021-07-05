@@ -354,6 +354,21 @@ class UserService extends RootService {
         })
         return response
     }
+    async createCampaignRequest(data) {
+        const {id,agentId,influencerId,campaignId,status, jwt} = data
+        const headers = this.setupHeaders(jwt)
+
+        const response = this.apiClient.post('/create-campaign',{
+            id,agentId,influencerId,campaignId,status,
+        }, {
+            headers: headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
 }
 
 const userService = new UserService()

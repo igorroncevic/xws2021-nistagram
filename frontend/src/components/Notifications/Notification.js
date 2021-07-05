@@ -16,6 +16,7 @@ function Notification(props) {
     const [user, setUser] = useState({});
     const [privateFollow, setPrivateFollow] = useState(false);
     const [contentType, setContentType] = useState(false);
+    const [campaignType, setCampaignType] = useState(false);
     const store = useSelector(state => state);
     const [hoursAgo, setHoursAgo] = useState(0)
     const [daysAgo, setDaysAgo] = useState(0);
@@ -48,6 +49,10 @@ function Notification(props) {
         }
         if (type === "Like" || type === "Dislike" || type === "Comment") {
             setContentType(true)
+        }
+
+        if(type==="Campaign"){
+            setCampaignType(true)
         }
     }
 
@@ -128,6 +133,15 @@ function Notification(props) {
         }
     }
 
+
+    async  function  acceptCampaignRequest(){
+
+    }
+
+    async  function  rejectCampaignRequest(){
+
+    }
+
     return (
         <div style={{display: "flex", marginLeft: '10%'}}>
             <ProfileForSug user={user} username={user.username} caption={user.biography} urlText="Follow" iconSize="big"
@@ -155,6 +169,17 @@ function Notification(props) {
                         onClick={() => handleReject()}>Reject</Button>
             </div>
             }
+            { campaignType &&
+            <div style={{display: "flex", marginLeft: '85px'}}>
+                <Button style={{height: '27px', fontSize: '12px'}} variant="success"
+                        onClick={() => acceptCampaignRequest()}>Accept</Button>
+                <Button style={{marginLeft: '5px', height: '27px', fontSize: '12px'}} variant="secondary"
+                        onClick={() => rejectCampaignRequest()}>Reject</Button>
+            </div>
+
+            }
+
+
             <PostPreviewModal
                 post={post}
                 postUser={{id: post.userId}}
