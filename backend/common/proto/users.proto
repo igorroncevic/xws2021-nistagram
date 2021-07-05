@@ -109,6 +109,12 @@ service Users {
     };
   }
 
+  rpc GetAllInfluncers (EmptyRequest) returns (InfluencerSearchResult) {
+    option(google.api.http) = {
+      get: "/api/users/get-all-influencers",
+    };
+  }
+
   rpc SendEmail (SendEmailDtoRequest) returns (EmptyResponse) {
     option(google.api.http) = {
       post: "/api/users/sendEmail"
@@ -336,6 +342,19 @@ message UsersDTO {
   string resetCode=15;
   bool approvedAccount=16;
   google.protobuf.Timestamp tokenEnd=17;
+}
+
+message InfluencerSearch {
+  string id = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string username = 4;
+  string profilePhoto = 5;
+  bool isProfilePublic = 6;
+}
+
+message InfluencerSearchResult {
+  repeated InfluencerSearch users = 1;
 }
 
 //TODO ne treba da vracamo usera vec usera bez sifre i sa biografijom i website-om
