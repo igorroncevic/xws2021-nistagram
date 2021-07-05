@@ -37,7 +37,7 @@ type UserRepository interface {
 	GetUserByUsername(username string) (domain.User, error)
 	GetUserPhoto(context.Context, string) (string, error)
 	CheckIsActive(context.Context, string) (bool, error)
-	ChangeUserActiveStatus(context.Context, string) (error)
+	ChangeUserActiveStatus(context.Context, string) error
 }
 
 type userRepository struct {

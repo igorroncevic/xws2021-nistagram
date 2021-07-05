@@ -424,6 +424,10 @@ message RegistrationRequest {
   string status = 9;
 }
 
+message ApiTokenResponse {
+  string token = 1;
+}
+
 message ResponseRequests {
  repeated RegistrationRequest registrationRequests = 1;
 }
