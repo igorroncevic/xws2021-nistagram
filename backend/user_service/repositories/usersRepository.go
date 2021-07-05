@@ -188,7 +188,6 @@ func (repository *userRepository) GetAllUsers(ctx context.Context) ([]domain.Use
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var users []persistence.User
-	var dbUserAdditionalInfo persistence.UserAdditionalInfo
 	var usersDomain []domain.User
 
 	result := repository.DB.Where("is_active = ?", true).Find(&users)
@@ -197,6 +196,7 @@ func (repository *userRepository) GetAllUsers(ctx context.Context) ([]domain.Use
 	}
 
 	for _, user := range users {
+		var dbUserAdditionalInfo persistence.UserAdditionalInfo
 		result = repository.DB.Where("id = ?", user.Id).Find(&dbUserAdditionalInfo)
 		if result.Error != nil {
 			return nil, result.Error
