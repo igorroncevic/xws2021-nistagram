@@ -12,7 +12,7 @@ import (
 type RegistrationRequestRepository interface {
 	CreateRegistrationRequest(context.Context, string) error
 	GetAllPendingRequests(context.Context) ([]persistence.RegistrationRequest, error)
-	UpdateRequest(context.Context, persistence.RegistrationRequest) error
+	UpdateRequest(context.Context, persistence.RegistrationRequest) (*persistence.RegistrationRequest,error)
 
 }
 
@@ -55,16 +55,17 @@ func (repo *registrationRequestRepository) GetAllPendingRequests(ctx context.Con
 	return requests, nil
 }
 
-func (repo *registrationRequestRepository) 	UpdateRequest(ctx context.Context, request persistence.RegistrationRequest) error{
+func (repo *registrationRequestRepository) 	UpdateRequest(ctx context.Context, request persistence.RegistrationRequest) (*persistence.RegistrationRequest, error){
 	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateRequest")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	result := repo.DB.Where("id = ?", request.Id).Updates(&persistence.RegistrationRequest{Status: request.Status})
 	if result.Error != nil {
-		return errors.New("Could not update request")
+		return nil, errors.New("Could not update request")
 	}else if result.RowsAffected != 0 {
-		return errors.New("Could not update request")
+		return nil, errors.New("Could not update request")
 	}
-	return nil
+	result = repo.DB.Where("id = ?", request.Id).Find(&request)
+	return &request, nil
 }

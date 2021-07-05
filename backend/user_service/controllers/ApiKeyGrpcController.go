@@ -51,4 +51,14 @@ func (controller *ApiTokenGrpcController) GetKeyByUserId(ctx context.Context, in
 
 }
 
+func (controller *ApiTokenGrpcController) ValidateKey(ctx context.Context, in *protopb.ApiTokenResponse) (*protopb.EmptyResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "ValidateKey")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	err := controller.service.ValidateKey(ctx, in.Token)
+	return &protopb.EmptyResponse{},err
+
+}
+
 

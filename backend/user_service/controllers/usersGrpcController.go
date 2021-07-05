@@ -28,7 +28,6 @@ func NewUserController(db *gorm.DB, jwtManager *common.JWTManager, logger *logge
 		return nil, err
 	}
 	requestService, err := services.NewRegistrationRequestService(db)
-
 	return &UserGrpcController{
 		service,
 		requestService,
@@ -51,6 +50,7 @@ func (s *UserGrpcController) CreateAgentUser(ctx context.Context, in *protopb.Cr
 	if err != nil {
 		return user, err
 	}
+
 	return user, nil
 
 }

@@ -46,3 +46,12 @@ func (s ApiKeyService) GetKeyByUserId(ctx context.Context, id string) (string, e
 
 	return s.repository.GetKeyByUserId(ctx, id)
 }
+
+func (s ApiKeyService) ValidateKey(ctx context.Context, token string) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "ValidateKey")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	_, err := s.jwtManager.ValidateJWT(token)
+	return err
+}
