@@ -33,6 +33,7 @@ import AdminRoute from './AdminRoute';
 import AgentReg from "./components/AdminComponents/AgentReg";
 import AgentCheck from "./components/AdminComponents/AgentCheck";
 import ComplaintPreview from "./components/AdminComponents/ComplaintPreview";
+import Influencers from "./components/HomePageComponents/Influencers";
 
 const App = () => {
     return (
@@ -69,6 +70,7 @@ const App = () => {
                 <AuthenticatedRoute path='/agent_registration' exact component={AgentReg} />
                 <AuthenticatedRoute path='/agent_check' exact component={AgentCheck} />
                 <AuthenticatedRoute path='/complaints' exact component={ComplaintPreview} />
+                <AuthenticatedRoute path='/influencers' exact component={Influencers} />
             </Router>
         </div>
     );

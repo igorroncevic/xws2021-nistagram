@@ -8,6 +8,7 @@ import { ReactComponent as StoryArchive } from "../../images/icons/story-archive
 import { ReactComponent as Plus } from "../../images/icons/plus.svg";
 import { ReactComponent as Explore } from "../../images/icons/more.svg";
 import { ReactComponent as Complaint } from "../../images/icons/complaint.svg";
+import { ReactComponent as Star } from "../../images/icons/star.svg";
 import { ReactComponent as VerificationSymbol } from "../../images/icons/verification-symbol.svg";
 
 import ProfileIcon from "../ProfileComponent/ProfileIcon";
@@ -116,6 +117,8 @@ function Menu() {
             <NavLink to={{pathname: "/"}}>
                 <Home className="icon"/>
             </NavLink>
+            {store.user.role === 'Agent' && store.user.jwt !== "" && (
+                <NavLink to={{pathname: "/influencers"}}> <Star className="icon"/> </NavLink>)}
             {store.user.role !== 'Admin' && store.user.jwt !== "" && (
                 <NavLink to={{pathname: "/chats"}}> <Inbox className="icon"/> </NavLink>)}
             {store.user.role !== 'Admin' && store.user.jwt !== "" &&
