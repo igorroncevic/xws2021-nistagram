@@ -51,7 +51,7 @@ function Notification(props) {
             setContentType(true)
         }
 
-        if(type==="Campaign"){
+        if (type === "Campaign") {
             setCampaignType(true)
         }
     }
@@ -134,11 +134,11 @@ function Notification(props) {
     }
 
 
-    async  function  acceptCampaignRequest(){
+    async function acceptCampaignRequest() {
 
     }
 
-    async  function  rejectCampaignRequest(){
+    async function rejectCampaignRequest() {
 
     }
 
@@ -148,8 +148,8 @@ function Notification(props) {
                            captionSize="small" storyBorder={true}
                            firstName={user.firstName} lastName={user.lastName} image={user.profilePhoto}/>
             {contentType ?
-                <font face="Comic Sans MS" size="3" style={{marginRight: '5em', fontWeight: 'bold', color:'black'}}>
-                    <Button variant="link" style={{ color:'black' }} onClick={getPostById}>{text}</Button>
+                <font face="Comic Sans MS" size="3" style={{marginRight: '5em', fontWeight: 'bold', color: 'black'}}>
+                    <Button variant="link" style={{color: 'black'}} onClick={getPostById}>{text}</Button>
                 </font>
                 :
                 <font face="Comic Sans MS" size="3" style={{marginRight: '5em', fontWeight: 'bold'}}>{text}</font>
@@ -169,7 +169,7 @@ function Notification(props) {
                         onClick={() => handleReject()}>Reject</Button>
             </div>
             }
-            { campaignType &&
+            {campaignType &&
             <div style={{display: "flex", marginLeft: '85px'}}>
                 <Button style={{height: '27px', fontSize: '12px'}} variant="success"
                         onClick={() => acceptCampaignRequest()}>Accept</Button>

@@ -81,8 +81,8 @@ const Influencers = () => {
             influencerId:modalUser.id,
             campaignId:'',
             status:'Pending',
+            postAt:dateTime,
             jwt: store.user.jwt,
-            //postAt
         })
         if (response.status === 200) {
             toastService.show("success", "Successfully created!!");

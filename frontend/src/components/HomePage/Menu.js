@@ -98,6 +98,12 @@ function Menu() {
             case 'agent-check' :
                 history.push({pathname: '/agent_check'})
                 break;
+                case 'influencers' :
+                history.push({pathname: '/influencers'})
+                break;
+                case 'campaign-requests' :
+                history.push({pathname: '/campaign-requests'})
+                break;
             default:
                 return;
         }
@@ -117,8 +123,20 @@ function Menu() {
             <NavLink to={{pathname: "/"}}>
                 <Home className="icon"/>
             </NavLink>
+
             {store.user.role === 'Agent' && store.user.jwt !== "" && (
-                <NavLink to={{pathname: "/influencers"}}> <Star className="icon"/> </NavLink>)}
+                <Dropdown>
+                    <Dropdown.Toggle variant="link" id="dropdown-basic">
+                        <Star className="icon"/>
+                    </Dropdown.Toggle>
+
+                    <Dropdown.Menu>
+                        { <Dropdown.Item onClick={() => agentRedirect('influencers')}>Influencers</Dropdown.Item>}
+                        { <Dropdown.Item onClick={() => agentRedirect('campaign-requests')}>Campaign requests</Dropdown.Item>}
+                    </Dropdown.Menu>
+                </Dropdown>
+
+            ) }
             {store.user.role !== 'Admin' && store.user.jwt !== "" && (
                 <NavLink to={{pathname: "/chats"}}> <Inbox className="icon"/> </NavLink>)}
             {store.user.role !== 'Admin' && store.user.jwt !== "" &&
@@ -152,7 +170,7 @@ function Menu() {
             {store.user.jwt !== "" && store.user.role === 'Admin' &&  (
                 <NavLink style={{ maxWidth: '35px'}} to={{pathname: "/complaints"}}> <Complaint className="icon"/>  </NavLink>)}
 
-            {store.user.jwt !== "" && (
+            {store.user.jwt !== "" && store.user.role!="Agent" &&(
                 <Dropdown>
                 <Dropdown.Toggle variant="link" id="dropdown-basic">
                 <VerificationSymbol className="icon"/>
