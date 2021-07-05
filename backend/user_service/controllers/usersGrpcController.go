@@ -498,3 +498,38 @@ func (s *UserGrpcController) GetAllInfluncers(ctx context.Context, in *protopb.E
 
 	return &finalResponse, nil
 }
+
+func (s *UserGrpcController) UpdateCampaignRequest(ctx context.Context, in *protopb.CampaignRequest) (*protopb.EmptyResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateCampaignRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var campaignRequest *persistence.CampaignRequest
+	campaignRequest = campaignRequest.ConvertFromGrpc(in)
+
+	err := s.service.UpdateCampaignRequest(ctx, campaignRequest)
+
+	if err != nil {
+		return &protopb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Bad request")
+	}
+	return &protopb.EmptyResponse{}, nil
+}
+
+func (s *UserGrpcController) GetCampaignRequestsByAgent(ctx context.Context, in *protopb.CampaignRequest) (*protopb.CampaignRequestArray, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetCampaignRequestsByAgent")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	requests, err := s.service.GetCampaignRequestsByAgent(ctx, in.AgentId)
+	if err != nil {
+		return &protopb.CampaignRequestArray{}, err
+	}
+
+	var requestList []*protopb.CampaignRequest
+	for _, request := range requests {
+		requestList = append(requestList, request.ConvertToGrpc())
+	}
+
+	finalResponse := protopb.CampaignRequestArray{CampaignRequests: requestList}
+	return &finalResponse, nil
+}

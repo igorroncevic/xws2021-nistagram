@@ -41,6 +41,8 @@ type UserRepository interface {
 	ChangeUserActiveStatus(context.Context, string) error
 	CreateCampaignRequest(ctx context.Context, request *persistence.CampaignRequest) (*persistence.CampaignRequest, error)
 	GetAllInfluncers(ctx context.Context) ([]domain.User, error)
+	UpdateCampaignRequest(ctx context.Context, request *persistence.CampaignRequest) error
+	GetCampaignRequestsByAgent(ctx context.Context, agentId string) ([]persistence.CampaignRequest, error)
 }
 
 type userRepository struct {
@@ -622,4 +624,22 @@ func (repository userRepository) CreateCampaignRequest(ctx context.Context, requ
 	db = repository.DB.Create(&request)
 
 	return request, db.Error
+}
+
+func (repository userRepository) UpdateCampaignRequest(ctx context.Context, request *persistence.CampaignRequest) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateCampaignRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return repository.DB.Model(&request).Where("id = ?", request.Id).Updates(request).Error
+}
+
+func (repository userRepository) GetCampaignRequestsByAgent(ctx context.Context, agentId string) ([]persistence.CampaignRequest, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetCampaignRequestsByAgent")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var requests []persistence.CampaignRequest
+	result := repository.DB.Where("agent_id = ?", agentId).Find(requests)
+	return requests, result.Error
 }

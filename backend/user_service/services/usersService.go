@@ -385,7 +385,7 @@ func (service *UserService) CreateCampaignRequest(ctx context.Context, request *
 		return err
 	}
 
-	return grpc_common.CreateNotification(ctx,  request.InfluencerId,request.AgentId, "Campaign", request.CampaignId)
+	return grpc_common.CreateNotification(ctx, request.InfluencerId, request.AgentId, "Campaign", request.CampaignId)
 }
 
 func (service *UserService) GetAllInfluncers(ctx context.Context) ([]domain.InfluencerSearchResult, error) {
@@ -416,4 +416,20 @@ func (service *UserService) GetAllInfluncers(ctx context.Context) ([]domain.Infl
 	}
 
 	return finalUsers, nil
+}
+
+func (service *UserService) UpdateCampaignRequest(ctx context.Context, request *persistence.CampaignRequest) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateCampaignRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.userRepository.UpdateCampaignRequest(ctx, request)
+}
+
+func (service *UserService) GetCampaignRequestsByAgent(ctx context.Context, agentId string) ([]persistence.CampaignRequest, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetCampaignRequestsByAgent")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.userRepository.GetCampaignRequestsByAgent(ctx, agentId)
 }

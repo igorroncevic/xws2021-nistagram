@@ -264,7 +264,22 @@ service Users {
       body:"*"
     };
   }
+
+  rpc UpdateCampaignRequest (CampaignRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/update-campaign-request",
+      body:"*"
+    };
+  }
+
+  rpc GetCampaignRequestsByAgent (CampaignRequest) returns (CampaignRequestArray) {
+    option(google.api.http) = {
+      post: "/api/users/get-campaign-request-by-agent",
+      body:"*"
+    };
+  }
 }
+
 
 message  CampaignRequest {
   string id=1;
@@ -273,6 +288,10 @@ message  CampaignRequest {
   string campaignId=4;
   string status=5;
   google.protobuf.Timestamp postAt = 6;
+}
+
+message  CampaignRequestArray {
+  repeated CampaignRequest campaignRequests = 1;
 }
 
 message CreateNotificationRequest {
