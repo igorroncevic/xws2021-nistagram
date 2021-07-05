@@ -631,7 +631,14 @@ func (repository userRepository) UpdateCampaignRequest(ctx context.Context, requ
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	return repository.DB.Model(&request).Where("id = ?", request.Id).Updates(request).Error
+	var dbRequest persistence.CampaignRequest
+	db := repository.DB.Model(&request).Where("agent_id = ? AND influencer_id=? AND campaign_id=?", request.AgentId, request.InfluencerId, request.CampaignId).Find(&dbRequest)
+	if db.Error != nil {
+		return db.Error
+	}
+
+	dbRequest.Status = request.Status
+	return repository.DB.Model(&request).Where("id = ?", dbRequest.Id).Updates(dbRequest).Error
 }
 
 func (repository userRepository) GetCampaignRequestsByAgent(ctx context.Context, agentId string) ([]persistence.CampaignRequest, error) {
