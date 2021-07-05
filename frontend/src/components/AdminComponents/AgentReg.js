@@ -18,7 +18,6 @@ const AgentReg = (props) => {
     const [birthDateErr, setBirthDateErr] = useState("Enter birthdate");
     const [sex, setSex] = useState("");
     const [sexErr, setSexErr] = useState("Select sex");
-    const [biography, setBiography] = useState("");
     const [username, setUsername] = useState("");
     const [usernameErr, setUsernameErr] = useState("Enter username");
     const [phoneNumber, setPhoneNumber] = useState("");
@@ -31,11 +30,11 @@ const AgentReg = (props) => {
     const [passwordErr, setPasswordErr] = useState("Enter password");
     const [firstNameErr, setFirstNameErr] = useState("Enter first name");
     const [lastNameErr, setLastNameErr] = useState ("Enter last name");
+    const [websiteErr, setWebsiteErr]=useState("Enter your website")
     const [rePasswordErr, setRePasswordErr] = useState("Repeat password");
     const [submitted, setSubmitted] = useState(false);
     const [successfullyReg, setSuccessfullyReg] = useState(false);
     const [disabled, setDisabled] = useState(false);
-    const [errorMessage, setErrorMessage] = useState(false);
     const [blacklistedPasswords, setBlacklistedPasswords] = useState([]);
     const [website, setWebsite] = useState("");
     const [profilePhoto, setProfilePhoto] = useState("");
@@ -51,6 +50,7 @@ const AgentReg = (props) => {
         setEmailErr(isValidEmail(email) && email.length > 1 ? '' : 'Email is not valid!')
         setLastNameErr(checkNameAndSurname(lastName) ? '' : 'EnterLastName')
         setFirstNameErr(checkNameAndSurname(firstName) ? '' : 'EnterFirstName')
+        setWebsiteErr(checkWebsite(website) ? '' : 'Enter your website')
     }, [birthDate,sex,username,phoneNumber,rePassword,password,email,lastName,firstName])
 
     const handleInputChange = (event) => {
@@ -85,9 +85,6 @@ const AgentReg = (props) => {
                 break;
             case "username" :
                 setUsername(target.value);
-                break;
-            case "biography" :
-                setBiography(target.value);
                 break;
         }
         validationErrorMessage(event);
@@ -124,6 +121,9 @@ const AgentReg = (props) => {
             case 'birthDate':
                 setBirthDateErr( birthDate !== "" ? '' : 'Enter birthdate')
                 break;
+                case 'website':
+                setWebsiteErr( checkWebsite(website) ? '' : 'Enter your website')
+                break;
             default:
                 /*this.setState({
                     validForm: true
@@ -134,6 +134,9 @@ const AgentReg = (props) => {
 
     function isUsernameValid(value) {
         return /^[a-z0-9_.]+$/.test(value);
+    }
+    function checkWebsite(value) {
+        return/^((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)$/.test(value);
     }
 
     function isPhoneNumberValid(value) {
@@ -215,13 +218,11 @@ const AgentReg = (props) => {
             website: website,
         })
         if (response.status === 200) {
-            console.log(response.data)
-            setErrorMessage(false);
-            setSuccessfullyReg(true);
+            setSuccessfullyReg(true)
+            toastService.show("success", "Successfully registered!Please log-in.")
             setDisabled(!disabled);
         } else {
-            setErrorMessage(true);
-            console.log("NE RADI")
+            toastService.show("error", "E-mail address and username must be unique! Try again")
         }
     }
 
@@ -244,7 +245,7 @@ const AgentReg = (props) => {
             <div style={{marginTop:'5%',marginLeft:'20%', marginRight:'20%', marginBottom:'20%'}}>
                 <h3 style={{borderBottom:'1px solid black'}}>Agent Registration</h3>
                 <div className="row">
-                    <label className="col-sm-2 col-form-label">*Name</label>
+                    <label className="col-sm-2 col-form-label">Name</label>
                     <div className="col-sm-5 mb-2">
                         <input  disabled = {(disabled)? "disabled" : ""} type="text" value={firstName} name="firstName" onChange={(e) =>
                             handleInputChange(e) } className="form-control" placeholder="First Name"/>
@@ -259,7 +260,7 @@ const AgentReg = (props) => {
                     </div>
                 </div>
                 <div className="row" style={{marginTop: '1rem'}}>
-                    <label  className="col-sm-2 col-form-label">*Birth date</label>
+                    <label  className="col-sm-2 col-form-label">Birth date</label>
                     <div className="col-sm-6 mb-2">
                         <input  disabled = {(disabled)? "disabled" : ""} min="1900-01-02" max="2009-01-01"  type="date" value={birthDate} name="birthDate" onChange={(e) => handleInputChange(e) } className="form-control" id="birthDate" />
                         {submitted && birthDateErr.length > 0 && <span className="text-danger">{birthDateErr}</span>}
@@ -268,7 +269,7 @@ const AgentReg = (props) => {
                     </div>
                 </div>
                 <div className="row" style={{marginTop: '1rem'}}>
-                    <label  className="col-sm-2 col-form-label">*Sex</label>
+                    <label  className="col-sm-2 col-form-label">Sex</label>
                     <div className="col-sm-6 mb-2">
                         <select onChange={(e) => handleInputChange(e)} name={"sex"} value={sex}>
                             <option disabled={true} value="">Select sex</option>
@@ -282,7 +283,7 @@ const AgentReg = (props) => {
                     </div>
                 </div>
                 <div className="row" style={{marginTop: '1rem'}}>
-                    <label  className="col-sm-2 col-form-label">*Phone number</label>
+                    <label  className="col-sm-2 col-form-label">Phone number</label>
                     <div className="col-sm-6 mb-2">
                         <input  disabled = {(disabled)? "disabled" : ""}   type="text" value={phoneNumber} name="phoneNumber" onChange={(e) => handleInputChange(e) } className="form-control" id="phoneNumber" placeholder="+38160123456" />
                         {submitted && phoneNumberErr.length > 0 && <span className="text-danger">{phoneNumberErr}</span>}
@@ -295,14 +296,14 @@ const AgentReg = (props) => {
                     <label  className="col-sm-2 col-form-label">Website</label>
                     <div className="col-sm-6 mb-2">
                         <input  disabled = {(disabled)? "disabled" : ""}   type="text" value={website} name="website" onChange={(e) => handleInputChange(e) } className="form-control" id="website" placeholder="www.example.com" />
-                        {/*{submitted && website.length > 0 && <span className="text-danger">{phoneNumberErr}</span>}*/}
+                        {submitted && websiteErr.length > 0 && <span className="text-danger">{websiteErr}</span>}
 
                     </div>
                     <div className="col-sm-4">
                     </div>
                 </div>
                 <div className="row" style={{marginTop: '1rem'}}>
-                    <label  className="col-sm-2 col-form-label">*Username</label>
+                    <label  className="col-sm-2 col-form-label">Username</label>
                     <div className="col-sm-6 mb-2">
                         <input  disabled = {(disabled)? "disabled" : ""}   type="text" value={username} name="username" onChange={(e) => handleInputChange(e) } className="form-control" id="username" />
                         {submitted && usernameErr.length > 0 && <span className="text-danger">{usernameErr}</span>}
@@ -313,7 +314,7 @@ const AgentReg = (props) => {
                 </div>
 
                 <div className="row" style={{marginTop: '1rem'}}>
-                    <label  className="col-sm-2 col-form-label">*Email</label>
+                    <label  className="col-sm-2 col-form-label">Email</label>
                     <div className="col-sm-6 mb-2">
                         <input  disabled = {(disabled)? "disabled" : ""}   type="email" value={email} name="email" onChange={(e) => handleInputChange(e) } className="form-control" id="email" placeholder="example@gmail.com" />
                         {submitted && emailErr.length > 0 && <span className="text-danger">{emailErr}</span>}
@@ -323,7 +324,7 @@ const AgentReg = (props) => {
                     </div>
                 </div>
                 <div className="row" style={{marginTop: '1rem'}}>
-                    <label className="col-sm-2 col-form-label">*Password</label>
+                    <label className="col-sm-2 col-form-label">Password</label>
                     <div className="col-sm-6 mb-2">
                         <FormControl disabled = {(disabled)? "disabled" : ""}  name="password" type="password" placeholder="Password"  value={password} onChange={(e) => handleInputChange(e) }/>
                         {submitted && passwordErr.length > 0 &&  <span className="text-danger">{passwordErr}</span>}
@@ -334,7 +335,7 @@ const AgentReg = (props) => {
                 </div>
 
                 <div className="row" style={{marginTop: '1rem'}}>
-                    <label  className="col-sm-2 col-form-label">*Repeat password</label>
+                    <label  className="col-sm-2 col-form-label">Repeat password</label>
                     <div className="col-sm-6 mb-2">
                         <FormControl  disabled = {(disabled)? "disabled" : ""}  name="rePassword" type="password" placeholder="Repeat new Password" value={rePassword} onChange={(e) => handleInputChange(e) }/>
                         {submitted && rePasswordErr.length > 0 &&  <span className="text-danger">{rePasswordErr}</span>}
@@ -359,11 +360,7 @@ const AgentReg = (props) => {
                 </div>
 
                 {
-                    successfullyReg ?
-                        <Alert variant='success' show={true}  style={({textAlignVertical: "center", textAlign: "center"})}>
-                            Successfully registered please login.
-                        </Alert>
-                        :
+                    !successfullyReg &&
                         <div className="row" style={{marginTop: '1rem'}}>
                             <div className="col-sm-5 mb-2">
                             </div>
@@ -371,13 +368,6 @@ const AgentReg = (props) => {
                                 <Button variant="success" onClick={submitForm}>Confirm</Button>
                             </div>
                         </div>
-                }
-
-                {
-                    errorMessage &&
-                    <Alert variant='danger' show={true}  style={({textAlignVertical: "center", textAlign: "center"})}>
-                        The e-mail address must be unique! Please try again
-                    </Alert>
                 }
 
         </div>

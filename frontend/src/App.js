@@ -68,7 +68,7 @@ const App = () => {
                 <AuthenticatedRoute path='/password' exact component={ChangePassword} />
                 <AuthenticatedRoute path='/privacy' exact component={EditUserPrivacy} />
                 <AuthenticatedRoute path='/edit_photo' exact component={EditProfileImage} />
-                <AuthenticatedRoute path='/agent_registration' exact component={AgentReg} />
+                <Route path='/agent_registration' exact component={AgentReg} />
                 <AuthenticatedRoute path='/agent_check' exact component={AgentCheck} />
                 <AuthenticatedRoute path='/complaints' exact component={ComplaintPreview} />
                 <AuthenticatedRoute path='/influencers' exact component={Influencers} />

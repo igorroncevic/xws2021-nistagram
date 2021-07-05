@@ -57,7 +57,7 @@ function Notification(props) {
     }
 
     async function acceptRequest() {
-        const response = await followersService.acceptRequest({
+        const response = await userService.acceptRequest({
             userId: creatorId,
             followerId: userId,
             isApprovedRequest: true,
@@ -68,7 +68,6 @@ function Notification(props) {
         })
         if (response.status === 200) {
             toastService.show("success", "Successfully accepted!");
-            //deleteNotification()
             setPrivateFollow(false)
             props.getUserNotifications()
         } else {
@@ -135,11 +134,34 @@ function Notification(props) {
 
 
     async function acceptCampaignRequest() {
+        const response = await userService.updateCampaignRequest({
+            agentId:creatorId,
+            influencerId:userId,
+            campaignId:contentId,
+            status:"Accepted",
+            jwt: store.user.jwt,
+        })
+        if (response.status === 200) {
+            toastService.show("success", "Successfully accepted!");
 
+        } else {
+            toastService.show("error", "Something went wrong, please try again!");
+        }
     }
 
     async function rejectCampaignRequest() {
-
+        const response = await userService.updateCampaignRequest({
+            agentId:creatorId,
+            influencerId:userId,
+            campaignId:contentId,
+            status:"Rejected",
+            jwt: store.user.jwt,
+        })
+        if (response.status === 200) {
+            toastService.show("success", "Successfully rejected!");
+        } else {
+            toastService.show("error", "Something went wrong, please try again!");
+        }
     }
 
     return (

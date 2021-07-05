@@ -385,6 +385,27 @@ class UserService extends RootService {
         return response
     }
 
+    async updateCampaignRequest(data) {
+
+        const {agentId,influencerId,campaignId,status,jwt} = data
+        console.log(agentId)
+        console.log(influencerId)
+        console.log(campaignId)
+        console.log(status)
+        const headers = this.setupHeaders(jwt)
+
+        const response = this.apiClient.post('/update-campaign-request',{
+            agentId,influencerId,campaignId,status
+        }, {
+            headers: headers
+        }).then(res => {
+            return res
+        }).catch(err => {
+            return err
+        })
+        return response
+    }
+
 }
 
 const userService = new UserService()

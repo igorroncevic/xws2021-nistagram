@@ -15,10 +15,11 @@ import ProfileIcon from "../ProfileComponent/ProfileIcon";
 import { NavLink, useHistory } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Dropdown, Button } from "react-bootstrap";
+import {Dropdown, Button, Modal} from "react-bootstrap";
 import { userActions } from "../../store/actions/user.actions";
 
 import userService from "../../services/user.service";
+import RegistrationPage from "../../pages/RegistrationPage";
 
 function Menu() {
     const [username, setUsername] = useState('')
@@ -28,6 +29,7 @@ function Menu() {
     const store = useSelector(state => state);
     const history = useHistory();
     const dispatch = useDispatch();
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         store.user.jwt && getUsername();
@@ -68,9 +70,10 @@ function Menu() {
         }
     }
 */
-    function getUsername(){
+    function getUsername() {
         setUsername(store.user.username)
     }
+
     function verificationRedirect(text) {
         switch (text) {
             case 'submit-verification-request' :
@@ -98,10 +101,10 @@ function Menu() {
             case 'agent-check' :
                 history.push({pathname: '/agent_check'})
                 break;
-                case 'influencers' :
+            case 'influencers' :
                 history.push({pathname: '/influencers'})
                 break;
-                case 'campaign-requests' :
+            case 'campaign-requests' :
                 history.push({pathname: '/campaign-requests'})
                 break;
             default:
@@ -118,6 +121,14 @@ function Menu() {
         history.push({pathname: '/login'})
     }
 
+    function handleModal() {
+        setShowModal(!showModal)
+    }
+
+    function closeModal() {
+        setShowModal(!showModal)
+    }
+
     return (
         <div className="menu">
             <NavLink to={{pathname: "/"}}>
@@ -131,12 +142,13 @@ function Menu() {
                     </Dropdown.Toggle>
 
                     <Dropdown.Menu>
-                        { <Dropdown.Item onClick={() => agentRedirect('influencers')}>Influencers</Dropdown.Item>}
-                        { <Dropdown.Item onClick={() => agentRedirect('campaign-requests')}>Campaign requests</Dropdown.Item>}
+                        {<Dropdown.Item onClick={() => agentRedirect('influencers')}>Influencers</Dropdown.Item>}
+                        {<Dropdown.Item onClick={() => agentRedirect('campaign-requests')}>Campaign
+                            requests</Dropdown.Item>}
                     </Dropdown.Menu>
                 </Dropdown>
 
-            ) }
+            )}
             {store.user.role !== 'Admin' && store.user.jwt !== "" && (
                 <NavLink to={{pathname: "/chats"}}> <Inbox className="icon"/> </NavLink>)}
             {store.user.role !== 'Admin' && store.user.jwt !== "" &&
@@ -154,36 +166,49 @@ function Menu() {
                 <NavLink to={{pathname: "/info"}}> <Explore className="icon"/> </NavLink>)}
 
 
-            {store.user.jwt !== "" && store.user.role === 'Admin' &&  (
+            {store.user.jwt !== "" && store.user.role === 'Admin' && (
                 <Dropdown>
                     <Dropdown.Toggle variant="link" id="dropdown-basic">
                         <Plus className="icon"/>
                     </Dropdown.Toggle>
 
                     <Dropdown.Menu>
-                        {store.user.role === 'Admin' && <Dropdown.Item onClick={() => agentRedirect('agent-registration')}>Agent registration</Dropdown.Item>}
-                        {store.user.role === 'Admin' && <Dropdown.Item onClick={() => agentRedirect('agent-check')}>Agent registration requests</Dropdown.Item>}
+                        {store.user.role === 'Admin' &&
+                        <Dropdown.Item onClick={() => agentRedirect('agent-registration')}>Agent
+                            registration</Dropdown.Item>}
+                        {store.user.role === 'Admin' &&
+                        <Dropdown.Item onClick={() => agentRedirect('agent-check')}>Agent registration
+                            requests</Dropdown.Item>}
                     </Dropdown.Menu>
                 </Dropdown>
             )}
 
-            {store.user.jwt !== "" && store.user.role === 'Admin' &&  (
-                <NavLink style={{ maxWidth: '35px'}} to={{pathname: "/complaints"}}> <Complaint className="icon"/>  </NavLink>)}
+            {store.user.jwt !== "" && store.user.role === 'Admin' && (
+                <NavLink style={{maxWidth: '35px'}} to={{pathname: "/complaints"}}> <Complaint className="icon"/>
+                </NavLink>)}
 
-            {store.user.jwt !== "" && store.user.role!="Agent" &&(
+            {store.user.jwt !== "" && store.user.role != "Agent" && (
                 <Dropdown>
-                <Dropdown.Toggle variant="link" id="dropdown-basic">
-                <VerificationSymbol className="icon"/>
-                </Dropdown.Toggle>
+                    <Dropdown.Toggle variant="link" id="dropdown-basic">
+                        <VerificationSymbol className="icon"/>
+                    </Dropdown.Toggle>
 
-                <Dropdown.Menu>
-            {store.user.role !== 'Admin' && <Dropdown.Item onClick={() => verificationRedirect('submit-verification-request')}>Submit verification request</Dropdown.Item>}
-            {store.user.role !== 'Admin' && <Dropdown.Item onClick={() => verificationRedirect('view-my-verification-request')}>View my verification requests</Dropdown.Item>}
-            {store.user.role === 'Admin' && <Dropdown.Item onClick={() => verificationRedirect('view-pending-verification-request')}>View pending verification requests</Dropdown.Item>}
-            {store.user.role === 'Admin' && <Dropdown.Item onClick={() => verificationRedirect('view-all-verification-request')}>View all verification requests</Dropdown.Item>}
-                </Dropdown.Menu>
+                    <Dropdown.Menu>
+                        {store.user.role !== 'Admin' &&
+                        <Dropdown.Item onClick={() => verificationRedirect('submit-verification-request')}>Submit
+                            verification request</Dropdown.Item>}
+                        {store.user.role !== 'Admin' &&
+                        <Dropdown.Item onClick={() => verificationRedirect('view-my-verification-request')}>View my
+                            verification requests</Dropdown.Item>}
+                        {store.user.role === 'Admin' &&
+                        <Dropdown.Item onClick={() => verificationRedirect('view-pending-verification-request')}>View
+                            pending verification requests</Dropdown.Item>}
+                        {store.user.role === 'Admin' &&
+                        <Dropdown.Item onClick={() => verificationRedirect('view-all-verification-request')}>View all
+                            verification requests</Dropdown.Item>}
+                    </Dropdown.Menu>
                 </Dropdown>
-                )}
+            )}
 
             {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={"/profile/" + username}>
                     <ProfileIcon iconSize="medium"
@@ -193,10 +218,25 @@ function Menu() {
 
             {store.user.jwt !== "" ?
                 <Button variant="outline-danger" onClick={logout}
-                        style={{width: "220px", display: "block"}}>Logout</Button> :
-                <Button variant="primary" onClick={login}
-                        style={{width: "100px", marginLeft: "1em", display: "block"}}>Login</Button>
+                        style={{width: "200px", display: "block"}}>Logout</Button> :
+                <div style={{display: 'flex'}}>
+                    <Button variant="primary" onClick={login}style={{width: "100px", maxHeight:'45px',marginLeft: "1em", marginTop:'20px'}}>Login</Button>
+
+                    <div style={{display:'block', marginLeft:'15px', marginRight:'60px', width:'150px', marginTop:'10px'}}>
+                        <p><a style={{'color': '#6cddda', 'fontWeight': 'bold', padding:'1px'}} href='#' name="workHours" onClick={handleModal}>Register?</a></p>
+                        <p> <a  style={{'color': '#6cddda', 'fontWeight': 'bold'}}  href={'/agent_registration'} >Agent registration?</a></p>
+                     </div>
+                </div>
             }
+
+            <Modal show={showModal} onHide={closeModal} style={{'height': 650}}>
+                <Modal.Header closeButton style={{'background': 'silver'}}>
+                    <Modal.Title>Registration</Modal.Title>
+                </Modal.Header>
+                <Modal.Body style={{'background': 'silver'}}>
+                    <RegistrationPage/>
+                </Modal.Body>
+            </Modal>
 
         </div>
     );
