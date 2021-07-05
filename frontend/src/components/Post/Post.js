@@ -63,7 +63,7 @@ function Post (props) {
         }
         changeLikesText();
         changeDislikesText()
-        if(store.user.jwt !== "") getUserCollections()
+        if(store.user.jwt !== "" && store.user.role!="Admin") getUserCollections()
     }, [])
 
     useEffect(()=>{
