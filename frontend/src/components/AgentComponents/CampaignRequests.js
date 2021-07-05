@@ -6,20 +6,20 @@ import toastService from "../../services/toast.service";
 import {useSelector} from "react-redux";
 
 const CampaignRequests = () => {
-    const[requests,setRequests]=useState([{campaign:'',influencer:'idinfluenc',status:'Pending', postAt:'danas' }])
+    const[requests,setRequests]=useState([])
     const store = useSelector(state => state);
 
     useEffect(() => {
-       // getAllRequests()
+        getAllRequests()
     }, []);
 
     async function getAllRequests() {
         const response = await userService.getCampaignRequests({
+            agentId:store.user.id,
             jwt: store.user.jwt,
         })
         if (response.status === 200) {
-            toastService.show("success", "Prosao, pazi sta treba da setuje!");
-            setRequests(response.data)
+            setRequests(response.data.campaignRequests)
         } else {
             toastService.show("error", "Something went wrong.Please try again!");
         }

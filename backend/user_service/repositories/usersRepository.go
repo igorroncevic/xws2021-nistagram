@@ -640,6 +640,6 @@ func (repository userRepository) GetCampaignRequestsByAgent(ctx context.Context,
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var requests []persistence.CampaignRequest
-	result := repository.DB.Where("agent_id = ?", agentId).Find(requests)
+	result := repository.DB.Where("agent_id = ?", agentId).Find(&requests)
 	return requests, result.Error
 }
