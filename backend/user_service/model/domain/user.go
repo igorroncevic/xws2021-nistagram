@@ -78,3 +78,12 @@ type VerificationRequest struct {
 	FirstName     string
 	LastName      string
 }
+
+type CampaignRequest struct {
+	Id            string
+	AgentId        string
+	InfluencerId   string
+	CampaignId   string
+	Status        model.RequestStatus
+	PostAt     time.Time
+}

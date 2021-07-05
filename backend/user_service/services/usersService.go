@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
 	"github.com/david-drvar/xws2021-nistagram/common/security"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model"
@@ -373,3 +374,18 @@ func (service UserService) ChangeUserActiveStatus(ctx context.Context, id string
 	return service.userRepository.ChangeUserActiveStatus(ctx, id)
 
 }
+
+func (service *UserService) CreateCampaignRequest(ctx context.Context, request *persistence.CampaignRequest) (error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateCampaignRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+
+	request,err := service.userRepository.CreateCampaignRequest(ctx,request)
+	if err != nil {
+		return err
+	}
+
+	return grpc_common.CreateNotification(ctx, request.AgentId, request.InfluencerId,  "Campaign", request.CampaignId)
+}
+

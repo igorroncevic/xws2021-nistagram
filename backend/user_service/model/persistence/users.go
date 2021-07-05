@@ -132,6 +132,27 @@ type VerificationRequest struct {
 	CreatedAt     time.Time
 }
 
+
+type CampaignRequest struct {
+	Id            string `gorm:"primaryKey"`
+	AgentId        string
+	InfluencerId   string
+	CampaignId   string
+	Status        model.RequestStatus
+	PostAt     time.Time
+}
+
+func (campaignRequest *CampaignRequest) ConvertFromGrpc(n *protopb.CampaignRequest) *CampaignRequest {
+	return &CampaignRequest{
+		Id: n.Id,
+		AgentId: n.AgentId,
+		InfluencerId: n.InfluencerId,
+		CampaignId: n.CampaignId,
+		Status: model.RequestStatus(n.Status),
+		PostAt: n.PostAt.AsTime(),
+	}
+}
+
 type APIKeys struct {
 	UserId string `gorm:"primaryKey"`
 	APIKey string

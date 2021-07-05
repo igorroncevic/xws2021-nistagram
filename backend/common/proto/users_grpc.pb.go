@@ -56,6 +56,7 @@ type UsersClient interface {
 	ChangeVerificationRequestStatus(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GetVerificationRequestsByUserId(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*VerificationRequestsArray, error)
 	GetAllVerificationRequests(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*VerificationRequestsArray, error)
+	CreateCampaignRequest(ctx context.Context, in *CampaignRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 }
 
 type usersClient struct {
@@ -390,6 +391,15 @@ func (c *usersClient) GetAllVerificationRequests(ctx context.Context, in *EmptyR
 	return out, nil
 }
 
+func (c *usersClient) CreateCampaignRequest(ctx context.Context, in *CampaignRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Users/CreateCampaignRequest", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UsersServer is the server API for Users service.
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
@@ -432,6 +442,7 @@ type UsersServer interface {
 	ChangeVerificationRequestStatus(context.Context, *VerificationRequest) (*EmptyResponse, error)
 	GetVerificationRequestsByUserId(context.Context, *VerificationRequest) (*VerificationRequestsArray, error)
 	GetAllVerificationRequests(context.Context, *EmptyRequest) (*VerificationRequestsArray, error)
+	CreateCampaignRequest(context.Context, *CampaignRequest) (*EmptyResponse, error)
 	mustEmbedUnimplementedUsersServer()
 }
 
@@ -546,6 +557,9 @@ func (UnimplementedUsersServer) GetVerificationRequestsByUserId(context.Context,
 }
 func (UnimplementedUsersServer) GetAllVerificationRequests(context.Context, *EmptyRequest) (*VerificationRequestsArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllVerificationRequests not implemented")
+}
+func (UnimplementedUsersServer) CreateCampaignRequest(context.Context, *CampaignRequest) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateCampaignRequest not implemented")
 }
 func (UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}
 
@@ -1208,6 +1222,24 @@ func _Users_GetAllVerificationRequests_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_CreateCampaignRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CampaignRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).CreateCampaignRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/CreateCampaignRequest",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).CreateCampaignRequest(ctx, req.(*CampaignRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Users_ServiceDesc is the grpc.ServiceDesc for Users service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1358,6 +1390,10 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllVerificationRequests",
 			Handler:    _Users_GetAllVerificationRequests_Handler,
+		},
+		{
+			MethodName: "CreateCampaignRequest",
+			Handler:    _Users_CreateCampaignRequest_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -39,6 +39,7 @@ type UserRepository interface {
 	GetUserPhoto(context.Context, string) (string, error)
 	CheckIsActive(context.Context, string) (bool, error)
 	ChangeUserActiveStatus(context.Context, string) (error)
+	CreateCampaignRequest(ctx context.Context, request *persistence.CampaignRequest) (*persistence.CampaignRequest,error)
 }
 
 type userRepository struct {
@@ -577,6 +578,31 @@ func (repository userRepository) ChangeUserActiveStatus(ctx context.Context, id 
 
 	return nil
 
+}
+
+func (repository userRepository) CreateCampaignRequest(ctx context.Context, request *persistence.CampaignRequest) (*persistence.CampaignRequest,error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateCampaignRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var requests []persistence.CampaignRequest
+
+	db := repository.DB.Model(&request).Where("agent_id = ? AND influencer_id=? AND campaign_id=?",request.AgentId, request.InfluencerId, request.CampaignId).Find(&requests)
+
+	if db.Error != nil {
+		return  nil,db.Error
+	} else if db.RowsAffected != 0 {
+		return nil,errors.New("cannot create campaign")
+	}
+
+	if request.PostAt.Before(time.Now()){
+		return nil, errors.New("cannot create campaign")
+	}
+
+	request.Id=uuid.New().String()
+	db = repository.DB.Create(&request)
+
+	return request,db.Error
 }
 
 

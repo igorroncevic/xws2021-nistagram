@@ -461,3 +461,19 @@ func (s *UserGrpcController) ChangeUserActiveStatus(ctx context.Context, in *pro
 	_, err = grpc_common.DeleteComplaintByUserId(ctx, in.Id)
 	return &protopb.EmptyResponse{}, err
 }
+
+func (s *UserGrpcController) CreateCampaignRequest(ctx context.Context, in *protopb.CampaignRequest) (*protopb.EmptyResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateCampaignRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var campaignRequest *persistence.CampaignRequest
+	campaignRequest = campaignRequest.ConvertFromGrpc(in)
+
+	err := s.service.CreateCampaignRequest(ctx, campaignRequest)
+
+	if err != nil {
+		return &protopb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Bad request")
+	}
+	return &protopb.EmptyResponse{}, nil
+}
