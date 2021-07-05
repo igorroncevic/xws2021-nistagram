@@ -16,7 +16,7 @@ func main(){
 		panic("Cannot setup database tables. Error message: " + err.Error())
 	}
 
-	ServerSetup()
+	setup.ServerSetup()
 }
 
 func SetupEnvVariables() {

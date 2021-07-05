@@ -1,4 +1,4 @@
-package main
+package setup
 
 type message struct {
 	data []byte
