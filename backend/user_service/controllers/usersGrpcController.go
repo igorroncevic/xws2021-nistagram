@@ -53,6 +53,7 @@ func (s *UserGrpcController) CreateAgentUser(ctx context.Context, in *protopb.Cr
 	if err != nil {
 		return user, err
 	}
+
 	return user, nil
 
 }

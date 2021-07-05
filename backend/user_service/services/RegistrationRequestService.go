@@ -57,7 +57,7 @@ func (service *RegistrationRequestService) GetAllPendingRequests(ctx context.Con
 
 }
 
-func (service *RegistrationRequestService) UpdateRequest(ctx context.Context, request persistence.RegistrationRequest) error {
+func (service *RegistrationRequestService) UpdateRequest(ctx context.Context, request persistence.RegistrationRequest) (*persistence.RegistrationRequest, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateRequest")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)

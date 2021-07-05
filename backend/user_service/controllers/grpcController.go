@@ -22,6 +22,8 @@ type Server struct {
 	emailController               *EmailGrpcController
 	notificationController        *NotificationGrpcController
 	registrationRequestController *RegistrationRequestController
+	apiTokenController *ApiTokenGrpcController
+
 	tracer                        otgo.Tracer
 	closer                        io.Closer
 	verificationController        *VerificationGrpcController
@@ -35,6 +37,8 @@ func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger
 	newVerificationController, _ := NewVerificationController(db, jwtManager, logger, redis)
 	newRegistrationRequestController, _ := NewRegistrationRequestController(db, jwtManager, logger, redis)
 
+	newApiTokenController, _ := NewApiTokenGrpcController(db, jwtManager, logger)
+
 	tracer, closer := tracer.Init("userService")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
@@ -44,8 +48,10 @@ func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger
 		notificationController:        notificationController,
 		verificationController:        newVerificationController,
 		registrationRequestController: newRegistrationRequestController,
-		tracer:                        tracer,
-		closer:                        closer,
+
+		apiTokenController: newApiTokenController,
+		tracer:                 tracer,
+		closer:                 closer,
 	}, nil
 }
 

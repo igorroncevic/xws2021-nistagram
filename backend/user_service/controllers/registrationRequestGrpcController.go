@@ -15,6 +15,7 @@ import (
 
 type RegistrationRequestController struct {
 	service    *services.RegistrationRequestService
+	apiKeyService *services.ApiKeyService
 	jwtManager *common.JWTManager
 	logger     *logger.Logger
 }
@@ -24,9 +25,10 @@ func NewRegistrationRequestController(db *gorm.DB, jwtManager *common.JWTManager
 	if err != nil {
 		return nil, err
 	}
-
+	apiKeyService, err := services.NewApiTokenService(db)
 	return &RegistrationRequestController{
 		service,
+		apiKeyService,
 		jwtManager,
 		logger,
 	}, nil
@@ -38,9 +40,17 @@ func (controller *RegistrationRequestController) UpdateRequest(ctx context.Conte
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	request := persistence.RegistrationRequest{Id: in.Id, Status: model.RequestStatus(in.Status)}
-	err := controller.service.UpdateRequest(ctx, request)
-
-	return &protopb.EmptyResponse{}, err
+	result, err := controller.service.UpdateRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	if request.Status == "Accepted" {
+		_, err = controller.apiKeyService.GenerateApiToken(ctx, result.UserId)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &protopb.EmptyResponse{}, nil
 }
 
 func (controller *RegistrationRequestController) GetAllPendingRequests(ctx context.Context, in *protopb.EmptyRequest) (*protopb.ResponseRequests, error) {
