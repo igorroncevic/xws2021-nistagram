@@ -103,6 +103,7 @@ func (repository *campaignRepository) CreateCampaign(ctx context.Context, campai
 
 		for _, ad := range campaign.Ads{
 			ad.CampaignId = dbCampaign.Id
+			ad.Post.CreatedAt = dbCampaign.StartDate
 			err := repository.adRepository.CreateAd(ctx, ad)
 			if err != nil { return err }
 		}
@@ -120,8 +121,8 @@ func (repository *campaignRepository) UpdateCampaign(ctx context.Context, campai
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	yesterday := time.Now().Add(-campaignUpdateTimer)
-	if campaign.IsOneTime && campaign.StartDate.After(yesterday) {
+	tomorrow := time.Now().Add(campaignUpdateTimer)
+	if campaign.IsOneTime && campaign.StartDate.After(tomorrow) {
 		// Do not allow updates on OneTime Campaigns before they start
 		return errors.New("cannot update one time campaigns before they start")
 	}
@@ -141,11 +142,11 @@ func (repository *campaignRepository) UpdateCampaign(ctx context.Context, campai
 		if campaignChanges.CampaignId != "" {
 			// Creating update struct
 			willUpdate := false
-			if campaign.StartDate.Before(yesterday) {
+			if campaign.StartDate.After(tomorrow) {
 				checkedCampaignChanges.StartDate = campaign.StartDate
 				willUpdate = true
 			}
-			if campaign.EndDate.Before(yesterday) {
+			if campaign.EndDate.After(tomorrow) {
 				checkedCampaignChanges.EndDate = campaign.EndDate
 				willUpdate = true
 			}
@@ -169,8 +170,8 @@ func (repository *campaignRepository) UpdateCampaign(ctx context.Context, campai
 			}
 		}else{
 			// There is no existing CampaignChanges, create a new one
-			if campaign.StartDate.Before(yesterday) { checkedCampaignChanges.StartDate = campaign.StartDate }
-			if campaign.EndDate.Before(yesterday) { checkedCampaignChanges.EndDate = campaign.EndDate }
+			if campaign.StartDate.After(tomorrow) { checkedCampaignChanges.StartDate = campaign.StartDate }
+			if campaign.EndDate.After(tomorrow) { checkedCampaignChanges.EndDate = campaign.EndDate }
 			if campaign.Category.Id != "" { checkedCampaignChanges.AdCategoryId = campaign.Category.Id }
 			if campaign.IsOneTime && !campaign.StartDate.Equal(campaign.EndDate){
 				checkedCampaignChanges.EndDate = checkedCampaignChanges.StartDate
@@ -228,7 +229,7 @@ func (repository *campaignRepository) checkCampaignChanges(ctx context.Context, 
 	// If there have been any changes that are ready to be applied, apply them to main table
 	if campaignChanges.ValidFrom.Before(time.Now()){	// If the ValidFrom time has passed, apply changes
 		err := repository.DB.Transaction(func (tx *gorm.DB) error {
-			tomorrow := time.Now().Add(-campaignUpdateTimer)
+			tomorrow := time.Now().Add(campaignUpdateTimer)
 			updateChanges := persistence.Campaign{
 				Id:   		  campaignChanges.CampaignId,
 				AdCategoryId: campaignChanges.AdCategoryId,
@@ -241,8 +242,8 @@ func (repository *campaignRepository) checkCampaignChanges(ctx context.Context, 
 			if campaignChanges.AdCategoryId != "" { updateChanges.AdCategoryId = campaignChanges.AdCategoryId }
 
 			// Allow dates update up to 24hrs before campaign starts
-			if campaignChanges.StartDate.Before(tomorrow) { updateChanges.StartDate = campaignChanges.StartDate }
-			if campaignChanges.EndDate.Before(tomorrow){ updateChanges.EndDate = campaignChanges.EndDate }
+			if campaignChanges.StartDate.After(tomorrow) { updateChanges.StartDate = campaignChanges.StartDate }
+			if campaignChanges.EndDate.After(tomorrow){ updateChanges.EndDate = campaignChanges.EndDate }
 
 			// Update main table with new values
 			result = repository.DB.Model(&persistence.Campaign{}).Where("id = ?", campaignId).Updates(updateChanges)
@@ -251,6 +252,16 @@ func (repository *campaignRepository) checkCampaignChanges(ctx context.Context, 
 			// Set Applied to true and confirm that the update has been made
 			result = repository.DB.Model(&campaignChanges).Where("id = ?", campaignChanges.Id).Update("applied", true)
 			if result.Error != nil { return result.Error }
+
+			// Update post/story date as well
+			if campaignChanges.StartDate.After(tomorrow){
+				var campaign persistence.Campaign
+				result = repository.DB.Model(&campaign).Where("id = ?", campaignId).Find(&campaign)
+				if result.Error != nil { return result.Error }
+
+				err := repository.adRepository.UpdateCampaignAdDate(ctx, campaignId, campaign.Type, updateChanges.StartDate)
+				if err != nil { return err }
+			}
 
 			return nil
 		})

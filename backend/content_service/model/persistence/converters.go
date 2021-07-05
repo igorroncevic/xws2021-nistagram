@@ -47,19 +47,26 @@ func (p Post) ConvertToDomainReduced(commentsNum int, likesNum int, dislikesNum 
 }
 
 func (p Post) ConvertToPersistence(post domain.Post) Post {
-	return Post{
+	newPost := Post{
 		Id:          uuid.NewV4().String(),
 		UserId:      post.UserId,
 		IsAd:        post.IsAd,
 		Type:        post.Type,
 		Description: post.Description,
 		Location:    post.Location,
-		CreatedAt:   time.Now(),
 	}
+
+	if post.CreatedAt.Equal(time.Time{}) {
+		newPost.CreatedAt = time.Now()
+	}else{
+		newPost.CreatedAt = post.CreatedAt
+	}
+
+	return newPost
 }
 
 func (s Story) ConvertToPersistence(story domain.Story) Story {
-	return Story{
+	newStory := Story{
 		Post: Post {
 			Id:          uuid.NewV4().String(),
 			UserId:      story.UserId,
@@ -71,6 +78,14 @@ func (s Story) ConvertToPersistence(story domain.Story) Story {
 		},
 		IsCloseFriends: story.IsCloseFriends,
 	}
+
+	if story.CreatedAt.Equal(time.Time{}){
+		newStory.CreatedAt = time.Now()
+	}else{
+		newStory.CreatedAt = story.CreatedAt
+	}
+
+	return newStory
 }
 
 func (s Story) ConvertToDomain(media []domain.Media, hashtags []domain.Hashtag) domain.Story {

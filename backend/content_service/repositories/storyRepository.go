@@ -8,6 +8,7 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/content_service/util/images"
 	"gorm.io/gorm"
+	"time"
 )
 
 type StoryRepository interface {
@@ -18,6 +19,7 @@ type StoryRepository interface {
 	GetHighlightsStories(context.Context, string) ([]persistence.Story, error)
 	GetUsersStories(context.Context, string, bool) ([]persistence.Story, error)
 	GetMyStories(context.Context, string) ([]persistence.Story, error)
+	UpdateCreatedAt(context.Context, string, time.Time) error
 }
 
 type storyRepository struct {
@@ -241,4 +243,15 @@ func (repository *storyRepository) GetHighlightsStories (ctx context.Context, hi
 	}
 
 	return stories, nil
+}
+
+func (repository *storyRepository) UpdateCreatedAt(ctx context.Context, id string, createdAt time.Time) error{
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateCreatedAt")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	result := repository.DB.Model(&persistence.Story{}).Where("id = ?", id).Update("created_at", createdAt)
+	if result.Error != nil { return result.Error }
+
+	return nil
 }

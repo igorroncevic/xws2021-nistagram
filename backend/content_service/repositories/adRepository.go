@@ -2,12 +2,14 @@ package repositories
 
 import (
 	"context"
+	"errors"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
+	"time"
 )
 
 type AdRepository interface {
@@ -21,6 +23,8 @@ type AdRepository interface {
 	GetAdCategories(context.Context) ([]persistence.AdCategory, error)
 	CreateAdCategory(context.Context, domain.AdCategory) error
 	GetAdCategory(context.Context, string) (persistence.AdCategory, error)
+
+	UpdateCampaignAdDate(context.Context, string, string, time.Time) error
 }
 
 type adRepository struct {
@@ -186,4 +190,27 @@ func (repository *adRepository) GetAdCategory(ctx context.Context, id string) (p
 	if result.Error != nil { return category, result.Error }
 
 	return category, nil
+}
+
+func (repository *adRepository) UpdateCampaignAdDate(ctx context.Context, campaignId string, postType string, startDate time.Time) error{
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateAdDates")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	ads, err := repository.GetAdsFromCampaign(ctx, campaignId)
+	if err != nil { return err }
+
+	for _, ad := range ads{
+		if postType == model.TypePost.String(){
+			err := repository.postRepository.UpdateCreatedAt(ctx, ad.PostId, startDate)
+			if err != nil { return err }
+		}else if postType == model.TypeStory.String(){
+			err := repository.storyRepository.UpdateCreatedAt(ctx, ad.PostId, startDate)
+			if err != nil { return err }
+		}else{
+			return errors.New("unknown post type")
+		}
+	}
+
+	return nil
 }

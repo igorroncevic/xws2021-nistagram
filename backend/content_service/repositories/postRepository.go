@@ -8,6 +8,7 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/content_service/util/images"
 	"gorm.io/gorm"
+	"time"
 )
 
 type PostRepository interface {
@@ -18,6 +19,7 @@ type PostRepository interface {
 	GetPostsByLocation(ctx context.Context, location string) ([]persistence.Post, error)
 	GetCollectionsPosts(context.Context, string) ([]persistence.Post, error)
 	GetPostsForUser(context.Context, string) ([]persistence.Post, error)
+	UpdateCreatedAt(context.Context, string, time.Time) error
 }
 
 type postRepository struct {
@@ -216,7 +218,7 @@ func (repository *postRepository) GetCollectionsPosts(ctx context.Context, id st
 	result := repository.DB.Model(&persistence.Post{}).
 		Joins("left join favorites   ON posts.id = favorites.post_id").
 		Joins("left join collections ON favorites.collection_id = collections.id").
-		Where("collections.id = ?", id).
+		Where("collections.id = ? A", id).
 		Find(&posts)
 
 	if result.Error != nil {
@@ -238,4 +240,15 @@ func (repository *postRepository) GetPostsByLocation(ctx context.Context, locati
 	}
 
 	return posts, nil
+}
+
+func (repository *postRepository) UpdateCreatedAt(ctx context.Context, id string, createdAt time.Time) error{
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateCreatedAt")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	result := repository.DB.Model(&persistence.Post{}).Where("id = ?", id).Update("created_at", createdAt)
+	if result.Error != nil { return result.Error }
+
+	return nil
 }
