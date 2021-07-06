@@ -3,7 +3,7 @@ import Navigation from "../HomePage/Navigation";
 import {useDispatch, useSelector} from "react-redux";
 import userService from "../../services/user.service";
 import UserAutocomplete from "../Post/UserAutocomplete";
-import {Button} from "react-bootstrap";
+import {Button, Dropdown, DropdownButton, InputGroup} from "react-bootstrap";
 
 import "./../../style/chat.css"
 import verificationRequestService from "../../services/verificationRequest.service";
@@ -20,6 +20,8 @@ function Chats() {
     const [chatRoom, setChatRoom] = useState("");
     const [conn, setConn] = useState({});
     const [messages, setMessages] = useState([]);
+    const [messageCategory, setMessageCategory] = useState("Message category");
+
 
     useEffect(() => {
         getAllUsers();
@@ -80,11 +82,27 @@ function Chats() {
     }
 
     function sendMessage() {
-        //alert("A")
+        setMessageCategory("Message category");
+        setMessageText("");
         const temp = {senderId : store.user.id, receiverId : selectedUser.id, roomId : chatRoom.Id, content : messageText, contentType : "String"};
         console.log(temp);
-        conn.send(JSON.stringify({SenderId : store.user.id, ReceiverId : selectedUser.id, RoomId : chatRoom.Id, Content : messageText, ContentType : "String"}));
-        // conn.send("aa");
+        conn.send(JSON.stringify({SenderId : store.user.id, ReceiverId : selectedUser.id, RoomId : chatRoom.Id, Content : messageText, ContentType : messageCategory}));
+    }
+
+
+    function handleChangeImage(evt) {
+        var reader = new FileReader();
+        var file = evt.target.files[0];
+
+        reader.onload = function (upload) {
+            setMessageText(upload.target.result)
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function handleMessageCategoryChange(event) {
+        setMessageText("");
+        setMessageCategory(event);
     }
 
     return (
@@ -102,14 +120,18 @@ function Chats() {
                         <div>
                             {message.SenderId === store.user.id && <div className="container">
                                 <img src="" alt="Avatar"/>
-                                <p>{message.Content}</p>
+                                {message.ContentType === "String" && <p>{message.Content}</p>}
+                                {message.ContentType === "Image" && <img src={message.Content} alt="Avatar"/>}
+                                {message.ContentType === "Link" && <p style={{color : "powderblue"}} onClick={(e) => alert("namesti link click")}>{message.Content}</p>}
                                 <span style={{marginLeft: "20px"}} className="time-right">{message.DateCreated}</span>
                             </div>
                             }
 
                             {message.ReceiverId === store.user.id && <div className="container darker">
                                 <img src="" alt="Avatar"/>
-                                <p>{message.Content}</p>
+                                {message.ContentType === "String" && <p>{message.Content}</p>}
+                                {message.ContentType === "Image" && <img src={message.Content} alt="Avatar"/>}
+                                {message.ContentType === "Link" && <p style={{color : "powderblue"}} onClick={(e) => alert("namesti link click")}>{message.Content}</p>}
                                 <span style={{marginLeft: "20px"}} className="time-right">{message.DateCreated}</span>
                             </div>}
                         </div>
@@ -127,61 +149,29 @@ function Chats() {
                 {/*        <p>Hey! I'm fine. Thanks for asking!</p>*/}
                 {/*        <span className="time-left">11:01</span>*/}
                 {/*</div>*/}
-
-                {/*<div className="container">*/}
-                {/*    <img src="" alt="Avatar"/>*/}
-                {/*        <p>Sweet! So, what do you wanna do today?</p>*/}
-                {/*        <span className="time-right">11:02</span>*/}
-                {/*</div>*/}
-
-                {/*<div className="container darker">*/}
-                {/*    <img src="" alt="Avatar" className="right"/>*/}
-                {/*        <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>*/}
-                {/*        <span className="time-left">11:05</span>*/}
-                {/*</div>*/}
-
-                {/*<div className="container darker">*/}
-                {/*    <img src="" alt="Avatar" className="right"/>*/}
-                {/*    <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>*/}
-                {/*    <span className="time-left">11:05</span>*/}
-                {/*</div>*/}
-
-                {/*<div className="container darker">*/}
-                {/*    <img src="" alt="Avatar" className="right"/>*/}
-                {/*    <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>*/}
-                {/*    <span className="time-left">11:05</span>*/}
-                {/*</div>*/}
-
-                {/*<div className="container darker">*/}
-                {/*    <img src="" alt="Avatar" className="right"/>*/}
-                {/*    <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>*/}
-                {/*    <span className="time-left">11:05</span>*/}
-                {/*</div>*/}
-
-                {/*<div className="container darker">*/}
-                {/*    <img src="" alt="Avatar" className="right"/>*/}
-                {/*    <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>*/}
-                {/*    <span className="time-left">11:05</span>*/}
-                {/*</div>*/}
-
-                {/*<div className="container darker">*/}
-                {/*    <img src="" alt="Avatar" className="right"/>*/}
-                {/*    <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>*/}
-                {/*    <span className="time-left">11:05</span>*/}
-                {/*</div>*/}
-
-                {/*<div className="container darker">*/}
-                {/*    <img src="" alt="Avatar" className="right"/>*/}
-                {/*    <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>*/}
-                {/*    <span className="time-left">11:05</span>*/}
-                {/*</div>*/}
             </div>
 
-            <input type={"text"} value={messageText} onChange={(e) => setMessageText(e.target.value)}/>
+            <DropdownButton onSelect={(event) => handleMessageCategoryChange(event) } as={InputGroup.Append}  variant="outline-secondary" title={messageCategory} id="input-group-dropdown-2" >
+                <Dropdown.Item eventKey={"String"} >String</Dropdown.Item>
+                <Dropdown.Item eventKey={"Image"} >Image</Dropdown.Item>
+                <Dropdown.Item eventKey={"Link"} >Link</Dropdown.Item>
+            </DropdownButton>
+
+            {(messageCategory === "String" || messageCategory === "Link") &&
+                <input type={"text"} value={messageText} onChange={(e) => setMessageText(e.target.value)}/>
+            }
+            {messageCategory === "Image" &&
+            <input type="file" name="file"
+                   className="upload-file"
+                   id="file"
+                   onChange={handleChangeImage}
+                   formEncType="multipart/form-data"
+                   required />            }
             <Button style={{marginLeft : "1%"}} onClick={sendMessage}>Send message</Button>
 
         </div>
     );
 }
+
 
 export default Chats;
