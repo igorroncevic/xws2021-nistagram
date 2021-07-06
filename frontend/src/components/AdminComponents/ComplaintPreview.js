@@ -11,17 +11,20 @@ import postService from "../../services/post.service";
 import PostPreviewModal from "../Post/PostPreviewModal";
 import {ReactComponent as Plus} from "../../images/icons/plus.svg";
 import DatePicker from "react-datepicker";
+import ProfileForSug from "../HomePage/ProfileForSug";
 
 const ComplaintPreview = (props) => {
     const [complaints, setComplaints] = useState([]);
     const [users,setUsers]=useState([]);
+    const [user,setUser]=useState([]);
     const store = useSelector(state => state);
     const [post, setPost] = useState({})
     const [story, setStory] = useState({})
     const [showModal, setShowModal] = useState(false);
     const [showModalStory, setShowModalStory] = useState(false);
     const [modalStory, setModalStory] = useState(false);
-    const [convertedStory, setConvertedStory] = useState([])
+    const [modalUser, setModalUser] = useState(false);
+    const [userForModal, setUserForModal] = useState(false);
 
     useEffect(() => {
         getComplaints()
@@ -39,29 +42,56 @@ const ComplaintPreview = (props) => {
     }
 
 
-     async function getPostById(id) {
+     async function getPostById(id,flag) {
          await postService.getPostById({id: id, jwt: store.user.jwt})
              .then(response => {
                  setPost(response.data)
-                 setShowModal(true);
+                 setUser(response.data.userId)
+                 if(flag===true)
+                     setShowModal(true);
              })
              .catch(err => {
                  toastService.show("error", "Error")
              })
     }
 
-    async function getStoryById(id) {
+    async function getStoryById(id,flag) {
         await storyService.getStoryById({id: id, jwt: store.user.jwt})
             .then(response => {
                 setStory(response.data)
-                setModalStory(response.data)
-                setShowModalStory(!showModalStory)
+                setUser(response.data.userId)
+
+                if(flag===true){
+                    setModalStory(response.data.media[0].content)
+                    setShowModalStory(!showModalStory)
+                }
             })
             .catch(err => {
                 toastService.show("error", "Error")
             })
     }
+     function getUser(complaint) {
+       if (complaint.isPost==true){
+           getPostById(complaint.postId,false)
+       }else{
+           getStoryById(complaint.postId,false)
+       }
+       getUserById(user)
+       setModalUser(!modalUser)
+    }
 
+    async function getUserById(id) {
+        const response = await userService.getUserById({
+            id: id,
+            jwt: store.user.jwt,
+        })
+
+        if (response.status === 200) {
+            setUserForModal(response.data)
+        } else {
+            console.log("getuserbyid error")
+        }
+    }
 
     function  changeStatus(post,status){
         if(status==="Refused"){
@@ -125,6 +155,10 @@ const ComplaintPreview = (props) => {
         setShowModalStory(!showModalStory)
     }
 
+    function closeModalUser() {
+        setModalUser(!modalUser)
+    }
+
     return (
         <div>
             <Navigation/>
@@ -149,12 +183,15 @@ const ComplaintPreview = (props) => {
                                 <td>{complaint.category}</td>
                                 <td>
                                     { complaint.isPost===true ?
-                                        <Button variant="link" style={{color: 'black'}} onClick={() =>getPostById(complaint.postId)} >post</Button>
+                                        <Button variant="link" style={{color: 'black'}} onClick={() =>getPostById(complaint.postId,true)} >post</Button>
                                         :
-                                        <Button variant="link" style={{color: 'black'}} onClick={() =>getStoryById(complaint.postId)} >story</Button>
+                                        <Button variant="link" style={{color: 'black'}} onClick={() =>getStoryById(complaint.postId,true)} >story</Button>
                                     }
                                 </td>
-                                <td>bla</td>
+                                <td>
+                                    <Button variant="link" style={{color: 'black'}} onClick={() =>getUser(complaint)} >click for info</Button>
+
+                                   </td>
                                 <td>{complaint.status}</td>
                                 {complaint.status === "Pending" && <td>
                                     <Button variant={"danger"} onClick={() => changeStatus(complaint, 'Delete')}>Delete
@@ -186,7 +223,23 @@ const ComplaintPreview = (props) => {
                     <Modal.Title>Story</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <img src={modalStory.media[0].content}  style={{width:'400px', height: '400px'}}/>
+                    <img src={modalStory}  style={{width:'400px', height: '400px'}}/>
+                </Modal.Body>
+            </Modal>
+            <Modal show={modalUser} onHide={closeModalUser}>
+                <Modal.Header closeButton>
+                    <Modal.Title>User</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <ProfileForSug
+                                   username={userForModal.username}
+                                   firstName={userForModal.firstName}
+                                   lastName={userForModal.lastName}
+                                   caption="see profile"
+                                   urlText="Follow"
+                                   iconSize="big"
+                                   captionSize="small"
+                                   image={userForModal.profilePhoto} storyBorder={true} />
                 </Modal.Body>
             </Modal>
         </div>
