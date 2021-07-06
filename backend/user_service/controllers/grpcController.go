@@ -19,19 +19,24 @@ type Server struct {
 	protopb.UnimplementedPrivacyServer
 	userController         *UserGrpcController
 	privacyController      *PrivacyGrpcController
-	emailController        *EmailGrpcController
+	emailController   	   *EmailGrpcController
 	notificationController *NotificationGrpcController
-	tracer                 otgo.Tracer
-	closer                 io.Closer
+	registrationRequestController *RegistrationRequestController
+	apiTokenController *ApiTokenGrpcController
+	tracer            otgo.Tracer
+	closer            io.Closer
 	verificationController *VerificationGrpcController
+
 }
 
-func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger, redis *saga.RedisServer) (*Server, error) {
+func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger) (*Server, error) {
 	newUserController, _ := NewUserController(db, jwtManager, logger, redis)
 	newPrivacyController, _ := NewPrivacyController(db, redis)
 	newEmailController, _ := NewEmailController(db, redis)
 	notificationController, _ := NewNotificationController(db, redis)
 	newVerificationController, _ := NewVerificationController(db, jwtManager, logger, redis)
+	newRegistrationRequestController, _ := NewRegistrationRequestController(db, jwtManager, logger)
+	newApiTokenController, _ := NewApiTokenGrpcController(db, jwtManager, logger)
 
 	tracer, closer := tracer.Init("userService")
 	otgo.SetGlobalTracer(tracer)
@@ -41,6 +46,8 @@ func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger
 		emailController:        newEmailController,
 		notificationController: notificationController,
 		verificationController: newVerificationController,
+		registrationRequestController: newRegistrationRequestController,
+		apiTokenController: newApiTokenController,
 		tracer:                 tracer,
 		closer:                 closer,
 	}, nil
@@ -192,7 +199,7 @@ func (s *Server) GetUserPrivacy(ctx context.Context, in *protopb.RequestIdPrivac
 	return s.privacyController.GetUserPrivacy(ctx, in)
 }
 
-func (s *Server) ReadAllNotifications(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.EmptyResponse, error) {
+func (s *Server) ReadAllNotifications(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.EmptyResponse,error) {
 	return s.notificationController.ReadAllNotifications(ctx, in)
 }
 
@@ -200,10 +207,30 @@ func (s *Server) DeleteByTypeAndCreator(ctx context.Context, in *protopb.Notific
 	return s.notificationController.DeleteByTypeAndCreator(ctx, in)
 }
 
-func (s *Server) GetByTypeAndCreator(ctx context.Context, in *protopb.Notification) (*protopb.Notification, error) {
+func (s *Server) GetByTypeAndCreator(ctx context.Context,in *protopb.Notification) (*protopb.Notification, error) {
 	return s.notificationController.GetByTypeAndCreator(ctx, in)
 }
 
 func (s *Server) UpdateNotification(ctx context.Context, in *protopb.Notification) (*protopb.EmptyResponse, error) {
 	return s.notificationController.UpdateNotification(ctx, in)
 }
+func (s *Server) CheckIsActive(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.BooleanResponseUsers, error) {
+ 	return s.userController.CheckIsActive(ctx, in)
+}
+
+func (s *Server) ChangeUserActiveStatus(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.EmptyResponse ,error) {
+	return s.userController.ChangeUserActiveStatus(ctx, in)
+}
+
+func (s *Server) CreateAgentUser(ctx context.Context, in *protopb.CreateUserRequest) (*protopb.UsersDTO, error) {
+	return s.userController.CreateAgentUser(ctx, in)
+}
+
+func (s *Server) GetAllPendingRequests(ctx context.Context, in *protopb.EmptyRequest) (*protopb.ResponseRequests, error) {
+	return s.registrationRequestController.GetAllPendingRequests(ctx, in)
+}
+
+func (s *Server) UpdateRequest(ctx context.Context, in *protopb.RegistrationRequest) (*protopb.EmptyResponse, error) {
+	return s.registrationRequestController.UpdateRequest(ctx, in)
+}
+
