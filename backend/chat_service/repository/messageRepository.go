@@ -12,22 +12,21 @@ import (
 
 type MessageRepository interface {
 	SaveMessage(context.Context, model.Message) error
-	DeleteMessage( context.Context, string) error
+	DeleteMessage(context.Context, string) error
 	GetMessagesForChatRoom(context.Context, string) ([]model.Message, error)
 	GetChatRoomsForUser(context.Context, string) ([]model.ChatRoom, error)
-	CreateChatRoom(context.Context, model.ChatRoom)  (*model.ChatRoom, error)
-    CreateMessageRequest( context.Context,  *model.MessageRequest) (*model.MessageRequest, error)
-	AcceptMessageRequest( context.Context,  model.MessageRequest) error
-	DeclineMessageRequest( context.Context,  model.MessageRequest) error
+	CreateChatRoom(context.Context, model.ChatRoom) (*model.ChatRoom, error)
+	CreateMessageRequest(context.Context, *model.MessageRequest) (*model.MessageRequest, error)
+	AcceptMessageRequest(context.Context, model.MessageRequest) error
+	DeclineMessageRequest(context.Context, model.MessageRequest) error
 	GetChatRoomByUsers(ctx context.Context, room model.ChatRoom) (*model.ChatRoom, error)
 }
 
 type messageRepository struct {
 	db *gorm.DB
-
 }
 
-func NewMessageRepository (db *gorm.DB) (MessageRepository, error) {
+func NewMessageRepository(db *gorm.DB) (MessageRepository, error) {
 	if db == nil {
 		panic("MessageRepository not created, gorm.DB is nil")
 	}
@@ -49,7 +48,7 @@ func (repo *messageRepository) SaveMessage(ctx context.Context, message model.Me
 	return nil
 }
 
-func (repo *messageRepository) DeleteMessage(ctx context.Context, id string) error{
+func (repo *messageRepository) DeleteMessage(ctx context.Context, id string) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteMessage")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -67,49 +66,46 @@ func (repo *messageRepository) GetChatRoomByUsers(ctx context.Context, room mode
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 	var checkRoom *model.ChatRoom
-	result := repo.db.Where("id = ?", room.Person1 + "_" + room.Person2).Find(&checkRoom)
+	result := repo.db.Where("id = ?", room.Person1+"_"+room.Person2).Find(&checkRoom)
 	if result.Error != nil {
 		return nil, errors.New("Could not load chatRoom")
-	}else if checkRoom.Id == "" {
-		return nil, errors.New("Could not load chatRoom")
-	}
-
-	result = repo.db.Where("id = ?", room.Person2 + "_" +room.Person1).Find(&checkRoom)
-	if result.Error != nil {
-		return nil, errors.New("Could not load chatRoom")
-	}else if checkRoom.Id == "" {
-		return nil, errors.New("Could not load chatRoom")
+	} else if checkRoom.Id == "" {
+		result = repo.db.Where("id = ?", room.Person2+"_"+room.Person1).Find(&checkRoom)
+		if result.Error != nil {
+			return nil, errors.New("Could not load chatRoom")
+		} else if checkRoom.Id == "" {
+			return &model.ChatRoom{}, nil
+		}
 	}
 
 	return checkRoom, nil
 }
 
-
-func (repo *messageRepository) 	CreateChatRoom(ctx context.Context, room model.ChatRoom) (*model.ChatRoom, error) {
+func (repo *messageRepository) CreateChatRoom(ctx context.Context, room model.ChatRoom) (*model.ChatRoom, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateChatRoom")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var checkRoom *model.ChatRoom
-	result := repo.db.Where("id = ?", room.Person1 + "_" + room.Person2).Find(&checkRoom)
+	result := repo.db.Where("id = ?", room.Person1+"_"+room.Person2).Find(&checkRoom)
 	if result.Error != nil {
 		return nil, errors.New("Could not load chatRoom")
-	}else if checkRoom.Id != "" {
+	} else if checkRoom.Id != "" {
 		return nil, errors.New("Room already exists")
 	}
 
-	result = repo.db.Where("id = ?", room.Person2 + "_" +room.Person1).Find(&checkRoom)
+	result = repo.db.Where("id = ?", room.Person2+"_"+room.Person1).Find(&checkRoom)
 	if result.Error != nil {
 		return nil, errors.New("Could not load chatRoom")
-	}else if checkRoom.Id != "" {
+	} else if checkRoom.Id != "" {
 		return nil, errors.New("Room already exists")
 	}
 
-	room.Id = room.Person1 + "_" +  room.Person2
+	room.Id = room.Person1 + "_" + room.Person2
 	result = repo.db.Create(&room)
 	if result.Error != nil {
 		return nil, errors.New("Could not create chat room!")
-	}else if result.RowsAffected == 0 {
+	} else if result.RowsAffected == 0 {
 		return nil, errors.New("Could not create chat room!")
 	}
 
@@ -136,7 +132,7 @@ func (repo *messageRepository) GetChatRoomsForUser(ctx context.Context, userId s
 	return append(rooms1, rooms2...), nil
 }
 
-func (repo *messageRepository) GetMessagesForChatRoom(ctx context.Context, roomId string) ([]model.Message, error){
+func (repo *messageRepository) GetMessagesForChatRoom(ctx context.Context, roomId string) ([]model.Message, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetMessagesForChatRoom")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -160,7 +156,7 @@ func (repo *messageRepository) CreateMessageRequest(ctx context.Context, message
 	result := repo.db.Create(&messageRequest)
 	if result.Error != nil {
 		return nil, errors.New("Could not create message request")
-	}else if result.RowsAffected == 0 {
+	} else if result.RowsAffected == 0 {
 		return nil, errors.New("Could not create message request")
 	}
 
@@ -177,7 +173,7 @@ func (repo *messageRepository) AcceptMessageRequest(ctx context.Context, message
 	result := repo.db.Where("sender_id = ?", messageRequest.SenderId).Where("receiver_id = ?", messageRequest.ReceiverId).Updates(messageRequest)
 	if result.Error != nil {
 		return errors.New("Could not accept message request")
-	}else if result.RowsAffected == 0 {
+	} else if result.RowsAffected == 0 {
 		return errors.New("Could not accept message request")
 	}
 
@@ -193,7 +189,7 @@ func (repo *messageRepository) DeclineMessageRequest(ctx context.Context, messag
 	result := repo.db.Where("sender_id = ?", messageRequest.SenderId).Where("receiver_id = ?", messageRequest.ReceiverId).Delete(messageRequest)
 	if result.Error != nil {
 		return errors.New("Could not accept message request")
-	}else if result.RowsAffected == 0 {
+	} else if result.RowsAffected == 0 {
 		return errors.New("Could not accept message request")
 	}
 

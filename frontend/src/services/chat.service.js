@@ -22,6 +22,22 @@ class ChatService extends RootService {
         return response;
     }
 
+    async StartConversation(data){
+        const { person1, person2, jwt } = data;
+        const headers = this.setupHeaders(jwt);
+
+        const response = await this.apiClient.post(`/room/conversation`, {
+            person1,person2
+        },{ headers })
+            .then(res => {
+                return res
+            }).catch(err => {
+                console.error(err)
+                return err
+            })
+        return response;
+    }
+
     async SendMessage(data){
         const { person1, person2, roomId, jwt } = data;
         const headers = this.setupHeaders(jwt);

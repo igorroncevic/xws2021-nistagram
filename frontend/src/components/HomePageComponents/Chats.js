@@ -38,7 +38,7 @@ function Chats() {
     }
 
     async function startChat() {
-        const response = await chatService.CreateChatRoom({
+        const response = await chatService.StartConversation({
             person1: store.user.id,
             person2: selectedUser.id,
             jwt : store.user.jwt
