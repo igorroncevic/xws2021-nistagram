@@ -21,6 +21,7 @@ const ComplaintPreview = (props) => {
     const [showModal, setShowModal] = useState(false);
     const [showModalStory, setShowModalStory] = useState(false);
     const [modalStory, setModalStory] = useState(false);
+    const [convertedStory, setConvertedStory] = useState([])
 
     useEffect(() => {
         getComplaints()
@@ -30,7 +31,6 @@ const ComplaintPreview = (props) => {
         complaintService.getAllContentComplaints({ jwt: store.user.jwt })
             .then(response => {
                 if(response.status === 200)
-                    console.log(response.data)
                     setComplaints(response.data.contentComplaints)
             })
             .catch(err => {
@@ -46,7 +46,6 @@ const ComplaintPreview = (props) => {
                  setShowModal(true);
              })
              .catch(err => {
-                 console.log("BLA")
                  toastService.show("error", "Error")
              })
     }
@@ -54,16 +53,15 @@ const ComplaintPreview = (props) => {
     async function getStoryById(id) {
         await storyService.getStoryById({id: id, jwt: store.user.jwt})
             .then(response => {
-                console.log(response.data)
                 setStory(response.data)
                 setModalStory(response.data)
                 setShowModalStory(!showModalStory)
-
             })
             .catch(err => {
                 toastService.show("error", "Error")
             })
     }
+
 
     function  changeStatus(post,status){
         if(status==="Refused"){
@@ -86,13 +84,11 @@ const ComplaintPreview = (props) => {
                 getComplaints()
             })
             .catch(err => {
-                console.log("BLA")
                 toastService.show("error", "Error")
             })
     }
 
     async function changeUserActiveStatus(userId) {
-        console.log(userId)
         await userService.changeUserActiveStatus({id: userId, jwt: store.user.jwt})
             .then(response => {
                 toastService.show("success", "Successfully updated!")
@@ -190,7 +186,7 @@ const ComplaintPreview = (props) => {
                     <Modal.Title>Story</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <img  src={modalStory} alt="document photo" style={{width:'200px', height: '200px'}}/>
+                    <img src={modalStory.media[0].content}  style={{width:'400px', height: '400px'}}/>
                 </Modal.Body>
             </Modal>
         </div>
