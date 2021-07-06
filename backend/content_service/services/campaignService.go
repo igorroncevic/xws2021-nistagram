@@ -73,9 +73,11 @@ func (service *CampaignService) CreateCampaign(ctx context.Context, campaign dom
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	if campaign.Name == "" { return errors.New("no name provided") }
 	if campaign.StartDate.Equal(time.Time{}) { return errors.New("no start date provided") }
 	if campaign.EndDate.Equal(time.Time{}) { return errors.New("no start date provided") }
 	if campaign.Category.Id == "" { return errors.New("no ad category") }
+	if campaign.StartDate.After(campaign.EndDate) { return errors.New("start date cannot be after end date") }
 	if campaign.IsOneTime && !campaign.StartDate.Equal(campaign.EndDate){ campaign.EndDate = campaign.StartDate/*.Add(24 * time.Hour)*/ }
 	if len(campaign.Ads) == 0 { return errors.New("no ads provided") }
 
@@ -88,9 +90,11 @@ func (service *CampaignService) UpdateCampaign(ctx context.Context, campaign dom
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	if campaign.Name == "" { return errors.New("no name provided") }
 	if campaign.StartDate.Equal(time.Time{}) { return errors.New("no start date provided") }
 	if campaign.EndDate.Equal(time.Time{}) { return errors.New("no end date provided") }
 	if campaign.Category.Id == "" { return errors.New("no ad category") }
+	if campaign.StartDate.After(campaign.EndDate) { return errors.New("start date cannot be after end date") }
 
 	return service.campaignRepository.UpdateCampaign(ctx, campaign)
 }

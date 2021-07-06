@@ -214,7 +214,7 @@ func (repository *campaignRepository) DeleteCampaign(ctx context.Context, campai
 }
 
 func (repository *campaignRepository) checkCampaignChanges(ctx context.Context, campaignId string) error {
-	span := tracer.StartSpanFromContextMetadata(ctx, "applyCampaignChanges")
+	span := tracer.StartSpanFromContextMetadata(ctx, "checkCampaignChanges")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 

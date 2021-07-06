@@ -326,13 +326,6 @@ service Content {
     };
   }
 
-  rpc GetAdCategory (RequestId) returns (AdCategory) {
-    option(google.api.http) = {
-      post: "/ads/categories",
-      body: "*"
-    };
-  }
-
   rpc CreateAdCategory (AdCategory) returns (EmptyResponseContent) {
     option(google.api.http) = {
       post: "/ads/categories",

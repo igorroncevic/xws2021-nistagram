@@ -10,7 +10,7 @@ import toastService from "../../services/toast.service";
 import {useSelector} from "react-redux";
 
 function Story(props) {
-    const { story, iconSize, hideUsername, fixMargins } = props;
+    const { story, iconSize, hideUsername, fixMargins, link } = props;
     const [showModal, setModal] = useState(false);
     const [showModalReport, setModalReport] = useState(false);
     const [convertedStory, setConvertedStory] = useState([])
@@ -85,7 +85,7 @@ function Story(props) {
                     renderers={[renderer]}
                     stories={convertedStory} 
                     defaultInterval={10000} 
-                    header={{...header, setStoryId}}
+                    header={{...header, setStoryId, link}} // Add link here
                     width={500}
                     height={700}
                 />
