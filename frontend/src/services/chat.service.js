@@ -10,7 +10,7 @@ class ChatService extends RootService {
         const { person1, person2, jwt } = data;
         const headers = this.setupHeaders(jwt);
 
-        const response = this.apiClient.post(`/room`, {
+        const response = await this.apiClient.post(`/room`, {
             person1,person2
         },{ headers })
             .then(res => {
@@ -19,7 +19,7 @@ class ChatService extends RootService {
                 console.error(err)
                 return err
             })
-        return response
+        return response;
     }
 
     async SendMessage(data){

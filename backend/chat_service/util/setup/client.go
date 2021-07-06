@@ -1,6 +1,7 @@
 package setup
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/david-drvar/xws2021-nistagram/chat_service/model"
@@ -30,7 +31,6 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 100000,
 }
 
-
 // connection is an middleman between the websocket connection and the hub.
 type connection struct {
 	// The websocket connection.
@@ -40,7 +40,6 @@ type connection struct {
 
 	//Connection to database
 	service *service.MessageService
-
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -70,10 +69,10 @@ func (s subscription) readPump() {
 func (c *connection) write(mt int, payload []byte) error {
 	c.ws.SetWriteDeadline(time.Now().Add(writeWait))
 
-	if mt == 1  { // Text message type
- 		var message model.Message
+	if mt == 1 { // Text message type
+		var message model.Message
 		json.Unmarshal(payload, &message)
-		//c.service.SaveMessage(context.Background(), message)
+		c.service.SaveMessage(context.Background(), message)
 	}
 
 	return c.ws.WriteMessage(mt, payload)
@@ -109,6 +108,7 @@ func (s *subscription) writePump() {
 // serveWs handles websocket requests from the peer.
 func serveWs(w http.ResponseWriter, r *http.Request, roomId string, service *service.MessageService) {
 	fmt.Print(roomId)
+	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err.Error())
