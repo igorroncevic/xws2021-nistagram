@@ -153,14 +153,14 @@ func (c MessageController) CreateChatRoom(w http.ResponseWriter, r *http.Request
 	var room model.ChatRoom
 	json.NewDecoder(r.Body).Decode(&room)
 
-
-	err := c.Service.CreateChatRoom(ctx, room)
+	var roomRetVal *model.ChatRoom
+	roomRetVal, err := c.Service.CreateChatRoom(ctx, room)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte{})
 		return
 	}
-	json.NewEncoder(w).Encode(room)
+	json.NewEncoder(w).Encode(roomRetVal)
 }
 
 func (c *MessageController) CreateMessageRequest(w http.ResponseWriter, r *http.Request) {

@@ -53,7 +53,7 @@ func (s MessageService) GetChatRoomsForUser(ctx context.Context, userId string) 
 	return s.repository.GetChatRoomsForUser(ctx, userId)
 }
 
-func (s MessageService) CreateChatRoom(ctx context.Context, room model.ChatRoom) error{
+func (s MessageService) CreateChatRoom(ctx context.Context, room model.ChatRoom) (*model.ChatRoom, error){
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateChatRoom")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)

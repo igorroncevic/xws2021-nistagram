@@ -15,7 +15,7 @@ type MessageRepository interface {
 	DeleteMessage( context.Context, string) error
 	GetMessagesForChatRoom(context.Context, string) ([]model.Message, error)
 	GetChatRoomsForUser(context.Context, string) ([]model.ChatRoom, error)
-	CreateChatRoom(context.Context, model.ChatRoom) error
+	CreateChatRoom(context.Context, model.ChatRoom)  (*model.ChatRoom, error)
     CreateMessageRequest( context.Context,  *model.MessageRequest) (*model.MessageRequest, error)
 	AcceptMessageRequest( context.Context,  model.MessageRequest) error
 	DeclineMessageRequest( context.Context,  model.MessageRequest) error
@@ -85,7 +85,7 @@ func (repo *messageRepository) GetChatRoomByUsers(ctx context.Context, room mode
 }
 
 
-func (repo *messageRepository) 	CreateChatRoom(ctx context.Context, room model.ChatRoom) error {
+func (repo *messageRepository) 	CreateChatRoom(ctx context.Context, room model.ChatRoom) (*model.ChatRoom, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateChatRoom")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -93,27 +93,27 @@ func (repo *messageRepository) 	CreateChatRoom(ctx context.Context, room model.C
 	var checkRoom *model.ChatRoom
 	result := repo.db.Where("id = ?", room.Person1 + "_" + room.Person2).Find(&checkRoom)
 	if result.Error != nil {
-		return errors.New("Could not load chatRoom")
+		return nil, errors.New("Could not load chatRoom")
 	}else if checkRoom.Id != "" {
-		return errors.New("Room already exists")
+		return nil, errors.New("Room already exists")
 	}
 
 	result = repo.db.Where("id = ?", room.Person2 + "_" +room.Person1).Find(&checkRoom)
 	if result.Error != nil {
-		return errors.New("Could not load chatRoom")
+		return nil, errors.New("Could not load chatRoom")
 	}else if checkRoom.Id != "" {
-		return errors.New("Room already exists")
+		return nil, errors.New("Room already exists")
 	}
 
 	room.Id = room.Person1 + "_" +  room.Person2
 	result = repo.db.Create(&room)
 	if result.Error != nil {
-		return errors.New("Could not create chat room!")
+		return nil, errors.New("Could not create chat room!")
 	}else if result.RowsAffected == 0 {
-		return errors.New("Could not create chat room!")
+		return nil, errors.New("Could not create chat room!")
 	}
 
-	return nil
+	return &room, nil
 
 }
 
@@ -181,7 +181,7 @@ func (repo *messageRepository) AcceptMessageRequest(ctx context.Context, message
 		return errors.New("Could not accept message request")
 	}
 
-	err := repo.CreateChatRoom(ctx, model.ChatRoom{Person1: messageRequest.SenderId, Person2: messageRequest.ReceiverId})
+	_, err := repo.CreateChatRoom(ctx, model.ChatRoom{Person1: messageRequest.SenderId, Person2: messageRequest.ReceiverId})
 	return err
 }
 
