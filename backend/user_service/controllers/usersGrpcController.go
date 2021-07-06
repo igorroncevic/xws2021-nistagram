@@ -29,7 +29,7 @@ func NewUserController(db *gorm.DB, jwtManager *common.JWTManager, logger *logge
 	if err != nil {
 		return nil, err
 	}
-	requestService, err := services.NewRegistrationRequestService(db)
+	requestService, err := services.NewRegistrationRequestService(db, redis)
 	return &UserGrpcController{
 		service,
 		requestService,

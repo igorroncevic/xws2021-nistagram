@@ -29,13 +29,13 @@ type Server struct {
 
 }
 
-func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger) (*Server, error) {
+func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger, redis *saga.RedisServer) (*Server, error) {
 	newUserController, _ := NewUserController(db, jwtManager, logger, redis)
 	newPrivacyController, _ := NewPrivacyController(db, redis)
 	newEmailController, _ := NewEmailController(db, redis)
 	notificationController, _ := NewNotificationController(db, redis)
 	newVerificationController, _ := NewVerificationController(db, jwtManager, logger, redis)
-	newRegistrationRequestController, _ := NewRegistrationRequestController(db, jwtManager, logger)
+	newRegistrationRequestController, _ := NewRegistrationRequestController(db, jwtManager, logger, redis)
 	newApiTokenController, _ := NewApiTokenGrpcController(db, jwtManager, logger)
 
 	tracer, closer := tracer.Init("userService")

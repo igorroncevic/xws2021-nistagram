@@ -6,6 +6,7 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
 	"github.com/david-drvar/xws2021-nistagram/user_service/repositories"
+	"github.com/david-drvar/xws2021-nistagram/user_service/saga"
 	"gorm.io/gorm"
 )
 
@@ -14,9 +15,9 @@ type RegistrationRequestService struct {
 	service *UserService
 }
 
-func NewRegistrationRequestService(db *gorm.DB) (*RegistrationRequestService, error) {
+func NewRegistrationRequestService(db *gorm.DB, redis *saga.RedisServer) (*RegistrationRequestService, error) {
 	registrationRequestRepo, err := repositories.NewRegistrationRequestRepo(db)
-	service, err := NewUserService(db)
+	service, err := NewUserService(db, redis)
 	return &RegistrationRequestService{
 		registrationRequestRepository: registrationRequestRepo,
 		service: service,

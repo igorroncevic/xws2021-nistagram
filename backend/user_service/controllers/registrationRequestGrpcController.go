@@ -8,6 +8,7 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
+	"github.com/david-drvar/xws2021-nistagram/user_service/saga"
 	"github.com/david-drvar/xws2021-nistagram/user_service/services"
 	"gorm.io/gorm"
 )
@@ -19,8 +20,8 @@ type RegistrationRequestController struct {
 	logger     *logger.Logger
 }
 
-func NewRegistrationRequestController(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger) (*RegistrationRequestController, error) {
-	service, err := services.NewRegistrationRequestService(db)
+func NewRegistrationRequestController(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger, redis *saga.RedisServer) (*RegistrationRequestController, error) {
+	service, err := services.NewRegistrationRequestService(db, redis)
 	if err != nil {
 		return nil, err
 	}
