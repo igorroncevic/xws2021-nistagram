@@ -1,8 +1,11 @@
 package setup
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/david-drvar/xws2021-nistagram/chat_service/model"
+	"github.com/david-drvar/xws2021-nistagram/chat_service/service"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -28,13 +31,17 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 100000,
 }
 
+
 // connection is an middleman between the websocket connection and the hub.
 type connection struct {
 	// The websocket connection.
 	ws *websocket.Conn
-
 	// Buffered channel of outbound messages.
 	send chan []byte
+
+	//Connection to database
+	service *service.MessageService
+
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -63,10 +70,13 @@ func (s subscription) readPump() {
 // write writes a message with the given message type and payload.
 func (c *connection) write(mt int, payload []byte) error {
 	c.ws.SetWriteDeadline(time.Now().Add(writeWait))
-	var p JSON
-	json.Unmarshal(payload, &p)
-	fmt.Println(p.Id)
-	fmt.Println(p.Message)
+
+	if mt == 1  { // Text message type
+ 		var message model.Message
+		json.Unmarshal(payload, &message)
+		c.service.SaveMessage(context.Background(), message)
+	}
+
 	return c.ws.WriteMessage(mt, payload)
 }
 
@@ -98,14 +108,14 @@ func (s *subscription) writePump() {
 }
 
 // serveWs handles websocket requests from the peer.
-func serveWs(w http.ResponseWriter, r *http.Request, roomId string) {
+func serveWs(w http.ResponseWriter, r *http.Request, roomId string, service *service.MessageService) {
 	fmt.Print(roomId)
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
-	c := &connection{send: make(chan []byte, 256), ws: ws}
+	c := &connection{send: make(chan []byte, 1000000), ws: ws, service: service}
 	s := subscription{c, roomId}
 	h.register <- s
 	go s.writePump()

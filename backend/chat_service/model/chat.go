@@ -6,6 +6,7 @@ type Message struct{
 	Id string `gorm:"primaryKey"`
 	SenderId string
 	ReceiverId string
+	RoomId string
 	DateCreated time.Time
 	ContentType ContentType
 	IsRead bool

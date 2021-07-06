@@ -5,7 +5,9 @@ import (
 	"errors"
 	"github.com/david-drvar/xws2021-nistagram/chat_service/model"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"time"
 )
 
 type MessageRepository interface {
@@ -28,11 +30,13 @@ func NewMessageRepository (db *gorm.DB) (MessageRepository, error) {
 	return &messageRepository{db: db}, nil
 }
 
-func (repo *messageRepository) 	SaveMessage(ctx context.Context, message model.Message) error {
+func (repo *messageRepository) SaveMessage(ctx context.Context, message model.Message) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "SaveMessage")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	message.DateCreated = time.Now()
+	message.Id = uuid.New().String()
 	result := repo.db.Create(&message)
 	if result.Error != nil {
 		return errors.New("Could not save message!")
@@ -41,7 +45,7 @@ func (repo *messageRepository) 	SaveMessage(ctx context.Context, message model.M
 	return nil
 }
 
-func (repo *messageRepository) DeleteMessage( ctx context.Context, id string) error{
+func (repo *messageRepository) DeleteMessage(ctx context.Context, id string) error{
 	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteMessage")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -60,20 +64,21 @@ func (repo *messageRepository) 	CreateChatRoom(ctx context.Context, room model.C
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var checkRoom *model.ChatRoom
-	result := repo.db.Where("id = ?", room.Person1+room.Person2).Find(&checkRoom)
+	result := repo.db.Where("id = ?", room.Person1 + "_" + room.Person2).Find(&checkRoom)
 	if result.Error != nil {
 		return errors.New("Could not load chatRoom")
 	}else if checkRoom.Id != "" {
 		return errors.New("Room already exists")
 	}
 
-	result = repo.db.Where("id = ?", room.Person2+room.Person1).Find(&checkRoom)
+	result = repo.db.Where("id = ?", room.Person2 + "_" +room.Person1).Find(&checkRoom)
 	if result.Error != nil {
 		return errors.New("Could not load chatRoom")
 	}else if checkRoom.Id != "" {
 		return errors.New("Room already exists")
 	}
-	room.Id = room.Person1 + room.Person2
+
+	room.Id = room.Person1 + "_" +  room.Person2
 	result = repo.db.Create(&room)
 	if result.Error != nil {
 		return errors.New("Could not create chat room!")

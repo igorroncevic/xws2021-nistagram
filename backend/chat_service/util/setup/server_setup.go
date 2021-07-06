@@ -1,24 +1,36 @@
 package setup
 
 import (
-	"fmt"
-	"github.com/gin-gonic/gin"
+	"github.com/david-drvar/xws2021-nistagram/chat_service/controllers"
+	"github.com/david-drvar/xws2021-nistagram/common"
+	"github.com/gorilla/mux"
+	"net/http"
 )
 
-func ServerSetup() {
+func ServerSetup(controller *controllers.MessageController) {
 	go h.run()
 
-	router := gin.New()
-	router.LoadHTMLFiles("index.html")
+	router := mux.NewRouter()
 
-	router.GET("/room/:roomId", func(c *gin.Context) {
-		fmt.Fprintf(c.Writer, "Hello, world!")
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Hello from agent application!"))
+	}).Methods("GET")
+
+	router.HandleFunc("/ws/{roomId}", func(w http.ResponseWriter, r *http.Request) {
+		roomId := mux.Vars(r)["roomId"]
+		serveWs(w, r, roomId, controller.Service)
 	})
 
-	router.GET("/ws/:roomId", func(c *gin.Context) {
-		roomId := c.Param("roomId")
-		serveWs(c.Writer, c.Request, roomId)
-	})
+	router.HandleFunc("/delete/{id}", controller.DeleteMessage).Methods("DELETE")
+	router.HandleFunc("/room/{roomId}/messages", controller.GetMessagesForChatRoom).Methods("GET")
+	router.HandleFunc("/room/{userId}", controller.GetChatRoomsForUser).Methods("GET")
+	router.HandleFunc("/room", controller.CreateChatRoom).Methods("POST")
 
-	router.Run("0.0.0.0:8003")
+	c := common.SetupCors()
+
+	http.Handle("/", c.Handler(router))
+	http.ListenAndServe(":8003", c.Handler(router))
+
+
+
 }

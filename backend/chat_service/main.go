@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/david-drvar/xws2021-nistagram/chat_service/controllers"
 	"github.com/david-drvar/xws2021-nistagram/chat_service/util/setup"
 	"github.com/david-drvar/xws2021-nistagram/common"
 	"os"
@@ -15,8 +16,8 @@ func main(){
 	if err != nil {
 		panic("Cannot setup database tables. Error message: " + err.Error())
 	}
-
-	setup.ServerSetup()
+	controller , _:= controllers.NewMessageController(db)
+	setup.ServerSetup(controller)
 }
 
 func SetupEnvVariables() {

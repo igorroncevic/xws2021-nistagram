@@ -61,6 +61,3 @@ func (s MessageService) CreateChatRoom(ctx context.Context, room model.ChatRoom)
 	return s.repository.CreateChatRoom(ctx, room)
 
 }
-
-
-
