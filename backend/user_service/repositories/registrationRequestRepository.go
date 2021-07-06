@@ -67,7 +67,7 @@ func (repo *registrationRequestRepository) 	UpdateRequest(ctx context.Context, r
 	result := repo.DB.Where("id = ?", request.Id).Updates(&persistence.RegistrationRequest{Status: request.Status})
 	if result.Error != nil {
 		return nil, errors.New("Could not update request")
-	}else if result.RowsAffected != 0 {
+	}else if result.RowsAffected == 0 {
 		return nil, errors.New("Could not update request")
 	}
 	result = repo.DB.Where("id = ?", request.Id).Find(&request)

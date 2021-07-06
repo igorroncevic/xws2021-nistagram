@@ -1,26 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import {Button, Modal, ListGroup, Table} from "react-bootstrap";
+import {Button, Modal, ListGroup, Table, Dropdown} from "react-bootstrap";
 import { useSelector } from 'react-redux';
-import { ReactComponent as Check } from './../../images/icons/check.svg'
-import collectionsService from './../../services/collections.service'
-import favoritesService from './../../services/favorites.service'
 import toastService from './../../services/toast.service'
 import './../../style/CollectionsModal.css'
-import RegistrationPage from "../../pages/RegistrationPage";
 import Navigation from "../HomePage/Navigation";
-import ProfileInfo from "../UserData/ProfileInfo";
-import PostPreviewGrid from "../Post/PostPreviewGrid";
-import likeService from "../../services/like.service";
 import complaintService from "../../services/complaint.service";
 import userService from "../../services/user.service";
-import {NavLink} from "react-router-dom";
 import storyService from "../../services/story.service";
 import postService from "../../services/post.service";
+import PostPreviewModal from "../Post/PostPreviewModal";
+import {ReactComponent as Plus} from "../../images/icons/plus.svg";
+import DatePicker from "react-datepicker";
 
 const ComplaintPreview = (props) => {
-    const [posts, setPosts] = useState([]);
+    const [complaints, setComplaints] = useState([]);
     const [users,setUsers]=useState([]);
     const store = useSelector(state => state);
+    const [post, setPost] = useState({})
+    const [story, setStory] = useState({})
+    const [showModal, setShowModal] = useState(false);
+    const [showModalStory, setShowModalStory] = useState(false);
+    const [modalStory, setModalStory] = useState(false);
 
     useEffect(() => {
         getComplaints()
@@ -30,32 +30,39 @@ const ComplaintPreview = (props) => {
         complaintService.getAllContentComplaints({ jwt: store.user.jwt })
             .then(response => {
                 if(response.status === 200)
-                    setParams(response.data.contentComplaints)
+                    console.log(response.data)
+                    setComplaints(response.data.contentComplaints)
             })
             .catch(err => {
                 toastService.show("error", "Error")
             })
     }
 
-    async function  setParams(complaints){
-        complaints.map((complaint, i) =>
-             getUserById(complaint.userId)
-        );
-        setPosts(complaints)
-    }
 
-
-     async function getUserById(id) {
-
-        await userService.getUserById({id: id, jwt: store.user.jwt})
+     async function getPostById(id) {
+         await postService.getPostById({id: id, jwt: store.user.jwt})
              .then(response => {
-                 setUsers(users => [...users, response.data])
+                 setPost(response.data)
+                 setShowModal(true);
              })
              .catch(err => {
                  console.log("BLA")
                  toastService.show("error", "Error")
              })
+    }
 
+    async function getStoryById(id) {
+        await storyService.getStoryById({id: id, jwt: store.user.jwt})
+            .then(response => {
+                console.log(response.data)
+                setStory(response.data)
+                setModalStory(response.data)
+                setShowModalStory(!showModalStory)
+
+            })
+            .catch(err => {
+                toastService.show("error", "Error")
+            })
     }
 
     function  changeStatus(post,status){
@@ -118,7 +125,9 @@ const ComplaintPreview = (props) => {
             })
     }
 
-
+    function closeModalStory() {
+        setShowModalStory(!showModalStory)
+    }
 
     return (
         <div>
@@ -137,22 +146,28 @@ const ComplaintPreview = (props) => {
                     </tr>
                     </thead>
                     <tbody>
-                    {posts.map((post,index) => {
+                    {complaints.map((complaint,index) => {
                         return (
                             <tr>
                                 <td>{index+1}</td>
-                                <td>{post.category}</td>
+                                <td>{complaint.category}</td>
+                                <td>
+                                    { complaint.isPost===true ?
+                                        <Button variant="link" style={{color: 'black'}} onClick={() =>getPostById(complaint.postId)} >post</Button>
+                                        :
+                                        <Button variant="link" style={{color: 'black'}} onClick={() =>getStoryById(complaint.postId)} >story</Button>
+                                    }
+                                </td>
                                 <td>bla</td>
-                                <td>bla</td>
-                                <td>{post.status}</td>
-                                {post.status === "Pending" && <td>
-                                    <Button variant={"danger"} onClick={() => changeStatus(post, 'Delete')}>Delete
+                                <td>{complaint.status}</td>
+                                {complaint.status === "Pending" && <td>
+                                    <Button variant={"danger"} onClick={() => changeStatus(complaint, 'Delete')}>Delete
                                         content</Button>
                                     <span style={{marginLeft: '5%'}}/>
-                                    <Button variant={"danger"} onClick={() => changeStatus(post, 'Block')}>Block
+                                    <Button variant={"danger"} onClick={() => changeStatus(complaint, 'Block')}>Block
                                         account</Button>
                                     <span style={{marginLeft: '5%'}}/>
-                                    <Button variant={"success"} onClick={() => changeStatus(post, 'Refused')}>Refuse
+                                    <Button variant={"success"} onClick={() => changeStatus(complaint, 'Refused')}>Refuse
                                         complaint</Button>
 
                                 </td>
@@ -163,6 +178,21 @@ const ComplaintPreview = (props) => {
                     </tbody>
                 </Table>
             </div>
+
+            <PostPreviewModal
+                post={post}
+                postUser={{id: post.userId}}
+                showModal={showModal}
+                setShowModal={setShowModal}/>
+
+            <Modal show={showModalStory} onHide={closeModalStory}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Story</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <img  src={modalStory} alt="document photo" style={{width:'200px', height: '200px'}}/>
+                </Modal.Body>
+            </Modal>
         </div>
 
 

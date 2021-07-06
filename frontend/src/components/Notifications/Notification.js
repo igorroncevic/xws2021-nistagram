@@ -171,7 +171,7 @@ function Notification(props) {
                            firstName={user.firstName} lastName={user.lastName} image={user.profilePhoto}/>
             {contentType ?
                 <font face="Comic Sans MS" size="3" style={{marginRight: '5em', fontWeight: 'bold', color: 'black'}}>
-                    <Button variant="link" style={{color: 'black'}} onClick={getPostById}>{text}</Button>
+                    <Button variant="link" style={{color: 'black'}} onClick={() => getPostById()}>{text}</Button>
                 </font>
                 :
                 <font face="Comic Sans MS" size="3" style={{marginRight: '5em', fontWeight: 'bold'}}>{text}</font>

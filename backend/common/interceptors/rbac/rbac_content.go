@@ -73,7 +73,7 @@ func SetupContentRBAC(db *gorm.DB) error {
 			basicCreateContentComplaint, verifiedCreateContentComplaint, agentCreateContentComplaint,
 			adminGetAllContentComplaints,
 			adminRejectById,
-			adminDeleteComplaintByUserId,
+			adminDeleteComplaintByUserId,nonregisteredDeleteComplaintByUserId,
 		}
 		result = db.Create(&rolePermissions)
 		if result.Error != nil {
@@ -340,6 +340,7 @@ var (
 	adminGetAllContentComplaints = RolePermission{RoleId: admin.Id, PermissionId: getAllContentComplaints.Id}
 	adminRejectById 			 = RolePermission{RoleId: admin.Id, PermissionId: rejectById.Id}
 	adminDeleteComplaintByUserId = RolePermission{RoleId: admin.Id, PermissionId: deleteComplaintByUserId.Id}
+	nonregisteredDeleteComplaintByUserId = RolePermission{RoleId: nonregistered.Id, PermissionId: deleteComplaintByUserId.Id}
 	// - - - - - - - - -
 
 )
