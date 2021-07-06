@@ -140,6 +140,14 @@ func (c MessageController) StartConversation(w http.ResponseWriter, r *http.Requ
 			//TODO create notification
 			return
 		}
+		roomRetVal, err := c.Service.CreateChatRoom(ctx, room)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
+			return
+		}
+		json.NewEncoder(w).Encode(roomRetVal)
+
 	}
 
 }
