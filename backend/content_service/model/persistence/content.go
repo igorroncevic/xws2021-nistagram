@@ -92,18 +92,33 @@ type Ad struct {
 	Link         string
 	CampaignId   string
 	PostId       string
-	LinkClickNum int
+	LinkClicks   int
+	Type		 string
 }
 
 type Campaign struct {
 	Id           string `gorm:"primaryKey"`
+	Name		 string
 	IsOneTime    bool
 	StartDate    time.Time
 	EndDate      time.Time
-	PlacementNum int
+	Placements    int
 	AgentId      string
-	IdAdCategory string
+	AdCategoryId string
 	LastUpdated  time.Time
+	Type		 string
+}
+
+// Only dates and categories can be made
+type CampaignChanges struct {
+	Id			 string `gorm:"primaryKey"`
+	CampaignId   string
+	Name		 string
+	AdCategoryId string
+	StartDate    time.Time
+	EndDate      time.Time
+	Applied 	 bool
+	ValidFrom	 time.Time
 }
 
 type CampaignInfluencerRequest struct {
@@ -129,12 +144,4 @@ type AdCategory struct {
 type UserAdCategories struct {
 	UserId       string `gorm:"primaryKey"`
 	IdAdCategory string `gorm:"primaryKey"`
-}
-
-type CampaignChanges struct {
-	CampaignId   string `gorm:"primaryKey"`
-	AdCategoryId string
-	StartDate    time.Time
-	EndDate      time.Time
-	PlacementNum int
 }

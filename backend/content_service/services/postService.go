@@ -122,7 +122,7 @@ func (service *PostService) CreatePost(ctx context.Context, post *domain.Post) e
 		return errors.New("cannot create empty post")
 	}
 
-	err := service.postRepository.CreatePost(ctx, post)
+	_, err :=  service.postRepository.CreatePost(ctx, post)
 	if err != nil {
 		return err
 	}

@@ -27,14 +27,18 @@ import ViewPendingVerificationRequests from "./components/VerificationRequest/Vi
 import ViewAllVerificationRequests from "./components/VerificationRequest/ViewAllVerificationRequests";
 import EditProfileImage from "./components/UserData/EditProfileImage";
 import Notifications from "./components/Notifications/Notifications";
-
-import AuthenticatedRoute from './AuthenticatedRoute';
-import AdminRoute from './AdminRoute';
-import AgentReg from "./components/AdminComponents/AgentReg";
-import AgentCheck from "./components/AdminComponents/AgentCheck";
-import ComplaintPreview from "./components/AdminComponents/ComplaintPreview";
-import Influencers from "./components/AgentComponents/Influencers";
+import CampaignsHome from './components/Campaigns/CampaignsHome'
+import CampaignPreview from './components/Campaigns/CampaignPreview'
+import CreateCampaign from './components/Campaigns/CreateCampaign';
+import AuthenticatedRoute from "./routes/AuthenticatedRoute";
+import AgentRoute from "./routes/AgentRoute";
 import CampaignRequests from "./components/AgentComponents/CampaignRequests";
+import Influencers from "./components/AgentComponents/Influencers";
+import ComplaintPreview from "./components/AdminComponents/ComplaintPreview";
+import AgentCheck from "./components/AdminComponents/AgentCheck";
+import AgentReg from "./components/AdminComponents/AgentReg";
+import AdminRoute from "./routes/AdminRoute";
+
 
 const App = () => {
     return (
@@ -73,6 +77,9 @@ const App = () => {
                 <AuthenticatedRoute path='/complaints' exact component={ComplaintPreview} />
                 <AuthenticatedRoute path='/influencers' exact component={Influencers} />
                 <AuthenticatedRoute path='/campaign-requests' exact component={CampaignRequests} />
+                <AgentRoute path="/campaigns" exact component={CampaignsHome} />
+                <AgentRoute path="/campaigns/create" exact component={CreateCampaign} />
+                <AgentRoute path="/campaigns/preview/:id" component={CampaignPreview} />
             </Router>
         </div>
     );

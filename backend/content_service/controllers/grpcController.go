@@ -22,6 +22,8 @@ type Server struct {
 	storyController     *StoryGrpcController
 	highlightController *HighlightGrpcController
 	complaintController *ComplaintGrpcController
+	campaignController  *CampaignGrpcController
+	adController 		*AdGrpcController
 	tracer              otgo.Tracer
 	closer              io.Closer
 }
@@ -35,6 +37,8 @@ func NewServer(db *gorm.DB, manager *common.JWTManager, logger *logger.Logger) (
 	hashtagController, _ := NewHashtagController(db)
 	highlightController, _ := NewHighlightController(db, manager)
 	complaintController, _ := NewComplaintController(db, manager)
+	adController, _ := NewAdController(db, manager)
+	campaignController, _ := NewCampaignController(db, manager)
 	tracer, closer := tracer.Init("global_ContentGrpcController")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
@@ -46,6 +50,8 @@ func NewServer(db *gorm.DB, manager *common.JWTManager, logger *logger.Logger) (
 		storyController:     storyController,
 		highlightController: highlightController,
 		complaintController: complaintController,
+		adController: 		 adController,
+		campaignController:  campaignController,
 		tracer:              tracer,
 		closer:              closer,
 	}, nil
@@ -221,4 +227,46 @@ func (c *Server) RejectById (ctx context.Context, in *protopb.RequestId) (*proto
 
 func (c *Server) DeleteComplaintByUserId(ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent, error) {
 	return c.complaintController.DeleteComplaintByUserId(ctx, in)
+}
+/* Ads */
+func (s *Server) GetAds(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.AdArray, error) {
+	return s.adController.GetAds(ctx, in)
+}
+
+func (s *Server) CreateAd(ctx context.Context, in *protopb.Ad) (*protopb.EmptyResponseContent, error) {
+	return s.adController.CreateAd(ctx, in)
+}
+
+/* Campaigns */
+func (s *Server) GetCampaign(ctx context.Context, in *protopb.RequestId) (*protopb.Campaign, error) {
+	return s.campaignController.GetCampaign(ctx, in)
+}
+
+func (s *Server) GetCampaigns(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.CampaignArray, error) {
+	return s.campaignController.GetCampaigns(ctx, in)
+}
+
+func (s *Server) CreateCampaign(ctx context.Context, in *protopb.Campaign) (*protopb.EmptyResponseContent, error) {
+	return s.campaignController.CreateCampaign(ctx, in)
+}
+
+func (s *Server) UpdateCampaign(ctx context.Context, in *protopb.Campaign) (*protopb.EmptyResponseContent, error) {
+	return s.campaignController.UpdateCampaign(ctx, in)
+}
+
+func (s *Server) DeleteCampaign(ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent, error) {
+	return s.campaignController.DeleteCampaign(ctx, in)
+}
+
+/* Ad Categories */
+func (s *Server) GetAdCategories(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.AdCategoryArray, error) {
+	return s.adController.GetAdCategories(ctx, in)
+}
+
+func (s *Server) GetAdCategory(ctx context.Context, in *protopb.RequestId) (*protopb.AdCategory, error) {
+	return s.adController.GetAdCategory(ctx, in)
+}
+
+func (s *Server) CreateAdCategory(ctx context.Context, in *protopb.AdCategory) (*protopb.EmptyResponseContent, error) {
+	return s.adController.CreateAdCategory(ctx, in)
 }
