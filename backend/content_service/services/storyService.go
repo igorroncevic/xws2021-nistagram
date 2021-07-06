@@ -157,7 +157,7 @@ func (service *StoryService) CreateStory(ctx context.Context, story *domain.Stor
 		return errors.New("cannot create empty story")
 	}
 
-	err := service.storyRepository.CreateStory(ctx, story)
+	_, err := service.storyRepository.CreateStory(ctx, story)
 	if err != nil {
 		return err
 	}

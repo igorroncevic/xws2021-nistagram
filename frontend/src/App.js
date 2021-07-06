@@ -27,9 +27,13 @@ import ViewPendingVerificationRequests from "./components/VerificationRequest/Vi
 import ViewAllVerificationRequests from "./components/VerificationRequest/ViewAllVerificationRequests";
 import EditProfileImage from "./components/UserData/EditProfileImage";
 import Notifications from "./components/Notifications/Notifications";
+import CampaignsHome from './components/Campaigns/CampaignsHome'
+import CampaignPreview from './components/Campaigns/CampaignPreview'
+import CreateCampaign from './components/Campaigns/CreateCampaign';
 
-import AuthenticatedRoute from './AuthenticatedRoute';
-import AdminRoute from './AdminRoute';
+import AuthenticatedRoute from './routes/AuthenticatedRoute';
+import AdminRoute from './routes/AdminRoute';
+import AgentRoute from './routes/AgentRoute';
 
 const App = () => {
     return (
@@ -63,6 +67,10 @@ const App = () => {
                 <AuthenticatedRoute path='/password' exact component={ChangePassword} />
                 <AuthenticatedRoute path='/privacy' exact component={EditUserPrivacy} />
                 <AuthenticatedRoute path='/edit_photo' exact component={EditProfileImage} />
+
+                <AgentRoute path="/campaigns" exact component={CampaignsHome} />
+                <AgentRoute path="/campaigns/create" exact component={CreateCampaign} />
+                <AgentRoute path="/campaigns/preview/:id" component={CampaignPreview} />
             </Router>
         </div>
     );

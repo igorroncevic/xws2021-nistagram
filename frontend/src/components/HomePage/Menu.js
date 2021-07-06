@@ -8,6 +8,7 @@ import { ReactComponent as StoryArchive } from "../../images/icons/story-archive
 import { ReactComponent as Plus } from "../../images/icons/plus.svg";
 import { ReactComponent as Explore } from "../../images/icons/more.svg";
 import { ReactComponent as VerificationSymbol } from "../../images/icons/verification-symbol.svg";
+import { ReactComponent as Ad } from "../../images/icons/ad.svg";
 
 import ProfileIcon from "../ProfileComponent/ProfileIcon";
 import { NavLink, useHistory } from "react-router-dom";
@@ -108,6 +109,11 @@ function Menu() {
             {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/saved"}}>  <Bookmark className="icon"/> </NavLink>) }
             {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/story-archive"}}> <StoryArchive className="icon" />  </NavLink>) }
             {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/newpost"}}> <Plus className="icon" />  </NavLink>) }
+            { store.user.jwt !== "" && store.user.role === "Agent" && 
+                (<NavLink to={"/campaigns"}>
+                    <Ad className="icon" />
+                </NavLink>)
+            }
             {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={{pathname: "/info"}}> <Explore className="icon"/> </NavLink>) }
             {store.user.jwt !== "" && (
                 <Dropdown>
@@ -123,7 +129,8 @@ function Menu() {
                     </Dropdown.Menu>
                 </Dropdown>
             )}
-            {store.user.role !== 'Admin' && store.user.jwt !== "" && (<NavLink to={"/profile/" + username}> 
+            {store.user.role !== 'Admin' && store.user.jwt !== "" && 
+            (<NavLink to={"/profile/" + username}> 
                 <ProfileIcon iconSize="medium"
                     image={store.user.photo ? store.user.photo : 'https://i.pravatar.cc/150?img=1'}/>
             </NavLink>
