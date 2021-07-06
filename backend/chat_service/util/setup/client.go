@@ -1,7 +1,6 @@
 package setup
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/david-drvar/xws2021-nistagram/chat_service/model"
@@ -74,7 +73,7 @@ func (c *connection) write(mt int, payload []byte) error {
 	if mt == 1  { // Text message type
  		var message model.Message
 		json.Unmarshal(payload, &message)
-		c.service.SaveMessage(context.Background(), message)
+		//c.service.SaveMessage(context.Background(), message)
 	}
 
 	return c.ws.WriteMessage(mt, payload)

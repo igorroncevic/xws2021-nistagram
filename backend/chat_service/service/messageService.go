@@ -61,3 +61,36 @@ func (s MessageService) CreateChatRoom(ctx context.Context, room model.ChatRoom)
 	return s.repository.CreateChatRoom(ctx, room)
 
 }
+func (s MessageService) GetChatRoomByUsers(ctx context.Context, room model.ChatRoom) (*model.ChatRoom, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateChatRoom")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return s.repository.GetChatRoomByUsers(ctx, room)
+}
+
+//Message requests
+func (s *MessageService) CreateMessageRequest(ctx context.Context, messageRequest *model.MessageRequest) (*model.MessageRequest, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateMessageRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return s.repository.CreateMessageRequest(ctx, messageRequest)
+
+}
+
+func (s *MessageService) AcceptMessageRequest(ctx context.Context, messageRequest model.MessageRequest) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "AcceptMessageRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return s.repository.AcceptMessageRequest(ctx, messageRequest)
+}
+
+func (s *MessageService) DeclineMessageRequest(ctx context.Context, messageRequest model.MessageRequest) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "AcceptMessageRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return s.repository.DeclineMessageRequest(ctx, messageRequest)
+}

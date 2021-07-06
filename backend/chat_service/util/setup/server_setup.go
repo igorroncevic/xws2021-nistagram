@@ -25,6 +25,7 @@ func ServerSetup(controller *controllers.MessageController) {
 	router.HandleFunc("/room/{roomId}/messages", controller.GetMessagesForChatRoom).Methods("GET")
 	router.HandleFunc("/room/{userId}", controller.GetChatRoomsForUser).Methods("GET")
 	router.HandleFunc("/room", controller.CreateChatRoom).Methods("POST")
+	router.HandleFunc("/room/conversation", controller.StartConversation).Methods("POST")
 
 	c := common.SetupCors()
 
