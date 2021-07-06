@@ -6,6 +6,9 @@ import UserAutocomplete from "../Post/UserAutocomplete";
 import {Button} from "react-bootstrap";
 
 import "./../../style/chat.css"
+import verificationRequestService from "../../services/verificationRequest.service";
+import toastService from "../../services/toast.service";
+import chatService from "../../services/chat.service";
 
 
 function Chats() {
@@ -13,6 +16,8 @@ function Chats() {
     const dispatch = useDispatch();
     const store = useSelector(state => state);
     const [selectedUser, setSelectedUser] = useState({});
+    const [messageText, setMessageText] = useState("");
+    const [chatRoom, setChatRoom] = useState("");
 
     useEffect(() => {
         getAllUsers();
@@ -23,9 +28,22 @@ function Chats() {
         await setUsers(response.data.users);
     }
 
-    function startChat() {
-        console.log("selectedUser")
-        console.log(selectedUser)
+    async function startChat() {
+        const response = await chatService.CreateChatRoom({
+            person1: store.user.id,
+            person2: selectedUser.id,
+            jwt : store.user.jwt
+        });
+        if (response.status === 200) {
+            console.log(response);
+            toastService.show("success", "Chat room created successfully")
+        }
+        else
+            toastService.show("error", "Something went wrong. Try again")
+    }
+
+    function sendMessage() {
+        alert("A")
     }
 
     return (
@@ -97,6 +115,10 @@ function Chats() {
                     <span className="time-left">11:05</span>
                 </div>
             </div>
+
+            <input type={"text"} value={messageText} onChange={(e) => setMessageText(e.target.value)}/>
+            <Button style={{marginLeft : "1%"}} onClick={sendMessage}>Send message</Button>
+
         </div>
     );
 }

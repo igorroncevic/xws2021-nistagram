@@ -11,7 +11,6 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-// Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
 // UsersClient is the client API for Users service.
@@ -34,6 +33,7 @@ type UsersClient interface {
 	UpdateUserPhoto(ctx context.Context, in *UserPhotoRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	UpdateUserPassword(ctx context.Context, in *CreatePasswordRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	SearchUser(ctx context.Context, in *SearchUserDtoRequest, opts ...grpc.CallOption) (*UsersResponse, error)
+	GetAllInfluncers(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*InfluencerSearchResult, error)
 	SendEmail(ctx context.Context, in *SendEmailDtoRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GetUserByEmail(ctx context.Context, in *RequestEmailUser, opts ...grpc.CallOption) (*UsersDTO, error)
 	GetUserByUsername(ctx context.Context, in *RequestUsernameUser, opts ...grpc.CallOption) (*UsersDTO, error)
@@ -56,6 +56,9 @@ type UsersClient interface {
 	ChangeVerificationRequestStatus(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	GetVerificationRequestsByUserId(ctx context.Context, in *VerificationRequest, opts ...grpc.CallOption) (*VerificationRequestsArray, error)
 	GetAllVerificationRequests(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*VerificationRequestsArray, error)
+	CreateCampaignRequest(ctx context.Context, in *CampaignRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	UpdateCampaignRequest(ctx context.Context, in *CampaignRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	GetCampaignRequestsByAgent(ctx context.Context, in *CampaignRequest, opts ...grpc.CallOption) (*CampaignRequestArray, error)
 }
 
 type usersClient struct {
@@ -195,6 +198,15 @@ func (c *usersClient) UpdateUserPassword(ctx context.Context, in *CreatePassword
 func (c *usersClient) SearchUser(ctx context.Context, in *SearchUserDtoRequest, opts ...grpc.CallOption) (*UsersResponse, error) {
 	out := new(UsersResponse)
 	err := c.cc.Invoke(ctx, "/proto.Users/SearchUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) GetAllInfluncers(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*InfluencerSearchResult, error) {
+	out := new(InfluencerSearchResult)
+	err := c.cc.Invoke(ctx, "/proto.Users/GetAllInfluncers", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -390,6 +402,33 @@ func (c *usersClient) GetAllVerificationRequests(ctx context.Context, in *EmptyR
 	return out, nil
 }
 
+func (c *usersClient) CreateCampaignRequest(ctx context.Context, in *CampaignRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Users/CreateCampaignRequest", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) UpdateCampaignRequest(ctx context.Context, in *CampaignRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Users/UpdateCampaignRequest", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) GetCampaignRequestsByAgent(ctx context.Context, in *CampaignRequest, opts ...grpc.CallOption) (*CampaignRequestArray, error) {
+	out := new(CampaignRequestArray)
+	err := c.cc.Invoke(ctx, "/proto.Users/GetCampaignRequestsByAgent", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UsersServer is the server API for Users service.
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
@@ -410,6 +449,7 @@ type UsersServer interface {
 	UpdateUserPhoto(context.Context, *UserPhotoRequest) (*EmptyResponse, error)
 	UpdateUserPassword(context.Context, *CreatePasswordRequest) (*EmptyResponse, error)
 	SearchUser(context.Context, *SearchUserDtoRequest) (*UsersResponse, error)
+	GetAllInfluncers(context.Context, *EmptyRequest) (*InfluencerSearchResult, error)
 	SendEmail(context.Context, *SendEmailDtoRequest) (*EmptyResponse, error)
 	GetUserByEmail(context.Context, *RequestEmailUser) (*UsersDTO, error)
 	GetUserByUsername(context.Context, *RequestUsernameUser) (*UsersDTO, error)
@@ -432,6 +472,9 @@ type UsersServer interface {
 	ChangeVerificationRequestStatus(context.Context, *VerificationRequest) (*EmptyResponse, error)
 	GetVerificationRequestsByUserId(context.Context, *VerificationRequest) (*VerificationRequestsArray, error)
 	GetAllVerificationRequests(context.Context, *EmptyRequest) (*VerificationRequestsArray, error)
+	CreateCampaignRequest(context.Context, *CampaignRequest) (*EmptyResponse, error)
+	UpdateCampaignRequest(context.Context, *CampaignRequest) (*EmptyResponse, error)
+	GetCampaignRequestsByAgent(context.Context, *CampaignRequest) (*CampaignRequestArray, error)
 	mustEmbedUnimplementedUsersServer()
 }
 
@@ -483,6 +526,9 @@ func (UnimplementedUsersServer) UpdateUserPassword(context.Context, *CreatePassw
 }
 func (UnimplementedUsersServer) SearchUser(context.Context, *SearchUserDtoRequest) (*UsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchUser not implemented")
+}
+func (UnimplementedUsersServer) GetAllInfluncers(context.Context, *EmptyRequest) (*InfluencerSearchResult, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllInfluncers not implemented")
 }
 func (UnimplementedUsersServer) SendEmail(context.Context, *SendEmailDtoRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendEmail not implemented")
@@ -547,6 +593,15 @@ func (UnimplementedUsersServer) GetVerificationRequestsByUserId(context.Context,
 func (UnimplementedUsersServer) GetAllVerificationRequests(context.Context, *EmptyRequest) (*VerificationRequestsArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllVerificationRequests not implemented")
 }
+func (UnimplementedUsersServer) CreateCampaignRequest(context.Context, *CampaignRequest) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateCampaignRequest not implemented")
+}
+func (UnimplementedUsersServer) UpdateCampaignRequest(context.Context, *CampaignRequest) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateCampaignRequest not implemented")
+}
+func (UnimplementedUsersServer) GetCampaignRequestsByAgent(context.Context, *CampaignRequest) (*CampaignRequestArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCampaignRequestsByAgent not implemented")
+}
 func (UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}
 
 // UnsafeUsersServer may be embedded to opt out of forward compatibility for this service.
@@ -556,8 +611,8 @@ type UnsafeUsersServer interface {
 	mustEmbedUnimplementedUsersServer()
 }
 
-func RegisterUsersServer(s grpc.ServiceRegistrar, srv UsersServer) {
-	s.RegisterService(&Users_ServiceDesc, srv)
+func RegisterUsersServer(s *grpc.Server, srv UsersServer) {
+	s.RegisterService(&_Users_serviceDesc, srv)
 }
 
 func _Users_CreateAgentUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -826,6 +881,24 @@ func _Users_SearchUser_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UsersServer).SearchUser(ctx, req.(*SearchUserDtoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_GetAllInfluncers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EmptyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).GetAllInfluncers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/GetAllInfluncers",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).GetAllInfluncers(ctx, req.(*EmptyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1208,10 +1281,61 @@ func _Users_GetAllVerificationRequests_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
-// Users_ServiceDesc is the grpc.ServiceDesc for Users service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var Users_ServiceDesc = grpc.ServiceDesc{
+func _Users_CreateCampaignRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CampaignRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).CreateCampaignRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/CreateCampaignRequest",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).CreateCampaignRequest(ctx, req.(*CampaignRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_UpdateCampaignRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CampaignRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).UpdateCampaignRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/UpdateCampaignRequest",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).UpdateCampaignRequest(ctx, req.(*CampaignRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_GetCampaignRequestsByAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CampaignRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).GetCampaignRequestsByAgent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/GetCampaignRequestsByAgent",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).GetCampaignRequestsByAgent(ctx, req.(*CampaignRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _Users_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.Users",
 	HandlerType: (*UsersServer)(nil),
 	Methods: []grpc.MethodDesc{
@@ -1274,6 +1398,10 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SearchUser",
 			Handler:    _Users_SearchUser_Handler,
+		},
+		{
+			MethodName: "GetAllInfluncers",
+			Handler:    _Users_GetAllInfluncers_Handler,
 		},
 		{
 			MethodName: "SendEmail",
@@ -1358,6 +1486,18 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllVerificationRequests",
 			Handler:    _Users_GetAllVerificationRequests_Handler,
+		},
+		{
+			MethodName: "CreateCampaignRequest",
+			Handler:    _Users_CreateCampaignRequest_Handler,
+		},
+		{
+			MethodName: "UpdateCampaignRequest",
+			Handler:    _Users_UpdateCampaignRequest_Handler,
+		},
+		{
+			MethodName: "GetCampaignRequestsByAgent",
+			Handler:    _Users_GetCampaignRequestsByAgent_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
