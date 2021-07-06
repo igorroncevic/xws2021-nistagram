@@ -4,9 +4,11 @@ import React, {useEffect, useState} from "react";
 import userService from "../../services/user.service";
 import toastService from "../../services/toast.service";
 import {useSelector} from "react-redux";
+import ProfileForSug from "../HomePage/ProfileForSug";
 
 const CampaignRequests = () => {
     const[requests,setRequests]=useState([])
+    const[results,setResults]=useState([])
     const store = useSelector(state => state);
 
     useEffect(() => {
@@ -20,8 +22,34 @@ const CampaignRequests = () => {
         })
         if (response.status === 200) {
             setRequests(response.data.campaignRequests)
+            getUsers(response.data.campaignRequests)
         } else {
             toastService.show("error", "Something went wrong.Please try again!");
+        }
+    }
+
+    function getUsers(requests) {
+        requests.map((request, i) =>
+            getUserById(request)
+        );
+    }
+
+    async function getUserById(request) {
+        const response = await userService.getUserById({
+            id: request.influencerId,
+            jwt: store.user.jwt,
+        })
+
+        if (response.status === 200) {
+            let temp=[{postAt:request.postAt,status:request.status, campaignId:request.campaignId,
+                firstName:response.data.firstName,lastName:response.data.lastName,username:response.data.username,profilePhoto:response.data.profilePhoto}]
+            console.log(temp)
+            setResults(results=>[...results,temp])
+
+            console.log(results)
+
+        } else {
+            console.log("getuserbyid error")
         }
     }
 
@@ -41,20 +69,26 @@ const CampaignRequests = () => {
                     </tr>
                     </thead>
                     <tbody>
-                    {requests.map((request,index) => {
-                        return (
+                    {results.map((result,index) =>
                             <tr>
                                 <td>{index+1}</td>
                                 <td>cekaj jos</td>
-                                <td>{request.influencer}</td>
-                                <td>{ request.status==="Pending" &&<p  style={{color:'blueviolet' }}>{request.status}</p> }
-                                    { request.status==="Accepted" &&<p  style={{color:'yellowgreen' }}>{request.status}</p> }
-                                    { request.status==="Rejected" &&<p  style={{color:'red' }}>{request.status}</p> }
+                                <td> <ProfileForSug
+                                                    username={result.username}
+                                                    firstName={result.firstName}
+                                                    lastName={result.lastName}
+                                                    caption="profile"
+                                                    urlText="Follow"
+                                                    iconSize="big"
+                                                    captionSize="small"
+                                                    image={result.profilePhoto} storyBorder={true} /></td>
+                                <td>{ result.status==="Pending" &&<p  style={{color:'blueviolet' }}>{result.status}</p> }
+                                    { result.status==="Accepted" &&<p  style={{color:'yellowgreen' }}>{result.status}</p> }
+                                    { result.status==="Rejected" &&<p  style={{color:'red' }}>{result.status}</p> }
                                 </td>
-                                <td>{request.postAt}</td>
+                                <td>{result.postAt}</td>
                             </tr>
-                        )
-                    })}
+                    )}
                     </tbody>
                 </Table>
             </div>

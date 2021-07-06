@@ -43,7 +43,6 @@ const Influencers = () => {
             if(user.isProfilePublic==false){
                 GetFollowersConnection(user)
             }else{
-                console.log(user)
                 let temp={id:user.id,username:user.username, firstname:user.firstName, lastname:user.lastName,profilePhoto:user.profilePhoto,isApprovedRequest:true,requestIsPending:false}
                 setRenderInfluencers(renderInfluencers=>[...renderInfluencers, temp])
 
