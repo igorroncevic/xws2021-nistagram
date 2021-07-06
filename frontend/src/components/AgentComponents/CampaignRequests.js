@@ -41,9 +41,16 @@ const CampaignRequests = () => {
         })
 
         if (response.status === 200) {
-            let temp=[{postAt:request.postAt,status:request.status, campaignId:request.campaignId,
-                firstName:response.data.firstName,lastName:response.data.lastName,username:response.data.username,profilePhoto:response.data.profilePhoto}]
-            console.log(temp)
+            console.log(response.data)
+            let temp={postAt:request.postAt,status:request.status, campaignId:request.campaignId,id:response.data.id,
+                firstName:response.data.firstName,lastName:response.data.lastName,username:response.data.username,profilePhoto:response.data.profilePhoto}
+
+            if(results.some(item => item.influencerId === temp.id)){
+                if(results.some(item => item.campaignId === temp.campaignId)) {
+                    return;
+                }
+            }
+
             setResults(results=>[...results,temp])
 
             console.log(results)

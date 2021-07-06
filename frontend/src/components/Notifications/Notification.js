@@ -57,7 +57,7 @@ function Notification(props) {
     }
 
     async function acceptRequest() {
-        const response = await userService.acceptRequest({
+        const response = await followersService.acceptRequest({
             userId: creatorId,
             followerId: userId,
             isApprovedRequest: true,

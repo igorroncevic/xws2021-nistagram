@@ -20,12 +20,15 @@ const Influencers = () => {
     const [modalUser, setModalUser] = useState({});
 
     useEffect(() => {
+        console.log("TU1")
         getInfluencers()
     }, []);
 
 
 
     async function getInfluencers() {
+        console.log("TU2")
+
         const response = await userService.getInfluencers({
             //   id: store.user.id,
             jwt: store.user.jwt,
@@ -39,7 +42,9 @@ const Influencers = () => {
     }
 
      function checkConnection(users){
-        users.map((user, i) => {
+         console.log("TU3")
+
+         users.map((user, i) => {
             if(user.isProfilePublic==false){
                 GetFollowersConnection(user)
             }else{
@@ -51,12 +56,18 @@ const Influencers = () => {
     }
 
     async function GetFollowersConnection(value) {
+        console.log("TU4")
+
         const response = await followersService.getFollowersConnection({
             userId: store.user.id,
             followerId: value.id,
         })
         if (response.status === 200) {
             let temp={id:value.id,username:value.username,firstname:value.firstName, lastname:value.lastName,profilePhoto:value.profilePhoto, isApprovedRequest:response.data.isApprovedRequest,requestIsPending:response.data.requestIsPending }
+            if(renderInfluencers.some(item => item.id === temp.id)){
+                    return;
+                    
+            }
             setRenderInfluencers(renderInfluencers=>[...renderInfluencers, temp])
         } else {
             console.log("followings ne radi")
@@ -64,17 +75,23 @@ const Influencers = () => {
     }
 
     function handleModal(user) {
+        console.log("TU5")
+
         setModalUser(user)
         setShowModal(!showModal)
 
     }
 
-    function closeModal(user) {
+    function closeModal() {
+        console.log("TU6")
+
         setShowModal(!showModal)
+
     }
 
     async function createCampaignRequest(modalUser) {
-        console.log(modalUser)
+        console.log("TU7")
+
         const response = await userService.createCampaignRequest({
             agentId: store.user.id,
             influencerId:modalUser.id,
@@ -132,7 +149,7 @@ const Influencers = () => {
                 <Modal.Header closeButton>
                     <Modal.Title>Hire for campaign</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body style={{background:'#e4e6e5'}}>
                     <div>
                         <div style={{borderBottom: '1px solid #dbe0de'}}>
                             <h6>Influencers info:</h6>
@@ -150,6 +167,7 @@ const Influencers = () => {
                                 <td ><p style={{marginLeft:'15px'}}>{modalUser.lastname}</p></td>
                             </tr>
                         </div>
+                        <div style={{background:'#b6beba'}}>
                       <tr>
                           <td>Campaign:</td>
                           <Dropdown>
@@ -164,7 +182,7 @@ const Influencers = () => {
                           </Dropdown>
                       </tr>
                         <tr>
-                            <td>Date and time posted at:  </td>
+                            <td >  <p style={{marginRight:'10px'}}>Date and time posted at: </p></td>
                             <DatePicker
                                 onChange={date => setDateTime(date)}
 
@@ -177,9 +195,11 @@ const Influencers = () => {
                                 dateFormat="MMMM d, yyyy h:mm aa"
                                 startDate={startDate}
                                 minDate={startDate}
+
                             />
 
                         </tr>
+                        </div>
                         <tr>
                             <Button
                                 style={{marginLeft: '5px', marginTop: '22px', height: '32px', fontSize: '15px'}}
