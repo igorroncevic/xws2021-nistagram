@@ -32,6 +32,4 @@ func ServerSetup(controller *controllers.MessageController) {
 	http.Handle("/", c.Handler(router))
 	http.ListenAndServe(":8003", c.Handler(router))
 
-
-
 }

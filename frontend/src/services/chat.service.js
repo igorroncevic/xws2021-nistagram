@@ -54,6 +54,21 @@ class ChatService extends RootService {
         return response
     }
 
+    async GetMessagesForChatRoom(data){
+        const { roomId, jwt } = data;
+        const headers = this.setupHeaders(jwt);
+
+        const response = await this.apiClient.get(`/room/` + roomId + `/messages`, {
+        },{ headers })
+            .then(res => {
+                return res
+            }).catch(err => {
+                console.error(err)
+                return err
+            })
+        return response;
+    }
+
 }
 
 const chatService = new ChatService();

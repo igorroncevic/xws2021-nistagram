@@ -18,7 +18,8 @@ function Chats() {
     const [selectedUser, setSelectedUser] = useState({});
     const [messageText, setMessageText] = useState("");
     const [chatRoom, setChatRoom] = useState("");
-    const [conn, setConn] = useState({})
+    const [conn, setConn] = useState({});
+    const [messages, setMessages] = useState([]);
 
     useEffect(() => {
         getAllUsers();
@@ -26,15 +27,38 @@ function Chats() {
 
     useEffect(() => {
         //conn change
-        if (conn) {
-            //conn.onmessage()
-            //gledaj da budu javan i da su follow
+        if (conn !== {}) {
+            // conn.onmessage()
+            // gledaj da budu javan i da su follow
+
+            conn.onmessage = function(event) {
+                const message = JSON.parse(event.data)
+                setMessages([...messages,message])
+            };
+
         }
-    }, [conn]);
+    }, [conn, messages]);
 
     async function getAllUsers() {
         const response = await userService.getAllUsers({ jwt: store.user.jwt });
         await setUsers(response.data.users);
+    }
+
+    async function getMessagesForChatRoom() {
+        console.log("chatRoom");
+        console.log(chatRoom);
+        const response = await chatService.GetMessagesForChatRoom({
+            roomId : chatRoom.Id,
+            jwt : store.user.jwt
+        });
+        if (response.status === 200) {
+            console.log("messages");
+            console.log(response.data);
+            toastService.show("success", "Chat room messages retrieved successfully")
+            await setMessages(response.data)
+        }
+        else
+            toastService.show("error", "Something went wrong. Try again")
     }
 
     async function startChat() {
@@ -44,16 +68,10 @@ function Chats() {
             jwt : store.user.jwt
         });
         if (response.status === 200) {
-            //console.log(response);
-            toastService.show("success", "Chat room created successfully")
+            toastService.show("success", "Chat room retrieved successfully")
             await setChatRoom(response.data)
-            //ws://localhost:46657/websocket
-            console.log("chatRoom")
-            console.log(chatRoom)
-            console.log("chatRoom.id")
-            console.log(chatRoom.id)
-            console.log("ws://localhost:8003" + "/ws/" + chatRoom.Id);
-            setConn(new WebSocket("ws://localhost:8003" + "/ws/" + response.data.Id));
+            await setConn(new WebSocket("ws://localhost:8003" + "/ws/" + response.data.Id));
+            getMessagesForChatRoom()
 
 
         }
@@ -77,66 +95,86 @@ function Chats() {
             <Button style={{marginLeft : "1%"}} onClick={startChat}>Start chat</Button>
 
             <br/><br/><br/>
+
             <div style={{overflow: "scroll", height:"400px"}}>
-                <div className="container">
-                    <img src="" alt="Avatar"/>
-                        <p>Hello. How are you today?</p>
-                        <span className="time-right">11:00</span>
-                </div>
+                {messages.map((message) => {
+                    return (
+                        <div>
+                            {message.SenderId === store.user.id && <div className="container">
+                                <img src="" alt="Avatar"/>
+                                <p>{message.Content}</p>
+                                <span style={{marginLeft: "20px"}} className="time-right">{message.DateCreated}</span>
+                            </div>
+                            }
 
-                <div className="container darker">
-                    <img src="" alt="Avatar" className="right"/>
-                        <p>Hey! I'm fine. Thanks for asking!</p>
-                        <span className="time-left">11:01</span>
-                </div>
+                            {message.ReceiverId === store.user.id && <div className="container darker">
+                                <img src="" alt="Avatar"/>
+                                <p>{message.Content}</p>
+                                <span style={{marginLeft: "20px"}} className="time-right">{message.DateCreated}</span>
+                            </div>}
+                        </div>
+                    )
+                })}
 
-                <div className="container">
-                    <img src="" alt="Avatar"/>
-                        <p>Sweet! So, what do you wanna do today?</p>
-                        <span className="time-right">11:02</span>
-                </div>
+                {/*<div className="container">*/}
+                {/*    <img src="" alt="Avatar"/>*/}
+                {/*        <p>Hello. How are you today?</p>*/}
+                {/*        <span className="time-right">11:00</span>*/}
+                {/*</div>*/}
 
-                <div className="container darker">
-                    <img src="" alt="Avatar" className="right"/>
-                        <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>
-                        <span className="time-left">11:05</span>
-                </div>
+                {/*<div className="container darker">*/}
+                {/*    <img src="" alt="Avatar" className="right"/>*/}
+                {/*        <p>Hey! I'm fine. Thanks for asking!</p>*/}
+                {/*        <span className="time-left">11:01</span>*/}
+                {/*</div>*/}
 
-                <div className="container darker">
-                    <img src="" alt="Avatar" className="right"/>
-                    <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>
-                    <span className="time-left">11:05</span>
-                </div>
+                {/*<div className="container">*/}
+                {/*    <img src="" alt="Avatar"/>*/}
+                {/*        <p>Sweet! So, what do you wanna do today?</p>*/}
+                {/*        <span className="time-right">11:02</span>*/}
+                {/*</div>*/}
 
-                <div className="container darker">
-                    <img src="" alt="Avatar" className="right"/>
-                    <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>
-                    <span className="time-left">11:05</span>
-                </div>
+                {/*<div className="container darker">*/}
+                {/*    <img src="" alt="Avatar" className="right"/>*/}
+                {/*        <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>*/}
+                {/*        <span className="time-left">11:05</span>*/}
+                {/*</div>*/}
 
-                <div className="container darker">
-                    <img src="" alt="Avatar" className="right"/>
-                    <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>
-                    <span className="time-left">11:05</span>
-                </div>
+                {/*<div className="container darker">*/}
+                {/*    <img src="" alt="Avatar" className="right"/>*/}
+                {/*    <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>*/}
+                {/*    <span className="time-left">11:05</span>*/}
+                {/*</div>*/}
 
-                <div className="container darker">
-                    <img src="" alt="Avatar" className="right"/>
-                    <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>
-                    <span className="time-left">11:05</span>
-                </div>
+                {/*<div className="container darker">*/}
+                {/*    <img src="" alt="Avatar" className="right"/>*/}
+                {/*    <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>*/}
+                {/*    <span className="time-left">11:05</span>*/}
+                {/*</div>*/}
 
-                <div className="container darker">
-                    <img src="" alt="Avatar" className="right"/>
-                    <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>
-                    <span className="time-left">11:05</span>
-                </div>
+                {/*<div className="container darker">*/}
+                {/*    <img src="" alt="Avatar" className="right"/>*/}
+                {/*    <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>*/}
+                {/*    <span className="time-left">11:05</span>*/}
+                {/*</div>*/}
 
-                <div className="container darker">
-                    <img src="" alt="Avatar" className="right"/>
-                    <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>
-                    <span className="time-left">11:05</span>
-                </div>
+                {/*<div className="container darker">*/}
+                {/*    <img src="" alt="Avatar" className="right"/>*/}
+                {/*    <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>*/}
+                {/*    <span className="time-left">11:05</span>*/}
+                {/*</div>*/}
+
+                {/*<div className="container darker">*/}
+                {/*    <img src="" alt="Avatar" className="right"/>*/}
+                {/*    <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>*/}
+                {/*    <span className="time-left">11:05</span>*/}
+                {/*</div>*/}
+
+                {/*<div className="container darker">*/}
+                {/*    <img src="" alt="Avatar" className="right"/>*/}
+                {/*    <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>*/}
+                {/*    <span className="time-left">11:05</span>*/}
+                {/*</div>*/}
             </div>
 
             <input type={"text"} value={messageText} onChange={(e) => setMessageText(e.target.value)}/>
