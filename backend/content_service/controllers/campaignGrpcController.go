@@ -102,7 +102,6 @@ func (controller *CampaignGrpcController) DeleteCampaign(ctx context.Context, in
 	return &protopb.EmptyResponseContent{}, nil
 }
 
-
 func (controller *CampaignGrpcController) CreateCampaignRequest(ctx context.Context, in *protopb.CampaignInfluencerRequest) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateCampaignRequest")
 	defer span.Finish()

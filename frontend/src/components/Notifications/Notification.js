@@ -63,6 +63,7 @@ function Notification(props) {
         }
     }
 
+
     async function acceptRequest() {
         const response = await followersService.acceptRequest({
             userId: creatorId,
@@ -150,7 +151,6 @@ function Notification(props) {
         })
         if (response.status === 200) {
             toastService.show("success", "Successfully accepted!");
-
         } else {
             toastService.show("error", "Something went wrong, please try again!");
         }
@@ -233,9 +233,7 @@ function Notification(props) {
                 <Button style={{marginLeft: '5px', height: '27px', fontSize: '12px'}} variant="secondary"
                         onClick={() => rejectCampaignRequest()}>Reject</Button>
             </div>
-
             }
-
             {messageRequest &&
             <div style={{display: "flex", marginLeft: '85px'}}>
                 <Button style={{height: '27px', fontSize: '12px'}} variant="success"
@@ -244,6 +242,7 @@ function Notification(props) {
                         onClick={() => declineMessageRequest()}>Reject</Button>
             </div>
             }
+
 
 
             <PostPreviewModal

@@ -192,7 +192,7 @@ function Chats() {
                             {message.SenderId === store.user.id && <div className="container">
                                 {<img src="" alt="Avatar"/>
                                 }                                {message.ContentType === "String" && <p>{message.Content}</p>}
-                                {message.ContentType === "Image" && <Button disabled={message.IsMediaOpened}
+                                {message.ContentType === "Image" && <Button disabled={message.IsMediaOpened }
                                     style={{marginLeft: '5px', marginTop: '22px', height: '32px', fontSize: '15px'}}
                                     variant="success"  onClick={() => handleModal(message)}>Photo </Button>}
 
