@@ -10,6 +10,7 @@ import "../../style/notification.css";
 import {contentService} from "../../backendPaths";
 import postService from "../../services/post.service";
 import PostPreviewModal from "../Post/PostPreviewModal";
+import campaignsService from "../../services/campaigns.service";
 
 function Notification(props) {
     const {id, creatorId, userId, text, type, createdAt, contentId} = props;
@@ -134,7 +135,7 @@ function Notification(props) {
 
 
     async function acceptCampaignRequest() {
-        const response = await userService.updateCampaignRequest({
+        const response = await campaignsService.updateCampaignRequest({
             agentId:creatorId,
             influencerId:userId,
             campaignId:contentId,
@@ -150,7 +151,7 @@ function Notification(props) {
     }
 
     async function rejectCampaignRequest() {
-        const response = await userService.updateCampaignRequest({
+        const response = await campaignsService.updateCampaignRequest({
             agentId:creatorId,
             influencerId:userId,
             campaignId:contentId,

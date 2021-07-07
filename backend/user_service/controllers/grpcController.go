@@ -241,14 +241,3 @@ func (s *Server) UpdateRequest(ctx context.Context, in *protopb.RegistrationRequ
 	return s.registrationRequestController.UpdateRequest(ctx, in)
 }
 
-func (s *Server) CreateCampaignRequest(ctx context.Context, in *protopb.CampaignRequest) (*protopb.EmptyResponse, error) {
-	return s.userController.CreateCampaignRequest(ctx, in)
-}
-
-func (s *Server) UpdateCampaignRequest(ctx context.Context, in *protopb.CampaignRequest) (*protopb.EmptyResponse, error) {
-	return s.userController.UpdateCampaignRequest(ctx, in)
-}
-
-func (s *Server) GetCampaignRequestsByAgent(ctx context.Context, in *protopb.CampaignRequest) (*protopb.CampaignRequestArray, error) {
-	return s.userController.GetCampaignRequestsByAgent(ctx, in)
-}

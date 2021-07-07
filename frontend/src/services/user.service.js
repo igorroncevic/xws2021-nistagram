@@ -354,58 +354,6 @@ class UserService extends RootService {
         })
         return response
     }
-    async createCampaignRequest(data) {
-        console.log(data.campaignId)
-        const {id,agentId,influencerId,campaignId,status,postAt, jwt} = data
-        const headers = this.setupHeaders(jwt)
-
-        const response = this.apiClient.post('/create-campaign',{
-            id,agentId,influencerId,campaignId,status,postAt
-        }, {
-            headers: headers
-        }).then(res => {
-            return res
-        }).catch(err => {
-            return err
-        })
-        return response
-    }
-    async getCampaignRequests(data) {
-        const {agentId,jwt} = data
-        const headers = this.setupHeaders(jwt)
-
-        const response = this.apiClient.post('/get-campaign-request-by-agent',{
-            agentId
-        }, {
-            headers: headers
-        }).then(res => {
-            return res
-        }).catch(err => {
-            return err
-        })
-        return response
-    }
-
-    async updateCampaignRequest(data) {
-
-        const {agentId,influencerId,campaignId,status,jwt} = data
-        console.log(agentId)
-        console.log(influencerId)
-        console.log(campaignId)
-        console.log(status)
-        const headers = this.setupHeaders(jwt)
-
-        const response = this.apiClient.post('/update-campaign-request',{
-            agentId,influencerId,campaignId,status
-        }, {
-            headers: headers
-        }).then(res => {
-            return res
-        }).catch(err => {
-            return err
-        })
-        return response
-    }
 
 }
 

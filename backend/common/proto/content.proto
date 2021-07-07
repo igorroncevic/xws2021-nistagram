@@ -330,6 +330,27 @@ service Content {
     };
   }
 
+  rpc CreateCampaignRequest (CampaignInfluencerRequest) returns (EmptyResponseContent) {
+    option(google.api.http) = {
+      post: "/campaigns/create-campaign",
+      body:"*"
+    };
+  }
+
+  rpc UpdateCampaignRequest (CampaignInfluencerRequest) returns (EmptyResponseContent) {
+    option(google.api.http) = {
+      post: "/campaigns/update-campaign-request",
+      body:"*"
+    };
+  }
+
+  rpc GetCampaignRequestsByAgent (CampaignInfluencerRequest) returns (CampaignRequestArray) {
+    option(google.api.http) = {
+      post: "/campaigns/get-campaign-request-by-agent",
+      body:"*"
+    };
+  }
+
   /* * * * * * * * * * * * */
 
   /*   Ad Categories  */
@@ -487,6 +508,19 @@ message AdCategory{
 
 message AdCategoryArray{
   repeated AdCategory categories = 1;
+}
+
+message  CampaignInfluencerRequest {
+  string id=1;
+  string agentId=2;
+  string influencerId=3;
+  string campaignId=4;
+  string status=5;
+  google.protobuf.Timestamp postAt = 6;
+}
+
+message  CampaignRequestArray {
+  repeated CampaignInfluencerRequest campaignRequests = 1;
 }
 
 /* * * * * * * * * * * * */

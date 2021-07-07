@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/content_service/repositories"
@@ -98,11 +99,36 @@ func (service *CampaignService) UpdateCampaign(ctx context.Context, campaign dom
 
 	return service.campaignRepository.UpdateCampaign(ctx, campaign)
 }
-
 func (service *CampaignService) DeleteCampaign(ctx context.Context, campaignId string) error{
 	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteCampaign")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	return service.campaignRepository.DeleteCampaign(ctx, campaignId)
+}
+func (service *CampaignService) UpdateCampaignRequest(ctx context.Context, request *domain.CampaignInfluencerRequest) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateCampaignRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.campaignRepository.UpdateCampaignRequest(ctx, request)
+}
+func (service *CampaignService) GetCampaignRequestsByAgent(ctx context.Context, agentId string) ([]domain.CampaignInfluencerRequest, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetCampaignRequestsByAgent")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.campaignRepository.GetCampaignRequestsByAgent(ctx, agentId)
+}
+func (service *CampaignService) CreateCampaignRequest(ctx context.Context, request *domain.CampaignInfluencerRequest) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateCampaignRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	request, err := service.campaignRepository.CreateCampaignRequest(ctx, request)
+	if err != nil {
+		return err
+	}
+
+	return grpc_common.CreateNotification(ctx, request.InfluencerId, request.AgentId, "Campaign", request.CampaignId)
 }

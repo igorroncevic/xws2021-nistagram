@@ -76,6 +76,9 @@ type ContentClient interface {
 	CreateCampaign(ctx context.Context, in *Campaign, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	UpdateCampaign(ctx context.Context, in *Campaign, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	DeleteCampaign(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
+	CreateCampaignRequest(ctx context.Context, in *CampaignInfluencerRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error)
+	UpdateCampaignRequest(ctx context.Context, in *CampaignInfluencerRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error)
+	GetCampaignRequestsByAgent(ctx context.Context, in *CampaignInfluencerRequest, opts ...grpc.CallOption) (*CampaignRequestArray, error)
 	//   Ad Categories
 	GetAdCategories(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*AdCategoryArray, error)
 	CreateAdCategory(ctx context.Context, in *AdCategory, opts ...grpc.CallOption) (*EmptyResponseContent, error)
@@ -512,6 +515,33 @@ func (c *contentClient) DeleteCampaign(ctx context.Context, in *RequestId, opts 
 	return out, nil
 }
 
+func (c *contentClient) CreateCampaignRequest(ctx context.Context, in *CampaignInfluencerRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
+	out := new(EmptyResponseContent)
+	err := c.cc.Invoke(ctx, "/proto.Content/CreateCampaignRequest", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) UpdateCampaignRequest(ctx context.Context, in *CampaignInfluencerRequest, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
+	out := new(EmptyResponseContent)
+	err := c.cc.Invoke(ctx, "/proto.Content/UpdateCampaignRequest", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) GetCampaignRequestsByAgent(ctx context.Context, in *CampaignInfluencerRequest, opts ...grpc.CallOption) (*CampaignRequestArray, error) {
+	out := new(CampaignRequestArray)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetCampaignRequestsByAgent", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *contentClient) GetAdCategories(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*AdCategoryArray, error) {
 	out := new(AdCategoryArray)
 	err := c.cc.Invoke(ctx, "/proto.Content/GetAdCategories", in, out, opts...)
@@ -592,6 +622,9 @@ type ContentServer interface {
 	CreateCampaign(context.Context, *Campaign) (*EmptyResponseContent, error)
 	UpdateCampaign(context.Context, *Campaign) (*EmptyResponseContent, error)
 	DeleteCampaign(context.Context, *RequestId) (*EmptyResponseContent, error)
+	CreateCampaignRequest(context.Context, *CampaignInfluencerRequest) (*EmptyResponseContent, error)
+	UpdateCampaignRequest(context.Context, *CampaignInfluencerRequest) (*EmptyResponseContent, error)
+	GetCampaignRequestsByAgent(context.Context, *CampaignInfluencerRequest) (*CampaignRequestArray, error)
 	//   Ad Categories
 	GetAdCategories(context.Context, *EmptyRequestContent) (*AdCategoryArray, error)
 	CreateAdCategory(context.Context, *AdCategory) (*EmptyResponseContent, error)
@@ -742,6 +775,15 @@ func (UnimplementedContentServer) UpdateCampaign(context.Context, *Campaign) (*E
 }
 func (UnimplementedContentServer) DeleteCampaign(context.Context, *RequestId) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteCampaign not implemented")
+}
+func (UnimplementedContentServer) CreateCampaignRequest(context.Context, *CampaignInfluencerRequest) (*EmptyResponseContent, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateCampaignRequest not implemented")
+}
+func (UnimplementedContentServer) UpdateCampaignRequest(context.Context, *CampaignInfluencerRequest) (*EmptyResponseContent, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateCampaignRequest not implemented")
+}
+func (UnimplementedContentServer) GetCampaignRequestsByAgent(context.Context, *CampaignInfluencerRequest) (*CampaignRequestArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCampaignRequestsByAgent not implemented")
 }
 func (UnimplementedContentServer) GetAdCategories(context.Context, *EmptyRequestContent) (*AdCategoryArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAdCategories not implemented")
@@ -1608,6 +1650,60 @@ func _Content_DeleteCampaign_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Content_CreateCampaignRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CampaignInfluencerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).CreateCampaignRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/CreateCampaignRequest",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).CreateCampaignRequest(ctx, req.(*CampaignInfluencerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_UpdateCampaignRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CampaignInfluencerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).UpdateCampaignRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/UpdateCampaignRequest",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).UpdateCampaignRequest(ctx, req.(*CampaignInfluencerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_GetCampaignRequestsByAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CampaignInfluencerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetCampaignRequestsByAgent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetCampaignRequestsByAgent",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetCampaignRequestsByAgent(ctx, req.(*CampaignInfluencerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Content_GetAdCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(EmptyRequestContent)
 	if err := dec(in); err != nil {
@@ -1838,6 +1934,18 @@ var Content_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteCampaign",
 			Handler:    _Content_DeleteCampaign_Handler,
+		},
+		{
+			MethodName: "CreateCampaignRequest",
+			Handler:    _Content_CreateCampaignRequest_Handler,
+		},
+		{
+			MethodName: "UpdateCampaignRequest",
+			Handler:    _Content_UpdateCampaignRequest_Handler,
+		},
+		{
+			MethodName: "GetCampaignRequestsByAgent",
+			Handler:    _Content_GetCampaignRequestsByAgent_Handler,
 		},
 		{
 			MethodName: "GetAdCategories",

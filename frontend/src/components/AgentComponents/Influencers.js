@@ -102,7 +102,7 @@ const Influencers = () => {
     }
 
     async function createCampaignRequest(modalUser) {
-        const response = await userService.createCampaignRequest({
+        const response = await campaignsService.createCampaignRequest({
             agentId: store.user.id,
             influencerId:modalUser.id,
             campaignId:campaign.id,
