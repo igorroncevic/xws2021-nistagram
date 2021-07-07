@@ -11,6 +11,7 @@ import Home from "./components/HomePage/Home";
 import UnauthorizedPage from "./helpers/UnauthorizedPage";
 
 import ProfileInfo from "./components/UserData/ProfileInfo";
+import APIKey from "./components/UserData/APIKey";
 import EditProfile from "./components/UserData/EditProfile";
 import ChangePassword from "./components/UserData/ChangePassword";
 
@@ -32,6 +33,7 @@ const App = () => {
                 <Route path='/forgotten' exact={true} component={ForgotPasswordPage}/>
                 <Route path='/registration' exact={true} component={RegistrationPage}/>
                 <Route path='/info' exact component={ProfileInfo}/>
+                <Route path='/api-key' exact component={APIKey}/>
                 <Route path='/newproduct' exact component={NewProduct}/>
                 <Route path='/profile/:username' exact component={Profile}/>
                 <Route path='/product/:id' exact component={Product}/>
