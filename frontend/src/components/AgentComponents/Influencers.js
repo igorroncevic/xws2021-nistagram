@@ -9,9 +9,12 @@ import followersService from "../../services/followers.service";
 import {ReactComponent as Plus} from "../../images/icons/plus.svg";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import campaignsService from "../../services/campaigns.service";
 
 const Influencers = () => {
     const [influencers, setInfluencers] = useState([])
+    const [campaigns, setCampaigns] = useState([])
+    const [campaign, setCampaign] = useState([])
     const [renderInfluencers, setRenderInfluencers] = useState([])
     const store = useSelector(state => state);
     const [showModal, setShowModal] = useState(false);
@@ -20,15 +23,13 @@ const Influencers = () => {
     const [modalUser, setModalUser] = useState({});
 
     useEffect(() => {
-        console.log("TU1")
         getInfluencers()
+        getCampaigns()
     }, []);
 
 
 
     async function getInfluencers() {
-        console.log("TU2")
-
         const response = await userService.getInfluencers({
             //   id: store.user.id,
             jwt: store.user.jwt,
@@ -41,23 +42,35 @@ const Influencers = () => {
         }
     }
 
-     function checkConnection(users){
-         console.log("TU3")
+    async function getCampaigns() {
+        const response = await campaignsService.getAgentsCampaigns({
+               id: store.user.id,
+            jwt: store.user.jwt,
+        })
+        if (response.status === 200) {
+            console.log(response.data.campaigns)
+            setCampaigns(response.data.campaigns)
+        } else {
+            toastService.show("error", "Something went wrong.Please try again!");
+        }
+    }
 
+
+     function checkConnection(users){
          users.map((user, i) => {
             if(user.isProfilePublic==false){
                 GetFollowersConnection(user)
             }else{
                 let temp={id:user.id,username:user.username, firstname:user.firstName, lastname:user.lastName,profilePhoto:user.profilePhoto,isApprovedRequest:true,requestIsPending:false}
+                if(renderInfluencers.some(item => item.id === temp.id)){
+                    return;
+                }
                 setRenderInfluencers(renderInfluencers=>[...renderInfluencers, temp])
-
             }
         });
     }
 
     async function GetFollowersConnection(value) {
-        console.log("TU4")
-
         const response = await followersService.getFollowersConnection({
             userId: store.user.id,
             followerId: value.id,
@@ -75,27 +88,24 @@ const Influencers = () => {
     }
 
     function handleModal(user) {
-        console.log("TU5")
-
         setModalUser(user)
         setShowModal(!showModal)
 
     }
 
     function closeModal() {
-        console.log("TU6")
-
         setShowModal(!showModal)
+    }
 
+    function setCampaignForInfluencer(campaign) {
+        setCampaign(campaign)
     }
 
     async function createCampaignRequest(modalUser) {
-        console.log("TU7")
-
         const response = await userService.createCampaignRequest({
             agentId: store.user.id,
             influencerId:modalUser.id,
-            campaignId:'',
+            campaignId:campaign.id,
             status:'Pending',
             postAt:dateTime,
             jwt: store.user.jwt,
@@ -174,11 +184,13 @@ const Influencers = () => {
                               <Dropdown.Toggle variant="link" id="dropdown-basic">
                                   <Plus className="icon" style={{maxWidth:'20px', marginLeft:'20px'}}/>
                               </Dropdown.Toggle>
+                                  {campaigns.map((campaign, i) =>
+                                      <Dropdown.Menu>
+                                      <Dropdown.Item onClick={() => setCampaignForInfluencer(campaign)}>{campaign.name}</Dropdown.Item>
+                                      </Dropdown.Menu>
 
-                              <Dropdown.Menu>
-                                  kampanja1
-                                  kampanja2
-                              </Dropdown.Menu>
+                                  )}
+
                           </Dropdown>
                       </tr>
                         <tr>
