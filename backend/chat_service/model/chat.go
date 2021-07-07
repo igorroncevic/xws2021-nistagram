@@ -2,27 +2,37 @@ package model
 
 import "time"
 
-type Message struct{
-	Id string
-	SenderId string
-	ReceiverId string
-	DateCreated time.Time // TODO
-	ContentType string
-	IsRead bool
-	Content string // interface{}, can be anything
+type Message struct {
+	Id            string `gorm:"primaryKey"`
+	SenderId      string
+	ReceiverId    string
+	RoomId        string
+	DateCreated   time.Time
+	ContentType   ContentType
+	IsRead        bool
+	Content       string
 	IsMediaOpened bool
 }
 
 type ContentType string
-const(
-	TypeImage2 ContentType = "Image"
-	TypeVideo2             = "Video"
-	TypeString             = "String"
-	TypeLink               = "Link"
+
+const (
+	Image  ContentType = "Image"
+	Video              = "Video"
+	String             = "String"
+	Link               = "Link"
+	Post               = "Post"
+	Story              = "Story"
 )
 
-type MessageRequest struct{
-	SenderId string
-	ReceiverId string
+type MessageRequest struct {
+	SenderId   string `gorm:"primaryKey"`
+	ReceiverId string `gorm:"primaryKey"`
 	IsAccepted bool
+}
+
+type ChatRoom struct {
+	Id      string `gorm:"primaryKey"`
+	Person1 string
+	Person2 string
 }

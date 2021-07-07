@@ -17,16 +17,16 @@ import (
 type Server struct {
 	protopb.UnimplementedUsersServer
 	protopb.UnimplementedPrivacyServer
-	userController                *UserGrpcController
-	privacyController             *PrivacyGrpcController
-	emailController               *EmailGrpcController
-	notificationController        *NotificationGrpcController
+	userController         *UserGrpcController
+	privacyController      *PrivacyGrpcController
+	emailController   	   *EmailGrpcController
+	notificationController *NotificationGrpcController
 	registrationRequestController *RegistrationRequestController
 	apiTokenController *ApiTokenGrpcController
+	tracer            otgo.Tracer
+	closer            io.Closer
+	verificationController *VerificationGrpcController
 
-	tracer                        otgo.Tracer
-	closer                        io.Closer
-	verificationController        *VerificationGrpcController
 }
 
 func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger, redis *saga.RedisServer) (*Server, error) {
@@ -36,7 +36,6 @@ func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger
 	notificationController, _ := NewNotificationController(db, redis)
 	newVerificationController, _ := NewVerificationController(db, jwtManager, logger, redis)
 	newRegistrationRequestController, _ := NewRegistrationRequestController(db, jwtManager, logger, redis)
-
 	newApiTokenController, _ := NewApiTokenGrpcController(db, jwtManager, logger)
 
 	tracer, closer := tracer.Init("userService")
@@ -205,7 +204,7 @@ func (s *Server) GetUserPrivacy(ctx context.Context, in *protopb.RequestIdPrivac
 	return s.privacyController.GetUserPrivacy(ctx, in)
 }
 
-func (s *Server) ReadAllNotifications(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.EmptyResponse, error) {
+func (s *Server) ReadAllNotifications(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.EmptyResponse,error) {
 	return s.notificationController.ReadAllNotifications(ctx, in)
 }
 
@@ -213,7 +212,7 @@ func (s *Server) DeleteByTypeAndCreator(ctx context.Context, in *protopb.Notific
 	return s.notificationController.DeleteByTypeAndCreator(ctx, in)
 }
 
-func (s *Server) GetByTypeAndCreator(ctx context.Context, in *protopb.Notification) (*protopb.Notification, error) {
+func (s *Server) GetByTypeAndCreator(ctx context.Context,in *protopb.Notification) (*protopb.Notification, error) {
 	return s.notificationController.GetByTypeAndCreator(ctx, in)
 }
 
@@ -239,5 +238,19 @@ func (s *Server) GetAllPendingRequests(ctx context.Context, in *protopb.EmptyReq
 
 func (s *Server) UpdateRequest(ctx context.Context, in *protopb.RegistrationRequest) (*protopb.EmptyResponse, error) {
 	return s.registrationRequestController.UpdateRequest(ctx, in)
+}
+
+//Api key metode
+
+func (s *Server) GetKeyByUserId(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.ApiTokenResponse, error) {
+	return s.apiTokenController.GenerateApiToken(ctx, in)
+}
+
+func (s *Server) GenerateApiToken(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.ApiTokenResponse, error) {
+	return s.apiTokenController.GenerateApiToken(ctx, in)
+}
+
+func (s *Server) ValidateKey(ctx context.Context, in *protopb.ApiTokenResponse) (*protopb.EmptyResponse, error) {
+	return s.apiTokenController.ValidateKey(ctx, in)
 }
 

@@ -18,6 +18,10 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UsersClient interface {
+	//Api Key
+	GetKeyByUserId(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*ApiTokenResponse, error)
+	GenerateApiToken(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*ApiTokenResponse, error)
+	ValidateKey(ctx context.Context, in *ApiTokenResponse, opts ...grpc.CallOption) (*EmptyResponse, error)
 	//registration requests!
 	CreateAgentUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*UsersDTO, error)
 	GetAllPendingRequests(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*ResponseRequests, error)
@@ -65,6 +69,33 @@ type usersClient struct {
 
 func NewUsersClient(cc grpc.ClientConnInterface) UsersClient {
 	return &usersClient{cc}
+}
+
+func (c *usersClient) GetKeyByUserId(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*ApiTokenResponse, error) {
+	out := new(ApiTokenResponse)
+	err := c.cc.Invoke(ctx, "/proto.Users/GetKeyByUserId", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) GenerateApiToken(ctx context.Context, in *RequestIdUsers, opts ...grpc.CallOption) (*ApiTokenResponse, error) {
+	out := new(ApiTokenResponse)
+	err := c.cc.Invoke(ctx, "/proto.Users/GenerateApiToken", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) ValidateKey(ctx context.Context, in *ApiTokenResponse, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/proto.Users/ValidateKey", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *usersClient) CreateAgentUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*UsersDTO, error) {
@@ -404,6 +435,10 @@ func (c *usersClient) GetAllVerificationRequests(ctx context.Context, in *EmptyR
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
 type UsersServer interface {
+	//Api Key
+	GetKeyByUserId(context.Context, *RequestIdUsers) (*ApiTokenResponse, error)
+	GenerateApiToken(context.Context, *RequestIdUsers) (*ApiTokenResponse, error)
+	ValidateKey(context.Context, *ApiTokenResponse) (*EmptyResponse, error)
 	//registration requests!
 	CreateAgentUser(context.Context, *CreateUserRequest) (*UsersDTO, error)
 	GetAllPendingRequests(context.Context, *EmptyRequest) (*ResponseRequests, error)
@@ -450,6 +485,15 @@ type UsersServer interface {
 type UnimplementedUsersServer struct {
 }
 
+func (UnimplementedUsersServer) GetKeyByUserId(context.Context, *RequestIdUsers) (*ApiTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetKeyByUserId not implemented")
+}
+func (UnimplementedUsersServer) GenerateApiToken(context.Context, *RequestIdUsers) (*ApiTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GenerateApiToken not implemented")
+}
+func (UnimplementedUsersServer) ValidateKey(context.Context, *ApiTokenResponse) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateKey not implemented")
+}
 func (UnimplementedUsersServer) CreateAgentUser(context.Context, *CreateUserRequest) (*UsersDTO, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateAgentUser not implemented")
 }
@@ -572,6 +616,60 @@ type UnsafeUsersServer interface {
 
 func RegisterUsersServer(s grpc.ServiceRegistrar, srv UsersServer) {
 	s.RegisterService(&Users_ServiceDesc, srv)
+}
+
+func _Users_GetKeyByUserId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestIdUsers)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).GetKeyByUserId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/GetKeyByUserId",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).GetKeyByUserId(ctx, req.(*RequestIdUsers))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_GenerateApiToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestIdUsers)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).GenerateApiToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/GenerateApiToken",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).GenerateApiToken(ctx, req.(*RequestIdUsers))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_ValidateKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ApiTokenResponse)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).ValidateKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Users/ValidateKey",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).ValidateKey(ctx, req.(*ApiTokenResponse))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Users_CreateAgentUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -1247,6 +1345,18 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.Users",
 	HandlerType: (*UsersServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetKeyByUserId",
+			Handler:    _Users_GetKeyByUserId_Handler,
+		},
+		{
+			MethodName: "GenerateApiToken",
+			Handler:    _Users_GenerateApiToken_Handler,
+		},
+		{
+			MethodName: "ValidateKey",
+			Handler:    _Users_ValidateKey_Handler,
+		},
 		{
 			MethodName: "CreateAgentUser",
 			Handler:    _Users_CreateAgentUser_Handler,

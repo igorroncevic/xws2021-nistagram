@@ -9,6 +9,26 @@ option go_package = "github.com/xws2021-nistagram/common/proto";
 
 service Users {
 
+  //Api Key
+  rpc GetKeyByUserId(RequestIdUsers) returns (ApiTokenResponse) {
+    option(google.api.http) = {
+      get: "/api/apiKey/{id}",
+    };
+  }
+
+  rpc GenerateApiToken(RequestIdUsers) returns (ApiTokenResponse) {
+    option(google.api.http) = {
+      post: "/api/apiKey/generate",
+      body: "*"
+    };
+  }
+
+  rpc ValidateKey(ApiTokenResponse) returns (EmptyResponse) {
+    option(google.api.http) = {
+      get: "/api/apiKey/validate/{token}",
+    };
+  }
+
   //registration requests!
   rpc CreateAgentUser(CreateUserRequest) returns (UsersDTO){
     option(google.api.http) = {

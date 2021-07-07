@@ -31,8 +31,8 @@ func (s NotificationService) CreateNotification(ctx context.Context, domainNotif
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	userNotification := &persistence.UserNotification{}
-	if domainNotification.NotificationType == "Message" {
-		userNotification.Text = " send you a message."
+	if domainNotification.NotificationType == "MessageRequest" {
+		userNotification.Text = " wants to send you a message."
 	} else if domainNotification.NotificationType == "FollowPublic" {
 		userNotification.Text = " started following you."
 	} else if domainNotification.NotificationType == "FollowPrivate" {

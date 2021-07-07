@@ -11,6 +11,7 @@ import {contentService} from "../../backendPaths";
 import postService from "../../services/post.service";
 import PostPreviewModal from "../Post/PostPreviewModal";
 import campaignsService from "../../services/campaigns.service";
+import chatService from "../../services/chat.service";
 
 function Notification(props) {
     const {id, creatorId, userId, text, type, createdAt, contentId} = props;
@@ -18,6 +19,7 @@ function Notification(props) {
     const [privateFollow, setPrivateFollow] = useState(false);
     const [contentType, setContentType] = useState(false);
     const [campaignType, setCampaignType] = useState(false);
+    const [messageRequest, setMessageRequest] = useState(false);
     const store = useSelector(state => state);
     const [hoursAgo, setHoursAgo] = useState(0)
     const [daysAgo, setDaysAgo] = useState(0);
@@ -54,6 +56,10 @@ function Notification(props) {
 
         if (type === "Campaign") {
             setCampaignType(true)
+        }
+
+        if (type === "MessageRequest") {
+            setMessageRequest(true)
         }
     }
 
@@ -165,6 +171,32 @@ function Notification(props) {
         }
     }
 
+    async function acceptMessageRequest() {
+        const response = await chatService.acceptMessageRequest({
+            SenderId : creatorId,
+            ReceiverId: userId,
+            jwt: store.user.jwt,
+        })
+        if (response.status === 200) {
+            toastService.show("success", "Successfully accepted!");
+        } else {
+            toastService.show("error", "Something went wrong, please try again!");
+        }
+    }
+
+    async function declineMessageRequest() {
+        const response = await chatService.declineMessageRequest({
+            SenderId : creatorId,
+            ReceiverId: userId,
+            jwt: store.user.jwt,
+        })
+        if (response.status === 200) {
+            toastService.show("success", "Successfully accepted!");
+        } else {
+            toastService.show("error", "Something went wrong, please try again!");
+        }
+    }
+
     return (
         <div style={{display: "flex", marginLeft: '10%'}}>
             <ProfileForSug user={user} username={user.username} caption={user.biography} urlText="Follow" iconSize="big"
@@ -200,6 +232,15 @@ function Notification(props) {
                         onClick={() => rejectCampaignRequest()}>Reject</Button>
             </div>
 
+            }
+
+            {messageRequest &&
+            <div style={{display: "flex", marginLeft: '85px'}}>
+                <Button style={{height: '27px', fontSize: '12px'}} variant="success"
+                        onClick={() => acceptMessageRequest()}>Accept</Button>
+                <Button style={{marginLeft: '5px', height: '27px', fontSize: '12px'}} variant="secondary"
+                        onClick={() => declineMessageRequest()}>Reject</Button>
+            </div>
             }
 
 

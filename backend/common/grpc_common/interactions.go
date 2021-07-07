@@ -228,6 +228,20 @@ func CheckUserProfilePublic(ctx context.Context, userId string) (bool, error) {
 	return res.Response, nil
 }
 
+func GetUserPrivacy(ctx context.Context, userId string) (*protopb.PrivacyMessage, error){
+	conn, err := CreateGrpcConnection(Users_service_address)
+	if err != nil{
+		return nil, status.Errorf(codes.Unknown, err.Error())
+	}
+	defer conn.Close()
+	privacyClient := GetPrivacyClient(conn)
+	res, err := privacyClient.GetUserPrivacy(ctx, &protopb.RequestIdPrivacy{Id: userId})
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
 func CheckIsActive(ctx context.Context, userId string) (bool, error) {
 	conn, err := CreateGrpcConnection(Users_service_address)
 	if err != nil{
@@ -239,7 +253,7 @@ func CheckIsActive(ctx context.Context, userId string) (bool, error) {
 	return res.Response, err
 }
 
-func DeleteByTypeAndCreator(ctx context.Context, notificationType string, userId string, creatorId string) (error){
+func DeleteByTypeAndCreator(ctx context.Context, notificationType string, userId string, creatorId string) error{
 	conn, err := CreateGrpcConnection(Users_service_address)
 	if err != nil{
 		return status.Errorf(codes.Unknown, err.Error())
