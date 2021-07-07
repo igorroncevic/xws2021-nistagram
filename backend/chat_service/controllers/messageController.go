@@ -232,3 +232,4 @@ func (c *MessageController) DeclineMessageRequest(w http.ResponseWriter, r *http
 	}
 	json.NewEncoder(w).Encode(messageRequest)
 }
+
