@@ -57,6 +57,8 @@ function Menu() {
             )}
             <span style={{marginLeft: "20px"}}/>
 
+            
+
             {store.user.jwt !== "" ? 
                 <Button variant="outline-danger" onClick={logout} style={{width: "220px", display: "block"}}>Logout</Button> :
                 <Button variant="primary" onClick={login} style={{width: "100px", marginLeft: "1em", display: "block"}}>Login</Button>

@@ -37,6 +37,9 @@ const App = () => {
                 <Route path='/product/:id' exact component={Product}/>
                 <Route path='/my-orders' exact component={Orders}/>
 
+                {/*<AgentRoute path="/campaigns" exact component={CampaignsHome} />*/}
+                {/*<AgentRoute path="/campaigns/create" exact component={CreateCampaign} />*/}
+                {/*<AgentRoute path="/campaigns/preview/:id" component={CampaignPreview} />*/}
 
                 <AuthenticatedRoute path='/edit_profile' exact component={EditProfile} />
                 <AuthenticatedRoute path='/password' exact component={ChangePassword} />
