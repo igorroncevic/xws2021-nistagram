@@ -8,6 +8,7 @@ import {
     FaHeart,
     FaHeartBroken, HiOutlinePhotograph,
     IoMdSettings, RiLockPasswordLine, SiGnuprivacyguard,
+    BiKey
 } from "react-icons/all";
 import 'react-pro-sidebar/dist/css/styles.css';
 import {Link} from "react-router-dom";
@@ -32,6 +33,8 @@ function  ProfileInfo(){
                         <MenuItem icon={<RiLockPasswordLine/>}>Edit password  <Link to="/password" /> </MenuItem>
                         <MenuItem icon={<SiGnuprivacyguard/>} style={store.user.role !== 'Admin' ? {display : 'block'} : {display: 'none'}}>Edit privacy  <Link to="/privacy" /> </MenuItem>
                         <MenuItem icon={<HiOutlinePhotograph/>}>Edit profile photo  <Link to="/edit_photo" /> </MenuItem>
+                        {store.user.role === "Agent" && <MenuItem icon={<BiKey/>}>API key <Link to="/api-key"/> </MenuItem>
+                        }
                     </Menu>
                 </ProSidebar>
             </div>
