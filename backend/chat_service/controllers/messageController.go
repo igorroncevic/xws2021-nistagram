@@ -137,9 +137,16 @@ func (c MessageController) StartConversation(w http.ResponseWriter, r *http.Requ
 				w.Write([]byte{})
 				return
 			}
-			//TODO create notification
+			err = grpc_common.CreateNotification(ctx, room.Person2, room.Person1, "MessageRequest", "" )
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte{})
+			}
+			w.WriteHeader(http.StatusCreated)
+			w.Write([]byte{})
 			return
 		}
+		// kreira chatRoom ukoliko je sve public kod usera
 		roomRetVal, err := c.Service.CreateChatRoom(ctx, room)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)

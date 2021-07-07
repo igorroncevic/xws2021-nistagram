@@ -182,7 +182,7 @@ func (repo *messageRepository) AcceptMessageRequest(ctx context.Context, message
 }
 
 func (repo *messageRepository) DeclineMessageRequest(ctx context.Context, messageRequest model.MessageRequest) error {
-	span := tracer.StartSpanFromContextMetadata(ctx, "AcceptMessageRequest")
+	span := tracer.StartSpanFromContextMetadata(ctx, "DeclineMessageRequest")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 

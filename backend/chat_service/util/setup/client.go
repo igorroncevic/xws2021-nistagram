@@ -23,7 +23,7 @@ const (
 	pingPeriod = (pongWait * 9) / 10
 
 	// Maximum message size allowed from peer.
-	maxMessageSize = 1000000
+	maxMessageSize = 10000000
 )
 
 var upgrader = websocket.Upgrader{
@@ -61,6 +61,9 @@ func (s subscription) readPump() {
 			break
 		}
 		m := message{msg, s.room}
+		var message model.Message
+		json.Unmarshal(msg, &message)
+		c.service.SaveMessage(context.Background(), message)
 		h.broadcast <- m
 	}
 }
@@ -68,13 +71,6 @@ func (s subscription) readPump() {
 // write writes a message with the given message type and payload.
 func (c *connection) write(mt int, payload []byte) error {
 	c.ws.SetWriteDeadline(time.Now().Add(writeWait))
-
-	if mt == 1 { // Text message type
-		var message model.Message
-		json.Unmarshal(payload, &message)
-		c.service.SaveMessage(context.Background(), message)
-	}
-
 	return c.ws.WriteMessage(mt, payload)
 }
 
