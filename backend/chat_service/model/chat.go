@@ -22,6 +22,7 @@ const (
 	String             = "String"
 	Link               = "Link"
 	Post               = "Post"
+	Story              = "Story"
 )
 
 type MessageRequest struct {

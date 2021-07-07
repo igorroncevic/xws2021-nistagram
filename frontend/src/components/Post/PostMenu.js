@@ -51,7 +51,7 @@ const PostMenu = (props) => {
     }
 
     async function sendMessage() {
-        await startChat();
+        await setConn(new WebSocket("ws://localhost:8003" + "/ws/" + selectedUser.id + "_" + store.user.id))
         console.log(conn)
         conn.send(JSON.stringify({SenderId : store.user.id, ReceiverId : selectedUser.id, RoomId : chatRoom.Id, Content : postId, ContentType : "Post"}));
     }
@@ -86,23 +86,6 @@ const PostMenu = (props) => {
                 </Modal.Header>
                 <Modal.Body>
                     <UserAutocomplete setSelectedUser={setSelectedUser} suggestions={users} />
-
-                    {/*<div className="col-sm-6 mb-2">*/}
-                    {/*    <select onChange={(e) => handleReportCategoryChange(e)} name={"reportCategory"} value={reportCategory}>*/}
-                    {/*        <option disabled={true} value="">Select report category</option>*/}
-                    {/*        <option value="Gore">Gore</option>*/}
-                    {/*        <option value="Nudity">Nudity</option>*/}
-                    {/*        <option value="Violence">Violence</option>*/}
-                    {/*        <option value="Suicide">Suicide</option>*/}
-                    {/*        <option value="Fake News">Fake News</option>*/}
-                    {/*        <option value="Spam">Spam</option>*/}
-                    {/*        <option value="Hate Speech">Hate Speech</option>*/}
-                    {/*        <option value="Terrorism">Terrorism</option>*/}
-                    {/*        <option value="Harassment">Harassment</option>*/}
-                    {/*        <option value="Other">Other</option>*/}
-                    {/*    </select>*/}
-                    {/*    {reportCategoryErr.length > 0 && <span className="text-danger">{reportCategoryErr}</span>}*/}
-                    {/*</div>*/}
                     <div style={{display:'flex',float:'right'}}>
                         <Button variant="info" style={{marginRight:'10px'}} onClick={(e) => sendMessage()} >Send</Button>
                         <Button variant="secondary" onClick={(e) => setShowModal(false)} >Cancel</Button>

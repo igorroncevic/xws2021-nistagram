@@ -12,6 +12,8 @@ import chatService from "../../services/chat.service";
 import postService from "../../services/post.service";
 import PostPreviewModal from "../Post/PostPreviewModal";
 import PostPreviewThumbnail from "../Post/PostPreviewThumbnail";
+import storyService from "../../services/story.service";
+import Story from "../StoryCompoent/Story";
 
 
 function Chats() {
@@ -25,7 +27,8 @@ function Chats() {
     const [messages, setMessages] = useState([]);
     const [renderMessages, setRenderMessages] = useState([]);
     const [messageCategory, setMessageCategory] = useState("Message category");
-    const [showModal, setShowModal] = useState(false);
+    const [showModalPost, setShowModalPost] = useState(false);
+    const [showModalStory, setShowModalStory] = useState(false);
     const [selectedPost, setSelectedPost] = useState({});
 
     useEffect(() => {
@@ -34,7 +37,7 @@ function Chats() {
 
     const openPost = (post) => {
         setSelectedPost(post);
-        setShowModal(true);
+        setShowModalPost(true);
     }
 
     useEffect(() => {
@@ -91,6 +94,14 @@ function Chats() {
             if (message.ContentType === "Post") {
                 const response = await postService.getPostById({id : message.Content, jwt: store.user.jwt});
                 tempMessage.Content = response.data;
+            }
+            else if (message.ContentType === "Story") {
+                const response = await storyService.getStoryById({id : message.Content, jwt: store.user.jwt});
+                let story = [response.data];
+                let idk = {
+                    stories : story
+                }
+                tempMessage.Content =  idk;
             }
             tempList.push(tempMessage)
         }
@@ -161,6 +172,9 @@ function Chats() {
                                 {message.ContentType === "Post" &&
                                     <PostPreviewThumbnail post={message.Content} openPost={openPost} />
                                 }
+                                {message.ContentType === "Story" &&
+                                <Story story={message.Content} iconSize={"xxl"} hideUsername={true} />
+                                }
                                 <span style={{marginLeft: "20px"}} className="time-right">{message.DateCreated}</span>
                             </div>
                             }
@@ -207,12 +221,12 @@ function Chats() {
                    required />            }
             <Button style={{marginLeft : "1%"}} onClick={sendMessage}>Send message</Button>
 
-            { showModal &&
+            { showModalPost &&
             <PostPreviewModal
                 post={selectedPost}
                 postUser={{ id: selectedPost.userId }}
-                showModal={showModal}
-                setShowModal={setShowModal}
+                showModal={showModalPost}
+                setShowModal={setShowModalPost}
             /> }
 
         </div>
