@@ -62,7 +62,7 @@ const CreateCampaign = (props) => {
 
     function handleHashtagAutocompleteClick(tag) {
         if (newPost.hashtags.some((someTag) => someTag.id === tag.id)) return;
-        setNewPost({ ...newPost, hashtags: [...newPost.hashtags, { text: tag }] });
+        setNewPost({ ...newPost, hashtags: [...newPost.hashtags, {  id: tag.id, text: tag.text }] });
     }
 
     function handleHashtagAutocompleteNewSuggestion(newTag) {

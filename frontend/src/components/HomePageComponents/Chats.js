@@ -5,7 +5,7 @@ import userService from "../../services/user.service";
 import UserAutocomplete from "../Post/UserAutocomplete";
 import {Button, Dropdown, DropdownButton, InputGroup} from "react-bootstrap";
 
-import "./../../style/chat.css"
+// import "./../../style/chat.css"
 import verificationRequestService from "../../services/verificationRequest.service";
 import toastService from "../../services/toast.service";
 import chatService from "../../services/chat.service";
