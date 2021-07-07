@@ -9,6 +9,9 @@ import "./../../style/chat.css"
 import verificationRequestService from "../../services/verificationRequest.service";
 import toastService from "../../services/toast.service";
 import chatService from "../../services/chat.service";
+import postService from "../../services/post.service";
+import PostPreviewModal from "../Post/PostPreviewModal";
+import PostPreviewThumbnail from "../Post/PostPreviewThumbnail";
 
 
 function Chats() {
@@ -20,25 +23,29 @@ function Chats() {
     const [chatRoom, setChatRoom] = useState("");
     const [conn, setConn] = useState({});
     const [messages, setMessages] = useState([]);
+    const [renderMessages, setRenderMessages] = useState([]);
     const [messageCategory, setMessageCategory] = useState("Message category");
-
+    const [showModal, setShowModal] = useState(false);
+    const [selectedPost, setSelectedPost] = useState({});
 
     useEffect(() => {
         getAllUsers();
     }, []);
 
+    const openPost = (post) => {
+        setSelectedPost(post);
+        setShowModal(true);
+    }
+
     useEffect(() => {
-        //conn change
         if (conn !== {}) {
             // conn.onmessage()
             // gledaj da budu javan i da su follow
-
             conn.onmessage = function(event) {
                 updateChatBox(event);
             };
-
         }
-    }, [conn, messages]);
+    }, [conn, renderMessages]);
 
     async function getAllUsers() {
         const response = await userService.getAllUsers({ jwt: store.user.jwt });
@@ -54,6 +61,7 @@ function Chats() {
             let temp = response.data;
             temp.push(event)
             await setMessages(temp)
+            updateRenderMessages();
         }
         else
             toastService.show("error", "Something went wrong. Try again")
@@ -68,13 +76,33 @@ function Chats() {
             console.log("messages");
             console.log(response.data);
             toastService.show("success", "Chat room messages retrieved successfully")
-            await setMessages(response.data)
+            await setMessages(response.data);
+            await updateRenderMessages();
         }
         else
             toastService.show("error", "Something went wrong. Try again")
     }
 
+    async function updateRenderMessages() {
+        await setRenderMessages([]);
+        let tempList = [];
+        for (const message of messages) {
+            let tempMessage = message;
+            if (message.ContentType === "Post") {
+                const response = await postService.getPostById({id : message.Content, jwt: store.user.jwt});
+                tempMessage.Content = response.data;
+            }
+            tempList.push(tempMessage)
+        }
+        await setRenderMessages(tempList)
+    }
+
     async function startChat() {
+        await setMessages([]);
+        await setRenderMessages([]);
+        await setConn({});
+        await setChatRoom({});
+
         const response = await chatService.StartConversation({
             person1: store.user.id,
             person2: selectedUser.id,
@@ -91,11 +119,9 @@ function Chats() {
     }
 
     function sendMessage() {
+        conn.send(JSON.stringify({SenderId : store.user.id, ReceiverId : selectedUser.id, RoomId : chatRoom.Id, Content : messageText, ContentType : messageCategory}));
         setMessageCategory("Message category");
         setMessageText("");
-        const temp = {senderId : store.user.id, receiverId : selectedUser.id, roomId : chatRoom.Id, content : messageText, contentType : "String"};
-        console.log(temp);
-        conn.send(JSON.stringify({SenderId : store.user.id, ReceiverId : selectedUser.id, RoomId : chatRoom.Id, Content : messageText, ContentType : messageCategory}));
     }
 
 
@@ -124,21 +150,24 @@ function Chats() {
             <br/><br/><br/>
 
             <div style={{overflow: "scroll", height:"400px"}}>
-                {messages.map((message) => {
+                {renderMessages.map((message) => {
                     return (
                         <div>
                             {message.SenderId === store.user.id && <div className="container">
-                                <img src="" alt="Avatar"/>
-                                {message.ContentType === "String" && <p>{message.Content}</p>}
+                                {<img src="" alt="Avatar"/>
+                                }                                {message.ContentType === "String" && <p>{message.Content}</p>}
                                 {message.ContentType === "Image" && <img src={message.Content} alt="Avatar"/>}
                                 {message.ContentType === "Link" && <p style={{color : "powderblue"}} onClick={(e) => alert("namesti link click")}>{message.Content}</p>}
+                                {message.ContentType === "Post" &&
+                                    <PostPreviewThumbnail post={message.Content} openPost={openPost} />
+                                }
                                 <span style={{marginLeft: "20px"}} className="time-right">{message.DateCreated}</span>
                             </div>
                             }
 
                             {message.ReceiverId === store.user.id && <div className="container darker">
-                                <img src="" alt="Avatar"/>
-                                {message.ContentType === "String" && <p>{message.Content}</p>}
+                                {<img src="" alt="Avatar"/>
+                                }                                {message.ContentType === "String" && <p>{message.Content}</p>}
                                 {message.ContentType === "Image" && <img src={message.Content} alt="Avatar"/>}
                                 {message.ContentType === "Link" && <p style={{color : "powderblue"}} onClick={(e) => alert("namesti link click")}>{message.Content}</p>}
                                 <span style={{marginLeft: "20px"}} className="time-right">{message.DateCreated}</span>
@@ -177,6 +206,14 @@ function Chats() {
                    formEncType="multipart/form-data"
                    required />            }
             <Button style={{marginLeft : "1%"}} onClick={sendMessage}>Send message</Button>
+
+            { showModal &&
+            <PostPreviewModal
+                post={selectedPost}
+                postUser={{ id: selectedPost.userId }}
+                showModal={showModal}
+                setShowModal={setShowModal}
+            /> }
 
         </div>
     );
