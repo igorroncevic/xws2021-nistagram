@@ -27,9 +27,9 @@ func SetupContentRBAC(db *gorm.DB) error {
 			createHashtag, getAllHashtags,
 			getAllHighlights, getHighlight, createHighlight, removeHighlight, createHighlightStory, removeHighlightStory, getUserLikedOrDislikedPosts,
 			createContentComplaint, getAllContentComplaints, rejectById, deleteComplaintByUserId,
-			getAds, createAd,
+			getAds, createAd, incrementLinkClicks,
 			getCampaigns, getCampaign, createCampaign, updateCampaign, deleteCampaign,
-			getAdCategories, getAdCategory, createAdCategory,
+			getAdCategories, getAdCategory, createAdCategory, createUserAdCategories,
 		}
 		result = db.Create(&permissions)
 		if result.Error != nil {
@@ -82,6 +82,9 @@ func SetupContentRBAC(db *gorm.DB) error {
 			basicGetAdCategories, nonregisteredGetAdCategories, verifiedGetAdCategories, agentGetAdCategories, adminGetAdCategories,
 			basicGetAdCategory, nonregisteredGetAdCategory, verifiedGetAdCategory, agentGetAdCategory, adminGetAdCategory,
 			adminCreateAdCategory,
+			basicCreateUserAdCategories, nonregisteredCreateUserAdCategories, verifiedCreateUserAdCategories, agentCreateUserAdCategories, adminCreateUserAdCategories,
+			basicIncrementLinkClicks, nonregisteredIncrementLinkClicks, verifiedIncrementLinkClicks, agentIncrementLinkClicks, adminIncrementLinkClicks,
+
 		}
 		result = db.Create(&rolePermissions)
 		if result.Error != nil {
@@ -155,9 +158,9 @@ var (
 	rejectById 				= Permission{Id: "fe5fecc4-dc44-11eb-ba80-0242ac130004", Name: "RejectById"}
 	deleteComplaintByUserId = Permission{Id: "3dc694f6-dcf1-11eb-ba80-0242ac130004", Name: "DeleteComplaintByUserId"}
 
-
 	getAds						= Permission{Id: "e1341af3-1c36-4cb8-bb26-88bd5ab2af3e", Name: "GetAds"}
 	createAd					= Permission{Id: "1cf92a55-a41a-425f-960d-8a94e7a3e997", Name: "CreateAd"}
+	incrementLinkClicks 		= Permission{Id: "6f915dce-dc97-486b-b912-921407e78723", Name: "IncrementLinkClicks"}
 
 	getCampaigns 				= Permission{Id: "cb810786-dea4-4774-940d-d4e4d693d6f4", Name: "GetCampaigns"}
 	getCampaign 				= Permission{Id: "8e3a5753-3dac-4f69-a1ad-124143906070", Name: "GetCampaign"}
@@ -168,6 +171,7 @@ var (
 	getAdCategories 			= Permission{Id: "05cd31bd-1260-4871-ad8b-182759a95781", Name: "GetAdCategories"}
 	getAdCategory 				= Permission{Id: "c3e205c5-d111-4486-847c-b3ac5e3869da", Name: "GetAdCategory"}
 	createAdCategory 			= Permission{Id: "e1bb9ce5-01e9-4562-b841-ffebffef161d", Name: "CreateAdCategory"}
+	createUserAdCategories 		= Permission{Id: "10b8383f-cbba-4a50-ace6-ca514a1ec5b0", Name: "CreateUserAdCategories"}
 )
 
 var (
@@ -376,6 +380,12 @@ var (
 	nonregisteredGetAds			  = RolePermission{RoleId: nonregistered.Id, PermissionId: getAds.Id}
 
 	agentCreateAd 				  = RolePermission{RoleId: agent.Id, PermissionId: createAd.Id}
+
+	basicIncrementLinkClicks         		  = RolePermission{RoleId: basic.Id, PermissionId: incrementLinkClicks.Id}
+	verifiedIncrementLinkClicks			      = RolePermission{RoleId: verified.Id, PermissionId: incrementLinkClicks.Id}
+	adminIncrementLinkClicks			      = RolePermission{RoleId: admin.Id, PermissionId: incrementLinkClicks.Id}
+	agentIncrementLinkClicks			      = RolePermission{RoleId: agent.Id, PermissionId: incrementLinkClicks.Id}
+	nonregisteredIncrementLinkClicks		  = RolePermission{RoleId: nonregistered.Id, PermissionId: incrementLinkClicks.Id}
 	// - - - - - - - - -
 
 	// Campaigns
@@ -398,6 +408,12 @@ var (
 	adminGetAdCategory		    = RolePermission{RoleId: admin.Id, PermissionId: getAdCategory.Id}
 	agentGetAdCategory		    = RolePermission{RoleId: agent.Id, PermissionId: getAdCategory.Id}
 	nonregisteredGetAdCategory  = RolePermission{RoleId: nonregistered.Id, PermissionId: getAdCategory.Id}
+
+	basicCreateUserAdCategories          = RolePermission{RoleId: basic.Id, PermissionId: createUserAdCategories.Id}
+	verifiedCreateUserAdCategories	    = RolePermission{RoleId: verified.Id, PermissionId: createUserAdCategories.Id}
+	adminCreateUserAdCategories		    = RolePermission{RoleId: admin.Id, PermissionId: createUserAdCategories.Id}
+	agentCreateUserAdCategories		    = RolePermission{RoleId: agent.Id, PermissionId: createUserAdCategories.Id}
+	nonregisteredCreateUserAdCategories  = RolePermission{RoleId: nonregistered.Id, PermissionId: createUserAdCategories.Id}
 
 	adminCreateAdCategory 	    = RolePermission{RoleId: agent.Id, PermissionId: createAdCategory.Id}
 	// - - - - - - - - -

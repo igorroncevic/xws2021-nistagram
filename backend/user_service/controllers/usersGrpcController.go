@@ -80,7 +80,9 @@ func (s *UserGrpcController) CreateUser(ctx context.Context, in *protopb.CreateU
 		return &protopb.UsersDTO{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
-	s.logger.ToStdoutAndFile("CreateUser", "User registration successful: "+in.User.Email, logger.Info)
+	grpc_common.CreateUserAdCategories(ctx, userDomain.Id)
+
+	s.logger.ToStdoutAndFile("CreateUser", "User registration successful: " +in.User.Email, logger.Info)
 	userProto := userDomain.ConvertToGrpc()
 	return userProto, nil
 }

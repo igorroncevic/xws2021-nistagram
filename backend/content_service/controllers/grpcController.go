@@ -237,6 +237,10 @@ func (s *Server) CreateAd(ctx context.Context, in *protopb.Ad) (*protopb.EmptyRe
 	return s.adController.CreateAd(ctx, in)
 }
 
+func (s *Server) IncrementLinkClicks(ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent, error) {
+	return s.adController.IncrementLinkClicks(ctx, in)
+}
+
 /* Campaigns */
 func (s *Server) GetCampaign(ctx context.Context, in *protopb.RequestId) (*protopb.Campaign, error) {
 	return s.campaignController.GetCampaign(ctx, in)
@@ -269,4 +273,8 @@ func (s *Server) GetAdCategory(ctx context.Context, in *protopb.RequestId) (*pro
 
 func (s *Server) CreateAdCategory(ctx context.Context, in *protopb.AdCategory) (*protopb.EmptyResponseContent, error) {
 	return s.adController.CreateAdCategory(ctx, in)
+}
+
+func (s *Server) CreateAdUserCategories(ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent, error) {
+	return s.adController.CreateUserAdCategories(ctx, in)
 }

@@ -147,6 +147,8 @@ type Campaign struct {
 	IsOneTime 	 bool
 	StartDate 	 time.Time
 	EndDate 	 time.Time
+	StartTime	 int
+	EndTime		 int
 	Placements   int
 	AgentId 	 string
 	Category	 AdCategory

@@ -55,7 +55,8 @@ func (repository *postRepository) GetAllPosts(ctx context.Context, followings []
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	posts := []persistence.Post{}
-	result := repository.DB.Order("created_at desc").Where("is_ad = false AND user_id IN (?)", followings).Find(&posts)
+	result := repository.DB.Order("created_at desc").
+			Where("is_ad = false AND created_at <= ? AND user_id IN (?)", time.Now(), followings).Find(&posts)
 	if result.Error != nil {
 		return posts, result.Error
 	}

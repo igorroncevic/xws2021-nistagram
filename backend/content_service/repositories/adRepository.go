@@ -21,10 +21,13 @@ type AdRepository interface {
 	GetAdsFromCampaign(context.Context, string) ([]persistence.Ad, error)
 
 	GetAdCategories(context.Context) ([]persistence.AdCategory, error)
+	GetUserAdCategories(context.Context, string) ([]persistence.AdCategory, error)
 	CreateAdCategory(context.Context, domain.AdCategory) error
 	GetAdCategory(context.Context, string) (persistence.AdCategory, error)
+	CreateUserAdCategories(context.Context, string) error
 
 	UpdateCampaignAdDate(context.Context, string, string, time.Time) error
+	IncrementLinkClicks(ctx context.Context, id string) error
 }
 
 type adRepository struct {
@@ -169,6 +172,21 @@ func (repository *adRepository) GetAdCategories(ctx context.Context) ([]persiste
 	return categories, nil
 }
 
+func (repository *adRepository) GetUserAdCategories(ctx context.Context, userId string) ([]persistence.AdCategory, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAdCategories")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var categories []persistence.AdCategory
+	result := repository.DB.Model(&persistence.AdCategory{}).
+		Joins("left join user_ad_categories on user_ad_categories.id_ad_category = ad_categories.id").
+		Where("user_ad_categories.user_id = ?", userId).
+		Find(&categories)
+	if result.Error != nil { return categories, result.Error }
+
+	return categories, nil
+}
+
 func (repository *adRepository) CreateAdCategory(ctx context.Context, category domain.AdCategory) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateAdCategory")
 	defer span.Finish()
@@ -210,6 +228,49 @@ func (repository *adRepository) UpdateCampaignAdDate(ctx context.Context, campai
 		}else{
 			return errors.New("unknown post type")
 		}
+	}
+
+	return nil
+}
+
+func (repository *adRepository) CreateUserAdCategories(ctx context.Context, id string) error{
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUserAdCategories")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	adCategories := []persistence.AdCategory{}
+	result := repository.DB.Find(&adCategories)
+	if result.Error != nil { return result.Error }
+
+	err := repository.DB.Transaction(func (tx *gorm.DB) error {
+		for _, category := range adCategories{
+			result := repository.DB.Create(persistence.UserAdCategories{
+				UserId:       id,
+				IdAdCategory: category.Id,
+			})
+			if result.Error != nil { return result.Error }
+		}
+
+		return nil
+	})
+
+	return err
+}
+
+func (repository *adRepository) IncrementLinkClicks(ctx context.Context, id string) error{
+	span := tracer.StartSpanFromContextMetadata(ctx, "IncrementLinkClicks")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	ad := persistence.Ad{}
+	result := repository.DB.Where("id = ? OR post_id = ?", id, id).Find(&ad)
+	if result.Error != nil { return result.Error }
+
+	ad.LinkClicks += 1
+	// 'OR post_id' part is a quick hotfix, it is not clean.
+	result = repository.DB.Model(&persistence.Ad{}).Where("id = ? OR post_id = ?", ad.Id, ad.Id).Update("link_clicks", ad.LinkClicks)
+	if result.Error != nil || result.RowsAffected != 1 {
+		return result.Error
 	}
 
 	return nil

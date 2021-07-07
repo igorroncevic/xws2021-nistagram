@@ -19,11 +19,10 @@ import likeService from './../../services/like.service';
 import commentService from './../../services/comment.service';
 import favoritesService from './../../services/favorites.service';
 import complaintService from "../../services/complaint.service";
+import adsService from "../../services/ads.service";
 
 function Post (props) {
     const { shouldReload, isAd } = props;
-
-    console.log(props)
 
     const [post, setPost] = useState(isAd ? props.post.post : props.post)
     const [adData, setAdData] = useState(isAd ? props.post : {})
@@ -256,6 +255,13 @@ function Post (props) {
         }
     }
 
+    const incrementLinkClick = async() => {
+        await adsService.incrementLinkClicks({
+            jwt: store.user.jwt,
+            adId: post.id
+        })
+    }
+
     const sendReport = async () => {
         if(store.user.jwt === "") return;
 
@@ -334,7 +340,10 @@ function Post (props) {
                 { console.log(isAd) }
                 {post.hashtags.map(hashtag => <span className="hashtag"> #{hashtag.text}</span> )}
                 {isAd && <div className="adLink"> Sponsored link: 
-                    <a target="_blank" rel="noreferrer" href={!adData.link.includes("http") ? "http://" + adData.link : adData.link}>{adData.link}</a> 
+                    <a target="_blank" rel="noreferrer" onClick={incrementLinkClick}
+                        href={!adData.link.includes("http") ? "http://" + adData.link : adData.link}>
+                             {" " + adData.link}
+                    </a> 
                 </div>}
             </div>
             <div className="comments">

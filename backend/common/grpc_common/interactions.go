@@ -311,3 +311,16 @@ func DeleteComplaintByUserId(ctx context.Context, userId string) (*protopb.Empty
 	}
 	return result, err
 }
+
+func CreateUserAdCategories(ctx context.Context, userId string) error {
+	conn, err := CreateGrpcConnection(Content_service_address)
+	if err != nil{ return err }
+	defer conn.Close()
+
+	contentClient := GetContentClient(conn)
+
+	_, err = contentClient.CreateUserAdCategories(ctx, &protopb.RequestId{Id: userId})
+	if err != nil { return err }
+
+	return nil
+}

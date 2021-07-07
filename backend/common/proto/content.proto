@@ -295,6 +295,13 @@ service Content {
       body: "*"
     };
   }
+
+  rpc IncrementLinkClicks (RequestId) returns (EmptyResponseContent) {
+    option(google.api.http) = {
+      put: "/ads/clicks",
+      body: "*"
+    };
+  }
   /* * * * * * * * * * * * */
 
   /*   Campaigns   */
@@ -342,6 +349,13 @@ service Content {
   rpc CreateAdCategory (AdCategory) returns (EmptyResponseContent) {
     option(google.api.http) = {
       post: "/ads/categories",
+      body: "*"
+    };
+  }
+
+  rpc CreateUserAdCategories (RequestId) returns (EmptyResponseContent) {
+    option(google.api.http) = {
+      post: "/ads/categories/user",
       body: "*"
     };
   }
@@ -410,6 +424,7 @@ message ReducedPostArray {
 
 message PostArray {
   repeated Post posts = 1;
+  repeated Ad ads = 2;
 }
 /* * * * * * * * * * * * */
 
@@ -468,12 +483,14 @@ message Campaign{
   bool   isOneTime = 3;
   google.protobuf.Timestamp startDate = 4;
   google.protobuf.Timestamp endDate = 5;
-  int32  placements = 6;
-  string agentId = 7;
-  AdCategory category = 8;
-  google.protobuf.Timestamp lastUpdated = 9;
-  repeated Ad ads = 10;
-  string   type = 11;
+  int32 startTime	= 6;
+  int32 endTime =	7;
+  int32  placements = 8;
+  string agentId = 9;
+  AdCategory category = 10;
+  google.protobuf.Timestamp lastUpdated = 11;
+  repeated Ad ads = 12;
+  string   type = 13;
 }
 
 message CampaignArray {
