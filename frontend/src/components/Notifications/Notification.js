@@ -178,6 +178,7 @@ function Notification(props) {
             jwt: store.user.jwt,
         })
         if (response.status === 200) {
+            props.getUserNotifications()
             toastService.show("success", "Successfully accepted!");
         } else {
             toastService.show("error", "Something went wrong, please try again!");
@@ -191,6 +192,7 @@ function Notification(props) {
             jwt: store.user.jwt,
         })
         if (response.status === 200) {
+            props.getUserNotifications()
             toastService.show("success", "Successfully accepted!");
         } else {
             toastService.show("error", "Something went wrong, please try again!");
