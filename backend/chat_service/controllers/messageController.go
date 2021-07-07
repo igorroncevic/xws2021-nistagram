@@ -233,3 +233,19 @@ func (c *MessageController) DeclineMessageRequest(w http.ResponseWriter, r *http
 	json.NewEncoder(w).Encode(messageRequest)
 }
 
+func (c *MessageController) SeenPhotoOrVideo(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+	span := tracer.StartSpanFromContextMetadata(ctx, "SeenPhotoOrVideo")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	messageId := mux.Vars(r)["messageId"]
+
+	err := c.Service.SeenPhotoOrVideo(ctx, messageId)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte{})
+		return
+	}
+
+}
