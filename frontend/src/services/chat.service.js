@@ -69,6 +69,35 @@ class ChatService extends RootService {
         return response;
     }
 
+    async acceptMessageRequest(data) {
+        const headers = this.setupHeaders(data.jwt);
+        const response = await this.apiClient.post('/request/accept', {
+            SenderId : data.SenderId,
+            ReceiverId : data.ReceiverId
+        }, {headers})
+            .then(res => {
+                return res
+            }).catch(err => {
+                console.error(err)
+                return err
+            })
+        return response
+    }
+
+    async declineMessageRequest(data) {
+        const headers = this.setupHeaders(data.jwt);
+        const response = await this.apiClient.post('/request/decline', {
+            SenderId : data.SenderId,
+            ReceiverId : data.ReceiverId
+        }, {headers})
+            .then(res => {
+                return res
+            }).catch(err => {
+                console.error(err)
+                return err
+            })
+        return response
+    }
 }
 
 const chatService = new ChatService();
