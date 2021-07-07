@@ -19,13 +19,13 @@ service Users {
 
   rpc GetAllPendingRequests(EmptyRequest) returns (ResponseRequests) {
     option(google.api.http) = {
-      get: "/api/users/get_requests"
+      get: "/api/users/agent/get_requests"
     };
   }
 
   rpc UpdateRequest(RegistrationRequest) returns (EmptyResponse) {
     option(google.api.http) = {
-      post: "/api/users/updateRequest",
+      post: "/api/users/agent/updateRequest",
       body: "*"
     };
   }
@@ -106,6 +106,12 @@ service Users {
     option(google.api.http) = {
       post: "/api/users/searchByUser"
       body: "user"
+    };
+  }
+
+  rpc GetAllInfluncers (EmptyRequest) returns (InfluencerSearchResult) {
+    option(google.api.http) = {
+      get: "/api/users/get-all-influencers",
     };
   }
 
@@ -251,6 +257,41 @@ service Users {
       get: "/api/users/get-all-verification-requests",
     };
   }
+
+  rpc CreateCampaignRequest (CampaignRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/create-campaign",
+      body:"*"
+    };
+  }
+
+  rpc UpdateCampaignRequest (CampaignRequest) returns (EmptyResponse) {
+    option(google.api.http) = {
+      post: "/api/users/update-campaign-request",
+      body:"*"
+    };
+  }
+
+  rpc GetCampaignRequestsByAgent (CampaignRequest) returns (CampaignRequestArray) {
+    option(google.api.http) = {
+      post: "/api/users/get-campaign-request-by-agent",
+      body:"*"
+    };
+  }
+}
+
+
+message  CampaignRequest {
+  string id=1;
+  string agentId=2;
+  string influencerId=3;
+  string campaignId=4;
+  string status=5;
+  google.protobuf.Timestamp postAt = 6;
+}
+
+message  CampaignRequestArray {
+  repeated CampaignRequest campaignRequests = 1;
 }
 
 message CreateNotificationRequest {
@@ -320,6 +361,19 @@ message UsersDTO {
   string resetCode=15;
   bool approvedAccount=16;
   google.protobuf.Timestamp tokenEnd=17;
+}
+
+message InfluencerSearch {
+  string id = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string username = 4;
+  string profilePhoto = 5;
+  bool isProfilePublic = 6;
+}
+
+message InfluencerSearchResult {
+  repeated InfluencerSearch users = 1;
 }
 
 //TODO ne treba da vracamo usera vec usera bez sifre i sa biografijom i website-om

@@ -41,12 +41,13 @@ func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger
 	tracer, closer := tracer.Init("userService")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
-		userController:         newUserController,
-		privacyController:      newPrivacyController,
-		emailController:        newEmailController,
-		notificationController: notificationController,
-		verificationController: newVerificationController,
+		userController:                newUserController,
+		privacyController:             newPrivacyController,
+		emailController:               newEmailController,
+		notificationController:        notificationController,
+		verificationController:        newVerificationController,
 		registrationRequestController: newRegistrationRequestController,
+
 		apiTokenController: newApiTokenController,
 		tracer:                 tracer,
 		closer:                 closer,
@@ -111,6 +112,10 @@ func (s *Server) CheckIfBlocked(ctx context.Context, in *protopb.CreateBlockRequ
 
 func (s *Server) SearchUser(ctx context.Context, in *protopb.SearchUserDtoRequest) (*protopb.UsersResponse, error) {
 	return s.userController.SearchUser(ctx, in)
+}
+
+func (s *Server) GetAllInfluncers(ctx context.Context, in *protopb.EmptyRequest) (*protopb.InfluencerSearchResult, error) {
+	return s.userController.GetAllInfluncers(ctx, in)
 }
 
 func (s *Server) CheckUserProfilePublic(ctx context.Context, in *protopb.PrivacyRequest) (*protopb.BooleanResponse, error) {
@@ -214,11 +219,12 @@ func (s *Server) GetByTypeAndCreator(ctx context.Context,in *protopb.Notificatio
 func (s *Server) UpdateNotification(ctx context.Context, in *protopb.Notification) (*protopb.EmptyResponse, error) {
 	return s.notificationController.UpdateNotification(ctx, in)
 }
+
 func (s *Server) CheckIsActive(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.BooleanResponseUsers, error) {
- 	return s.userController.CheckIsActive(ctx, in)
+	return s.userController.CheckIsActive(ctx, in)
 }
 
-func (s *Server) ChangeUserActiveStatus(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.EmptyResponse ,error) {
+func (s *Server) ChangeUserActiveStatus(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.EmptyResponse, error) {
 	return s.userController.ChangeUserActiveStatus(ctx, in)
 }
 
@@ -234,3 +240,15 @@ func (s *Server) UpdateRequest(ctx context.Context, in *protopb.RegistrationRequ
 	return s.registrationRequestController.UpdateRequest(ctx, in)
 }
 
+
+func (s *Server) CreateCampaignRequest(ctx context.Context, in *protopb.CampaignRequest) (*protopb.EmptyResponse, error) {
+	return s.userController.CreateCampaignRequest(ctx, in)
+}
+
+func (s *Server) UpdateCampaignRequest(ctx context.Context, in *protopb.CampaignRequest) (*protopb.EmptyResponse, error) {
+	return s.userController.UpdateCampaignRequest(ctx, in)
+}
+
+func (s *Server) GetCampaignRequestsByAgent(ctx context.Context, in *protopb.CampaignRequest) (*protopb.CampaignRequestArray, error) {
+	return s.userController.GetCampaignRequestsByAgent(ctx, in)
+}

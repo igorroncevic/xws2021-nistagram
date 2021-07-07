@@ -13,7 +13,7 @@ import userService from "../../services/user.service";
 import chatService from "../../services/chat.service";
 
 function Story(props) {
-    const { story, iconSize, hideUsername, fixMargins } = props;
+    const { story, iconSize, hideUsername, fixMargins, link } = props;
     const [showModal, setModal] = useState(false);
     const [showModalChat, setModalChat] = useState(false);
     const [showModalReport, setModalReport] = useState(false);
@@ -124,7 +124,7 @@ function Story(props) {
                     renderers={[renderer]}
                     stories={convertedStory} 
                     defaultInterval={10000} 
-                    header={{...header, setStoryId}}
+                    header={{...header, setStoryId, link}} // Add link here
                     width={500}
                     height={700}
                 />

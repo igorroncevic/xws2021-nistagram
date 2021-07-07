@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
 	"github.com/david-drvar/xws2021-nistagram/common/security"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model"
@@ -57,7 +58,7 @@ func (service *UserService) GetUser(ctx context.Context, requestedUserId string)
 	res, err := service.CheckIsActive(ctx, requestedUserId)
 	if err != nil {
 		return domain.User{}, err
-	}else if res == false {
+	} else if res == false {
 		return domain.User{}, errors.New("User is not active!")
 	}
 
@@ -357,7 +358,7 @@ func (service *UserService) GetUserPhoto(ctx context.Context, userId string) (st
 	return service.userRepository.GetUserPhoto(ctx, userId)
 }
 
-func (service *UserService) CheckIsActive(ctx context.Context, id string) (bool , error) {
+func (service *UserService) CheckIsActive(ctx context.Context, id string) (bool, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CheckIsActive")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -365,11 +366,70 @@ func (service *UserService) CheckIsActive(ctx context.Context, id string) (bool 
 	return service.userRepository.CheckIsActive(ctx, id)
 }
 
-func (service UserService) ChangeUserActiveStatus(ctx context.Context, id string) (error) {
+func (service UserService) ChangeUserActiveStatus(ctx context.Context, id string) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "ChangeUserActiveStatus")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	return service.userRepository.ChangeUserActiveStatus(ctx, id)
 
+}
+
+func (service *UserService) CreateCampaignRequest(ctx context.Context, request *persistence.CampaignRequest) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateCampaignRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	request, err := service.userRepository.CreateCampaignRequest(ctx, request)
+	if err != nil {
+		return err
+	}
+
+	return grpc_common.CreateNotification(ctx, request.InfluencerId, request.AgentId, "Campaign", request.CampaignId)
+}
+
+func (service *UserService) GetAllInfluncers(ctx context.Context) ([]domain.InfluencerSearchResult, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllInfluncers")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	users, err := service.userRepository.GetAllInfluncers(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var finalUsers []domain.InfluencerSearchResult
+	for _, user := range users {
+		privacy, err := service.privacyRepository.GetUserPrivacy(ctx, user.Id)
+		if err != nil {
+			return nil, err
+		}
+		finalUsers = append(finalUsers, domain.InfluencerSearchResult{
+			Id:              user.Id,
+			FirstName:       user.FirstName,
+			LastName:        user.LastName,
+			Username:        user.Username,
+			Role:            user.Role,
+			ProfilePhoto:    user.ProfilePhoto,
+			IsProfilePublic: privacy.IsProfilePublic,
+		})
+	}
+
+	return finalUsers, nil
+}
+
+func (service *UserService) UpdateCampaignRequest(ctx context.Context, request *persistence.CampaignRequest) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateCampaignRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.userRepository.UpdateCampaignRequest(ctx, request)
+}
+
+func (service *UserService) GetCampaignRequestsByAgent(ctx context.Context, agentId string) ([]persistence.CampaignRequest, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetCampaignRequestsByAgent")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.userRepository.GetCampaignRequestsByAgent(ctx, agentId)
 }
