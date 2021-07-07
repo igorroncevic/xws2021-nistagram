@@ -34,8 +34,7 @@ function Chats() {
             // gledaj da budu javan i da su follow
 
             conn.onmessage = function(event) {
-                const message = JSON.parse(event.data)
-                setMessages([...messages,message])
+                updateChatBox(event);
             };
 
         }
@@ -46,9 +45,21 @@ function Chats() {
         await setUsers(response.data.users);
     }
 
+    async function updateChatBox(event) {
+        const response = await chatService.GetMessagesForChatRoom({
+            roomId : chatRoom.Id,
+            jwt : store.user.jwt
+        });
+        if (response.status === 200) {
+            let temp = response.data;
+            temp.push(event)
+            await setMessages(temp)
+        }
+        else
+            toastService.show("error", "Something went wrong. Try again")
+    }
+
     async function getMessagesForChatRoom() {
-        console.log("chatRoom");
-        console.log(chatRoom);
         const response = await chatService.GetMessagesForChatRoom({
             roomId : chatRoom.Id,
             jwt : store.user.jwt
@@ -74,8 +85,6 @@ function Chats() {
             await setChatRoom(response.data)
             await setConn(new WebSocket("ws://localhost:8003" + "/ws/" + response.data.Id));
             getMessagesForChatRoom()
-
-
         }
         else
             toastService.show("error", "Something went wrong. Try again")
