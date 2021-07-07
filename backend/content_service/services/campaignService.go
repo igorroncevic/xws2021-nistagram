@@ -111,7 +111,7 @@ func (service *CampaignService) DeleteCampaign(ctx context.Context, campaignId s
 	return service.campaignRepository.DeleteCampaign(ctx, campaignId)
 }
 
-func (service *CampaignService) GetOngoingCampaignsAds(ctx context.Context, userId string, campaignType model.PostType) ([]domain.Ad, error) {
+func (service *CampaignService) GetOngoingCampaignsAds(ctx context.Context, userIds []string, userId string, campaignType model.PostType) ([]domain.Ad, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetOngoingCampaignsAds")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -140,7 +140,15 @@ func (service *CampaignService) GetOngoingCampaignsAds(ctx context.Context, user
 		if err != nil { return []domain.Ad{}, err }
 
 		for _, ad := range campaignAds {
-			ads = append(ads, ad)
+			canSee := false
+			// Checking if user can see posts from this ad's creator
+			for _, id := range userIds{
+				if id == ad.Post.UserId{
+					canSee = true
+					break
+				}
+			}
+			if canSee { ads = append(ads, ad) }
 		}
 
 		err = service.campaignRepository.ChangePlacementsNum(ctx, dbCampaign.Id, len(campaignAds))
