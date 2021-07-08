@@ -49,6 +49,7 @@ function Chats() {
             // conn.onmessage()
             // gledaj da budu javan i da su follow
             conn.onmessage = function(event) {
+                //getMessagesForChatRoom(chatRoom.Id);
                 updateChatBox(event);
             };
         }
@@ -60,18 +61,26 @@ function Chats() {
     }
 
     async function updateChatBox(event) {
-        const response = await chatService.GetMessagesForChatRoom({
-            roomId : chatRoom.Id,
-            jwt : store.user.jwt
-        });
-        if (response.status === 200) {
-            let temp = response.data;
-            temp.push(event)
-            await setMessages(temp)
-            await updateRenderMessages(temp);
-        }
-        else
-            toastService.show("error", "Something went wrong. Try again")
+        console.log("event")
+        console.log(JSON.parse(event.data))
+
+        let temp = messages;
+        temp.push(JSON.parse(event.data));
+        await setMessages(temp);
+        await updateRenderMessages(temp);
+
+        // const response = await chatService.GetMessagesForChatRoom({
+        //     roomId : chatRoom.Id,
+        //     jwt : store.user.jwt
+        // });
+        // if (response.status === 200) {
+        //     let temp = response.data;
+        //     temp.push(event)
+        //     await setMessages(temp)
+        //     await updateRenderMessages(temp);
+        // }
+        // else
+        //     toastService.show("error", "Something went wrong. Try again")
     }
 
     async function getMessagesForChatRoom(roomId) {
@@ -200,13 +209,11 @@ function Chats() {
 
             <br/><br/><br/>
 
-            <div style={{overflow: "scroll", height:"400px"}}>
+            <div style={{overflow: "scroll", height:"600px"}}>
                 {renderMessages.map((message) => {
                     return (
                         <div>
-                            {message.SenderId === store.user.id && <div className="container">
-                                {<img src="" alt="Avatar"/>
-                                }
+                            {message.SenderId === store.user.id && <div className="containerChat">
                                 {message.ContentType === "String" && <p>{message.Content}</p>}
 
                                 {message.ContentType === "Image" && <Button disabled={message.IsMediaOpened }
@@ -214,13 +221,11 @@ function Chats() {
                                     variant="success"  onClick={() => handleModal(message)}>Photo </Button>
                                 }
 
-                                {message.ContentType === "Link" && <p style={{color : "powderblue"}} onClick={(e) => alert("namesti link click")}>{message.Content}</p>}
-
                                 {message.ContentType === "Post" && message.Content !== "Cannot view this post" &&
                                     <PostPreviewThumbnail post={message.Content} openPost={openPost} />
                                 }
                                 {message.ContentType === "Post" && message.Content === "Cannot view this post" &&
-                                <p>{message.Content}</p>
+                                <p style={{color : "red"}}>{message.Content}</p>
                                 }
 
 
@@ -228,20 +233,51 @@ function Chats() {
                                 <Story story={message.Content} iconSize={"xxl"} hideUsername={true} />
                                 }
                                 {message.ContentType === "Story" && message.Content === "Cannot view this story" &&
-                                <p>{message.Content}</p>
+                                <p style={{color : "red"}}>{message.Content}</p>
                                 }
 
-                                <span style={{marginLeft: "20px"}} className="time-right">{message.DateCreated}</span>
+                                <span style={{marginLeft: "20px"}} className="time-rightChat">{message.DateCreated}</span>
                             </div>
                             }
 
-                            {message.ReceiverId === store.user.id && <div className="container darker">
-                                {<img src="" alt="Avatar"/>
-                                }                                {message.ContentType === "String" && <p>{message.Content}</p>}
-                                {message.ContentType === "Image" && <img src={message.Content} alt="Avatar"/>}
-                                {message.ContentType === "Link" && <p style={{color : "powderblue"}} onClick={(e) => alert("namesti link click")}>{message.Content}</p>}
-                                <span style={{marginLeft: "20px"}} className="time-right">{message.DateCreated}</span>
-                            </div>}
+
+
+
+                            {message.ReceiverId === store.user.id && <div className="containerChat darkerChat">
+
+                                {message.ContentType === "String" && <p>{message.Content}</p>}
+
+                                {message.ContentType === "Image" && <Button disabled={message.IsMediaOpened }
+                                                                            style={{marginLeft: '5px', marginTop: '22px', height: '32px', fontSize: '15px'}}
+                                                                            variant="success"  onClick={() => handleModal(message)}>Photo </Button>
+                                }
+
+                                {message.ContentType === "Post" && message.Content !== "Cannot view this post" &&
+                                <PostPreviewThumbnail post={message.Content} openPost={openPost} />
+                                }
+                                {message.ContentType === "Post" && message.Content === "Cannot view this post" &&
+                                <p style={{color : "red"}}>{message.Content}</p>
+                                }
+
+
+                                {message.ContentType === "Story" && message.Content !== "Cannot view this story" &&
+                                <Story story={message.Content} iconSize={"xxl"} hideUsername={true} />
+                                }
+                                {message.ContentType === "Story" && message.Content === "Cannot view this story" &&
+                                <p style={{color : "red"}}>{message.Content}</p>
+                                }
+
+                                <span style={{marginLeft: "20px"}} className="time-leftChat">{message.DateCreated}</span>
+                            </div>
+                            }
+
+                            {/*{message.ReceiverId === store.user.id && <div className="container darkerChat">*/}
+                            {/*    {<img src="" alt="Avatar"/>*/}
+                            {/*    }                                {message.ContentType === "String" && <p>{message.Content}</p>}*/}
+                            {/*    {message.ContentType === "Image" && <img src={message.Content} alt="Avatar"/>}*/}
+                            {/*    {message.ContentType === "Link" && <p style={{color : "powderblue"}} onClick={(e) => alert("namesti link click")}>{message.Content}</p>}*/}
+                            {/*    <span style={{marginLeft: "20px"}} className="time-right">{message.DateCreated}</span>*/}
+                            {/*</div>}*/}
                         </div>
                     )
                 })}
@@ -262,10 +298,9 @@ function Chats() {
             <DropdownButton onSelect={(event) => handleMessageCategoryChange(event) } as={InputGroup.Append}  variant="outline-secondary" title={messageCategory} id="input-group-dropdown-2" >
                 <Dropdown.Item eventKey={"String"} >String</Dropdown.Item>
                 <Dropdown.Item eventKey={"Image"} >Image</Dropdown.Item>
-                <Dropdown.Item eventKey={"Link"} >Link</Dropdown.Item>
             </DropdownButton>
 
-            {(messageCategory === "String" || messageCategory === "Link") &&
+            {(messageCategory === "String") &&
                 <input type={"text"} value={messageText} onChange={(e) => setMessageText(e.target.value)}/>
             }
             {messageCategory === "Image" &&
