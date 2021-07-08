@@ -49,8 +49,12 @@ function Chats() {
             // conn.onmessage()
             // gledaj da budu javan i da su follow
             conn.onmessage = function(event) {
-                //getMessagesForChatRoom(chatRoom.Id);
-                updateChatBox(event);
+                let eventData = JSON.parse(event.data);
+                if (eventData.ContentType === "Image") { //mora zbog slike za pravilno seenovanje, jer slika nema Id ako se ne getuje
+                    getMessagesForChatRoom(chatRoom.Id);
+                }
+                else
+                    updateChatBox(event);
             };
         }
     }, [conn, renderMessages]);
@@ -184,12 +188,17 @@ function Chats() {
     }
 
     async function seenPhoto(data) {
+        //ako sam ja poslao i otvorio onda ne treba to da se desi
+        console.log(data);
+        if (data.SenderId === store.user.id)
+            return;
+
         const response = await chatService.seenPhoto({
             Id: data.Id,
             jwt: store.user.jwt
         });
         if (response.status === 200) {
-            console.log("BRAVOOO")
+            getMessagesForChatRoom(chatRoom.Id);
 
         } else
             toastService.show("error", "Something went wrong. Try again")
@@ -216,7 +225,7 @@ function Chats() {
                             {message.SenderId === store.user.id && <div className="containerChat">
                                 {message.ContentType === "String" && <p>{message.Content}</p>}
 
-                                {message.ContentType === "Image" && <Button disabled={message.IsMediaOpened }
+                                {message.ContentType === "Image" && <Button disabled={message.SenderId === store.user.id ? false : message.IsMediaOpened}
                                     style={{marginLeft: '5px', marginTop: '22px', height: '32px', fontSize: '15px'}}
                                     variant="success"  onClick={() => handleModal(message)}>Photo </Button>
                                 }
@@ -247,7 +256,7 @@ function Chats() {
 
                                 {message.ContentType === "String" && <p>{message.Content}</p>}
 
-                                {message.ContentType === "Image" && <Button disabled={message.IsMediaOpened }
+                                {message.ContentType === "Image" && <Button disabled={message.SenderId === store.user.id ? false : message.IsMediaOpened}
                                                                             style={{marginLeft: '5px', marginTop: '22px', height: '32px', fontSize: '15px'}}
                                                                             variant="success"  onClick={() => handleModal(message)}>Photo </Button>
                                 }
@@ -271,28 +280,10 @@ function Chats() {
                             </div>
                             }
 
-                            {/*{message.ReceiverId === store.user.id && <div className="container darkerChat">*/}
-                            {/*    {<img src="" alt="Avatar"/>*/}
-                            {/*    }                                {message.ContentType === "String" && <p>{message.Content}</p>}*/}
-                            {/*    {message.ContentType === "Image" && <img src={message.Content} alt="Avatar"/>}*/}
-                            {/*    {message.ContentType === "Link" && <p style={{color : "powderblue"}} onClick={(e) => alert("namesti link click")}>{message.Content}</p>}*/}
-                            {/*    <span style={{marginLeft: "20px"}} className="time-right">{message.DateCreated}</span>*/}
-                            {/*</div>}*/}
+
                         </div>
                     )
                 })}
-
-                {/*<div className="container">*/}
-                {/*    <img src="" alt="Avatar"/>*/}
-                {/*        <p>Hello. How are you today?</p>*/}
-                {/*        <span className="time-right">11:00</span>*/}
-                {/*</div>*/}
-
-                {/*<div className="container darker">*/}
-                {/*    <img src="" alt="Avatar" className="right"/>*/}
-                {/*        <p>Hey! I'm fine. Thanks for asking!</p>*/}
-                {/*        <span className="time-left">11:01</span>*/}
-                {/*</div>*/}
             </div>
 
             <DropdownButton onSelect={(event) => handleMessageCategoryChange(event) } as={InputGroup.Append}  variant="outline-secondary" title={messageCategory} id="input-group-dropdown-2" >
