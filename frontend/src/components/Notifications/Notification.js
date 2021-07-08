@@ -10,6 +10,7 @@ import "../../style/notification.css";
 import {contentService} from "../../backendPaths";
 import postService from "../../services/post.service";
 import PostPreviewModal from "../Post/PostPreviewModal";
+import campaignsService from "../../services/campaigns.service";
 import chatService from "../../services/chat.service";
 
 function Notification(props) {
@@ -61,6 +62,7 @@ function Notification(props) {
             setMessageRequest(true)
         }
     }
+
 
     async function acceptRequest() {
         const response = await followersService.acceptRequest({
@@ -140,7 +142,7 @@ function Notification(props) {
 
 
     async function acceptCampaignRequest() {
-        const response = await userService.updateCampaignRequest({
+        const response = await campaignsService.updateCampaignRequest({
             agentId:creatorId,
             influencerId:userId,
             campaignId:contentId,
@@ -149,14 +151,13 @@ function Notification(props) {
         })
         if (response.status === 200) {
             toastService.show("success", "Successfully accepted!");
-
         } else {
             toastService.show("error", "Something went wrong, please try again!");
         }
     }
 
     async function rejectCampaignRequest() {
-        const response = await userService.updateCampaignRequest({
+        const response = await campaignsService.updateCampaignRequest({
             agentId:creatorId,
             influencerId:userId,
             campaignId:contentId,
@@ -177,6 +178,7 @@ function Notification(props) {
             jwt: store.user.jwt,
         })
         if (response.status === 200) {
+            props.getUserNotifications()
             toastService.show("success", "Successfully accepted!");
         } else {
             toastService.show("error", "Something went wrong, please try again!");
@@ -190,6 +192,7 @@ function Notification(props) {
             jwt: store.user.jwt,
         })
         if (response.status === 200) {
+            props.getUserNotifications()
             toastService.show("success", "Successfully accepted!");
         } else {
             toastService.show("error", "Something went wrong, please try again!");
@@ -230,9 +233,7 @@ function Notification(props) {
                 <Button style={{marginLeft: '5px', height: '27px', fontSize: '12px'}} variant="secondary"
                         onClick={() => rejectCampaignRequest()}>Reject</Button>
             </div>
-
             }
-
             {messageRequest &&
             <div style={{display: "flex", marginLeft: '85px'}}>
                 <Button style={{height: '27px', fontSize: '12px'}} variant="success"
@@ -241,6 +242,7 @@ function Notification(props) {
                         onClick={() => declineMessageRequest()}>Reject</Button>
             </div>
             }
+
 
 
             <PostPreviewModal

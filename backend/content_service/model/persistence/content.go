@@ -122,10 +122,15 @@ type CampaignChanges struct {
 }
 
 type CampaignInfluencerRequest struct {
-	CampaignId   string `gorm:"primaryKey"`
-	InfluencerId string `gorm:"primaryKey"`
+	Id           string `gorm:"primaryKey"`
+	AgentId      string
+	InfluencerId string
+	CampaignId   string
 	Status       model.RequestStatus
+	PostAt       time.Time
 }
+
+
 
 type ContentComplaint struct {
 	Id       string `gorm:"primaryKey"`

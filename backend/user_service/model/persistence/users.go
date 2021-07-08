@@ -141,27 +141,6 @@ type CampaignRequest struct {
 	PostAt       time.Time
 }
 
-func (campaignRequest *CampaignRequest) ConvertFromGrpc(n *protopb.CampaignRequest) *CampaignRequest {
-	return &CampaignRequest{
-		Id:           n.Id,
-		AgentId:      n.AgentId,
-		InfluencerId: n.InfluencerId,
-		CampaignId:   n.CampaignId,
-		Status:       model.RequestStatus(n.Status),
-		PostAt:       n.PostAt.AsTime(),
-	}
-}
-
-func (u CampaignRequest) ConvertToGrpc() *protopb.CampaignRequest {
-	return &protopb.CampaignRequest{
-		Id:           u.Id,
-		AgentId:      u.AgentId,
-		InfluencerId: u.InfluencerId,
-		CampaignId:   u.CampaignId,
-		Status:       string(u.Status),
-		PostAt:       timestamppb.New(u.PostAt),
-	}
-}
 
 type APIKeys struct {
 	UserId string `gorm:"primaryKey"`

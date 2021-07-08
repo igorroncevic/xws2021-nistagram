@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"errors"
-	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
 	"github.com/david-drvar/xws2021-nistagram/common/security"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/user_service/model"
@@ -375,18 +374,7 @@ func (service UserService) ChangeUserActiveStatus(ctx context.Context, id string
 
 }
 
-func (service *UserService) CreateCampaignRequest(ctx context.Context, request *persistence.CampaignRequest) error {
-	span := tracer.StartSpanFromContextMetadata(ctx, "CreateCampaignRequest")
-	defer span.Finish()
-	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	request, err := service.userRepository.CreateCampaignRequest(ctx, request)
-	if err != nil {
-		return err
-	}
-
-	return grpc_common.CreateNotification(ctx, request.InfluencerId, request.AgentId, "Campaign", request.CampaignId)
-}
 
 func (service *UserService) GetAllInfluncers(ctx context.Context) ([]domain.InfluencerSearchResult, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllInfluncers")
@@ -418,18 +406,4 @@ func (service *UserService) GetAllInfluncers(ctx context.Context) ([]domain.Infl
 	return finalUsers, nil
 }
 
-func (service *UserService) UpdateCampaignRequest(ctx context.Context, request *persistence.CampaignRequest) error {
-	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateCampaignRequest")
-	defer span.Finish()
-	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	return service.userRepository.UpdateCampaignRequest(ctx, request)
-}
-
-func (service *UserService) GetCampaignRequestsByAgent(ctx context.Context, agentId string) ([]persistence.CampaignRequest, error) {
-	span := tracer.StartSpanFromContextMetadata(ctx, "GetCampaignRequestsByAgent")
-	defer span.Finish()
-	ctx = tracer.ContextWithSpan(context.Background(), span)
-
-	return service.userRepository.GetCampaignRequestsByAgent(ctx, agentId)
-}

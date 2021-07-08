@@ -671,3 +671,25 @@ func (ac AdCategory) ConvertFromGrpc(adCategory *protopb.AdCategory) AdCategory{
 		Name: adCategory.Name,
 	}
 }
+
+func (u CampaignInfluencerRequest) ConvertToGrpc() *protopb.CampaignInfluencerRequest {
+	return &protopb.CampaignInfluencerRequest{
+		Id:           u.Id,
+		AgentId:      u.AgentId,
+		InfluencerId: u.InfluencerId,
+		CampaignId:   u.CampaignId,
+		Status:       string(u.Status),
+		PostAt:       timestamppb.New(u.PostAt),
+	}
+}
+
+func (campaignRequest *CampaignInfluencerRequest) ConvertFromGrpc(n *protopb.CampaignInfluencerRequest) *CampaignInfluencerRequest {
+	return &CampaignInfluencerRequest{
+		Id:           n.Id,
+		AgentId:      n.AgentId,
+		InfluencerId: n.InfluencerId,
+		CampaignId:   n.CampaignId,
+		Status:       model.RequestStatus(n.Status),
+		PostAt:       n.PostAt.AsTime(),
+	}
+}

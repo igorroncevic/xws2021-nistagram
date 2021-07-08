@@ -147,6 +147,8 @@ var (
 	getKeyByUserId             = Permission{Id: "5e6679f2-3204-43bd-9467-cec51eafceee", Name: "GetKeyByUserId"}
 	generateApiToken           = Permission{Id: "03a9005c-77dc-460f-aefa-6e2307645cf6", Name: "GenerateApiToken"}
 	validateKey                = Permission{Id: "01d91ba8-47ab-4dd7-a143-fbcc893a322e", Name: "ValidateKey"}
+
+
 )
 
 var (

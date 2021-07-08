@@ -156,9 +156,12 @@ type Campaign struct {
 }
 
 type CampaignInfluencerRequest struct {
-	CampaignId   string
+	Id           string `gorm:"primaryKey"`
+	AgentId      string
 	InfluencerId string
+	CampaignId   string
 	Status       model.RequestStatus
+	PostAt       time.Time
 }
 
 /*

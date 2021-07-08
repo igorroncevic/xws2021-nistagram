@@ -98,6 +98,19 @@ class ChatService extends RootService {
             })
         return response
     }
+
+    async seenPhoto(data) {
+        console.log(data)
+        const headers = this.setupHeaders(data.jwt);
+        const response = await this.apiClient.get('/message/'+data.Id+'/seenPhoto', {headers})
+            .then(res => {
+                return res
+            }).catch(err => {
+                console.error(err)
+                return err
+            })
+        return response
+    }
 }
 
 const chatService = new ChatService();

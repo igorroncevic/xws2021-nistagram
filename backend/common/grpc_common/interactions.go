@@ -253,7 +253,7 @@ func CheckIsActive(ctx context.Context, userId string) (bool, error) {
 	return res.Response, err
 }
 
-func DeleteByTypeAndCreator(ctx context.Context, notificationType string, userId string, creatorId string) (error){
+func DeleteByTypeAndCreator(ctx context.Context, notificationType string, userId string, creatorId string) error{
 	conn, err := CreateGrpcConnection(Users_service_address)
 	if err != nil{
 		return status.Errorf(codes.Unknown, err.Error())

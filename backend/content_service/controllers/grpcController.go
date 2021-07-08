@@ -258,6 +258,18 @@ func (s *Server) DeleteCampaign(ctx context.Context, in *protopb.RequestId) (*pr
 	return s.campaignController.DeleteCampaign(ctx, in)
 }
 
+func (s *Server) CreateCampaignRequest(ctx context.Context, in *protopb.CampaignInfluencerRequest) (*protopb.EmptyResponseContent, error) {
+	return s.campaignController.CreateCampaignRequest(ctx, in)
+}
+
+func (s *Server) UpdateCampaignRequest(ctx context.Context, in *protopb.CampaignInfluencerRequest) (*protopb.EmptyResponseContent, error) {
+	return s.campaignController.UpdateCampaignRequest(ctx, in)
+}
+
+func (s *Server) GetCampaignRequestsByAgent(ctx context.Context, in *protopb.CampaignInfluencerRequest) (*protopb.CampaignRequestArray, error) {
+	return s.campaignController.GetCampaignRequestsByAgent(ctx, in)
+}
+
 /* Ad Categories */
 func (s *Server) GetAdCategories(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.AdCategoryArray, error) {
 	return s.adController.GetAdCategories(ctx, in)
