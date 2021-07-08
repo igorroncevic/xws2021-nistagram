@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
+	"github.com/david-drvar/xws2021-nistagram/content_service/model"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/content_service/repositories"
 	"gorm.io/gorm"
@@ -78,7 +79,8 @@ func (service *CampaignService) CreateCampaign(ctx context.Context, campaign dom
 	if campaign.EndDate.Equal(time.Time{}) { return errors.New("no start date provided") }
 	if campaign.Category.Id == "" { return errors.New("no ad category") }
 	if campaign.StartDate.After(campaign.EndDate) { return errors.New("start date cannot be after end date") }
-	if campaign.IsOneTime && !campaign.StartDate.Equal(campaign.EndDate){ campaign.EndDate = campaign.StartDate/*.Add(24 * time.Hour)*/ }
+	if campaign.IsOneTime && !campaign.StartDate.Equal(campaign.EndDate){ campaign.EndDate = campaign.StartDate.Add(24 * time.Hour) }
+	if campaign.StartDate.Before(time.Now()) { return errors.New("you cannot create campaigns in past") }
 	if len(campaign.Ads) == 0 { return errors.New("no ads provided") }
 
 	return service.campaignRepository.CreateCampaign(ctx, campaign)
@@ -95,6 +97,8 @@ func (service *CampaignService) UpdateCampaign(ctx context.Context, campaign dom
 	if campaign.EndDate.Equal(time.Time{}) { return errors.New("no end date provided") }
 	if campaign.Category.Id == "" { return errors.New("no ad category") }
 	if campaign.StartDate.After(campaign.EndDate) { return errors.New("start date cannot be after end date") }
+	if campaign.IsOneTime && campaign.StartDate.Before(time.Now()) { return errors.New("you cannot update already started one time campaign") }
+	if campaign.EndDate.Before(time.Now()) { return errors.New("you cannot update past campaigns") }
 
 	return service.campaignRepository.UpdateCampaign(ctx, campaign)
 }
@@ -105,4 +109,52 @@ func (service *CampaignService) DeleteCampaign(ctx context.Context, campaignId s
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	return service.campaignRepository.DeleteCampaign(ctx, campaignId)
+}
+
+func (service *CampaignService) GetOngoingCampaignsAds(ctx context.Context, userIds []string, userId string, campaignType model.PostType) ([]domain.Ad, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetOngoingCampaignsAds")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	// Take category, exposure dates and user into consideration
+	dbCampaigns, err := service.campaignRepository.GetOngoingCampaigns(ctx)
+	if err != nil { return nil, err }
+
+	userAdCategories, err := service.adService.GetUserAdCategories(ctx, userId)
+	if err != nil { return nil, err }
+
+	ads := []domain.Ad{}
+	for _, dbCampaign := range dbCampaigns{
+		if campaignType.String() != dbCampaign.Type { continue }
+
+		appliesToUser := false
+		if len(userAdCategories) == 0 { appliesToUser = true } // non-registered users will get all the ads
+		for _, category := range userAdCategories{
+			if category.Id == dbCampaign.AdCategoryId{
+				appliesToUser = true
+				break
+			}
+		}
+		if !appliesToUser { continue }
+
+		campaignAds, err := service.adService.GetAdsFromCampaign(ctx, dbCampaign.Id)
+		if err != nil { return []domain.Ad{}, err }
+
+		for _, ad := range campaignAds {
+			canSee := false
+			// Checking if user can see posts from this ad's creator
+			for _, id := range userIds{
+				if id == ad.Post.UserId{
+					canSee = true
+					break
+				}
+			}
+			if canSee { ads = append(ads, ad) }
+		}
+
+		err = service.campaignRepository.ChangePlacementsNum(ctx, dbCampaign.Id, len(campaignAds))
+		if err != nil { return []domain.Ad{}, err }
+	}
+
+	return ads, nil
 }

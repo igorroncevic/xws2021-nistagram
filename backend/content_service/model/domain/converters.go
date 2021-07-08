@@ -89,8 +89,10 @@ func (s *Story) ConvertFromGrpc(story *protopb.Story) *Story {
 	}
 }
 
-func (s *StoriesHome) ConvertToGrpc() *protopb.StoriesHome {
-	storiesHome := &protopb.StoriesHome{}
+func (s *StoriesHome) ConvertToGrpc(ads []*protopb.StoryAdHome) *protopb.StoriesHome {
+	storiesHome := &protopb.StoriesHome{
+		Ads: ads,
+	}
 	for _, storyHome := range s.Stories {
 		storiesHome.Stories = append(storiesHome.Stories, &protopb.StoryHome{
 			UserId:    storyHome.UserId,
@@ -631,6 +633,8 @@ func (c Campaign) ConvertToGrpc() *protopb.Campaign{
 		IsOneTime:    c.IsOneTime,
 		StartDate:    timestamppb.New(c.StartDate),
 		EndDate:      timestamppb.New(c.EndDate),
+		StartTime:	  int32(c.StartTime),
+		EndTime:	  int32(c.EndTime),
 		Placements:   int32(c.Placements),
 		AgentId:      c.AgentId,
 		Category:     c.Category.ConvertToGrpc(),
@@ -649,6 +653,8 @@ func (c Campaign) ConvertFromGrpc(campaign *protopb.Campaign) Campaign{
 		IsOneTime:    campaign.IsOneTime,
 		StartDate:    campaign.StartDate.AsTime(),
 		EndDate:      campaign.EndDate.AsTime(),
+		StartTime:	  int(campaign.StartTime),
+		EndTime:	  int(campaign.EndTime),
 		Placements:   int(campaign.Placements),
 		AgentId:      campaign.AgentId,
 		Category:     category.ConvertFromGrpc(campaign.Category),
