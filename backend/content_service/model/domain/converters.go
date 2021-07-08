@@ -89,8 +89,10 @@ func (s *Story) ConvertFromGrpc(story *protopb.Story) *Story {
 	}
 }
 
-func (s *StoriesHome) ConvertToGrpc() *protopb.StoriesHome {
-	storiesHome := &protopb.StoriesHome{}
+func (s *StoriesHome) ConvertToGrpc(ads []*protopb.StoryAdHome) *protopb.StoriesHome {
+	storiesHome := &protopb.StoriesHome{
+		Ads: ads,
+	}
 	for _, storyHome := range s.Stories {
 		storiesHome.Stories = append(storiesHome.Stories, &protopb.StoryHome{
 			UserId:    storyHome.UserId,

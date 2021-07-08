@@ -236,6 +236,7 @@ func CheckIsActive(ctx context.Context, userId string) (bool, error) {
 	defer conn.Close()
 	userClient := GetUsersClient(conn)
 	res, err := userClient.CheckIsActive(ctx, &protopb.RequestIdUsers{Id: userId})
+	if err != nil { return false, err }
 	return res.Response, err
 }
 

@@ -99,6 +99,7 @@ func (repository *postRepository) CreatePost(ctx context.Context, post *domain.P
 
 	var postToSave persistence.Post
 	postToSave = postToSave.ConvertToPersistence(*post)
+	postToSave.CreatedAt = time.Now()
 	err := repository.DB.Transaction(func(tx *gorm.DB) error {
 		result := repository.DB.Create(&postToSave)
 		if result.Error != nil || result.RowsAffected != 1 {

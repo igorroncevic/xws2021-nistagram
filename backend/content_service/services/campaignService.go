@@ -128,6 +128,7 @@ func (service *CampaignService) GetOngoingCampaignsAds(ctx context.Context, user
 		if campaignType.String() != dbCampaign.Type { continue }
 
 		appliesToUser := false
+		if len(userAdCategories) == 0 { appliesToUser = true } // non-registered users will get all the ads
 		for _, category := range userAdCategories{
 			if category.Id == dbCampaign.AdCategoryId{
 				appliesToUser = true

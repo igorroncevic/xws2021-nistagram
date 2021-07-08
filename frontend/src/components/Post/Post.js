@@ -337,7 +337,6 @@ function Post (props) {
             <div className="Post-caption">
                 <strong> <NavLink className="username" to={{pathname: `/profile/${user.username}`}}>{user.username}</NavLink> </strong> 
                 <span>{post.description}</span> 
-                { console.log(isAd) }
                 {post.hashtags.map(hashtag => <span className="hashtag"> #{hashtag.text}</span> )}
                 {isAd && <div className="adLink"> Sponsored link: 
                     <a target="_blank" rel="noreferrer" onClick={incrementLinkClick}

@@ -22,6 +22,8 @@ function Story(props) {
 
     // Convert story with multiple media to multiple stories with single media, to comply with react-insta-stories
     useEffect(()=>{
+        console.log(story)
+        
         const convertedStories = [];
         story.stories.forEach(singleStory => {  
             convertedStories.push(...storyService.convertStory(singleStory))

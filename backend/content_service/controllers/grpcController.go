@@ -275,6 +275,6 @@ func (s *Server) CreateAdCategory(ctx context.Context, in *protopb.AdCategory) (
 	return s.adController.CreateAdCategory(ctx, in)
 }
 
-func (s *Server) CreateAdUserCategories(ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent, error) {
+func (s *Server) CreateUserAdCategories(ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent, error) {
 	return s.adController.CreateUserAdCategories(ctx, in)
 }

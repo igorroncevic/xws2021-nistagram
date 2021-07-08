@@ -455,6 +455,12 @@ message StoryHome {
 
 message StoriesHome {
   repeated StoryHome stories = 1;
+  repeated StoryAdHome ads = 2;
+}
+
+message StoryAdHome{
+  bool ownerHasStories = 1;
+  Ad ad = 2;
 }
 
 /* * * * * * * * * * * * */
