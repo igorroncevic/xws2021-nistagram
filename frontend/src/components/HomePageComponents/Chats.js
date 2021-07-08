@@ -5,7 +5,7 @@ import userService from "../../services/user.service";
 import UserAutocomplete from "../Post/UserAutocomplete";
 import {Button, Dropdown, DropdownButton, InputGroup, Modal} from "react-bootstrap";
 
-//import "./../../style/chat.css"
+import "./../../style/chat.css"
 import verificationRequestService from "../../services/verificationRequest.service";
 import toastService from "../../services/toast.service";
 import chatService from "../../services/chat.service";
@@ -66,15 +66,15 @@ function Chats() {
             let temp = response.data;
             temp.push(event)
             await setMessages(temp)
-            updateRenderMessages();
+            await updateRenderMessages(temp);
         }
         else
             toastService.show("error", "Something went wrong. Try again")
     }
 
-    async function getMessagesForChatRoom() {
+    async function getMessagesForChatRoom(roomId) {
         const response = await chatService.GetMessagesForChatRoom({
-            roomId : chatRoom.Id,
+            roomId : roomId,
             jwt : store.user.jwt
         });
         if (response.status === 200) {
@@ -82,13 +82,13 @@ function Chats() {
             console.log(response.data);
             toastService.show("success", "Chat room messages retrieved successfully")
             await setMessages(response.data);
-            await updateRenderMessages();
+            await updateRenderMessages(response.data);
         }
         else
             toastService.show("error", "Something went wrong. Try again")
     }
 
-    async function updateRenderMessages() {
+    async function updateRenderMessages(messages) {
         await setRenderMessages([]);
         let tempList = [];
         for (const message of messages) {
@@ -123,15 +123,21 @@ function Chats() {
         });
         if (response.status === 200) {
             toastService.show("success", "Chat room retrieved successfully")
+            console.log("chat room")
+            console.log(response.data)
             await setChatRoom(response.data)
             await setConn(new WebSocket("ws://localhost:8003" + "/ws/" + response.data.Id));
-            getMessagesForChatRoom()
+            await getMessagesForChatRoom(response.data.Id)
         }
         else
             toastService.show("error", "Something went wrong. Try again")
     }
 
     function sendMessage() {
+        if (messageCategory === "Message category") {
+            toastService.show("error", "Cannot send empty message");
+            return;
+        }
         conn.send(JSON.stringify({SenderId : store.user.id, ReceiverId : selectedUser.id, RoomId : chatRoom.Id, Content : messageText, ContentType : messageCategory}));
         setMessageCategory("Message category");
         setMessageText("");
