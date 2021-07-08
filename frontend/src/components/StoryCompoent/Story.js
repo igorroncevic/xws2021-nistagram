@@ -46,6 +46,14 @@ function Story(props) {
 
     }, [])
 
+    useEffect(() => {
+        conn.onopen = () => {
+            conn.send(JSON.stringify({SenderId : store.user.id, ReceiverId : selectedUser.id, RoomId : chatRoom.Id, Content : storyId, ContentType : "Story"}));
+            toastService.show("success", "Message sent successfully!")
+            setModalChat(false);
+        }
+    }, [conn]);
+
     async function getAllUsers() {
         const response = await userService.getAllUsers({ jwt: store.user.jwt });
         await setUsers(response.data.users);
@@ -92,7 +100,6 @@ function Story(props) {
             jwt : store.user.jwt
         });
         if (response.status === 200) {
-            toastService.show("success", "Chat room retrieved successfully")
             await setChatRoom(response.data)
             await setConn(new WebSocket("ws://localhost:8003" + "/ws/" + response.data.Id));
         }
@@ -101,10 +108,9 @@ function Story(props) {
     }
 
     async function sendMessage() {
-        await setConn(new WebSocket("ws://localhost:8003" + "/ws/" + selectedUser.id + "_" + store.user.id))
-        console.log(conn)
-        conn.send(JSON.stringify({SenderId : store.user.id, ReceiverId : selectedUser.id, RoomId : chatRoom.Id, Content : storyId, ContentType : "Story"}));
+        await startChat();
     }
+
 
     return (
         <div>
@@ -162,7 +168,7 @@ function Story(props) {
 
             <Modal show={showModalChat} onHide={setModalChat}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Send this post</Modal.Title>
+                    <Modal.Title>Send this story</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <UserAutocomplete setSelectedUser={setSelectedUser} suggestions={users} />
