@@ -26,8 +26,8 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			updateUserPhoto, getUserNotifications, getBlockedUsers, deleteNotification,
 			updateNotification, getByTypeAndCreator, checkIsActive, changeUserActiveStatus,
 			createAgentUser,
-			getAllPendingRequests, updateRequest, createCampaignRequest, getAllInfluncers, getCampaignRequestsByAgent,
-			updateCampaignRequest, getKeyByUserId, generateApiToken, validateKey,
+			getAllPendingRequests, updateRequest, getAllInfluncers,
+			getKeyByUserId, generateApiToken, validateKey,
 		}
 		result = db.Create(&permissions)
 		if result.Error != nil {
@@ -70,10 +70,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			adminCreateAgentUser, basicCreateAgentUser, verifiedCreateAgentUser, nonregisteredCreateAgentUser,
 			adminGetAllPendingRequests,
 			adminUpdateRequest,
-			agentCreateCampaignRequest,
 			agentGetAllInfluncers,
-			agentGetCampaignRequestsByAgent,
-			basicUpdateCampaignRequest, agentUpdateCampaignRequest, verifiedUpdateCampaignRequest,
 			agentGetKeyByUserId,
 			adminGenerateApiToken, agentGenerateApiToken,
 			agentValidateKey, adminValidateKey,
@@ -137,18 +134,13 @@ var (
 	checkIsActive                   = Permission{Id: "419fa77e-dc3e-11eb-ba80-0242ac130004", Name: "CheckIsActive"}
 	changeUserActiveStatus          = Permission{Id: "ab876e7e-dc3e-11eb-ba80-0242ac130004", Name: "ChangeUserActiveStatus"}
 
-	getAllPendingRequests      = Permission{Id: "85fa9d3e-dc52-11eb-ba80-0242ac130004", Name: "GetAllPendingRequests"}
-	createAgentUser            = Permission{Id: "4f8f5246-dc4b-11eb-ba80-0242ac130004", Name: "CreateAgentUser"}
-	updateRequest              = Permission{Id: "e18e7370-dca0-11eb-ba80-0242ac130004", Name: "UpdateRequest"}
-	createCampaignRequest      = Permission{Id: "666112e5-395e-4c04-a278-5d5d319bd1e8", Name: "CreateCampaignRequest"}
-	getAllInfluncers           = Permission{Id: "9495ac44-0e35-4f6d-8b89-5b860ddd5754", Name: "GetAllInfluncers"}
-	getCampaignRequestsByAgent = Permission{Id: "f0d7798f-188b-4936-ba2c-0d5cf7c7539a", Name: "GetCampaignRequestsByAgent"}
-	updateCampaignRequest      = Permission{Id: "797df38e-4862-47af-a87a-0194faed3c15", Name: "UpdateCampaignRequest"}
-	getKeyByUserId             = Permission{Id: "5e6679f2-3204-43bd-9467-cec51eafceee", Name: "GetKeyByUserId"}
-	generateApiToken           = Permission{Id: "03a9005c-77dc-460f-aefa-6e2307645cf6", Name: "GenerateApiToken"}
-	validateKey                = Permission{Id: "01d91ba8-47ab-4dd7-a143-fbcc893a322e", Name: "ValidateKey"}
-
-
+	getAllPendingRequests = Permission{Id: "85fa9d3e-dc52-11eb-ba80-0242ac130004", Name: "GetAllPendingRequests"}
+	createAgentUser       = Permission{Id: "4f8f5246-dc4b-11eb-ba80-0242ac130004", Name: "CreateAgentUser"}
+	updateRequest         = Permission{Id: "e18e7370-dca0-11eb-ba80-0242ac130004", Name: "UpdateRequest"}
+	getAllInfluncers      = Permission{Id: "9495ac44-0e35-4f6d-8b89-5b860ddd5754", Name: "GetAllInfluncers"}
+	getKeyByUserId        = Permission{Id: "5e6679f2-3204-43bd-9467-cec51eafceee", Name: "GetKeyByUserId"}
+	generateApiToken      = Permission{Id: "03a9005c-77dc-460f-aefa-6e2307645cf6", Name: "GenerateApiToken"}
+	validateKey           = Permission{Id: "01d91ba8-47ab-4dd7-a143-fbcc893a322e", Name: "ValidateKey"}
 )
 
 var (
@@ -327,15 +319,7 @@ var (
 	adminGetAllPendingRequests = RolePermission{RoleId: admin.Id, PermissionId: getAllPendingRequests.Id}
 	adminUpdateRequest         = RolePermission{RoleId: admin.Id, PermissionId: updateRequest.Id}
 
-	agentCreateCampaignRequest = RolePermission{RoleId: agent.Id, PermissionId: createCampaignRequest.Id}
-
 	agentGetAllInfluncers = RolePermission{RoleId: agent.Id, PermissionId: getAllInfluncers.Id}
-
-	agentGetCampaignRequestsByAgent = RolePermission{RoleId: agent.Id, PermissionId: getCampaignRequestsByAgent.Id}
-
-	basicUpdateCampaignRequest    = RolePermission{RoleId: basic.Id, PermissionId: updateCampaignRequest.Id}
-	agentUpdateCampaignRequest    = RolePermission{RoleId: agent.Id, PermissionId: updateCampaignRequest.Id}
-	verifiedUpdateCampaignRequest = RolePermission{RoleId: verified.Id, PermissionId: updateCampaignRequest.Id}
 
 	agentGetKeyByUserId = RolePermission{RoleId: agent.Id, PermissionId: getKeyByUserId.Id}
 

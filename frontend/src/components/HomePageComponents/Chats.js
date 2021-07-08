@@ -3,7 +3,7 @@ import Navigation from "../HomePage/Navigation";
 import {useDispatch, useSelector} from "react-redux";
 import userService from "../../services/user.service";
 import UserAutocomplete from "../Post/UserAutocomplete";
-import {Button, Dropdown, DropdownButton, InputGroup} from "react-bootstrap";
+import {Button, Dropdown, DropdownButton, InputGroup, Modal} from "react-bootstrap";
 
 //import "./../../style/chat.css"
 import verificationRequestService from "../../services/verificationRequest.service";
@@ -259,14 +259,14 @@ function Chats() {
             /> }
 
 
-                    <Modal show={showModal} onHide={closeModal}>
-                    <Modal.Header closeButton>
-                    <Modal.Title>Photo</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                    <img src={modalImage}  style={{width:'400px', height: '400px'}}/>
-                    </Modal.Body>
-                    </Modal>
+            <Modal show={showModal} onHide={closeModal}>
+            <Modal.Header closeButton>
+            <Modal.Title>Photo</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+            <img src={modalImage}  style={{width:'400px', height: '400px'}}/>
+            </Modal.Body>
+            </Modal>
         </div>
     );
 }
