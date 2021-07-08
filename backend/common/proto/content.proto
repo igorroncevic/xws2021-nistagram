@@ -353,12 +353,26 @@ service Content {
     };
   }
 
+  rpc GetUsersAdCategories (EmptyRequestContent) returns (AdCategoryArray) {
+    option(google.api.http) = {
+      get: "/ads/categories/user"
+    };
+  }
+
   rpc CreateUserAdCategories (RequestId) returns (EmptyResponseContent) {
     option(google.api.http) = {
       post: "/ads/categories/user",
       body: "*"
     };
   }
+
+  rpc UpdateUsersAdCategories (AdCategoryArray) returns (EmptyResponseContent) {
+    option(google.api.http) = {
+      put: "/ads/categories/user",
+      body: "*"
+    };
+  }
+
   /* * * * * * * * * * * * */
 
 }

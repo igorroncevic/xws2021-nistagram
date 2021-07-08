@@ -25,9 +25,11 @@ type AdRepository interface {
 	CreateAdCategory(context.Context, domain.AdCategory) error
 	GetAdCategory(context.Context, string) (persistence.AdCategory, error)
 	CreateUserAdCategories(context.Context, string) error
+	GetUsersAdCategories(context.Context, string) ([]persistence.AdCategory, error)
+	UpdateUsersAdCategories(context.Context, string, []domain.AdCategory) error
 
 	UpdateCampaignAdDate(context.Context, string, string, time.Time) error
-	IncrementLinkClicks(ctx context.Context, id string) error
+	IncrementLinkClicks(context.Context, string) error
 }
 
 type adRepository struct {
@@ -274,4 +276,70 @@ func (repository *adRepository) IncrementLinkClicks(ctx context.Context, id stri
 	}
 
 	return nil
+}
+
+func (repository *adRepository) GetUsersAdCategories(ctx context.Context, id string) ([]persistence.AdCategory, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAdCategory")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var categories []persistence.AdCategory
+	result := repository.DB.Model(&persistence.AdCategory{}).
+		Joins("left join user_ad_categories ON user_ad_categories.id_ad_category = ad_categories.id").
+		Where("user_ad_categories.user_id = ?", id).Find(&categories)
+	if result.Error != nil { return categories, result.Error }
+
+	return categories, nil
+}
+
+func (repository *adRepository) UpdateUsersAdCategories(ctx context.Context, id string, categories []domain.AdCategory) error{
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAdCategory")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var usersCategories []persistence.AdCategory
+	// Get user's ad categories
+	result := repository.DB.Model(&persistence.AdCategory{}).
+		Joins("left join user_ad_categories ON user_ad_categories.id_ad_category = ad_categories.id").
+		Where("user_ad_categories.user_id = ?", id).Find(&usersCategories)
+	if result.Error != nil { return result.Error }
+
+	err := repository.DB.Transaction(func (tx *gorm.DB) error {
+		// First, determine which categories we need to remove from the database
+		for _, dbCategory := range usersCategories{
+			found := false
+			for _, category := range categories{
+				if category.Id == dbCategory.Id {
+					found = true
+					break
+				}
+			}
+			if found { continue } // category is in both in database and in sent categories, skip it
+
+			// If it's not found, we need to remove it
+			result := repository.DB.Delete(&persistence.UserAdCategories{UserId: id, IdAdCategory: dbCategory.Id})
+			if result.Error != nil { return result.Error }
+		}
+
+		// Second, determine which categories we need to add to the database
+		for _, category := range categories{
+			found := false
+			for _, dbCategory := range usersCategories{
+				if category.Id == dbCategory.Id {
+					found = true
+					break
+				}
+			}
+			if found { continue } // category is in both in database and in sent categories, skip it
+
+			// If it's not found, we need to add it
+			result := repository.DB.Save(&persistence.UserAdCategories{UserId: id, IdAdCategory: category.Id})
+			if result.Error != nil { return result.Error }
+		}
+
+		return nil
+	})
+
+
+	return err
 }

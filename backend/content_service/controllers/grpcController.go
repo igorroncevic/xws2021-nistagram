@@ -278,3 +278,11 @@ func (s *Server) CreateAdCategory(ctx context.Context, in *protopb.AdCategory) (
 func (s *Server) CreateUserAdCategories(ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent, error) {
 	return s.adController.CreateUserAdCategories(ctx, in)
 }
+
+func (s *Server) GetUsersAdCategories(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.AdCategoryArray, error) {
+	return s.adController.GetUsersAdCategories(ctx, in)
+}
+
+func (s *Server) UpdateUsersAdCategories(ctx context.Context, in *protopb.AdCategoryArray) (*protopb.EmptyResponseContent, error) {
+	return s.adController.UpdateUsersAdCategories(ctx, in)
+}

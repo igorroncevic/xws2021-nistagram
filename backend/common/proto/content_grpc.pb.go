@@ -80,7 +80,9 @@ type ContentClient interface {
 	//   Ad Categories
 	GetAdCategories(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*AdCategoryArray, error)
 	CreateAdCategory(ctx context.Context, in *AdCategory, opts ...grpc.CallOption) (*EmptyResponseContent, error)
+	GetUsersAdCategories(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*AdCategoryArray, error)
 	CreateUserAdCategories(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
+	UpdateUsersAdCategories(ctx context.Context, in *AdCategoryArray, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 }
 
 type contentClient struct {
@@ -541,9 +543,27 @@ func (c *contentClient) CreateAdCategory(ctx context.Context, in *AdCategory, op
 	return out, nil
 }
 
+func (c *contentClient) GetUsersAdCategories(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*AdCategoryArray, error) {
+	out := new(AdCategoryArray)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetUsersAdCategories", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *contentClient) CreateUserAdCategories(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
 	out := new(EmptyResponseContent)
 	err := c.cc.Invoke(ctx, "/proto.Content/CreateUserAdCategories", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) UpdateUsersAdCategories(ctx context.Context, in *AdCategoryArray, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
+	out := new(EmptyResponseContent)
+	err := c.cc.Invoke(ctx, "/proto.Content/UpdateUsersAdCategories", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -616,7 +636,9 @@ type ContentServer interface {
 	//   Ad Categories
 	GetAdCategories(context.Context, *EmptyRequestContent) (*AdCategoryArray, error)
 	CreateAdCategory(context.Context, *AdCategory) (*EmptyResponseContent, error)
+	GetUsersAdCategories(context.Context, *EmptyRequestContent) (*AdCategoryArray, error)
 	CreateUserAdCategories(context.Context, *RequestId) (*EmptyResponseContent, error)
+	UpdateUsersAdCategories(context.Context, *AdCategoryArray) (*EmptyResponseContent, error)
 	mustEmbedUnimplementedContentServer()
 }
 
@@ -774,8 +796,14 @@ func (UnimplementedContentServer) GetAdCategories(context.Context, *EmptyRequest
 func (UnimplementedContentServer) CreateAdCategory(context.Context, *AdCategory) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateAdCategory not implemented")
 }
+func (UnimplementedContentServer) GetUsersAdCategories(context.Context, *EmptyRequestContent) (*AdCategoryArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUsersAdCategories not implemented")
+}
 func (UnimplementedContentServer) CreateUserAdCategories(context.Context, *RequestId) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUserAdCategories not implemented")
+}
+func (UnimplementedContentServer) UpdateUsersAdCategories(context.Context, *AdCategoryArray) (*EmptyResponseContent, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUsersAdCategories not implemented")
 }
 func (UnimplementedContentServer) mustEmbedUnimplementedContentServer() {}
 
@@ -1690,6 +1718,24 @@ func _Content_CreateAdCategory_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Content_GetUsersAdCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EmptyRequestContent)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetUsersAdCategories(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetUsersAdCategories",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetUsersAdCategories(ctx, req.(*EmptyRequestContent))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Content_CreateUserAdCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RequestId)
 	if err := dec(in); err != nil {
@@ -1704,6 +1750,24 @@ func _Content_CreateUserAdCategories_Handler(srv interface{}, ctx context.Contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServer).CreateUserAdCategories(ctx, req.(*RequestId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_UpdateUsersAdCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdCategoryArray)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).UpdateUsersAdCategories(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/UpdateUsersAdCategories",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).UpdateUsersAdCategories(ctx, req.(*AdCategoryArray))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1916,8 +1980,16 @@ var Content_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Content_CreateAdCategory_Handler,
 		},
 		{
+			MethodName: "GetUsersAdCategories",
+			Handler:    _Content_GetUsersAdCategories_Handler,
+		},
+		{
 			MethodName: "CreateUserAdCategories",
 			Handler:    _Content_CreateUserAdCategories_Handler,
+		},
+		{
+			MethodName: "UpdateUsersAdCategories",
+			Handler:    _Content_UpdateUsersAdCategories_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

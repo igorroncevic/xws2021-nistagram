@@ -29,7 +29,7 @@ func SetupContentRBAC(db *gorm.DB) error {
 			createContentComplaint, getAllContentComplaints, rejectById, deleteComplaintByUserId,
 			getAds, createAd, incrementLinkClicks,
 			getCampaigns, getCampaign, createCampaign, updateCampaign, deleteCampaign,
-			getAdCategories, getAdCategory, createAdCategory, createUserAdCategories,
+			getAdCategories, getAdCategory, createAdCategory, createUserAdCategories, getUsersAdCategories, updateUsersAdCategories,
 		}
 		result = db.Create(&permissions)
 		if result.Error != nil {
@@ -84,8 +84,10 @@ func SetupContentRBAC(db *gorm.DB) error {
 			adminCreateAdCategory,
 			basicCreateUserAdCategories, nonregisteredCreateUserAdCategories, verifiedCreateUserAdCategories, agentCreateUserAdCategories, adminCreateUserAdCategories,
 			basicIncrementLinkClicks, nonregisteredIncrementLinkClicks, verifiedIncrementLinkClicks, agentIncrementLinkClicks, adminIncrementLinkClicks,
-
+			basicGetUsersAdCategories, verifiedGetUsersAdCategories, agentGetUsersAdCategories, adminGetUsersAdCategories,
+			basicUpdateUsersAdCategories, verifiedUpdateUsersAdCategories, agentUpdateUsersAdCategories, adminUpdateUsersAdCategories,
 		}
+
 		result = db.Create(&rolePermissions)
 		if result.Error != nil {
 			return result.Error
@@ -172,6 +174,8 @@ var (
 	getAdCategory 				= Permission{Id: "c3e205c5-d111-4486-847c-b3ac5e3869da", Name: "GetAdCategory"}
 	createAdCategory 			= Permission{Id: "e1bb9ce5-01e9-4562-b841-ffebffef161d", Name: "CreateAdCategory"}
 	createUserAdCategories 		= Permission{Id: "10b8383f-cbba-4a50-ace6-ca514a1ec5b0", Name: "CreateUserAdCategories"}
+	getUsersAdCategories 		= Permission{Id: "e642da5f-fb24-4eab-8e9f-3bb9f84da712", Name: "GetUsersAdCategories"}
+	updateUsersAdCategories 	= Permission{Id: "f3af637d-e25d-401d-96c8-dff295869aa3", Name: "UpdateUsersAdCategories"}
 )
 
 var (
@@ -414,6 +418,16 @@ var (
 	adminCreateUserAdCategories		    = RolePermission{RoleId: admin.Id, PermissionId: createUserAdCategories.Id}
 	agentCreateUserAdCategories		    = RolePermission{RoleId: agent.Id, PermissionId: createUserAdCategories.Id}
 	nonregisteredCreateUserAdCategories  = RolePermission{RoleId: nonregistered.Id, PermissionId: createUserAdCategories.Id}
+
+	basicGetUsersAdCategories          = RolePermission{RoleId: basic.Id, PermissionId: getUsersAdCategories.Id}
+	verifiedGetUsersAdCategories	      = RolePermission{RoleId: verified.Id, PermissionId: getUsersAdCategories.Id}
+	adminGetUsersAdCategories		  = RolePermission{RoleId: admin.Id, PermissionId: getUsersAdCategories.Id}
+	agentGetUsersAdCategories		  = RolePermission{RoleId: agent.Id, PermissionId: getUsersAdCategories.Id}
+
+	basicUpdateUsersAdCategories          = RolePermission{RoleId: basic.Id, PermissionId: updateUsersAdCategories.Id}
+	verifiedUpdateUsersAdCategories	      = RolePermission{RoleId: verified.Id, PermissionId: updateUsersAdCategories.Id}
+	adminUpdateUsersAdCategories		  = RolePermission{RoleId: admin.Id, PermissionId: updateUsersAdCategories.Id}
+	agentUpdateUsersAdCategories		  = RolePermission{RoleId: agent.Id, PermissionId: updateUsersAdCategories.Id}
 
 	adminCreateAdCategory 	    = RolePermission{RoleId: agent.Id, PermissionId: createAdCategory.Id}
 	// - - - - - - - - -

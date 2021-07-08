@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
@@ -143,6 +144,35 @@ func (service *AdService) IncrementLinkClicks(ctx context.Context, id string) er
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	err := service.adRepository.IncrementLinkClicks(ctx, id)
+	if err != nil { return err }
+
+	return nil
+}
+
+func (service *AdService) GetUsersAdCategories(ctx context.Context, id string) ([]domain.AdCategory, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetUsersAdCategories")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	dbCategories, err := service.adRepository.GetUsersAdCategories(ctx, id)
+	if err != nil { return nil, err }
+
+	categories := []domain.AdCategory{}
+	for _, dbCategory := range dbCategories{
+		categories = append(categories, dbCategory.ConvertToDomain())
+	}
+
+	return categories, nil
+}
+
+func (service *AdService) UpdateUsersAdCategories(ctx context.Context, id string, categories []domain.AdCategory) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateUsersAdCategories")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	if len(categories) < 2 { return errors.New("cannot have less that 2 ad categories") }
+
+	err := service.adRepository.UpdateUsersAdCategories(ctx, id, categories)
 	if err != nil { return err }
 
 	return nil
