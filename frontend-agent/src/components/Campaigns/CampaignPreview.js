@@ -10,7 +10,7 @@ import renderer from './../StoryCompoent/StoryRenderer';
 import Navigation from './../HomePage/Navigation';
 import Spinner from './../../helpers/spinner';
 
-import campaignsService from '../../services/campaigns.service';
+import campaignsService from '../../services/nistagram api/campaigns.service';
 import toastService from '../../services/toast.service';
 
 import "./../../style/campaignsHome.css"
@@ -29,7 +29,7 @@ const CampaignPreview = (props) => {
 
     useEffect(() => {
         (async function () {
-            const response = await campaignsService.getCampaignById({ jwt: store.user.jwt, id: id })
+            const response = await campaignsService.getCampaignById({ jwt: store.apiKey.jwt, id: id })
             if (response && response.status === 200) {
                 setCampaign({ ...response.data })
                 setLoading(false)
@@ -47,8 +47,8 @@ const CampaignPreview = (props) => {
 
     const renderStories = (ads) => {
         const header = {
-            heading: store.user.username,
-            profileImage: store.user.photo
+            heading: store.apiKey.username,
+            profileImage: store.apiKey.photo
         };
 
         return ads.map(story => (
@@ -70,7 +70,7 @@ const CampaignPreview = (props) => {
     }
 
     const deleteCampaign = async () => {
-        const response = await campaignsService.deleteCampaign({ jwt: store.user.jwt, id: campaign.id })
+        const response = await campaignsService.deleteCampaign({ jwt: store.apiKey.jwt, id: campaign.id })
         if (response && response.status === 200) {
             toastService.show("success", "Successfuly deleted your campaign.")
             setTimeout(() => {

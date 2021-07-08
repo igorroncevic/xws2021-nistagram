@@ -8,13 +8,13 @@ import AutocompleteHashtags from "../Post/AutocompleteHashtags";
 import UserAutocomplete from "../Post/UserAutocomplete";
 import ProfileForAutocomplete from './../Post/ProfileForAutocomplete'
 
-import adsService from '../../services/ads.service';
+import adsService from '../../services/nistagram api/ads.service';
 import toastService from '../../services/toast.service';
 
 import './../../style/createCampaign.css'
-import campaignsService from '../../services/campaigns.service';
-import hashtagService from '../../services/hashtag.service';
-import userService from '../../services/user.service';
+import campaignsService from '../../services/nistagram api/campaigns.service';
+import hashtagService from '../../services/nistagram api/hashtag.service';
+import userService from '../../services/nistagram api/user.service';
 
 const CreateCampaign = (props) => {
     const [newCampaign, setNewCampaign] = useState({
@@ -41,7 +41,7 @@ const CreateCampaign = (props) => {
     }, [])
 
     const getCategories = async () => {
-        const response = await adsService.getAdCategories({ jwt: store.user.jwt })
+        const response = await adsService.getAdCategories({ jwt: store.apiKey.jwt })
         if (response.status === 200) {
             setCategories([...response.data.categories])
             setNewCampaign({ ...newCampaign, type: "Post", category: response.data.categories[0] })
@@ -51,12 +51,12 @@ const CreateCampaign = (props) => {
     }
 
     async function getAllUsers() {
-        const response = await userService.getAllUsers({ jwt: store.user.jwt });
+        const response = await userService.getAllUsers({ jwt: store.apiKey.jwt });
         await setAllUsers(response.data.users);
     }
 
     async function getAllHashtags() {
-        const response = await hashtagService.getAllHashtags({ jwt: store.user.jwt });
+        const response = await hashtagService.getAllHashtags({ jwt: store.apiKey.jwt });
         setAllHashtags(response.data.hashtags)
     }
 
@@ -102,7 +102,7 @@ const CreateCampaign = (props) => {
                 ...newCampaign, 
                 ads: [
                     ...newCampaign.ads, 
-                    {...newAd, post: {...newPost, userId: store.user.id, isAd: true, type: newCampaign.type}}
+                    {...newAd, post: {...newPost, userId: store.apiKey.id, isAd: true, type: newCampaign.type}}
                 ]
             })
         setNewPost({type: "", description: "", location: "", media: [], hashtags: [], tags: [], userId: "", isAd: true})
@@ -127,16 +127,17 @@ const CreateCampaign = (props) => {
     const createCampaign = async () => {
         console.log(newCampaign)
         if(newCampaign.ads.length === 0) return;
-
+        console.log("store.apiKey");
+        console.log(store.apiKey);
         const response = await campaignsService.createCampaign({
             campaign: { 
                 id: "",
                 ...newCampaign, 
-                agentId: store.user.id,
+                agentId: store.apiKey.id,
                 startDate: newCampaign.startDate + "T02:00:00.00Z",
                 endDate: (newCampaign.isOneTime ? newCampaign.startDate : newCampaign.endDate) + "T02:00:00.00Z",
             },
-            jwt: store.user.jwt
+            jwt: store.apiKey.jwt
         })
         if (response.status === 200) {
             toastService.show("success", "Successfuly create new campaign!")

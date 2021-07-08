@@ -180,6 +180,6 @@ class AgentService extends RootService {
 
 }
 
-const userService = new AgentService()
+const userServiceForAgentApp = new AgentService()
 
-export default userService;
+export default userServiceForAgentApp;

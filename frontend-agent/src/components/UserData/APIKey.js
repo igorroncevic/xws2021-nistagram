@@ -2,12 +2,14 @@ import ProfileInfo from "./ProfileInfo";
 import React, {useEffect, useState} from "react";
 import {Button} from "react-bootstrap";
 import agentService from "../../services/agent.service";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import toastService from "../../services/toast.service";
+import {userActions} from "../../store/actions/user.actions";
 
 function APIKey(){
     const [apiKey, setApiKey] = useState("");
     const store = useSelector(state => state);
+    const dispatch = useDispatch();
 
 
     useEffect(() => {
@@ -35,7 +37,10 @@ function APIKey(){
         })
         if (response.status === 200) {
             toastService.show("success", "Successfully updated!");
-            setApiKey(response.data.token);
+            await setApiKey(response.data.token);
+            await dispatch(userActions.submitApiToken({
+                token : apiKey
+            }));
         } else {
             toastService.show("error", "Something went wrong, please try again!");
         }

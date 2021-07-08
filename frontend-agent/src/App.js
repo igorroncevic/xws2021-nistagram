@@ -22,6 +22,9 @@ import AuthenticatedRoute from './AuthenticatedRoute';
 import AdminRoute from './AdminRoute';
 import Product from "./components/Product/Product";
 import Orders from "./components/UserData/Orders";
+import CampaignsHome from "./components/Campaigns/CampaignsHome";
+import CreateCampaign from "./components/Campaigns/CreateCampaign";
+import CampaignPreview from "./components/Campaigns/CampaignPreview";
 
 const App = () => {
     return (
@@ -39,9 +42,9 @@ const App = () => {
                 <Route path='/product/:id' exact component={Product}/>
                 <Route path='/my-orders' exact component={Orders}/>
 
-                {/*<AgentRoute path="/campaigns" exact component={CampaignsHome} />*/}
-                {/*<AgentRoute path="/campaigns/create" exact component={CreateCampaign} />*/}
-                {/*<AgentRoute path="/campaigns/preview/:id" component={CampaignPreview} />*/}
+                <Route path="/campaigns" exact component={CampaignsHome} />
+                <Route path="/campaigns/create" exact component={CreateCampaign} />
+                <Route path="/campaigns/preview/:id" component={CampaignPreview} />
 
                 <AuthenticatedRoute path='/edit_profile' exact component={EditProfile} />
                 <AuthenticatedRoute path='/password' exact component={ChangePassword} />
