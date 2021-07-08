@@ -6,7 +6,6 @@ import UserAutocomplete from "../Post/UserAutocomplete";
 import {Button, Dropdown, DropdownButton, InputGroup, Modal} from "react-bootstrap";
 
 import "./../../style/chat.css"
-import verificationRequestService from "../../services/verificationRequest.service";
 import toastService from "../../services/toast.service";
 import chatService from "../../services/chat.service";
 import postService from "../../services/post.service";
@@ -37,9 +36,12 @@ function Chats() {
         getAllUsers();
     }, []);
 
-    const openPost = (post) => {
-        setSelectedPost(post);
-        setShowModalPost(true);
+    const openPost = async (postId) => { //samo postId dobijes
+        const response = await postService.getPostById({id : postId, jwt: store.user.jwt});
+        if (response.status === 200) {
+            setSelectedPost(response.data)
+            setShowModalPost(true);
+        }
     }
 
     useEffect(() => {
@@ -95,15 +97,21 @@ function Chats() {
             let tempMessage = message;
             if (message.ContentType === "Post") {
                 const response = await postService.getPostById({id : message.Content, jwt: store.user.jwt});
-                tempMessage.Content = response.data;
+                if (response.status === 200)
+                    tempMessage.Content = response.data;
+                else
+                    tempMessage.Content = "Cannot view this post";
             }
             else if (message.ContentType === "Story") {
                 const response = await storyService.getStoryById({id : message.Content, jwt: store.user.jwt});
-                let story = [response.data];
-                let idk = {
-                    stories : story
+                if (response.status === 200) {
+                    let story = [response.data];
+                    tempMessage.Content =  {
+                        stories: story
+                    };
                 }
-                tempMessage.Content =  idk;
+                else
+                    tempMessage.Content = "Cannot view this story";
             }
             tempList.push(tempMessage)
         }
@@ -198,18 +206,31 @@ function Chats() {
                         <div>
                             {message.SenderId === store.user.id && <div className="container">
                                 {<img src="" alt="Avatar"/>
-                                }                                {message.ContentType === "String" && <p>{message.Content}</p>}
+                                }
+                                {message.ContentType === "String" && <p>{message.Content}</p>}
+
                                 {message.ContentType === "Image" && <Button disabled={message.IsMediaOpened }
                                     style={{marginLeft: '5px', marginTop: '22px', height: '32px', fontSize: '15px'}}
-                                    variant="success"  onClick={() => handleModal(message)}>Photo </Button>}
+                                    variant="success"  onClick={() => handleModal(message)}>Photo </Button>
+                                }
 
                                 {message.ContentType === "Link" && <p style={{color : "powderblue"}} onClick={(e) => alert("namesti link click")}>{message.Content}</p>}
-                                {message.ContentType === "Post" &&
+
+                                {message.ContentType === "Post" && message.Content !== "Cannot view this post" &&
                                     <PostPreviewThumbnail post={message.Content} openPost={openPost} />
                                 }
-                                {message.ContentType === "Story" &&
+                                {message.ContentType === "Post" && message.Content === "Cannot view this post" &&
+                                <p>{message.Content}</p>
+                                }
+
+
+                                {message.ContentType === "Story" && message.Content !== "Cannot view this story" &&
                                 <Story story={message.Content} iconSize={"xxl"} hideUsername={true} />
                                 }
+                                {message.ContentType === "Story" && message.Content === "Cannot view this story" &&
+                                <p>{message.Content}</p>
+                                }
+
                                 <span style={{marginLeft: "20px"}} className="time-right">{message.DateCreated}</span>
                             </div>
                             }
