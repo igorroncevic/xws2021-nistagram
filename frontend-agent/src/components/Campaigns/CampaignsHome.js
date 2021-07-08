@@ -7,7 +7,7 @@ import moment from 'moment';
 import Navigation from './../HomePage/Navigation';
 import Spinner from './../../helpers/spinner';
 
-import campaignsService from '../../services/campaigns.service';
+import campaignsService from '../../services/nistagram api/campaigns.service';
 import toastService from '../../services/toast.service';
 
 import "./../../style/campaignsHome.css"
@@ -21,7 +21,7 @@ const CampaignsHome = (props) => {
 
     useEffect(() => {
         (async function() {
-            const response = await campaignsService.getAgentsCampaigns({ jwt: store.user.jwt })
+            const response = await campaignsService.getAgentsCampaigns({ jwt: store.apiKey.jwt })
             if (response && response.status === 200){
                 setCampaigns([...response.data.campaigns])
                 setLoading(false)
