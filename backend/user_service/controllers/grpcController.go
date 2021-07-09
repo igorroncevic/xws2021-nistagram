@@ -239,6 +239,8 @@ func (s *Server) UpdateRequest(ctx context.Context, in *protopb.RegistrationRequ
 	return s.registrationRequestController.UpdateRequest(ctx, in)
 }
 
+//Api key metode
+
 func (s *Server) GetKeyByUserId(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.ApiTokenResponse, error) {
 	return s.apiTokenController.GetKeyByUserId(ctx, in)
 }
