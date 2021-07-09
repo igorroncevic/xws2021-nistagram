@@ -51,6 +51,21 @@ function Menu() {
             {store.user.role === 'Agent' && store.user.jwt !== "" && (<NavLink to={{pathname: "/newproduct"}}> <Plus className="icon" />  </NavLink>) }
             <NavLink to={{pathname: "/info"}}> <Explore className="icon"/> </NavLink>
 
+            {store.user.role === 'Agent' && store.user.jwt !== "" && (
+                <Dropdown>
+                    <Dropdown.Toggle variant="link" id="dropdown-basic">
+                        <Star className="icon"/>
+                    </Dropdown.Toggle>
+
+                    <Dropdown.Menu>
+                        {<Dropdown.Item onClick={() => history.push({pathname: '/influencers'})}>Influencers</Dropdown.Item>}
+                        {<Dropdown.Item onClick={() => history.push({pathname: '/campaign-requests'})}>Campaign
+                            requests</Dropdown.Item>}
+                    </Dropdown.Menu>
+                </Dropdown>
+
+            )}
+
             {
                 store.user.jwt !== "" && store.user.role === "Agent" &&
                 (<NavLink to={"/campaigns"}>

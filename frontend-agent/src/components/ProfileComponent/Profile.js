@@ -82,7 +82,7 @@ const Profile = () => {
             <Navigation/>
             <div className="profileGrid">
                 <div className="profileHeader">
-                    <img style={{marginLeft: "-1em", paddingRight: "4px"}} alt="" src={user.profilePhoto}/>
+                    <img style={{marginLeft: "-1em", paddingRight: "4px"}} alt="" src={store.user.photo}/>
                     <div className="info">
                         <div className="fullname">
                             {user.firstName} {user.lastName}
