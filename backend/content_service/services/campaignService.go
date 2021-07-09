@@ -375,7 +375,7 @@ func (service *CampaignService) CreateCampaignRequest(ctx context.Context, reque
 	if err != nil {
 		return err
 	}
-	if !campaign.EndDate.Equal(campaign.StartDate) && (campaign.StartDate.After(request.PostAt) || !campaign.EndDate.Before(request.PostAt)) {
+	if !campaign.EndDate.Equal(campaign.StartDate) && (campaign.StartDate.After(request.PostAt) || campaign.EndDate.Before(request.PostAt)) {
 		return errors.New("can only hire influencer for the campaingn during campaign duration")
 	}
 	if campaign.EndDate.Equal(campaign.StartDate) && campaign.StartDate.Before(request.PostAt) {
