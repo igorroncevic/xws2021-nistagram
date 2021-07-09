@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
@@ -157,4 +158,83 @@ func (service *CampaignService) GetOngoingCampaignsAds(ctx context.Context, user
 	}
 
 	return ads, nil
+}
+
+func (service *CampaignService) GetCampaignStatistics(ctx context.Context, agentId string, campaignId string) (domain.CampaignStats, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetCampaignStatistics")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	campaign, err := service.campaignRepository.GetCampaign(ctx, campaignId)
+	if err != nil { return domain.CampaignStats{}, err }
+
+	if campaign.AgentId != agentId { return domain.CampaignStats{}, errors.New("you cannot preview stats for other agent's campaign") }
+
+	ads, err := service.adService.GetAdsFromCampaign(ctx, campaignId)
+	if err != nil { return domain.CampaignStats{}, err }
+
+	influencers, err := service.campaignRepository.GetCampaignInfluencers(ctx, campaignId, campaign.Type)
+	if err != nil { return domain.CampaignStats{}, err }
+
+	category, err := service.adService.GetAdCategory(ctx, campaign.AdCategoryId)
+	if err != nil { return domain.CampaignStats{}, err }
+
+	stats := domain.CampaignStats{
+		Id:          campaignId,
+		Name:        campaign.Name,
+		IsOneTime:   campaign.IsOneTime,
+		StartDate:   campaign.StartDate,
+		EndDate:     campaign.EndDate,
+		StartTime:   campaign.StartTime,
+		EndTime:     campaign.EndTime,
+		Placements:  campaign.Placements,
+		Category:    category.Name,
+		Type:        campaign.Type,
+		Influencers: []domain.InfluencerStats{},
+	}
+
+	for _, influencerId := range influencers{
+		username, err := grpc_common.GetUsernameById(ctx, influencerId)
+		if err != nil { return domain.CampaignStats{}, err }
+
+		influencerStats := domain.InfluencerStats{ Id: influencerId, Username: username, Ads: []domain.AdStats{} }
+		// Calculate stats for all influencer's ads
+		for _, ad := range ads {
+			if ad.Post.UserId != influencerId { continue }
+
+			mediaContent := []string{}
+			for _, media := range ad.Post.Media{ mediaContent = append(mediaContent, media.Content) }
+
+			hashtags := []string{}
+			for _, hashtag := range ad.Post.Hashtags{ hashtags = append(hashtags, hashtag.Text) }
+
+			influencerStats.Ads = append(influencerStats.Ads, domain.AdStats{
+				Id:       ad.Id,
+				Media:    mediaContent,
+				Type:     ad.Post.Type.String(),
+				Hashtags: hashtags,
+				Location: ad.Post.Location,
+				Likes:    len(ad.Post.Likes),
+				Dislikes: len(ad.Post.Dislikes),
+				Comments: len(ad.Post.Comments),
+				Clicks:   ad.LinkClicks,
+			})
+		}
+
+		// Calculate influencer's global stats (e.g. total number of likes, dislikes etc)
+		for _, ad := range influencerStats.Ads{
+			influencerStats.TotalLikes += ad.Likes
+			influencerStats.TotalDislikes += ad.Dislikes
+			influencerStats.TotalComments += ad.Comments
+			influencerStats.TotalClicks += ad.Clicks
+		}
+
+		stats.Influencers = append(stats.Influencers, influencerStats)
+		stats.Likes += influencerStats.TotalLikes
+		stats.Dislikes += influencerStats.TotalDislikes
+		stats.Comments += influencerStats.TotalComments
+		stats.Clicks += influencerStats.TotalClicks
+	}
+
+	return stats, nil
 }

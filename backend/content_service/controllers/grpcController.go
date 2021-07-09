@@ -246,6 +246,10 @@ func (s *Server) GetCampaign(ctx context.Context, in *protopb.RequestId) (*proto
 	return s.campaignController.GetCampaign(ctx, in)
 }
 
+func (s *Server) GetCampaignStats(ctx context.Context, in *protopb.RequestId) (*protopb.CampaignStats, error) {
+	return s.campaignController.GetCampaignStats(ctx, in)
+}
+
 func (s *Server) GetCampaigns(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.CampaignArray, error) {
 	return s.campaignController.GetCampaigns(ctx, in)
 }
