@@ -50,8 +50,8 @@ function Menu() {
             </NavLink>
 
             {store.user.role === 'Agent' && store.user.jwt !== "" && (<NavLink to={{pathname: "/newproduct"}}> <Plus className="icon" />  </NavLink>) }
-            <NavLink to={{pathname: "/info"}}> <Explore className="icon"/> </NavLink>
-
+            {store.user.jwt !== "" && <NavLink to={{pathname: "/info"}}> <Explore className="icon"/> </NavLink>
+            }
             {store.user.role === 'Agent' && store.user.jwt !== "" && (
                 <Dropdown>
                     <Dropdown.Toggle variant="link" id="dropdown-basic">

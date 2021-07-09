@@ -191,7 +191,8 @@ const Product = () => {
             toastService.show("success", "Product successfully ordered")
             setShowOrderModal(!showOrderModal);
 
-            //todo push to all orders
+            history.push({ pathname: '/my-orders' })
+
 
         } else {
             console.log(response);
