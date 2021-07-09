@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
+	"github.com/david-drvar/xws2021-nistagram/content_service/model"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
 	uuid "github.com/satori/go.uuid"
@@ -18,7 +19,9 @@ type CampaignRepository interface {
 	UpdateCampaign(context.Context, domain.Campaign) 	 error
 	DeleteCampaign(context.Context, string) 		 	 error
 	checkCampaignChanges(context.Context, string) 	 	 error
-	ChangePlacementsNum(context.Context, string, bool) 	 error
+	ChangePlacementsNum(context.Context, string, int) 	 error
+	GetOngoingCampaigns(context.Context) ([]persistence.Campaign, error)
+	GetCampaignInfluencers(context.Context, string, string) ([]string, error)
 	UpdateCampaignRequest(ctx context.Context, request *domain.CampaignInfluencerRequest) error
 	GetCampaignRequestsByAgent(ctx context.Context, id string)([]domain.CampaignInfluencerRequest, error)
 	CreateCampaignRequest(ctx context.Context, request *domain.CampaignInfluencerRequest) (*domain.CampaignInfluencerRequest, error)
@@ -75,10 +78,9 @@ func (repository *campaignRepository) GetCampaigns(ctx context.Context, userId s
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	var campaigns []persistence.Campaign
-	result := repository.DB.Where("agent_id = ?", userId).Find(&campaigns)
-	if result.Error != nil { return []persistence.Campaign{}, result.Error }
-
 	err := repository.DB.Transaction(func (tx *gorm.DB) error {
+		result := repository.DB.Where("agent_id = ?", userId).Find(&campaigns)
+		if result.Error != nil { return result.Error }
 		for _, campaign := range campaigns{
 			// Check latest campaign changes
 			err := repository.checkCampaignChanges(ctx, campaign.Id)
@@ -87,6 +89,9 @@ func (repository *campaignRepository) GetCampaigns(ctx context.Context, userId s
 
 		return nil
 	})
+
+	result := repository.DB.Where("agent_id = ?", userId).Find(&campaigns)
+	if result.Error != nil { return []persistence.Campaign{}, result.Error }
 
 	return campaigns, err
 }
@@ -101,12 +106,17 @@ func (repository *campaignRepository) CreateCampaign(ctx context.Context, campai
 		dbCampaign = dbCampaign.ConvertToPersistence(campaign)
 		dbCampaign.Id = uuid.NewV4().String()
 		dbCampaign.LastUpdated = time.Now()
+		if dbCampaign.EndTime < dbCampaign.StartTime { dbCampaign.EndTime = campaign.StartTime }
+		if dbCampaign.StartTime < 0 || dbCampaign.StartTime > 23 { dbCampaign.StartTime = 0 }
+		if dbCampaign.EndTime < 0 || dbCampaign.EndTime > 23 { dbCampaign.EndTime = 0 }
 		result := repository.DB.Save(dbCampaign)
 		if result.Error != nil { return result.Error }
 
 		for _, ad := range campaign.Ads{
 			ad.CampaignId = dbCampaign.Id
 			ad.Post.CreatedAt = dbCampaign.StartDate
+			ad.Post.UserId = campaign.AgentId
+			ad.Post.IsAd = true
 			err := repository.adRepository.CreateAd(ctx, ad)
 			if err != nil { return err }
 		}
@@ -161,6 +171,17 @@ func (repository *campaignRepository) UpdateCampaign(ctx context.Context, campai
 				checkedCampaignChanges.Name = campaign.Name
 				willUpdate = true
 			}
+			if campaign.StartTime != 0 {
+				checkedCampaignChanges.StartTime = campaign.StartTime
+				willUpdate = true
+			}
+			if campaign.EndTime != 0 {
+				checkedCampaignChanges.EndTime = campaign.EndTime
+				willUpdate = true
+			}
+			if campaign.EndTime < campaign.StartTime { checkedCampaignChanges.EndTime = campaign.StartTime }
+			if campaign.StartTime < 0 || campaign.StartTime > 23 { checkedCampaignChanges.StartTime = 0 }
+			if campaign.EndTime < 0 || campaign.EndTime > 23 { checkedCampaignChanges.EndTime = 0 }
 
 			checkedCampaignChanges.ValidFrom = time.Now().Add(campaignUpdateTimer)
 
@@ -180,6 +201,11 @@ func (repository *campaignRepository) UpdateCampaign(ctx context.Context, campai
 				checkedCampaignChanges.EndDate = checkedCampaignChanges.StartDate
 			}
 			if campaign.Name != "" { checkedCampaignChanges.Name = campaign.Name }
+			if campaign.StartTime != 0 { checkedCampaignChanges.StartTime = campaign.StartTime }
+			if campaign.EndTime != 0 { checkedCampaignChanges.EndTime = campaign.EndTime }
+			if campaign.EndTime < campaign.StartTime { checkedCampaignChanges.EndTime = campaign.StartTime }
+			if campaign.StartTime < 0 || campaign.StartTime > 23 { checkedCampaignChanges.StartTime = 0 }
+			if campaign.EndTime < 0 || campaign.EndTime > 23 { checkedCampaignChanges.EndTime = 0 }
 			checkedCampaignChanges.CampaignId = campaign.Id
 			checkedCampaignChanges.Applied = false
 			checkedCampaignChanges.ValidFrom = time.Now().Add(campaignUpdateTimer)
@@ -247,6 +273,10 @@ func (repository *campaignRepository) checkCampaignChanges(ctx context.Context, 
 			// Allow dates update up to 24hrs before campaign starts
 			if campaignChanges.StartDate.After(tomorrow) { updateChanges.StartDate = campaignChanges.StartDate }
 			if campaignChanges.EndDate.After(tomorrow){ updateChanges.EndDate = campaignChanges.EndDate }
+			if campaignChanges.StartTime != 0 { updateChanges.StartTime = campaignChanges.StartTime }
+			if campaignChanges.EndTime != 0 { updateChanges.EndTime = campaignChanges.EndTime }
+			if campaignChanges.StartTime < 0 || campaignChanges.StartTime > 23 { updateChanges.StartTime = 0 }
+			if campaignChanges.EndTime < 0 || campaignChanges.EndTime > 23 { updateChanges.EndTime = 0 }
 
 			// Update main table with new values
 			result = repository.DB.Model(&persistence.Campaign{}).Where("id = ?", campaignId).Updates(updateChanges)
@@ -275,7 +305,7 @@ func (repository *campaignRepository) checkCampaignChanges(ctx context.Context, 
 	return nil
 }
 
-func (repository *campaignRepository) ChangePlacementsNum(ctx context.Context, campaignId string, increment bool) error {
+func (repository *campaignRepository) ChangePlacementsNum(ctx context.Context, campaignId string, number int) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "ChangePlacementsNum")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -284,15 +314,65 @@ func (repository *campaignRepository) ChangePlacementsNum(ctx context.Context, c
 	result := repository.DB.Where("id = ?", campaignId).First(&campaign)
 	if result.Error != nil || result.RowsAffected != 1{ return result.Error }
 
-	if increment{
-		campaign.Placements += 1
-	}else{
-		campaign.Placements -= 1
-	}
+	campaign.Placements += number
 
 	result = repository.DB.Model(&campaign).Update("placements", campaign.Placements).Where("id = ?", campaignId)
 
 	return result.Error
+}
+
+func (repository *campaignRepository) GetOngoingCampaigns(ctx context.Context) ([]persistence.Campaign, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetOngoingCampaigns")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	err := repository.DB.Transaction(func (tx *gorm.DB) error {
+		var campaigns []persistence.Campaign
+		now := time.Now()
+		result := repository.DB.Where("start_date <= ? AND end_date >= ?", now, now).Find(&campaigns)
+		if result.Error != nil { return result.Error }
+
+		for _, campaign := range campaigns{
+			// Check latest campaign changes
+			err := repository.checkCampaignChanges(ctx, campaign.Id)
+			if err != nil { return err }
+		}
+
+		return nil
+	})
+
+	var campaigns []persistence.Campaign
+	now := time.Now()
+	currentHour, _, _ := now.Clock()
+	result := repository.DB.
+			Where("start_date <= ? AND end_date >= ? AND start_time <= ? AND end_time >= ?", now, now, currentHour, currentHour).
+			Find(&campaigns)
+	if result.Error != nil { return []persistence.Campaign{}, result.Error }
+
+	return campaigns, err
+}
+
+func (repository *campaignRepository) GetCampaignInfluencers(ctx context.Context, id string, campaignType string) ([]string, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetCampaignInfluencers")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	influencers := []string{}
+	if campaignType == model.TypePost.String(){
+		result := repository.DB.Model(&persistence.Post{}).
+			Joins("left join ads on posts.id = ads.post_id").
+			Where("ads.campaign_id = ?", id).
+			Pluck("posts.user_id", &influencers)
+		if result.Error != nil { return nil, result.Error }
+	}else if campaignType == model.TypeStory.String(){
+		result := repository.DB.Model(&persistence.Story{}).
+			Joins("left join ads on stories.id = ads.post_id").
+			Where("ads.campaign_id = ?", id).
+			Pluck("stories.user_id", &influencers)
+		if result.Error != nil { return nil, result.Error }
+	}
+
+	return influencers, nil
 }
 func (repository *campaignRepository) CreateCampaignRequest(ctx context.Context, request *domain.CampaignInfluencerRequest) (*domain.CampaignInfluencerRequest, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateCampaignRequest")
@@ -343,6 +423,3 @@ func (repository *campaignRepository) GetCampaignRequestsByAgent(ctx context.Con
 	result := repository.DB.Where("agent_id = ?", agentId).Find(&requests)
 	return requests, result.Error
 }
-
-
-

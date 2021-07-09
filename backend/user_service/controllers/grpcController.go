@@ -252,3 +252,4 @@ func (s *Server) GenerateApiToken(ctx context.Context, in *protopb.RequestIdUser
 func (s *Server) ValidateKey(ctx context.Context, in *protopb.ApiTokenResponse) (*protopb.EmptyResponse, error) {
 	return s.apiTokenController.ValidateKey(ctx, in)
 }
+

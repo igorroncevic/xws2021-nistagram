@@ -1,5 +1,5 @@
 import RootService from './root.service'
-import { contentService } from './../backendPaths';
+import { contentService } from '../../backendPaths';
 
 class CampaignsService extends RootService {
     constructor(){

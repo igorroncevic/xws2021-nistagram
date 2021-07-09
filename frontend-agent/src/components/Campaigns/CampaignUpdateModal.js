@@ -3,11 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux'
 import { Modal, Button, DropdownButton, Dropdown } from 'react-bootstrap'
 
-import adsService from '../../services/ads.service';
+import adsService from '../../services/nistagram api/ads.service';
 import toastService from '../../services/toast.service';
 
 import './../../style/campaignUpdateModal.css'
-import campaignsService from '../../services/campaigns.service';
+import campaignsService from '../../services/nistagram api/campaigns.service';
 
 const CampaignUpdateModal = (props) => {
     const { showModal, setShowModal, campaign } = props;
@@ -29,7 +29,7 @@ const CampaignUpdateModal = (props) => {
     }, [])
 
     const getCategories = async () => {
-        const response = await adsService.getAdCategories({ jwt: store.user.jwt })
+        const response = await adsService.getAdCategories({ jwt: store.apiKey.jwt })
         if (response.status === 200){
             setCategories([...response.data.categories.filter(category => category.id !== campaign.category.id)])
         }else{
@@ -48,7 +48,7 @@ const CampaignUpdateModal = (props) => {
 
         const response = await campaignsService.updateCampaign({
             campaign: { ...updateData },
-            jwt: store.user.jwt
+            jwt: store.apiKey.jwt
         })
         if (response.status === 200){
             toastService.show("success", "Successfuly updated your campaign! Changes will take place in 24hrs.")

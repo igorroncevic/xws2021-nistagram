@@ -26,8 +26,7 @@ func SetupUsersRBAC(db *gorm.DB) error {
 			updateUserPhoto, getUserNotifications, getBlockedUsers, deleteNotification,
 			updateNotification, getByTypeAndCreator, checkIsActive, changeUserActiveStatus,
 			createAgentUser,
-			getAllPendingRequests, updateRequest, getAllInfluncers,
-			getKeyByUserId, generateApiToken, validateKey,
+			getAllPendingRequests, updateRequest, getAllInfluncers, getKeyByUserId, generateApiToken, validateKey,
 		}
 		result = db.Create(&permissions)
 		if result.Error != nil {
@@ -134,13 +133,13 @@ var (
 	checkIsActive                   = Permission{Id: "419fa77e-dc3e-11eb-ba80-0242ac130004", Name: "CheckIsActive"}
 	changeUserActiveStatus          = Permission{Id: "ab876e7e-dc3e-11eb-ba80-0242ac130004", Name: "ChangeUserActiveStatus"}
 
-	getAllPendingRequests = Permission{Id: "85fa9d3e-dc52-11eb-ba80-0242ac130004", Name: "GetAllPendingRequests"}
-	createAgentUser       = Permission{Id: "4f8f5246-dc4b-11eb-ba80-0242ac130004", Name: "CreateAgentUser"}
-	updateRequest         = Permission{Id: "e18e7370-dca0-11eb-ba80-0242ac130004", Name: "UpdateRequest"}
-	getAllInfluncers      = Permission{Id: "9495ac44-0e35-4f6d-8b89-5b860ddd5754", Name: "GetAllInfluncers"}
-	getKeyByUserId        = Permission{Id: "5e6679f2-3204-43bd-9467-cec51eafceee", Name: "GetKeyByUserId"}
-	generateApiToken      = Permission{Id: "03a9005c-77dc-460f-aefa-6e2307645cf6", Name: "GenerateApiToken"}
-	validateKey           = Permission{Id: "01d91ba8-47ab-4dd7-a143-fbcc893a322e", Name: "ValidateKey"}
+	getAllPendingRequests      = Permission{Id: "85fa9d3e-dc52-11eb-ba80-0242ac130004", Name: "GetAllPendingRequests"}
+	createAgentUser            = Permission{Id: "4f8f5246-dc4b-11eb-ba80-0242ac130004", Name: "CreateAgentUser"}
+	updateRequest              = Permission{Id: "e18e7370-dca0-11eb-ba80-0242ac130004", Name: "UpdateRequest"}
+	getAllInfluncers           = Permission{Id: "9495ac44-0e35-4f6d-8b89-5b860ddd5754", Name: "GetAllInfluncers"}
+	getKeyByUserId             = Permission{Id: "5e6679f2-3204-43bd-9467-cec51eafceee", Name: "GetKeyByUserId"}
+	generateApiToken           = Permission{Id: "03a9005c-77dc-460f-aefa-6e2307645cf6", Name: "GenerateApiToken"}
+	validateKey                = Permission{Id: "01d91ba8-47ab-4dd7-a143-fbcc893a322e", Name: "ValidateKey"}
 )
 
 var (
