@@ -7,6 +7,7 @@ import './../../style/AdCategories.css'
 
 import adsService from './../../services/ads.service'
 import toastService from '../../services/toast.service';
+import ProfileInfo from "../UserData/ProfileInfo";
 
 const AdCategories = () => {
     const [allCategories, setAllCategories] = useState([])
@@ -70,8 +71,8 @@ const AdCategories = () => {
     }
 
     return (
-        <div>
-            <Navigation />
+        <div  style={{display: 'flex'}}>
+            <ProfileInfo />
             <div className="AdCategories__Wrapper">
                 <div className="title">Your Ad Categories</div>
                 { isLoading ? <Spinner type="MutatingDots" /> : renderList() }
