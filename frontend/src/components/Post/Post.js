@@ -197,7 +197,7 @@ function Post (props) {
                 }
             }
             
-            setPosts(isAd ? {...adData, post: {...changedPost}} : changedPost)
+            setPosts && setPosts(isAd ? {...adData, post: {...changedPost}} : changedPost)
             setPost(changedPost);
         }else{
             toastService.show("error", "Could not " + (isLike ? "like" : "dislike") + " this post.")

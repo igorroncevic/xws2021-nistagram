@@ -70,14 +70,15 @@ const ComplaintPreview = (props) => {
                 toastService.show("error", "Error")
             })
     }
-     function getUser(complaint) {
+     function getUser(complaint,flag) {
        if (complaint.isPost==true){
            getPostById(complaint.postId,false)
        }else{
            getStoryById(complaint.postId,false)
        }
        getUserById(user)
-       setModalUser(!modalUser)
+         if(flag===true)
+             setModalUser(!modalUser)
     }
 
     async function getUserById(id) {
@@ -97,7 +98,9 @@ const ComplaintPreview = (props) => {
         if(status==="Refused"){
             rejectComplaint(post.id)
         }else if(status==="Block"){
-            changeUserActiveStatus(post.userId)
+            console.log(post)
+            getUser(post,false)
+            changeUserActiveStatus(user)
         }else if(status==="Delete"){
             if(post.isPost===false){
                 deleteStory(post.postId)
@@ -189,7 +192,7 @@ const ComplaintPreview = (props) => {
                                     }
                                 </td>
                                 <td>
-                                    <Button variant="link" style={{color: 'black'}} onClick={() =>getUser(complaint)} >click for info</Button>
+                                    <Button variant="link" style={{color: 'black'}} onClick={() =>getUser(complaint,true)} >click for info</Button>
 
                                    </td>
                                 <td>{complaint.status}</td>
