@@ -20,6 +20,9 @@ type FollowersRepository interface {
 	GetFollowersConnection(context.Context, model.Follower) (*model.Follower, error)
 	GetCloseFriends(context.Context, string) ([]model.User, error)
     GetUsersForNotificationEnabled( context.Context,  string, string) ([]model.User, error)
+	GetLimitedFriends( context.Context,  string, int) ([]model.User, error)
+	GetUsersWithCommonConnectionsLimited(context.Context, string , string, int) ([]model.User, error)
+	GetNumberOfCommonFriends( context.Context,  string,  string) (int, error)
 
 }
 
@@ -68,6 +71,28 @@ func (repository *followersRepository) GetUsers(ctx context.Context, userId stri
 	}
 	return users, nil
 }
+
+func (repository *followersRepository) GetLimitedFriends(ctx context.Context, userId  string, limit int) ([]model.User, error) {
+	query := "MATCH (a:User {id : $UserId})-[r:Follows]->(b:User) WHERE r.IsApprovedRequest = true RETURN b.id LIMIT " + string(limit)
+
+	return repository.GetUsers(ctx, userId, query)
+}
+
+func (repository *followersRepository) GetUsersWithCommonConnectionsLimited(ctx context.Context, followerId string ,userId string, limit int) ([]model.User, error){
+	query :=  "MATCH (a:User {id : $ "+ followerId + "})-[r:Follows]->(b:User) where NOT (a:User {id : $userId})-[d:Follows]->(b:User) return b LIMIT "+ string(limit)
+
+	return repository.GetUsers(ctx, userId, query)
+}
+
+func (repository *followersRepository) GetNumberOfCommonFriends(ctx context.Context, randomFriendId string, userId string) (int, error) {
+	query := "MATCH (a:User {id : $ " + randomFriendId + "})-[r:Follows]-(b:User) where (a:User {id : $userId})-[d:Follows]->(b:User) return b"
+
+	users, err := repository.GetUsers(ctx, userId, query)
+	return len(users), err
+}
+
+
+
 
 func (repository *followersRepository) GetAllFollowing(ctx context.Context, userId string) ([]model.User, error){
 	query := "MATCH (a:User {id : $UserId})-[r:Follows]->(b:User) WHERE r.IsApprovedRequest = true RETURN b.id"
