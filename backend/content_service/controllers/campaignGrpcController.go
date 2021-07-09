@@ -99,3 +99,15 @@ func (controller *CampaignGrpcController) DeleteCampaign(ctx context.Context, in
 
 	return &protopb.EmptyResponseContent{}, nil
 }
+
+func (controller *CampaignGrpcController) GetCampaignStats(ctx context.Context, in *protopb.RequestId) (*protopb.CampaignStats, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetCampaignStats")
+	defer span.Finish()
+	claims, _ := controller.jwtManager.ExtractClaimsFromMetadata(ctx)
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	stats, err := controller.service.GetCampaignStatistics(ctx, claims.UserId, in.Id)
+	if err != nil { return &protopb.CampaignStats{}, err }
+
+	return stats.ConvertToGrpc(), nil
+}

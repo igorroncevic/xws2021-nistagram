@@ -87,6 +87,6 @@ func (s *Server) GetUsersForNotificationEnabled(ctx context.Context, in *protopb
 	return s.followerController.GetUsersForNotificationEnabled(ctx, in)
 }
 
-func (s *Server) RecommendationPattern(ctx context.Context, in *protopb.RequestIdFollowers) (protopb.RecommendationResponse, error) {
+func (s *Server) RecommendationPattern(ctx context.Context, in *protopb.RequestIdFollowers) (*protopb.RecommendationResponse, error) {
 	return s.recommendationController.RecommendationPattern(ctx, in)
 }

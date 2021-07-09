@@ -44,8 +44,6 @@ func (recommendation *RecommendationService) RecommendationPattern(ctx context.C
 	limitedFriends, err := recommendation.followersRepository.GetLimitedFriends(ctx, userId, 5)
 	if err != nil {
 		return nil, errors.New("Could not get limited friends!")
-	}else if len(limitedFriends) == 0 {
-
 	}
 
 	//Odredjeni broj usera koje ne prati, ali imaju zajednicke prijatelje
@@ -62,6 +60,17 @@ func (recommendation *RecommendationService) RecommendationPattern(ctx context.C
 		if err == nil {
 			retVal = append(retVal, UserCommonFriends{User: friend, PercentageInRec: result})
 		}
+	}
+
+	if len(retVal) == 0 {
+		result, err := recommendation.followersRepository.GetRandomUsers(ctx, 5)
+		if err != nil {
+			return nil, err
+		}
+		for _, f := range result{
+			retVal = append(retVal, UserCommonFriends{User: f, PercentageInRec: 0})
+		}
+		return retVal, nil
 	}
 
 	//TODO zajednicki interesi!

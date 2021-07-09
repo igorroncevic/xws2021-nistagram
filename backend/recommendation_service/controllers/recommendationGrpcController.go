@@ -25,7 +25,7 @@ func NewRecommendationGrpcController (driver neo4j.Driver, logger *logger.Logger
 	}, nil
 }
 
-func (controller RecommendationGrpcController) RecommendationPattern(ctx context.Context, in *protopb.RequestIdFollowers) (protopb.RecommendationResponse, error) {
+func (controller RecommendationGrpcController) RecommendationPattern(ctx context.Context, in *protopb.RequestIdFollowers) (*protopb.RecommendationResponse, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RecommendationPattern")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -34,10 +34,10 @@ func (controller RecommendationGrpcController) RecommendationPattern(ctx context
 	var result []services.UserCommonFriends
 	result, err := controller.service.RecommendationPattern(ctx, in.Id)
 	if err != nil {
-		return protopb.RecommendationResponse{}, err
+		return &protopb.RecommendationResponse{}, err
 	}
 	for _, r := range result{
 		retVal = append(retVal, &protopb.Recommendation{UserId: r.User.UserId, Percentage: string(r.PercentageInRec)})
 	}
-	return protopb.RecommendationResponse{Recommendations: retVal}, nil
+	return &protopb.RecommendationResponse{Recommendations: retVal}, nil
 }

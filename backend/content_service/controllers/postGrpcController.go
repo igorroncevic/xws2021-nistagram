@@ -170,15 +170,15 @@ func (c *PostGrpcController) GetAllPosts(ctx context.Context, in *protopb.EmptyR
 		}
 	}
 
-	//posts, err := c.service.GetAllPosts(ctx, userIds)
-	//if err != nil {
-	//	return &protopb.PostArray{}, status.Errorf(codes.Unknown, err.Error())
-	//}
+	posts, err := c.service.GetAllPosts(ctx, userIds)
+	if err != nil {
+		return &protopb.PostArray{}, status.Errorf(codes.Unknown, err.Error())
+	}
 
 	responsePosts := []*protopb.Post{}
-	//for _, post := range posts {
-	//	responsePosts = append(responsePosts, post.ConvertToGrpc())
-	//}
+	for _, post := range posts {
+		responsePosts = append(responsePosts, post.ConvertToGrpc())
+	}
 
 	ads, err := c.campaignService.GetOngoingCampaignsAds(ctx, userIds, claims.UserId, model.TypePost)
 	if err != nil { return &protopb.PostArray{}, status.Errorf(codes.Unknown, err.Error()) }

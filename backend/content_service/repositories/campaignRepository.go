@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
+	"github.com/david-drvar/xws2021-nistagram/content_service/model"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
 	uuid "github.com/satori/go.uuid"
@@ -20,6 +21,7 @@ type CampaignRepository interface {
 	checkCampaignChanges(context.Context, string) 	 	 error
 	ChangePlacementsNum(context.Context, string, int) 	 error
 	GetOngoingCampaigns(context.Context) ([]persistence.Campaign, error)
+	GetCampaignInfluencers(context.Context, string, string) ([]string, error)
 }
 
 type campaignRepository struct {
@@ -345,4 +347,27 @@ func (repository *campaignRepository) GetOngoingCampaigns(ctx context.Context) (
 	if result.Error != nil { return []persistence.Campaign{}, result.Error }
 
 	return campaigns, err
+}
+
+func (repository *campaignRepository) GetCampaignInfluencers(ctx context.Context, id string, campaignType string) ([]string, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetCampaignInfluencers")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	influencers := []string{}
+	if campaignType == model.TypePost.String(){
+		result := repository.DB.Model(&persistence.Post{}).
+			Joins("left join ads on posts.id = ads.post_id").
+			Where("ads.campaign_id = ?", id).
+			Pluck("posts.user_id", &influencers)
+		if result.Error != nil { return nil, result.Error }
+	}else if campaignType == model.TypeStory.String(){
+		result := repository.DB.Model(&persistence.Story{}).
+			Joins("left join ads on stories.id = ads.post_id").
+			Where("ads.campaign_id = ?", id).
+			Pluck("stories.user_id", &influencers)
+		if result.Error != nil { return nil, result.Error }
+	}
+
+	return influencers, nil
 }
