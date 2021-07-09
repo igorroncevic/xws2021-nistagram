@@ -265,6 +265,8 @@ function Post (props) {
     }
 
     const sendReport = async () => {
+        console.log("JUUUU")
+        console.log(post)
         if(store.user.jwt === "") return;
 
         if (reportCategory === "") {
@@ -278,7 +280,7 @@ function Post (props) {
             postId: post.id,
             status: "",
             isPost: true,
-            userId: store.user.id,
+            userId: post.userId,
             jwt: store.user.jwt
         });
         
