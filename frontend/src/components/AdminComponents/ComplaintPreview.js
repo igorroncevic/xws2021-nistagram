@@ -98,9 +98,7 @@ const ComplaintPreview = (props) => {
         if(status==="Refused"){
             rejectComplaint(post.id)
         }else if(status==="Block"){
-            console.log(post)
-            getUser(post,false)
-            changeUserActiveStatus(user)
+            changeUserActiveStatus(post.userId)
         }else if(status==="Delete"){
             if(post.isPost===false){
                 deleteStory(post.postId)
