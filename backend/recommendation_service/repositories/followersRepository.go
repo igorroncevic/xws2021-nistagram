@@ -19,6 +19,7 @@ type FollowersRepository interface {
 	UpdateUserConnection(context.Context, model.Follower) (*model.Follower,error)
 	GetFollowersConnection(context.Context, model.Follower) (*model.Follower, error)
 	GetCloseFriends(context.Context, string) ([]model.User, error)
+	GetCloseFriendsReversed(context.Context, string) ([]model.User, error)
     GetUsersForNotificationEnabled( context.Context,  string, string) ([]model.User, error)
 
 }
@@ -94,6 +95,10 @@ func (repository *followersRepository) GetCloseFriends(ctx context.Context, id s
 	return repository.GetUsers(ctx, id, query)
 }
 
+func (repository *followersRepository) GetCloseFriendsReversed(ctx context.Context, id string) ([]model.User, error){
+	query := "MATCH (a:User)-[r:Follows]->(b:User {id : $UserId}) WHERE r.IsApprovedRequest = true AND r.IsMuted = false AND r.IsCloseFriend = true RETURN a.id"
+	return repository.GetUsers(ctx, id, query)
+}
 
 func (repository *followersRepository) CreateUserConnection(ctx context.Context, f model.Follower) (bool, error){
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateFollowersConnection")

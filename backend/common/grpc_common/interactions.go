@@ -181,6 +181,27 @@ func GetCloseFriends(ctx context.Context, userId string) ([]string, error){
 	return userIds, nil
 }
 
+func GetCloseFriendsReversed(ctx context.Context, userId string) ([]string, error){
+	conn, err := CreateGrpcConnection(Recommendation_service_address)
+	if err != nil{
+		return []string{}, status.Errorf(codes.Unknown, err.Error())
+	}
+	defer conn.Close()
+
+	followerClient := GetFollowersClient(conn)
+	closeFriends, err := followerClient.GetCloseFriendsReversed(ctx, &protopb.RequestIdFollowers{
+		Id: userId,
+	})
+	if err != nil{ return []string{}, status.Errorf(codes.Unknown, err.Error()) }
+
+	userIds := []string{}
+	for _, closeFriend := range closeFriends.Users{
+		userIds = append(userIds, closeFriend.UserId)
+	}
+
+	return userIds, nil
+}
+
 func GetPublicUsers(ctx context.Context) ([]string, error){
 	conn, err := CreateGrpcConnection(Users_service_address)
 	if err != nil{

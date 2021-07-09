@@ -85,6 +85,7 @@ func (service *CampaignService) CreateCampaign(ctx context.Context, campaign dom
 	if len(campaign.Ads) == 0 { return errors.New("no ads provided") }
 	if campaign.StartTime < 0 || campaign.StartTime > 23 ||  campaign.StartTime >= campaign.EndTime{ return errors.New("invalid start time") }
 	if campaign.EndTime < 0 || campaign.EndTime > 23 ||  campaign.EndTime <= campaign.StartTime{ return errors.New("invalid end time") }
+	if campaign.IsOneTime { campaign.EndDate = campaign.StartDate.Add(24 * time.Hour) }
 
 	return service.campaignRepository.CreateCampaign(ctx, campaign)
 }
@@ -104,6 +105,7 @@ func (service *CampaignService) UpdateCampaign(ctx context.Context, campaign dom
 	if campaign.StartDate.Before(time.Now()) { return errors.New("you cannot update ongoing campaigns") }
 	if campaign.StartTime < 0 || campaign.StartTime > 23 ||  campaign.StartTime >= campaign.EndTime{ return errors.New("invalid start time") }
 	if campaign.EndTime < 0 || campaign.EndTime > 23 ||  campaign.EndTime <= campaign.StartTime{ return errors.New("invalid end time") }
+	if campaign.IsOneTime { campaign.EndDate = campaign.StartDate.Add(24 * time.Hour) }
 
 	return service.campaignRepository.UpdateCampaign(ctx, campaign)
 }

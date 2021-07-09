@@ -89,6 +89,14 @@ func (service *FollowersService) GetCloseFriends(ctx context.Context, userId str
 	return service.repository.GetCloseFriends(ctx, userId)
 }
 
+func (service *FollowersService) GetCloseFriendsReversed(ctx context.Context, userId string) ([]model.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetCloseFriendsReversed")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.repository.GetCloseFriendsReversed(ctx, userId)
+}
+
 func (service *FollowersService) CreateUser(ctx context.Context, u model.User) (bool, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateUser")
 	defer span.Finish()

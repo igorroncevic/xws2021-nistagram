@@ -87,6 +87,20 @@ func (controller *FollowersGrpcController) GetCloseFriends(ctx context.Context, 
 	return &protopb.CreateUserResponse{Users: user.ConvertAllToGrpc(users)}, err
 }
 
+func (controller *FollowersGrpcController) GetCloseFriendsReversed(ctx context.Context, in *protopb.RequestIdFollowers) (*protopb.CreateUserResponse, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetCloseFriendsReversed")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var user model.User
+	users, err := controller.service.GetCloseFriendsReversed(ctx, in.Id)
+	if err != nil {
+		return nil, errors.New("could not get close friends")
+	}
+
+	return &protopb.CreateUserResponse{Users: user.ConvertAllToGrpc(users)}, err
+}
+
 func (controller *FollowersGrpcController) GetAllFollowers(ctx context.Context, in *protopb.CreateUserRequestFollowers) (*protopb.CreateUserResponse, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllFollowers")
 	defer span.Finish()
