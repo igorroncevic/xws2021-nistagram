@@ -72,6 +72,7 @@ func (repository *verificationRepository) CreateVerificationRequest(ctx context.
 			DocumentPhoto: documentPhotoDecoded,
 			Status:        model.Pending,
 			CreatedAt:     time.Time{},
+			Category:      verificationRequest.Category,
 		}
 		result := repository.DB.Create(&verificationRequestPersistence)
 		if result.Error != nil {
@@ -179,8 +180,8 @@ func (repository *verificationRepository) ChangeVerificationRequestStatus(ctx co
 
 			var userAdditionalInfo persistence.UserAdditionalInfo
 
-			result = repository.DB.Model(&userAdditionalInfo).Where("id = ?", verificationRequest.UserId).Updates(persistence.UserAdditionalInfo{
-				Category: verificationRequest.Category,
+			result = repository.DB.Model(&userAdditionalInfo).Where("id = ?", verificationRequestPersistence.UserId).Updates(persistence.UserAdditionalInfo{
+				Category: verificationRequestPersistence.Category,
 			})
 			if result.Error != nil || result.RowsAffected != 1 {
 				return errors.New("cannot update user additional info")
