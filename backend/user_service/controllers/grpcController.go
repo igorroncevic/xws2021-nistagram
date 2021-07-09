@@ -239,20 +239,6 @@ func (s *Server) UpdateRequest(ctx context.Context, in *protopb.RegistrationRequ
 	return s.registrationRequestController.UpdateRequest(ctx, in)
 }
 
-func (s *Server) CreateCampaignRequest(ctx context.Context, in *protopb.CampaignRequest) (*protopb.EmptyResponse, error) {
-	return s.userController.CreateCampaignRequest(ctx, in)
-}
-
-func (s *Server) UpdateCampaignRequest(ctx context.Context, in *protopb.CampaignRequest) (*protopb.EmptyResponse, error) {
-	return s.userController.UpdateCampaignRequest(ctx, in)
-}
-
-func (s *Server) GetCampaignRequestsByAgent(ctx context.Context, in *protopb.CampaignRequest) (*protopb.CampaignRequestArray, error) {
-	return s.userController.GetCampaignRequestsByAgent(ctx, in)
-}
-
-//Api key metode
-
 func (s *Server) GetKeyByUserId(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.ApiTokenResponse, error) {
 	return s.apiTokenController.GetKeyByUserId(ctx, in)
 }
@@ -264,3 +250,4 @@ func (s *Server) GenerateApiToken(ctx context.Context, in *protopb.RequestIdUser
 func (s *Server) ValidateKey(ctx context.Context, in *protopb.ApiTokenResponse) (*protopb.EmptyResponse, error) {
 	return s.apiTokenController.ValidateKey(ctx, in)
 }
+

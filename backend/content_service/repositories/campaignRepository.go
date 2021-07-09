@@ -22,6 +22,9 @@ type CampaignRepository interface {
 	ChangePlacementsNum(context.Context, string, int) 	 error
 	GetOngoingCampaigns(context.Context) ([]persistence.Campaign, error)
 	GetCampaignInfluencers(context.Context, string, string) ([]string, error)
+	UpdateCampaignRequest(ctx context.Context, request *domain.CampaignInfluencerRequest) error
+	GetCampaignRequestsByAgent(ctx context.Context, id string)([]domain.CampaignInfluencerRequest, error)
+	CreateCampaignRequest(ctx context.Context, request *domain.CampaignInfluencerRequest) (*domain.CampaignInfluencerRequest, error)
 }
 
 type campaignRepository struct {
@@ -370,4 +373,53 @@ func (repository *campaignRepository) GetCampaignInfluencers(ctx context.Context
 	}
 
 	return influencers, nil
+}
+func (repository *campaignRepository) CreateCampaignRequest(ctx context.Context, request *domain.CampaignInfluencerRequest) (*domain.CampaignInfluencerRequest, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateCampaignRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var requests []persistence.CampaignInfluencerRequest
+
+	db := repository.DB.Model(&request).Where("agent_id = ? AND influencer_id=? AND campaign_id=?", request.AgentId, request.InfluencerId, request.CampaignId).Find(&requests)
+
+	if db.Error != nil {
+		return nil, db.Error
+	} else if db.RowsAffected != 0 {
+		return nil, errors.New("cannot create campaign")
+	}
+
+	//if request.PostAt.Before(time.Now()) {
+	//	return nil, errors.New("cannot create campaign")
+	//}
+
+	request.Id = uuid.NewV4().String()
+	db = repository.DB.Create(&request)
+
+	return request, db.Error
+}
+
+func (repository *campaignRepository) UpdateCampaignRequest(ctx context.Context, request *domain.CampaignInfluencerRequest) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateCampaignRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var dbRequest persistence.CampaignInfluencerRequest
+	db := repository.DB.Model(&request).Where("agent_id = ? AND influencer_id=? AND campaign_id=?", request.AgentId, request.InfluencerId, request.CampaignId).Find(&dbRequest)
+	if db.Error != nil {
+		return db.Error
+	}
+
+	dbRequest.Status = request.Status
+	return repository.DB.Model(&request).Where("id = ?", dbRequest.Id).Updates(dbRequest).Error
+}
+
+func (repository *campaignRepository) GetCampaignRequestsByAgent(ctx context.Context, agentId string) ([]domain.CampaignInfluencerRequest, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetCampaignRequestsByAgent")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var requests []domain.CampaignInfluencerRequest
+	result := repository.DB.Where("agent_id = ?", agentId).Find(&requests)
+	return requests, result.Error
 }

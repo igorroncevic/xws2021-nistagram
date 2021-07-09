@@ -51,7 +51,6 @@ func (service *CampaignService) GetCampaigns(ctx context.Context, userId string)
 
 	return campaigns, nil
 }
-
 // Only accessible by Agent, who gets all ads from the campaign, including influencer's ads
 func (service *CampaignService) GetCampaign(ctx context.Context, campaignId string) (domain.Campaign, error){
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetCampaign")
@@ -86,7 +85,6 @@ func (service *CampaignService) CreateCampaign(ctx context.Context, campaign dom
 
 	return service.campaignRepository.CreateCampaign(ctx, campaign)
 }
-
 // Updates on !isOneTime campaigns need to be taken in consideration after 24hrs
 func (service *CampaignService) UpdateCampaign(ctx context.Context, campaign domain.Campaign) error{
 	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateCampaign")
@@ -103,7 +101,6 @@ func (service *CampaignService) UpdateCampaign(ctx context.Context, campaign dom
 
 	return service.campaignRepository.UpdateCampaign(ctx, campaign)
 }
-
 func (service *CampaignService) DeleteCampaign(ctx context.Context, campaignId string) error{
 	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteCampaign")
 	defer span.Finish()
@@ -111,7 +108,6 @@ func (service *CampaignService) DeleteCampaign(ctx context.Context, campaignId s
 
 	return service.campaignRepository.DeleteCampaign(ctx, campaignId)
 }
-
 func (service *CampaignService) GetOngoingCampaignsAds(ctx context.Context, userIds []string, userId string, campaignType model.PostType) ([]domain.Ad, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetOngoingCampaignsAds")
 	defer span.Finish()
@@ -159,25 +155,34 @@ func (service *CampaignService) GetOngoingCampaignsAds(ctx context.Context, user
 
 	return ads, nil
 }
-
 func (service *CampaignService) GetCampaignStatistics(ctx context.Context, agentId string, campaignId string) (domain.CampaignStats, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetCampaignStatistics")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	campaign, err := service.campaignRepository.GetCampaign(ctx, campaignId)
-	if err != nil { return domain.CampaignStats{}, err }
+	if err != nil {
+		return domain.CampaignStats{}, err
+	}
 
-	if campaign.AgentId != agentId { return domain.CampaignStats{}, errors.New("you cannot preview stats for other agent's campaign") }
+	if campaign.AgentId != agentId {
+		return domain.CampaignStats{}, errors.New("you cannot preview stats for other agent's campaign")
+	}
 
 	ads, err := service.adService.GetAdsFromCampaign(ctx, campaignId)
-	if err != nil { return domain.CampaignStats{}, err }
+	if err != nil {
+		return domain.CampaignStats{}, err
+	}
 
 	influencers, err := service.campaignRepository.GetCampaignInfluencers(ctx, campaignId, campaign.Type)
-	if err != nil { return domain.CampaignStats{}, err }
+	if err != nil {
+		return domain.CampaignStats{}, err
+	}
 
 	category, err := service.adService.GetAdCategory(ctx, campaign.AdCategoryId)
-	if err != nil { return domain.CampaignStats{}, err }
+	if err != nil {
+		return domain.CampaignStats{}, err
+	}
 
 	stats := domain.CampaignStats{
 		Id:          campaignId,
@@ -193,20 +198,28 @@ func (service *CampaignService) GetCampaignStatistics(ctx context.Context, agent
 		Influencers: []domain.InfluencerStats{},
 	}
 
-	for _, influencerId := range influencers{
+	for _, influencerId := range influencers {
 		username, err := grpc_common.GetUsernameById(ctx, influencerId)
-		if err != nil { return domain.CampaignStats{}, err }
+		if err != nil {
+			return domain.CampaignStats{}, err
+		}
 
-		influencerStats := domain.InfluencerStats{ Id: influencerId, Username: username, Ads: []domain.AdStats{} }
+		influencerStats := domain.InfluencerStats{Id: influencerId, Username: username, Ads: []domain.AdStats{}}
 		// Calculate stats for all influencer's ads
 		for _, ad := range ads {
-			if ad.Post.UserId != influencerId { continue }
+			if ad.Post.UserId != influencerId {
+				continue
+			}
 
 			mediaContent := []string{}
-			for _, media := range ad.Post.Media{ mediaContent = append(mediaContent, media.Content) }
+			for _, media := range ad.Post.Media {
+				mediaContent = append(mediaContent, media.Content)
+			}
 
 			hashtags := []string{}
-			for _, hashtag := range ad.Post.Hashtags{ hashtags = append(hashtags, hashtag.Text) }
+			for _, hashtag := range ad.Post.Hashtags {
+				hashtags = append(hashtags, hashtag.Text)
+			}
 
 			influencerStats.Ads = append(influencerStats.Ads, domain.AdStats{
 				Id:       ad.Id,
@@ -222,7 +235,7 @@ func (service *CampaignService) GetCampaignStatistics(ctx context.Context, agent
 		}
 
 		// Calculate influencer's global stats (e.g. total number of likes, dislikes etc)
-		for _, ad := range influencerStats.Ads{
+		for _, ad := range influencerStats.Ads {
 			influencerStats.TotalLikes += ad.Likes
 			influencerStats.TotalDislikes += ad.Dislikes
 			influencerStats.TotalComments += ad.Comments
@@ -237,4 +250,31 @@ func (service *CampaignService) GetCampaignStatistics(ctx context.Context, agent
 	}
 
 	return stats, nil
+
+}
+func (service *CampaignService) UpdateCampaignRequest(ctx context.Context, request *domain.CampaignInfluencerRequest) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateCampaignRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.campaignRepository.UpdateCampaignRequest(ctx, request)
+}
+func (service *CampaignService) GetCampaignRequestsByAgent(ctx context.Context, agentId string) ([]domain.CampaignInfluencerRequest, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetCampaignRequestsByAgent")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.campaignRepository.GetCampaignRequestsByAgent(ctx, agentId)
+}
+func (service *CampaignService) CreateCampaignRequest(ctx context.Context, request *domain.CampaignInfluencerRequest) error {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateCampaignRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	request, err := service.campaignRepository.CreateCampaignRequest(ctx, request)
+	if err != nil {
+		return err
+	}
+
+	return grpc_common.CreateNotification(ctx, request.InfluencerId, request.AgentId, "Campaign", request.CampaignId)
 }

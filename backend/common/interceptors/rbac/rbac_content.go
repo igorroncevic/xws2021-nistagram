@@ -30,6 +30,9 @@ func SetupContentRBAC(db *gorm.DB) error {
 			getAds, createAd, incrementLinkClicks,
 			getCampaigns, getCampaign, getCampaignStats, createCampaign, updateCampaign, deleteCampaign,
 			getAdCategories, getAdCategory, createAdCategory, createUserAdCategories, getUsersAdCategories, updateUsersAdCategories,
+			createCampaignRequest,getCampaignRequestsByAgent,
+			updateCampaignRequest,
+
 		}
 		result = db.Create(&permissions)
 		if result.Error != nil {
@@ -86,6 +89,9 @@ func SetupContentRBAC(db *gorm.DB) error {
 			basicIncrementLinkClicks, nonregisteredIncrementLinkClicks, verifiedIncrementLinkClicks, agentIncrementLinkClicks, adminIncrementLinkClicks,
 			basicGetUsersAdCategories, verifiedGetUsersAdCategories, agentGetUsersAdCategories, adminGetUsersAdCategories,
 			basicUpdateUsersAdCategories, verifiedUpdateUsersAdCategories, agentUpdateUsersAdCategories, adminUpdateUsersAdCategories,
+			agentCreateCampaignRequest,
+			agentGetCampaignRequestsByAgent,
+			basicUpdateCampaignRequest, agentUpdateCampaignRequest, verifiedUpdateCampaignRequest,
 		}
 
 		result = db.Create(&rolePermissions)
@@ -177,6 +183,10 @@ var (
 	createUserAdCategories 		= Permission{Id: "10b8383f-cbba-4a50-ace6-ca514a1ec5b0", Name: "CreateUserAdCategories"}
 	getUsersAdCategories 		= Permission{Id: "e642da5f-fb24-4eab-8e9f-3bb9f84da712", Name: "GetUsersAdCategories"}
 	updateUsersAdCategories 	= Permission{Id: "f3af637d-e25d-401d-96c8-dff295869aa3", Name: "UpdateUsersAdCategories"}
+
+	createCampaignRequest      = Permission{Id: "666112e5-395e-4c04-a278-5d5d319bd1e8", Name: "CreateCampaignRequest"}
+	getCampaignRequestsByAgent = Permission{Id: "f0d7798f-188b-4936-ba2c-0d5cf7c7539a", Name: "GetCampaignRequestsByAgent"}
+	updateCampaignRequest      = Permission{Id: "797df38e-4862-47af-a87a-0194faed3c15", Name: "UpdateCampaignRequest"}
 )
 
 var (
@@ -433,4 +443,13 @@ var (
 
 	adminCreateAdCategory 	    = RolePermission{RoleId: agent.Id, PermissionId: createAdCategory.Id}
 	// - - - - - - - - -
+
+	agentCreateCampaignRequest = RolePermission{RoleId: agent.Id, PermissionId: createCampaignRequest.Id}
+
+
+	agentGetCampaignRequestsByAgent = RolePermission{RoleId: agent.Id, PermissionId: getCampaignRequestsByAgent.Id}
+
+	basicUpdateCampaignRequest    = RolePermission{RoleId: basic.Id, PermissionId: updateCampaignRequest.Id}
+	agentUpdateCampaignRequest    = RolePermission{RoleId: agent.Id, PermissionId: updateCampaignRequest.Id}
+	verifiedUpdateCampaignRequest = RolePermission{RoleId: verified.Id, PermissionId: updateCampaignRequest.Id}
 )

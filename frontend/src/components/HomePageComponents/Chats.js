@@ -3,8 +3,8 @@ import Navigation from "../HomePage/Navigation";
 import {useDispatch, useSelector} from "react-redux";
 import userService from "../../services/user.service";
 import UserAutocomplete from "../Post/UserAutocomplete";
-import {Button, Dropdown, DropdownButton, InputGroup} from "react-bootstrap";
-
+import {Button, Dropdown, DropdownButton, InputGroup, Modal} from "react-bootstrap";
+//import "./../../style/chat.css"
 // import "./../../style/chat.css"
 import verificationRequestService from "../../services/verificationRequest.service";
 import toastService from "../../services/toast.service";
@@ -28,8 +28,9 @@ function Chats() {
     const [renderMessages, setRenderMessages] = useState([]);
     const [messageCategory, setMessageCategory] = useState("Message category");
     const [showModalPost, setShowModalPost] = useState(false);
-    const [showModalStory, setShowModalStory] = useState(false);
     const [selectedPost, setSelectedPost] = useState({});
+    const [showModal, setShowModal] = useState(false);
+    const [modalImage, setModalImage] = useState({});
 
     useEffect(() => {
         getAllUsers();
@@ -151,6 +152,30 @@ function Chats() {
         setMessageCategory(event);
     }
 
+    function handleModal(message) {
+        console.log(message)
+        setModalImage(message.Content)
+        setShowModal(!showModal)
+        seenPhoto(message)
+    }
+
+    async function seenPhoto(data) {
+        const response = await chatService.seenPhoto({
+            Id: data.Id,
+            jwt: store.user.jwt
+        });
+        if (response.status === 200) {
+            console.log("BRAVOOO")
+
+        } else
+            toastService.show("error", "Something went wrong. Try again")
+    }
+
+    function closeModal() {
+        setShowModal(!showModal)
+    }
+
+
     return (
         <div style={{marginTop:'5%', marginLeft : "5%"}}>
             <Navigation/>
@@ -167,7 +192,10 @@ function Chats() {
                             {message.SenderId === store.user.id && <div className="container">
                                 {<img src="" alt="Avatar"/>
                                 }                                {message.ContentType === "String" && <p>{message.Content}</p>}
-                                {message.ContentType === "Image" && <img src={message.Content} alt="Avatar"/>}
+                                {message.ContentType === "Image" && <Button disabled={message.IsMediaOpened }
+                                    style={{marginLeft: '5px', marginTop: '22px', height: '32px', fontSize: '15px'}}
+                                    variant="success"  onClick={() => handleModal(message)}>Photo </Button>}
+
                                 {message.ContentType === "Link" && <p style={{color : "powderblue"}} onClick={(e) => alert("namesti link click")}>{message.Content}</p>}
                                 {message.ContentType === "Post" &&
                                     <PostPreviewThumbnail post={message.Content} openPost={openPost} />
@@ -229,6 +257,15 @@ function Chats() {
                 setShowModal={setShowModalPost}
             /> }
 
+
+                    <Modal show={showModal} onHide={closeModal}>
+                    <Modal.Header closeButton>
+                    <Modal.Title>Photo</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                    <img src={modalImage}  style={{width:'400px', height: '400px'}}/>
+                    </Modal.Body>
+                    </Modal>
         </div>
     );
 }

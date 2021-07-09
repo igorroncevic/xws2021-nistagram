@@ -7,6 +7,8 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
 	"github.com/david-drvar/xws2021-nistagram/content_service/services"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
 
@@ -100,6 +102,7 @@ func (controller *CampaignGrpcController) DeleteCampaign(ctx context.Context, in
 	return &protopb.EmptyResponseContent{}, nil
 }
 
+
 func (controller *CampaignGrpcController) GetCampaignStats(ctx context.Context, in *protopb.RequestId) (*protopb.CampaignStats, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetCampaignStats")
 	defer span.Finish()
@@ -110,4 +113,55 @@ func (controller *CampaignGrpcController) GetCampaignStats(ctx context.Context, 
 	if err != nil { return &protopb.CampaignStats{}, err }
 
 	return stats.ConvertToGrpc(), nil
+}
+
+func (controller *CampaignGrpcController) CreateCampaignRequest(ctx context.Context, in *protopb.CampaignInfluencerRequest) (*protopb.EmptyResponseContent, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CreateCampaignRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var campaignRequest *domain.CampaignInfluencerRequest
+	campaignRequest = campaignRequest.ConvertFromGrpc(in)
+
+	err := controller.service.CreateCampaignRequest(ctx, campaignRequest)
+
+	if err != nil {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "Bad request")
+	}
+	return &protopb.EmptyResponseContent{}, nil
+}
+
+func (s *CampaignGrpcController) UpdateCampaignRequest(ctx context.Context, in *protopb.CampaignInfluencerRequest) (*protopb.EmptyResponseContent, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateCampaignRequest")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	var campaignRequest *domain.CampaignInfluencerRequest
+	campaignRequest = campaignRequest.ConvertFromGrpc(in)
+
+	err := s.service.UpdateCampaignRequest(ctx, campaignRequest)
+
+	if err != nil {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "Bad request")
+	}
+	return &protopb.EmptyResponseContent{}, nil
+}
+
+func (s *CampaignGrpcController) GetCampaignRequestsByAgent(ctx context.Context, in *protopb.CampaignInfluencerRequest) (*protopb.CampaignRequestArray, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetCampaignRequestsByAgent")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	requests, err := s.service.GetCampaignRequestsByAgent(ctx, in.AgentId)
+	if err != nil {
+		return &protopb.CampaignRequestArray{}, err
+	}
+
+	var requestList []*protopb.CampaignInfluencerRequest
+	for _, request := range requests {
+		requestList = append(requestList, request.ConvertToGrpc())
+	}
+
+	finalResponse := protopb.CampaignRequestArray{CampaignRequests: requestList}
+	return &finalResponse, nil
 }

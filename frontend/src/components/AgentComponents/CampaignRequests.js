@@ -5,6 +5,7 @@ import userService from "../../services/user.service";
 import toastService from "../../services/toast.service";
 import {useSelector} from "react-redux";
 import ProfileForSug from "../HomePage/ProfileForSug";
+import campaignsService from "../../services/campaigns.service";
 
 const CampaignRequests = () => {
     const[requests,setRequests]=useState([])
@@ -16,7 +17,7 @@ const CampaignRequests = () => {
     }, []);
 
     async function getAllRequests() {
-        const response = await userService.getCampaignRequests({
+        const response = await campaignsService.getCampaignRequests({
             agentId:store.user.id,
             jwt: store.user.jwt,
         })
