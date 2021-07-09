@@ -80,13 +80,13 @@ func (repository *followersRepository) GetLimitedFriends(ctx context.Context, us
 }
 
 func (repository *followersRepository) GetUsersWithCommonConnectionsLimited(ctx context.Context, followerId string ,userId string, limit int) ([]model.User, error){
-	query :=  "MATCH (a:User {id : $"+ followerId + "})-[r:Follows]->(b:User) WHERE NOT (c:User {id : $UserId})-[:Follows]->(b:User) RETURN b LIMIT "+ strconv.Itoa(limit)
+	query :=  "MATCH (a:User {id : "+"\""+followerId+"\""+ "})-[r:Follows]->(b:User) WHERE NOT (:User {id : $UserId})-[:Follows]->(b:User) RETURN b.id LIMIT "+ strconv.Itoa(limit)
 
 	return repository.GetUsers(ctx, userId, query)
 }
 
 func (repository *followersRepository) GetNumberOfCommonFriends(ctx context.Context, randomFriendId string, userId string) (int, error) {
-	query := "MATCH (a:User {id : $ " + randomFriendId + "})-[r:Follows]-(b:User) WHERE (c:User {id : $UserId})-[d:Follows]->(b:User) RETURN b"
+	query := "MATCH (a:User {id : " +"\""+randomFriendId +"\""+ "})-[r:Follows]-(b:User) WHERE (:User {id : $UserId})-[:Follows]->(b:User) RETURN b.id"
 
 	users, err := repository.GetUsers(ctx, userId, query)
 	return len(users), err
