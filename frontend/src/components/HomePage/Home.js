@@ -165,10 +165,12 @@ const Home = () => {
         <div className="App">
             <Navigation/>
             <main>
+                <div className="container">
                 <Feed />
                 { /*showModalDialog()*/ }
+                <Sidebar/>
+                </div>
             </main>
-
         </div>
     );
 }

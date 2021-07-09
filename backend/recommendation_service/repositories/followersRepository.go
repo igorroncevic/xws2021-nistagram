@@ -6,6 +6,7 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/recommendation_service/model"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
+	"strconv"
 )
 
 type FollowersRepository interface {
@@ -73,19 +74,19 @@ func (repository *followersRepository) GetUsers(ctx context.Context, userId stri
 }
 
 func (repository *followersRepository) GetLimitedFriends(ctx context.Context, userId  string, limit int) ([]model.User, error) {
-	query := "MATCH (a:User {id : $UserId})-[r:Follows]->(b:User) WHERE r.IsApprovedRequest = true RETURN b.id LIMIT " + string(limit)
+	query := "MATCH (a:User {id : $UserId})-[r:Follows]->(b:User) WHERE r.IsApprovedRequest = true RETURN b.id LIMIT " + strconv.Itoa(limit)
 
 	return repository.GetUsers(ctx, userId, query)
 }
 
 func (repository *followersRepository) GetUsersWithCommonConnectionsLimited(ctx context.Context, followerId string ,userId string, limit int) ([]model.User, error){
-	query :=  "MATCH (a:User {id : $ "+ followerId + "})-[r:Follows]->(b:User) where NOT (a:User {id : $userId})-[d:Follows]->(b:User) return b LIMIT "+ string(limit)
+	query :=  "MATCH (a:User {id : $"+ followerId + "})-[r:Follows]->(b:User) WHERE NOT (c:User {id : $UserId})-[:Follows]->(b:User) RETURN b LIMIT "+ strconv.Itoa(limit)
 
 	return repository.GetUsers(ctx, userId, query)
 }
 
 func (repository *followersRepository) GetNumberOfCommonFriends(ctx context.Context, randomFriendId string, userId string) (int, error) {
-	query := "MATCH (a:User {id : $ " + randomFriendId + "})-[r:Follows]-(b:User) where (a:User {id : $userId})-[d:Follows]->(b:User) return b"
+	query := "MATCH (a:User {id : $ " + randomFriendId + "})-[r:Follows]-(b:User) WHERE (c:User {id : $UserId})-[d:Follows]->(b:User) RETURN b"
 
 	users, err := repository.GetUsers(ctx, userId, query)
 	return len(users), err

@@ -1,8 +1,33 @@
 import "../../style/suggestions.css";
 import ProfileForSug from "./ProfileForSug";
-import React from "react";
+import React, {useEffect, useState} from "react";
+import userService from "../../services/user.service";
+import toastService from "../../services/toast.service";
+import followersService from "../../services/followers.service";
+import {useSelector} from "react-redux";
 
 function Suggestions() {
+    const[recommendations,setRecommendations]=useState([])
+    const store = useSelector(state => state);
+
+    useEffect(() => {
+        getRecommendations()
+    }, []);
+
+    async function getRecommendations() {
+        const response = await followersService.getRecommendations(
+            {
+                id:store.user.id,
+                jwt: store.user.jwt
+            })
+
+        if (response.status === 200) {
+           console.log("JEEEJ")
+           console.log(response.data)
+        } else {
+            toastService.show("error", "GRESKAA!");
+        }
+    }
     return (
         <div className="suggestions">
             <div className="titleContainer">
