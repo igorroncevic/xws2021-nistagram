@@ -45,14 +45,14 @@ func (repository *verificationRepository) CreateVerificationRequest(ctx context.
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	err := repository.DB.Transaction(func(tx *gorm.DB) error {
-		var userAdditionalInfo persistence.UserAdditionalInfo
+		//var userAdditionalInfo persistence.UserAdditionalInfo
 
-		result := repository.DB.Model(&userAdditionalInfo).Where("id = ?", verificationRequest.UserId).Updates(persistence.UserAdditionalInfo{
-			Category: verificationRequest.Category,
-		})
-		if result.Error != nil || result.RowsAffected != 1 {
-			return errors.New("cannot update user additional info")
-		}
+		//result := repository.DB.Model(&userAdditionalInfo).Where("id = ?", verificationRequest.UserId).Updates(persistence.UserAdditionalInfo{
+		//	Category: verificationRequest.Category,
+		//})
+		//if result.Error != nil || result.RowsAffected != 1 {
+		//	return errors.New("cannot update user additional info")
+		//}
 
 		var documentPhotoDecoded, resultImage = repository.SaveUserDocumentPhoto(ctx, verificationRequest)
 		if resultImage != nil {
@@ -73,7 +73,7 @@ func (repository *verificationRepository) CreateVerificationRequest(ctx context.
 			Status:        model.Pending,
 			CreatedAt:     time.Time{},
 		}
-		result = repository.DB.Create(&verificationRequestPersistence)
+		result := repository.DB.Create(&verificationRequestPersistence)
 		if result.Error != nil {
 			return errors.New("cannot create verification request")
 		}
@@ -176,6 +176,16 @@ func (repository *verificationRepository) ChangeVerificationRequestStatus(ctx co
 			if result.Error != nil || result.RowsAffected != 1 {
 				return errors.New("cannot change user role")
 			}
+
+			var userAdditionalInfo persistence.UserAdditionalInfo
+
+			result = repository.DB.Model(&userAdditionalInfo).Where("id = ?", verificationRequest.UserId).Updates(persistence.UserAdditionalInfo{
+				Category: verificationRequest.Category,
+			})
+			if result.Error != nil || result.RowsAffected != 1 {
+				return errors.New("cannot update user additional info")
+			}
+
 		}
 		return nil
 	})
