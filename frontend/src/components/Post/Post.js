@@ -22,7 +22,7 @@ import complaintService from "../../services/complaint.service";
 import adsService from "../../services/ads.service";
 
 function Post (props) {
-    const { shouldReload, isAd } = props;
+    const { shouldReload, isAd, setPosts, posts } = props;
 
     const [post, setPost] = useState(isAd ? props.post.post : props.post)
     const [adData, setAdData] = useState(isAd ? props.post : {})
@@ -79,7 +79,7 @@ function Post (props) {
         }
         changeLikesText();
         changeDislikesText()
-        if(store.user.jwt !== "" && store.user.role!="Admin") getUserCollections()
+        if(store.user.jwt !== "" && store.user.role !== "Admin") getUserCollections()
     }, [])
 
     useEffect(()=>{
@@ -89,8 +89,8 @@ function Post (props) {
         const postLikes = [...post.likes];
         const postDislikes = [...post.dislikes];
         
-        setIsLiked(postLikes.filter(like => like.userId === store.user.id).length === 1)
-        setIsDisliked(postDislikes.filter(dislike => dislike.userId === store.user.id).length === 1)
+        setIsLiked(postLikes.some(like => like.userId === store.user.id))
+        setIsDisliked(postDislikes.some(dislike => dislike.userId === store.user.id))
     }, [post])
 
     useEffect(()=>{
@@ -181,21 +181,23 @@ function Post (props) {
             if(isLike) {
                 // If like already existed, remove it from the likes list. If it didn't add it there and remove dislike if it exists.
                 if(isLiked){
-                    changedPost.likes = changedPost.likes.filter(like => like.userId !== store.user.id)
+                    changedPost.likes = [...changedPost.likes.filter(like => like.userId !== store.user.id)]
                 }else{
                     changedPost.likes.push(newItem)
                     // Remove existing dislike
-                    if(isDisliked) changedPost.dislikes = changedPost.dislikes.filter(dislike => dislike.userId !== store.user.id)
+                    if(isDisliked) changedPost.dislikes = [...changedPost.dislikes.filter(dislike => dislike.userId !== store.user.id)]
                 }
             }else{
                 if(isDisliked) {
-                    changedPost.dislikes = changedPost.dislikes.filter(dislike => dislike.userId !== store.user.id)
+                    changedPost.dislikes = [...changedPost.dislikes.filter(dislike => dislike.userId !== store.user.id)]
                 }else{
                     changedPost.dislikes.push(newItem)
                     // Remove existing like
-                    if(isLiked) changedPost.likes = changedPost.likes.filter(like => like.userId !== store.user.id)
+                    if(isLiked) changedPost.likes = [...changedPost.likes.filter(like => like.userId !== store.user.id)]
                 }
             }
+            
+            setPosts(isAd ? {...adData, post: {...changedPost}} : changedPost)
             setPost(changedPost);
         }else{
             toastService.show("error", "Could not " + (isLike ? "like" : "dislike") + " this post.")
@@ -235,7 +237,7 @@ function Post (props) {
             toastService.show("error", "Could not comment this post.")
         }
     }
-
+    
     const handleSaveClick = () => {
         store.user.jwt && setShowSaveModal(!showSaveModal);
     }
