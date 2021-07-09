@@ -38,6 +38,7 @@ import ComplaintPreview from "./components/AdminComponents/ComplaintPreview";
 import AgentCheck from "./components/AdminComponents/AgentCheck";
 import AgentReg from "./components/AdminComponents/AgentReg";
 import AdminRoute from "./routes/AdminRoute";
+import APIKey from "./components/UserData/APIKey";
 
 
 const App = () => {
@@ -72,6 +73,7 @@ const App = () => {
                 <AuthenticatedRoute path='/password' exact component={ChangePassword} />
                 <AuthenticatedRoute path='/privacy' exact component={EditUserPrivacy} />
                 <AuthenticatedRoute path='/edit_photo' exact component={EditProfileImage} />
+                <AuthenticatedRoute path='/api-key' exact component={APIKey} />
                 <Route path='/agent_registration' exact component={AgentReg} />
                 <AuthenticatedRoute path='/agent_check' exact component={AgentCheck} />
                 <AuthenticatedRoute path='/complaints' exact component={ComplaintPreview} />

@@ -4,8 +4,8 @@ import {useDispatch, useSelector} from "react-redux";
 import userService from "../../services/user.service";
 import UserAutocomplete from "../Post/UserAutocomplete";
 import {Button, Dropdown, DropdownButton, InputGroup, Modal} from "react-bootstrap";
-
 //import "./../../style/chat.css"
+// import "./../../style/chat.css"
 import verificationRequestService from "../../services/verificationRequest.service";
 import toastService from "../../services/toast.service";
 import chatService from "../../services/chat.service";
