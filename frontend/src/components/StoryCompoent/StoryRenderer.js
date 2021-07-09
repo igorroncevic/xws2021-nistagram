@@ -12,6 +12,7 @@ const StoryRenderer = ({ story, action, isPaused, config }) => {
     const [caption, setCaption] = useState("");
 
     const seeMoreFactory = (url) => {
+        if(!url) return
         if (!url.startsWith('http')) {
             url = "http://" + url
         }
