@@ -74,6 +74,7 @@ type ContentClient interface {
 	//   Campaigns
 	GetCampaigns(ctx context.Context, in *EmptyRequestContent, opts ...grpc.CallOption) (*CampaignArray, error)
 	GetCampaign(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*Campaign, error)
+	GetCampaignStats(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*CampaignStats, error)
 	CreateCampaign(ctx context.Context, in *Campaign, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	UpdateCampaign(ctx context.Context, in *Campaign, opts ...grpc.CallOption) (*EmptyResponseContent, error)
 	DeleteCampaign(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*EmptyResponseContent, error)
@@ -498,6 +499,15 @@ func (c *contentClient) GetCampaign(ctx context.Context, in *RequestId, opts ...
 	return out, nil
 }
 
+func (c *contentClient) GetCampaignStats(ctx context.Context, in *RequestId, opts ...grpc.CallOption) (*CampaignStats, error) {
+	out := new(CampaignStats)
+	err := c.cc.Invoke(ctx, "/proto.Content/GetCampaignStats", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *contentClient) CreateCampaign(ctx context.Context, in *Campaign, opts ...grpc.CallOption) (*EmptyResponseContent, error) {
 	out := new(EmptyResponseContent)
 	err := c.cc.Invoke(ctx, "/proto.Content/CreateCampaign", in, out, opts...)
@@ -630,6 +640,7 @@ type ContentServer interface {
 	//   Campaigns
 	GetCampaigns(context.Context, *EmptyRequestContent) (*CampaignArray, error)
 	GetCampaign(context.Context, *RequestId) (*Campaign, error)
+	GetCampaignStats(context.Context, *RequestId) (*CampaignStats, error)
 	CreateCampaign(context.Context, *Campaign) (*EmptyResponseContent, error)
 	UpdateCampaign(context.Context, *Campaign) (*EmptyResponseContent, error)
 	DeleteCampaign(context.Context, *RequestId) (*EmptyResponseContent, error)
@@ -780,6 +791,9 @@ func (UnimplementedContentServer) GetCampaigns(context.Context, *EmptyRequestCon
 }
 func (UnimplementedContentServer) GetCampaign(context.Context, *RequestId) (*Campaign, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCampaign not implemented")
+}
+func (UnimplementedContentServer) GetCampaignStats(context.Context, *RequestId) (*CampaignStats, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCampaignStats not implemented")
 }
 func (UnimplementedContentServer) CreateCampaign(context.Context, *Campaign) (*EmptyResponseContent, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCampaign not implemented")
@@ -1628,6 +1642,24 @@ func _Content_GetCampaign_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Content_GetCampaignStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).GetCampaignStats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Content/GetCampaignStats",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).GetCampaignStats(ctx, req.(*RequestId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Content_CreateCampaign_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Campaign)
 	if err := dec(in); err != nil {
@@ -1958,6 +1990,10 @@ var Content_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCampaign",
 			Handler:    _Content_GetCampaign_Handler,
+		},
+		{
+			MethodName: "GetCampaignStats",
+			Handler:    _Content_GetCampaignStats_Handler,
 		},
 		{
 			MethodName: "CreateCampaign",

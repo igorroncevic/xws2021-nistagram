@@ -1409,6 +1409,372 @@ func (x *AdCategoryArray) GetCategories() []*AdCategory {
 	return nil
 }
 
+// Statistics
+type CampaignStats struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id          string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name        string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	IsOneTime   bool                   `protobuf:"varint,3,opt,name=isOneTime,proto3" json:"isOneTime,omitempty"`
+	StartDate   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=startDate,proto3" json:"startDate,omitempty"`
+	EndDate     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=endDate,proto3" json:"endDate,omitempty"`
+	StartTime   int32                  `protobuf:"varint,6,opt,name=startTime,proto3" json:"startTime,omitempty"`
+	EndTime     int32                  `protobuf:"varint,7,opt,name=endTime,proto3" json:"endTime,omitempty"`
+	Placements  int32                  `protobuf:"varint,8,opt,name=placements,proto3" json:"placements,omitempty"`
+	Category    string                 `protobuf:"bytes,9,opt,name=category,proto3" json:"category,omitempty"`
+	Type        string                 `protobuf:"bytes,10,opt,name=type,proto3" json:"type,omitempty"`
+	Influencers []*InfluencerStats     `protobuf:"bytes,11,rep,name=influencers,proto3" json:"influencers,omitempty"`
+	Likes       int32                  `protobuf:"varint,12,opt,name=likes,proto3" json:"likes,omitempty"`
+	Dislikes    int32                  `protobuf:"varint,13,opt,name=dislikes,proto3" json:"dislikes,omitempty"`
+	Comments    int32                  `protobuf:"varint,14,opt,name=comments,proto3" json:"comments,omitempty"`
+	Clicks      int32                  `protobuf:"varint,15,opt,name=clicks,proto3" json:"clicks,omitempty"`
+}
+
+func (x *CampaignStats) Reset() {
+	*x = CampaignStats{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_content_proto_msgTypes[19]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CampaignStats) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CampaignStats) ProtoMessage() {}
+
+func (x *CampaignStats) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[19]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CampaignStats.ProtoReflect.Descriptor instead.
+func (*CampaignStats) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *CampaignStats) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *CampaignStats) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CampaignStats) GetIsOneTime() bool {
+	if x != nil {
+		return x.IsOneTime
+	}
+	return false
+}
+
+func (x *CampaignStats) GetStartDate() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartDate
+	}
+	return nil
+}
+
+func (x *CampaignStats) GetEndDate() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EndDate
+	}
+	return nil
+}
+
+func (x *CampaignStats) GetStartTime() int32 {
+	if x != nil {
+		return x.StartTime
+	}
+	return 0
+}
+
+func (x *CampaignStats) GetEndTime() int32 {
+	if x != nil {
+		return x.EndTime
+	}
+	return 0
+}
+
+func (x *CampaignStats) GetPlacements() int32 {
+	if x != nil {
+		return x.Placements
+	}
+	return 0
+}
+
+func (x *CampaignStats) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+func (x *CampaignStats) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *CampaignStats) GetInfluencers() []*InfluencerStats {
+	if x != nil {
+		return x.Influencers
+	}
+	return nil
+}
+
+func (x *CampaignStats) GetLikes() int32 {
+	if x != nil {
+		return x.Likes
+	}
+	return 0
+}
+
+func (x *CampaignStats) GetDislikes() int32 {
+	if x != nil {
+		return x.Dislikes
+	}
+	return 0
+}
+
+func (x *CampaignStats) GetComments() int32 {
+	if x != nil {
+		return x.Comments
+	}
+	return 0
+}
+
+func (x *CampaignStats) GetClicks() int32 {
+	if x != nil {
+		return x.Clicks
+	}
+	return 0
+}
+
+type InfluencerStats struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id            string     `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Username      string     `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Ads           []*AdStats `protobuf:"bytes,3,rep,name=ads,proto3" json:"ads,omitempty"`
+	TotalLikes    int32      `protobuf:"varint,4,opt,name=totalLikes,proto3" json:"totalLikes,omitempty"`
+	TotalDislikes int32      `protobuf:"varint,5,opt,name=totalDislikes,proto3" json:"totalDislikes,omitempty"`
+	TotalComments int32      `protobuf:"varint,6,opt,name=totalComments,proto3" json:"totalComments,omitempty"`
+	TotalClicks   int32      `protobuf:"varint,7,opt,name=totalClicks,proto3" json:"totalClicks,omitempty"`
+}
+
+func (x *InfluencerStats) Reset() {
+	*x = InfluencerStats{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_content_proto_msgTypes[20]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *InfluencerStats) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InfluencerStats) ProtoMessage() {}
+
+func (x *InfluencerStats) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[20]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InfluencerStats.ProtoReflect.Descriptor instead.
+func (*InfluencerStats) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *InfluencerStats) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *InfluencerStats) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *InfluencerStats) GetAds() []*AdStats {
+	if x != nil {
+		return x.Ads
+	}
+	return nil
+}
+
+func (x *InfluencerStats) GetTotalLikes() int32 {
+	if x != nil {
+		return x.TotalLikes
+	}
+	return 0
+}
+
+func (x *InfluencerStats) GetTotalDislikes() int32 {
+	if x != nil {
+		return x.TotalDislikes
+	}
+	return 0
+}
+
+func (x *InfluencerStats) GetTotalComments() int32 {
+	if x != nil {
+		return x.TotalComments
+	}
+	return 0
+}
+
+func (x *InfluencerStats) GetTotalClicks() int32 {
+	if x != nil {
+		return x.TotalClicks
+	}
+	return 0
+}
+
+type AdStats struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id       string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Media    []string `protobuf:"bytes,2,rep,name=media,proto3" json:"media,omitempty"`
+	Type     string   `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`
+	Hashtags []string `protobuf:"bytes,4,rep,name=hashtags,proto3" json:"hashtags,omitempty"`
+	Location string   `protobuf:"bytes,5,opt,name=location,proto3" json:"location,omitempty"`
+	Likes    int32    `protobuf:"varint,6,opt,name=likes,proto3" json:"likes,omitempty"`
+	Dislikes int32    `protobuf:"varint,7,opt,name=dislikes,proto3" json:"dislikes,omitempty"`
+	Comments int32    `protobuf:"varint,8,opt,name=comments,proto3" json:"comments,omitempty"`
+	Clicks   int32    `protobuf:"varint,9,opt,name=clicks,proto3" json:"clicks,omitempty"`
+}
+
+func (x *AdStats) Reset() {
+	*x = AdStats{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_content_proto_msgTypes[21]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *AdStats) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdStats) ProtoMessage() {}
+
+func (x *AdStats) ProtoReflect() protoreflect.Message {
+	mi := &file_content_proto_msgTypes[21]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdStats.ProtoReflect.Descriptor instead.
+func (*AdStats) Descriptor() ([]byte, []int) {
+	return file_content_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *AdStats) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *AdStats) GetMedia() []string {
+	if x != nil {
+		return x.Media
+	}
+	return nil
+}
+
+func (x *AdStats) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *AdStats) GetHashtags() []string {
+	if x != nil {
+		return x.Hashtags
+	}
+	return nil
+}
+
+func (x *AdStats) GetLocation() string {
+	if x != nil {
+		return x.Location
+	}
+	return ""
+}
+
+func (x *AdStats) GetLikes() int32 {
+	if x != nil {
+		return x.Likes
+	}
+	return 0
+}
+
+func (x *AdStats) GetDislikes() int32 {
+	if x != nil {
+		return x.Dislikes
+	}
+	return 0
+}
+
+func (x *AdStats) GetComments() int32 {
+	if x != nil {
+		return x.Comments
+	}
+	return 0
+}
+
+func (x *AdStats) GetClicks() int32 {
+	if x != nil {
+		return x.Clicks
+	}
+	return 0
+}
+
 // Collections & Favorites
 type Collection struct {
 	state         protoimpl.MessageState
@@ -1424,7 +1790,7 @@ type Collection struct {
 func (x *Collection) Reset() {
 	*x = Collection{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_content_proto_msgTypes[19]
+		mi := &file_content_proto_msgTypes[22]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1437,7 +1803,7 @@ func (x *Collection) String() string {
 func (*Collection) ProtoMessage() {}
 
 func (x *Collection) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[19]
+	mi := &file_content_proto_msgTypes[22]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1450,7 +1816,7 @@ func (x *Collection) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Collection.ProtoReflect.Descriptor instead.
 func (*Collection) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{19}
+	return file_content_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *Collection) GetId() string {
@@ -1494,7 +1860,7 @@ type Favorites struct {
 func (x *Favorites) Reset() {
 	*x = Favorites{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_content_proto_msgTypes[20]
+		mi := &file_content_proto_msgTypes[23]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1507,7 +1873,7 @@ func (x *Favorites) String() string {
 func (*Favorites) ProtoMessage() {}
 
 func (x *Favorites) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[20]
+	mi := &file_content_proto_msgTypes[23]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1520,7 +1886,7 @@ func (x *Favorites) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Favorites.ProtoReflect.Descriptor instead.
 func (*Favorites) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{20}
+	return file_content_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *Favorites) GetUserId() string {
@@ -1557,7 +1923,7 @@ type FavoritesRequest struct {
 func (x *FavoritesRequest) Reset() {
 	*x = FavoritesRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_content_proto_msgTypes[21]
+		mi := &file_content_proto_msgTypes[24]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1570,7 +1936,7 @@ func (x *FavoritesRequest) String() string {
 func (*FavoritesRequest) ProtoMessage() {}
 
 func (x *FavoritesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[21]
+	mi := &file_content_proto_msgTypes[24]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1583,7 +1949,7 @@ func (x *FavoritesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FavoritesRequest.ProtoReflect.Descriptor instead.
 func (*FavoritesRequest) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{21}
+	return file_content_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *FavoritesRequest) GetUserId() string {
@@ -1618,7 +1984,7 @@ type CollectionsArray struct {
 func (x *CollectionsArray) Reset() {
 	*x = CollectionsArray{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_content_proto_msgTypes[22]
+		mi := &file_content_proto_msgTypes[25]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1631,7 +1997,7 @@ func (x *CollectionsArray) String() string {
 func (*CollectionsArray) ProtoMessage() {}
 
 func (x *CollectionsArray) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[22]
+	mi := &file_content_proto_msgTypes[25]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1644,7 +2010,7 @@ func (x *CollectionsArray) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CollectionsArray.ProtoReflect.Descriptor instead.
 func (*CollectionsArray) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{22}
+	return file_content_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *CollectionsArray) GetCollections() []*Collection {
@@ -1669,7 +2035,7 @@ type Like struct {
 func (x *Like) Reset() {
 	*x = Like{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_content_proto_msgTypes[23]
+		mi := &file_content_proto_msgTypes[26]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1682,7 +2048,7 @@ func (x *Like) String() string {
 func (*Like) ProtoMessage() {}
 
 func (x *Like) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[23]
+	mi := &file_content_proto_msgTypes[26]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1695,7 +2061,7 @@ func (x *Like) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Like.ProtoReflect.Descriptor instead.
 func (*Like) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{23}
+	return file_content_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *Like) GetPostId() string {
@@ -1737,7 +2103,7 @@ type LikesArray struct {
 func (x *LikesArray) Reset() {
 	*x = LikesArray{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_content_proto_msgTypes[24]
+		mi := &file_content_proto_msgTypes[27]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1750,7 +2116,7 @@ func (x *LikesArray) String() string {
 func (*LikesArray) ProtoMessage() {}
 
 func (x *LikesArray) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[24]
+	mi := &file_content_proto_msgTypes[27]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1763,7 +2129,7 @@ func (x *LikesArray) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LikesArray.ProtoReflect.Descriptor instead.
 func (*LikesArray) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{24}
+	return file_content_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *LikesArray) GetLikes() []*Like {
@@ -1790,7 +2156,7 @@ type Comment struct {
 func (x *Comment) Reset() {
 	*x = Comment{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_content_proto_msgTypes[25]
+		mi := &file_content_proto_msgTypes[28]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1803,7 +2169,7 @@ func (x *Comment) String() string {
 func (*Comment) ProtoMessage() {}
 
 func (x *Comment) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[25]
+	mi := &file_content_proto_msgTypes[28]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1816,7 +2182,7 @@ func (x *Comment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Comment.ProtoReflect.Descriptor instead.
 func (*Comment) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{25}
+	return file_content_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *Comment) GetId() string {
@@ -1872,7 +2238,7 @@ type CommentsArray struct {
 func (x *CommentsArray) Reset() {
 	*x = CommentsArray{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_content_proto_msgTypes[26]
+		mi := &file_content_proto_msgTypes[29]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1885,7 +2251,7 @@ func (x *CommentsArray) String() string {
 func (*CommentsArray) ProtoMessage() {}
 
 func (x *CommentsArray) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[26]
+	mi := &file_content_proto_msgTypes[29]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1898,7 +2264,7 @@ func (x *CommentsArray) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommentsArray.ProtoReflect.Descriptor instead.
 func (*CommentsArray) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{26}
+	return file_content_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *CommentsArray) GetComments() []*Comment {
@@ -1923,7 +2289,7 @@ type Highlight struct {
 func (x *Highlight) Reset() {
 	*x = Highlight{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_content_proto_msgTypes[27]
+		mi := &file_content_proto_msgTypes[30]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1936,7 +2302,7 @@ func (x *Highlight) String() string {
 func (*Highlight) ProtoMessage() {}
 
 func (x *Highlight) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[27]
+	mi := &file_content_proto_msgTypes[30]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1949,7 +2315,7 @@ func (x *Highlight) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Highlight.ProtoReflect.Descriptor instead.
 func (*Highlight) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{27}
+	return file_content_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *Highlight) GetId() string {
@@ -1991,7 +2357,7 @@ type HighlightsArray struct {
 func (x *HighlightsArray) Reset() {
 	*x = HighlightsArray{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_content_proto_msgTypes[28]
+		mi := &file_content_proto_msgTypes[31]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2004,7 +2370,7 @@ func (x *HighlightsArray) String() string {
 func (*HighlightsArray) ProtoMessage() {}
 
 func (x *HighlightsArray) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[28]
+	mi := &file_content_proto_msgTypes[31]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2017,7 +2383,7 @@ func (x *HighlightsArray) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HighlightsArray.ProtoReflect.Descriptor instead.
 func (*HighlightsArray) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{28}
+	return file_content_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *HighlightsArray) GetHighlights() []*Highlight {
@@ -2040,7 +2406,7 @@ type HighlightRequest struct {
 func (x *HighlightRequest) Reset() {
 	*x = HighlightRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_content_proto_msgTypes[29]
+		mi := &file_content_proto_msgTypes[32]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2053,7 +2419,7 @@ func (x *HighlightRequest) String() string {
 func (*HighlightRequest) ProtoMessage() {}
 
 func (x *HighlightRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[29]
+	mi := &file_content_proto_msgTypes[32]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2066,7 +2432,7 @@ func (x *HighlightRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HighlightRequest.ProtoReflect.Descriptor instead.
 func (*HighlightRequest) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{29}
+	return file_content_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *HighlightRequest) GetUserId() string {
@@ -2102,7 +2468,7 @@ type RequestId struct {
 func (x *RequestId) Reset() {
 	*x = RequestId{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_content_proto_msgTypes[30]
+		mi := &file_content_proto_msgTypes[33]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2115,7 +2481,7 @@ func (x *RequestId) String() string {
 func (*RequestId) ProtoMessage() {}
 
 func (x *RequestId) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[30]
+	mi := &file_content_proto_msgTypes[33]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2128,7 +2494,7 @@ func (x *RequestId) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestId.ProtoReflect.Descriptor instead.
 func (*RequestId) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{30}
+	return file_content_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *RequestId) GetId() string {
@@ -2149,7 +2515,7 @@ type SearchLocationRequest struct {
 func (x *SearchLocationRequest) Reset() {
 	*x = SearchLocationRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_content_proto_msgTypes[31]
+		mi := &file_content_proto_msgTypes[34]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2162,7 +2528,7 @@ func (x *SearchLocationRequest) String() string {
 func (*SearchLocationRequest) ProtoMessage() {}
 
 func (x *SearchLocationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[31]
+	mi := &file_content_proto_msgTypes[34]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2175,7 +2541,7 @@ func (x *SearchLocationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchLocationRequest.ProtoReflect.Descriptor instead.
 func (*SearchLocationRequest) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{31}
+	return file_content_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *SearchLocationRequest) GetLocation() string {
@@ -2194,7 +2560,7 @@ type EmptyRequestContent struct {
 func (x *EmptyRequestContent) Reset() {
 	*x = EmptyRequestContent{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_content_proto_msgTypes[32]
+		mi := &file_content_proto_msgTypes[35]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2207,7 +2573,7 @@ func (x *EmptyRequestContent) String() string {
 func (*EmptyRequestContent) ProtoMessage() {}
 
 func (x *EmptyRequestContent) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[32]
+	mi := &file_content_proto_msgTypes[35]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2220,7 +2586,7 @@ func (x *EmptyRequestContent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EmptyRequestContent.ProtoReflect.Descriptor instead.
 func (*EmptyRequestContent) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{32}
+	return file_content_proto_rawDescGZIP(), []int{35}
 }
 
 type EmptyResponseContent struct {
@@ -2232,7 +2598,7 @@ type EmptyResponseContent struct {
 func (x *EmptyResponseContent) Reset() {
 	*x = EmptyResponseContent{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_content_proto_msgTypes[33]
+		mi := &file_content_proto_msgTypes[36]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2245,7 +2611,7 @@ func (x *EmptyResponseContent) String() string {
 func (*EmptyResponseContent) ProtoMessage() {}
 
 func (x *EmptyResponseContent) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[33]
+	mi := &file_content_proto_msgTypes[36]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2258,7 +2624,7 @@ func (x *EmptyResponseContent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EmptyResponseContent.ProtoReflect.Descriptor instead.
 func (*EmptyResponseContent) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{33}
+	return file_content_proto_rawDescGZIP(), []int{36}
 }
 
 //    Content Complaint
@@ -2278,7 +2644,7 @@ type ContentComplaint struct {
 func (x *ContentComplaint) Reset() {
 	*x = ContentComplaint{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_content_proto_msgTypes[34]
+		mi := &file_content_proto_msgTypes[37]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2291,7 +2657,7 @@ func (x *ContentComplaint) String() string {
 func (*ContentComplaint) ProtoMessage() {}
 
 func (x *ContentComplaint) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[34]
+	mi := &file_content_proto_msgTypes[37]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2304,7 +2670,7 @@ func (x *ContentComplaint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContentComplaint.ProtoReflect.Descriptor instead.
 func (*ContentComplaint) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{34}
+	return file_content_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *ContentComplaint) GetId() string {
@@ -2360,7 +2726,7 @@ type ContentComplaintArray struct {
 func (x *ContentComplaintArray) Reset() {
 	*x = ContentComplaintArray{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_content_proto_msgTypes[35]
+		mi := &file_content_proto_msgTypes[38]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2373,7 +2739,7 @@ func (x *ContentComplaintArray) String() string {
 func (*ContentComplaintArray) ProtoMessage() {}
 
 func (x *ContentComplaintArray) ProtoReflect() protoreflect.Message {
-	mi := &file_content_proto_msgTypes[35]
+	mi := &file_content_proto_msgTypes[38]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2386,7 +2752,7 @@ func (x *ContentComplaintArray) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContentComplaintArray.ProtoReflect.Descriptor instead.
 func (*ContentComplaintArray) Descriptor() ([]byte, []int) {
-	return file_content_proto_rawDescGZIP(), []int{35}
+	return file_content_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *ContentComplaintArray) GetContentComplaints() []*ContentComplaint {
@@ -2577,7 +2943,67 @@ var file_content_proto_rawDesc = []byte{
 	0x72, 0x72, 0x61, 0x79, 0x12, 0x31, 0x0a, 0x0a, 0x63, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x69,
 	0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x11, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
 	0x2e, 0x41, 0x64, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x52, 0x0a, 0x63, 0x61, 0x74,
-	0x65, 0x67, 0x6f, 0x72, 0x69, 0x65, 0x73, 0x22, 0x6b, 0x0a, 0x0a, 0x43, 0x6f, 0x6c, 0x6c, 0x65,
+	0x65, 0x67, 0x6f, 0x72, 0x69, 0x65, 0x73, 0x22, 0xe9, 0x03, 0x0a, 0x0d, 0x43, 0x61, 0x6d, 0x70,
+	0x61, 0x69, 0x67, 0x6e, 0x53, 0x74, 0x61, 0x74, 0x73, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d,
+	0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x1c, 0x0a,
+	0x09, 0x69, 0x73, 0x4f, 0x6e, 0x65, 0x54, 0x69, 0x6d, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x08,
+	0x52, 0x09, 0x69, 0x73, 0x4f, 0x6e, 0x65, 0x54, 0x69, 0x6d, 0x65, 0x12, 0x38, 0x0a, 0x09, 0x73,
+	0x74, 0x61, 0x72, 0x74, 0x44, 0x61, 0x74, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a,
+	0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66,
+	0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x52, 0x09, 0x73, 0x74, 0x61, 0x72,
+	0x74, 0x44, 0x61, 0x74, 0x65, 0x12, 0x34, 0x0a, 0x07, 0x65, 0x6e, 0x64, 0x44, 0x61, 0x74, 0x65,
+	0x18, 0x05, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61,
+	0x6d, 0x70, 0x52, 0x07, 0x65, 0x6e, 0x64, 0x44, 0x61, 0x74, 0x65, 0x12, 0x1c, 0x0a, 0x09, 0x73,
+	0x74, 0x61, 0x72, 0x74, 0x54, 0x69, 0x6d, 0x65, 0x18, 0x06, 0x20, 0x01, 0x28, 0x05, 0x52, 0x09,
+	0x73, 0x74, 0x61, 0x72, 0x74, 0x54, 0x69, 0x6d, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x65, 0x6e, 0x64,
+	0x54, 0x69, 0x6d, 0x65, 0x18, 0x07, 0x20, 0x01, 0x28, 0x05, 0x52, 0x07, 0x65, 0x6e, 0x64, 0x54,
+	0x69, 0x6d, 0x65, 0x12, 0x1e, 0x0a, 0x0a, 0x70, 0x6c, 0x61, 0x63, 0x65, 0x6d, 0x65, 0x6e, 0x74,
+	0x73, 0x18, 0x08, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0a, 0x70, 0x6c, 0x61, 0x63, 0x65, 0x6d, 0x65,
+	0x6e, 0x74, 0x73, 0x12, 0x1a, 0x0a, 0x08, 0x63, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x18,
+	0x09, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x63, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x12,
+	0x12, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x0a, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x74,
+	0x79, 0x70, 0x65, 0x12, 0x38, 0x0a, 0x0b, 0x69, 0x6e, 0x66, 0x6c, 0x75, 0x65, 0x6e, 0x63, 0x65,
+	0x72, 0x73, 0x18, 0x0b, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x2e, 0x49, 0x6e, 0x66, 0x6c, 0x75, 0x65, 0x6e, 0x63, 0x65, 0x72, 0x53, 0x74, 0x61, 0x74, 0x73,
+	0x52, 0x0b, 0x69, 0x6e, 0x66, 0x6c, 0x75, 0x65, 0x6e, 0x63, 0x65, 0x72, 0x73, 0x12, 0x14, 0x0a,
+	0x05, 0x6c, 0x69, 0x6b, 0x65, 0x73, 0x18, 0x0c, 0x20, 0x01, 0x28, 0x05, 0x52, 0x05, 0x6c, 0x69,
+	0x6b, 0x65, 0x73, 0x12, 0x1a, 0x0a, 0x08, 0x64, 0x69, 0x73, 0x6c, 0x69, 0x6b, 0x65, 0x73, 0x18,
+	0x0d, 0x20, 0x01, 0x28, 0x05, 0x52, 0x08, 0x64, 0x69, 0x73, 0x6c, 0x69, 0x6b, 0x65, 0x73, 0x12,
+	0x1a, 0x0a, 0x08, 0x63, 0x6f, 0x6d, 0x6d, 0x65, 0x6e, 0x74, 0x73, 0x18, 0x0e, 0x20, 0x01, 0x28,
+	0x05, 0x52, 0x08, 0x63, 0x6f, 0x6d, 0x6d, 0x65, 0x6e, 0x74, 0x73, 0x12, 0x16, 0x0a, 0x06, 0x63,
+	0x6c, 0x69, 0x63, 0x6b, 0x73, 0x18, 0x0f, 0x20, 0x01, 0x28, 0x05, 0x52, 0x06, 0x63, 0x6c, 0x69,
+	0x63, 0x6b, 0x73, 0x22, 0xed, 0x01, 0x0a, 0x0f, 0x49, 0x6e, 0x66, 0x6c, 0x75, 0x65, 0x6e, 0x63,
+	0x65, 0x72, 0x53, 0x74, 0x61, 0x74, 0x73, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x1a, 0x0a, 0x08, 0x75, 0x73, 0x65, 0x72, 0x6e,
+	0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x75, 0x73, 0x65, 0x72, 0x6e,
+	0x61, 0x6d, 0x65, 0x12, 0x20, 0x0a, 0x03, 0x61, 0x64, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b,
+	0x32, 0x0e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x41, 0x64, 0x53, 0x74, 0x61, 0x74, 0x73,
+	0x52, 0x03, 0x61, 0x64, 0x73, 0x12, 0x1e, 0x0a, 0x0a, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x4c, 0x69,
+	0x6b, 0x65, 0x73, 0x18, 0x04, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0a, 0x74, 0x6f, 0x74, 0x61, 0x6c,
+	0x4c, 0x69, 0x6b, 0x65, 0x73, 0x12, 0x24, 0x0a, 0x0d, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x44, 0x69,
+	0x73, 0x6c, 0x69, 0x6b, 0x65, 0x73, 0x18, 0x05, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0d, 0x74, 0x6f,
+	0x74, 0x61, 0x6c, 0x44, 0x69, 0x73, 0x6c, 0x69, 0x6b, 0x65, 0x73, 0x12, 0x24, 0x0a, 0x0d, 0x74,
+	0x6f, 0x74, 0x61, 0x6c, 0x43, 0x6f, 0x6d, 0x6d, 0x65, 0x6e, 0x74, 0x73, 0x18, 0x06, 0x20, 0x01,
+	0x28, 0x05, 0x52, 0x0d, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x43, 0x6f, 0x6d, 0x6d, 0x65, 0x6e, 0x74,
+	0x73, 0x12, 0x20, 0x0a, 0x0b, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x43, 0x6c, 0x69, 0x63, 0x6b, 0x73,
+	0x18, 0x07, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0b, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x43, 0x6c, 0x69,
+	0x63, 0x6b, 0x73, 0x22, 0xe1, 0x01, 0x0a, 0x07, 0x41, 0x64, 0x53, 0x74, 0x61, 0x74, 0x73, 0x12,
+	0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12,
+	0x14, 0x0a, 0x05, 0x6d, 0x65, 0x64, 0x69, 0x61, 0x18, 0x02, 0x20, 0x03, 0x28, 0x09, 0x52, 0x05,
+	0x6d, 0x65, 0x64, 0x69, 0x61, 0x12, 0x12, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x03, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x04, 0x74, 0x79, 0x70, 0x65, 0x12, 0x1a, 0x0a, 0x08, 0x68, 0x61, 0x73,
+	0x68, 0x74, 0x61, 0x67, 0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x09, 0x52, 0x08, 0x68, 0x61, 0x73,
+	0x68, 0x74, 0x61, 0x67, 0x73, 0x12, 0x1a, 0x0a, 0x08, 0x6c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x6c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x12, 0x14, 0x0a, 0x05, 0x6c, 0x69, 0x6b, 0x65, 0x73, 0x18, 0x06, 0x20, 0x01, 0x28, 0x05,
+	0x52, 0x05, 0x6c, 0x69, 0x6b, 0x65, 0x73, 0x12, 0x1a, 0x0a, 0x08, 0x64, 0x69, 0x73, 0x6c, 0x69,
+	0x6b, 0x65, 0x73, 0x18, 0x07, 0x20, 0x01, 0x28, 0x05, 0x52, 0x08, 0x64, 0x69, 0x73, 0x6c, 0x69,
+	0x6b, 0x65, 0x73, 0x12, 0x1a, 0x0a, 0x08, 0x63, 0x6f, 0x6d, 0x6d, 0x65, 0x6e, 0x74, 0x73, 0x18,
+	0x08, 0x20, 0x01, 0x28, 0x05, 0x52, 0x08, 0x63, 0x6f, 0x6d, 0x6d, 0x65, 0x6e, 0x74, 0x73, 0x12,
+	0x16, 0x0a, 0x06, 0x63, 0x6c, 0x69, 0x63, 0x6b, 0x73, 0x18, 0x09, 0x20, 0x01, 0x28, 0x05, 0x52,
+	0x06, 0x63, 0x6c, 0x69, 0x63, 0x6b, 0x73, 0x22, 0x6b, 0x0a, 0x0a, 0x43, 0x6f, 0x6c, 0x6c, 0x65,
 	0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
 	0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20,
 	0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x75, 0x73, 0x65,
@@ -2671,7 +3097,7 @@ var file_content_proto_rawDesc = []byte{
 	0x6c, 0x61, 0x69, 0x6e, 0x74, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x70,
 	0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x43, 0x6f, 0x6d, 0x70,
 	0x6c, 0x61, 0x69, 0x6e, 0x74, 0x52, 0x11, 0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x43, 0x6f,
-	0x6d, 0x70, 0x6c, 0x61, 0x69, 0x6e, 0x74, 0x73, 0x32, 0xe4, 0x24, 0x0a, 0x07, 0x43, 0x6f, 0x6e,
+	0x6d, 0x70, 0x6c, 0x61, 0x69, 0x6e, 0x74, 0x73, 0x32, 0xbf, 0x25, 0x0a, 0x07, 0x43, 0x6f, 0x6e,
 	0x74, 0x65, 0x6e, 0x74, 0x12, 0x49, 0x0a, 0x0a, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x50, 0x6f,
 	0x73, 0x74, 0x12, 0x0b, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x50, 0x6f, 0x73, 0x74, 0x1a,
 	0x1b, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x52, 0x65, 0x73,
@@ -2917,59 +3343,64 @@ var file_content_proto_rawDesc = []byte{
 	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x49, 0x64, 0x1a, 0x0f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
 	0x2e, 0x43, 0x61, 0x6d, 0x70, 0x61, 0x69, 0x67, 0x6e, 0x22, 0x17, 0x82, 0xd3, 0xe4, 0x93, 0x02,
 	0x11, 0x12, 0x0f, 0x2f, 0x63, 0x61, 0x6d, 0x70, 0x61, 0x69, 0x67, 0x6e, 0x73, 0x2f, 0x7b, 0x69,
-	0x64, 0x7d, 0x12, 0x55, 0x0a, 0x0e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x43, 0x61, 0x6d, 0x70,
-	0x61, 0x69, 0x67, 0x6e, 0x12, 0x0f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x43, 0x61, 0x6d,
-	0x70, 0x61, 0x69, 0x67, 0x6e, 0x1a, 0x1b, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x45, 0x6d,
-	0x70, 0x74, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x43, 0x6f, 0x6e, 0x74, 0x65,
-	0x6e, 0x74, 0x22, 0x15, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x0f, 0x22, 0x0a, 0x2f, 0x63, 0x61, 0x6d,
-	0x70, 0x61, 0x69, 0x67, 0x6e, 0x73, 0x3a, 0x01, 0x2a, 0x12, 0x55, 0x0a, 0x0e, 0x55, 0x70, 0x64,
-	0x61, 0x74, 0x65, 0x43, 0x61, 0x6d, 0x70, 0x61, 0x69, 0x67, 0x6e, 0x12, 0x0f, 0x2e, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x2e, 0x43, 0x61, 0x6d, 0x70, 0x61, 0x69, 0x67, 0x6e, 0x1a, 0x1b, 0x2e, 0x70,
+	0x64, 0x7d, 0x12, 0x59, 0x0a, 0x10, 0x47, 0x65, 0x74, 0x43, 0x61, 0x6d, 0x70, 0x61, 0x69, 0x67,
+	0x6e, 0x53, 0x74, 0x61, 0x74, 0x73, 0x12, 0x10, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x49, 0x64, 0x1a, 0x14, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x2e, 0x43, 0x61, 0x6d, 0x70, 0x61, 0x69, 0x67, 0x6e, 0x53, 0x74, 0x61, 0x74, 0x73, 0x22, 0x1d,
+	0x82, 0xd3, 0xe4, 0x93, 0x02, 0x17, 0x12, 0x15, 0x2f, 0x63, 0x61, 0x6d, 0x70, 0x61, 0x69, 0x67,
+	0x6e, 0x73, 0x2f, 0x73, 0x74, 0x61, 0x74, 0x73, 0x2f, 0x7b, 0x69, 0x64, 0x7d, 0x12, 0x55, 0x0a,
+	0x0e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x43, 0x61, 0x6d, 0x70, 0x61, 0x69, 0x67, 0x6e, 0x12,
+	0x0f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x43, 0x61, 0x6d, 0x70, 0x61, 0x69, 0x67, 0x6e,
+	0x1a, 0x1b, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x22, 0x15, 0x82,
+	0xd3, 0xe4, 0x93, 0x02, 0x0f, 0x22, 0x0a, 0x2f, 0x63, 0x61, 0x6d, 0x70, 0x61, 0x69, 0x67, 0x6e,
+	0x73, 0x3a, 0x01, 0x2a, 0x12, 0x55, 0x0a, 0x0e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x43, 0x61,
+	0x6d, 0x70, 0x61, 0x69, 0x67, 0x6e, 0x12, 0x0f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x43,
+	0x61, 0x6d, 0x70, 0x61, 0x69, 0x67, 0x6e, 0x1a, 0x1b, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e,
+	0x45, 0x6d, 0x70, 0x74, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x43, 0x6f, 0x6e,
+	0x74, 0x65, 0x6e, 0x74, 0x22, 0x15, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x0f, 0x1a, 0x0a, 0x2f, 0x63,
+	0x61, 0x6d, 0x70, 0x61, 0x69, 0x67, 0x6e, 0x73, 0x3a, 0x01, 0x2a, 0x12, 0x58, 0x0a, 0x0e, 0x44,
+	0x65, 0x6c, 0x65, 0x74, 0x65, 0x43, 0x61, 0x6d, 0x70, 0x61, 0x69, 0x67, 0x6e, 0x12, 0x10, 0x2e,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x49, 0x64, 0x1a,
+	0x1b, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x22, 0x17, 0x82, 0xd3,
+	0xe4, 0x93, 0x02, 0x11, 0x2a, 0x0f, 0x2f, 0x63, 0x61, 0x6d, 0x70, 0x61, 0x69, 0x67, 0x6e, 0x73,
+	0x2f, 0x7b, 0x69, 0x64, 0x7d, 0x12, 0x5e, 0x0a, 0x0f, 0x47, 0x65, 0x74, 0x41, 0x64, 0x43, 0x61,
+	0x74, 0x65, 0x67, 0x6f, 0x72, 0x69, 0x65, 0x73, 0x12, 0x1a, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x43, 0x6f, 0x6e,
+	0x74, 0x65, 0x6e, 0x74, 0x1a, 0x16, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x41, 0x64, 0x43,
+	0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x41, 0x72, 0x72, 0x61, 0x79, 0x22, 0x17, 0x82, 0xd3,
+	0xe4, 0x93, 0x02, 0x11, 0x12, 0x0f, 0x2f, 0x61, 0x64, 0x73, 0x2f, 0x63, 0x61, 0x74, 0x65, 0x67,
+	0x6f, 0x72, 0x69, 0x65, 0x73, 0x12, 0x5e, 0x0a, 0x10, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x41,
+	0x64, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x12, 0x11, 0x2e, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x2e, 0x41, 0x64, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x1a, 0x1b, 0x2e, 0x70,
 	0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x22, 0x15, 0x82, 0xd3, 0xe4, 0x93, 0x02,
-	0x0f, 0x1a, 0x0a, 0x2f, 0x63, 0x61, 0x6d, 0x70, 0x61, 0x69, 0x67, 0x6e, 0x73, 0x3a, 0x01, 0x2a,
-	0x12, 0x58, 0x0a, 0x0e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x43, 0x61, 0x6d, 0x70, 0x61, 0x69,
-	0x67, 0x6e, 0x12, 0x10, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65,
-	0x73, 0x74, 0x49, 0x64, 0x1a, 0x1b, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x45, 0x6d, 0x70,
-	0x74, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e,
-	0x74, 0x22, 0x17, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x11, 0x2a, 0x0f, 0x2f, 0x63, 0x61, 0x6d, 0x70,
-	0x61, 0x69, 0x67, 0x6e, 0x73, 0x2f, 0x7b, 0x69, 0x64, 0x7d, 0x12, 0x5e, 0x0a, 0x0f, 0x47, 0x65,
-	0x74, 0x41, 0x64, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x69, 0x65, 0x73, 0x12, 0x1a, 0x2e,
+	0x73, 0x65, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x22, 0x1a, 0x82, 0xd3, 0xe4, 0x93, 0x02,
+	0x14, 0x22, 0x0f, 0x2f, 0x61, 0x64, 0x73, 0x2f, 0x63, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x69,
+	0x65, 0x73, 0x3a, 0x01, 0x2a, 0x12, 0x68, 0x0a, 0x14, 0x47, 0x65, 0x74, 0x55, 0x73, 0x65, 0x72,
+	0x73, 0x41, 0x64, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x69, 0x65, 0x73, 0x12, 0x1a, 0x2e,
 	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65,
 	0x73, 0x74, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x1a, 0x16, 0x2e, 0x70, 0x72, 0x6f, 0x74,
 	0x6f, 0x2e, 0x41, 0x64, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x41, 0x72, 0x72, 0x61,
-	0x79, 0x22, 0x17, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x11, 0x12, 0x0f, 0x2f, 0x61, 0x64, 0x73, 0x2f,
-	0x63, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x69, 0x65, 0x73, 0x12, 0x5e, 0x0a, 0x10, 0x43, 0x72,
-	0x65, 0x61, 0x74, 0x65, 0x41, 0x64, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x12, 0x11,
-	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x41, 0x64, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72,
-	0x79, 0x1a, 0x1b, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x22, 0x1a,
-	0x82, 0xd3, 0xe4, 0x93, 0x02, 0x14, 0x22, 0x0f, 0x2f, 0x61, 0x64, 0x73, 0x2f, 0x63, 0x61, 0x74,
-	0x65, 0x67, 0x6f, 0x72, 0x69, 0x65, 0x73, 0x3a, 0x01, 0x2a, 0x12, 0x68, 0x0a, 0x14, 0x47, 0x65,
-	0x74, 0x55, 0x73, 0x65, 0x72, 0x73, 0x41, 0x64, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x69,
-	0x65, 0x73, 0x12, 0x1a, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x1a, 0x16,
-	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x41, 0x64, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72,
-	0x79, 0x41, 0x72, 0x72, 0x61, 0x79, 0x22, 0x1c, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x16, 0x12, 0x14,
-	0x2f, 0x61, 0x64, 0x73, 0x2f, 0x63, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x69, 0x65, 0x73, 0x2f,
-	0x75, 0x73, 0x65, 0x72, 0x12, 0x68, 0x0a, 0x16, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x55, 0x73,
-	0x65, 0x72, 0x41, 0x64, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x69, 0x65, 0x73, 0x12, 0x10,
-	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x49, 0x64,
-	0x1a, 0x1b, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x22, 0x1f, 0x82,
-	0xd3, 0xe4, 0x93, 0x02, 0x19, 0x22, 0x14, 0x2f, 0x61, 0x64, 0x73, 0x2f, 0x63, 0x61, 0x74, 0x65,
-	0x67, 0x6f, 0x72, 0x69, 0x65, 0x73, 0x2f, 0x75, 0x73, 0x65, 0x72, 0x3a, 0x01, 0x2a, 0x12, 0x6f,
-	0x0a, 0x17, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x55, 0x73, 0x65, 0x72, 0x73, 0x41, 0x64, 0x43,
-	0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x69, 0x65, 0x73, 0x12, 0x16, 0x2e, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x2e, 0x41, 0x64, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x41, 0x72, 0x72, 0x61,
-	0x79, 0x1a, 0x1b, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x22, 0x1f,
-	0x82, 0xd3, 0xe4, 0x93, 0x02, 0x19, 0x1a, 0x14, 0x2f, 0x61, 0x64, 0x73, 0x2f, 0x63, 0x61, 0x74,
-	0x65, 0x67, 0x6f, 0x72, 0x69, 0x65, 0x73, 0x2f, 0x75, 0x73, 0x65, 0x72, 0x3a, 0x01, 0x2a, 0x42,
-	0x2b, 0x5a, 0x29, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x78, 0x77,
-	0x73, 0x32, 0x30, 0x32, 0x31, 0x2d, 0x6e, 0x69, 0x73, 0x74, 0x61, 0x67, 0x72, 0x61, 0x6d, 0x2f,
-	0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x33,
+	0x79, 0x22, 0x1c, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x16, 0x12, 0x14, 0x2f, 0x61, 0x64, 0x73, 0x2f,
+	0x63, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x69, 0x65, 0x73, 0x2f, 0x75, 0x73, 0x65, 0x72, 0x12,
+	0x68, 0x0a, 0x16, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x55, 0x73, 0x65, 0x72, 0x41, 0x64, 0x43,
+	0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x69, 0x65, 0x73, 0x12, 0x10, 0x2e, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x49, 0x64, 0x1a, 0x1b, 0x2e, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x22, 0x1f, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x19,
+	0x22, 0x14, 0x2f, 0x61, 0x64, 0x73, 0x2f, 0x63, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x69, 0x65,
+	0x73, 0x2f, 0x75, 0x73, 0x65, 0x72, 0x3a, 0x01, 0x2a, 0x12, 0x6f, 0x0a, 0x17, 0x55, 0x70, 0x64,
+	0x61, 0x74, 0x65, 0x55, 0x73, 0x65, 0x72, 0x73, 0x41, 0x64, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f,
+	0x72, 0x69, 0x65, 0x73, 0x12, 0x16, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x41, 0x64, 0x43,
+	0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x41, 0x72, 0x72, 0x61, 0x79, 0x1a, 0x1b, 0x2e, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x22, 0x1f, 0x82, 0xd3, 0xe4, 0x93, 0x02,
+	0x19, 0x1a, 0x14, 0x2f, 0x61, 0x64, 0x73, 0x2f, 0x63, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x69,
+	0x65, 0x73, 0x2f, 0x75, 0x73, 0x65, 0x72, 0x3a, 0x01, 0x2a, 0x42, 0x2b, 0x5a, 0x29, 0x67, 0x69,
+	0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x78, 0x77, 0x73, 0x32, 0x30, 0x32, 0x31,
+	0x2d, 0x6e, 0x69, 0x73, 0x74, 0x61, 0x67, 0x72, 0x61, 0x6d, 0x2f, 0x63, 0x6f, 0x6d, 0x6d, 0x6f,
+	0x6e, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -2984,7 +3415,7 @@ func file_content_proto_rawDescGZIP() []byte {
 	return file_content_proto_rawDescData
 }
 
-var file_content_proto_msgTypes = make([]protoimpl.MessageInfo, 36)
+var file_content_proto_msgTypes = make([]protoimpl.MessageInfo, 39)
 var file_content_proto_goTypes = []interface{}{
 	(*Post)(nil),                  // 0: proto.Post
 	(*ReducedPost)(nil),           // 1: proto.ReducedPost
@@ -3005,40 +3436,43 @@ var file_content_proto_goTypes = []interface{}{
 	(*CampaignArray)(nil),         // 16: proto.CampaignArray
 	(*AdCategory)(nil),            // 17: proto.AdCategory
 	(*AdCategoryArray)(nil),       // 18: proto.AdCategoryArray
-	(*Collection)(nil),            // 19: proto.Collection
-	(*Favorites)(nil),             // 20: proto.Favorites
-	(*FavoritesRequest)(nil),      // 21: proto.FavoritesRequest
-	(*CollectionsArray)(nil),      // 22: proto.CollectionsArray
-	(*Like)(nil),                  // 23: proto.Like
-	(*LikesArray)(nil),            // 24: proto.LikesArray
-	(*Comment)(nil),               // 25: proto.Comment
-	(*CommentsArray)(nil),         // 26: proto.CommentsArray
-	(*Highlight)(nil),             // 27: proto.Highlight
-	(*HighlightsArray)(nil),       // 28: proto.HighlightsArray
-	(*HighlightRequest)(nil),      // 29: proto.HighlightRequest
-	(*RequestId)(nil),             // 30: proto.RequestId
-	(*SearchLocationRequest)(nil), // 31: proto.SearchLocationRequest
-	(*EmptyRequestContent)(nil),   // 32: proto.EmptyRequestContent
-	(*EmptyResponseContent)(nil),  // 33: proto.EmptyResponseContent
-	(*ContentComplaint)(nil),      // 34: proto.ContentComplaint
-	(*ContentComplaintArray)(nil), // 35: proto.ContentComplaintArray
-	(*timestamppb.Timestamp)(nil), // 36: google.protobuf.Timestamp
+	(*CampaignStats)(nil),         // 19: proto.CampaignStats
+	(*InfluencerStats)(nil),       // 20: proto.InfluencerStats
+	(*AdStats)(nil),               // 21: proto.AdStats
+	(*Collection)(nil),            // 22: proto.Collection
+	(*Favorites)(nil),             // 23: proto.Favorites
+	(*FavoritesRequest)(nil),      // 24: proto.FavoritesRequest
+	(*CollectionsArray)(nil),      // 25: proto.CollectionsArray
+	(*Like)(nil),                  // 26: proto.Like
+	(*LikesArray)(nil),            // 27: proto.LikesArray
+	(*Comment)(nil),               // 28: proto.Comment
+	(*CommentsArray)(nil),         // 29: proto.CommentsArray
+	(*Highlight)(nil),             // 30: proto.Highlight
+	(*HighlightsArray)(nil),       // 31: proto.HighlightsArray
+	(*HighlightRequest)(nil),      // 32: proto.HighlightRequest
+	(*RequestId)(nil),             // 33: proto.RequestId
+	(*SearchLocationRequest)(nil), // 34: proto.SearchLocationRequest
+	(*EmptyRequestContent)(nil),   // 35: proto.EmptyRequestContent
+	(*EmptyResponseContent)(nil),  // 36: proto.EmptyResponseContent
+	(*ContentComplaint)(nil),      // 37: proto.ContentComplaint
+	(*ContentComplaintArray)(nil), // 38: proto.ContentComplaintArray
+	(*timestamppb.Timestamp)(nil), // 39: google.protobuf.Timestamp
 }
 var file_content_proto_depIdxs = []int32{
-	36, // 0: proto.Post.createdAt:type_name -> google.protobuf.Timestamp
+	39, // 0: proto.Post.createdAt:type_name -> google.protobuf.Timestamp
 	2,  // 1: proto.Post.media:type_name -> proto.Media
-	25, // 2: proto.Post.comments:type_name -> proto.Comment
-	23, // 3: proto.Post.likes:type_name -> proto.Like
-	23, // 4: proto.Post.dislikes:type_name -> proto.Like
+	28, // 2: proto.Post.comments:type_name -> proto.Comment
+	26, // 3: proto.Post.likes:type_name -> proto.Like
+	26, // 4: proto.Post.dislikes:type_name -> proto.Like
 	5,  // 5: proto.Post.hashtags:type_name -> proto.Hashtag
-	36, // 6: proto.ReducedPost.createdAt:type_name -> google.protobuf.Timestamp
+	39, // 6: proto.ReducedPost.createdAt:type_name -> google.protobuf.Timestamp
 	2,  // 7: proto.ReducedPost.media:type_name -> proto.Media
 	3,  // 8: proto.Media.tags:type_name -> proto.Tag
 	5,  // 9: proto.Hashtags.hashtags:type_name -> proto.Hashtag
 	1,  // 10: proto.ReducedPostArray.posts:type_name -> proto.ReducedPost
 	0,  // 11: proto.PostArray.posts:type_name -> proto.Post
 	13, // 12: proto.PostArray.ads:type_name -> proto.Ad
-	36, // 13: proto.Story.createdAt:type_name -> google.protobuf.Timestamp
+	39, // 13: proto.Story.createdAt:type_name -> google.protobuf.Timestamp
 	2,  // 14: proto.Story.media:type_name -> proto.Media
 	5,  // 15: proto.Story.hashtags:type_name -> proto.Hashtag
 	8,  // 16: proto.StoriesArray.stories:type_name -> proto.Story
@@ -3048,134 +3482,140 @@ var file_content_proto_depIdxs = []int32{
 	13, // 20: proto.StoryAdHome.ad:type_name -> proto.Ad
 	0,  // 21: proto.Ad.post:type_name -> proto.Post
 	13, // 22: proto.AdArray.ads:type_name -> proto.Ad
-	36, // 23: proto.Campaign.startDate:type_name -> google.protobuf.Timestamp
-	36, // 24: proto.Campaign.endDate:type_name -> google.protobuf.Timestamp
+	39, // 23: proto.Campaign.startDate:type_name -> google.protobuf.Timestamp
+	39, // 24: proto.Campaign.endDate:type_name -> google.protobuf.Timestamp
 	17, // 25: proto.Campaign.category:type_name -> proto.AdCategory
-	36, // 26: proto.Campaign.lastUpdated:type_name -> google.protobuf.Timestamp
+	39, // 26: proto.Campaign.lastUpdated:type_name -> google.protobuf.Timestamp
 	13, // 27: proto.Campaign.ads:type_name -> proto.Ad
 	15, // 28: proto.CampaignArray.campaigns:type_name -> proto.Campaign
 	17, // 29: proto.AdCategoryArray.categories:type_name -> proto.AdCategory
-	0,  // 30: proto.Collection.posts:type_name -> proto.Post
-	19, // 31: proto.Favorites.collections:type_name -> proto.Collection
-	0,  // 32: proto.Favorites.unclassified:type_name -> proto.Post
-	19, // 33: proto.CollectionsArray.collections:type_name -> proto.Collection
-	23, // 34: proto.LikesArray.likes:type_name -> proto.Like
-	36, // 35: proto.Comment.createdAt:type_name -> google.protobuf.Timestamp
-	25, // 36: proto.CommentsArray.comments:type_name -> proto.Comment
-	8,  // 37: proto.Highlight.stories:type_name -> proto.Story
-	27, // 38: proto.HighlightsArray.highlights:type_name -> proto.Highlight
-	34, // 39: proto.ContentComplaintArray.content_complaints:type_name -> proto.ContentComplaint
-	0,  // 40: proto.Content.CreatePost:input_type -> proto.Post
-	32, // 41: proto.Content.GetAllPostsReduced:input_type -> proto.EmptyRequestContent
-	32, // 42: proto.Content.GetAllPosts:input_type -> proto.EmptyRequestContent
-	30, // 43: proto.Content.GetPostsForUser:input_type -> proto.RequestId
-	30, // 44: proto.Content.RemovePost:input_type -> proto.RequestId
-	30, // 45: proto.Content.GetPostById:input_type -> proto.RequestId
-	31, // 46: proto.Content.SearchContentByLocation:input_type -> proto.SearchLocationRequest
-	5,  // 47: proto.Content.GetPostsByHashtag:input_type -> proto.Hashtag
-	32, // 48: proto.Content.GetAllHashtags:input_type -> proto.EmptyRequestContent
-	8,  // 49: proto.Content.CreateStory:input_type -> proto.Story
-	32, // 50: proto.Content.GetAllStories:input_type -> proto.EmptyRequestContent
-	30, // 51: proto.Content.GetStoriesForUser:input_type -> proto.RequestId
-	30, // 52: proto.Content.GetMyStories:input_type -> proto.RequestId
-	30, // 53: proto.Content.RemoveStory:input_type -> proto.RequestId
-	30, // 54: proto.Content.GetStoryById:input_type -> proto.RequestId
-	25, // 55: proto.Content.CreateComment:input_type -> proto.Comment
-	30, // 56: proto.Content.GetCommentsForPost:input_type -> proto.RequestId
-	23, // 57: proto.Content.CreateLike:input_type -> proto.Like
-	30, // 58: proto.Content.GetLikesForPost:input_type -> proto.RequestId
-	30, // 59: proto.Content.GetDislikesForPost:input_type -> proto.RequestId
-	23, // 60: proto.Content.GetUserLikedOrDislikedPosts:input_type -> proto.Like
-	30, // 61: proto.Content.GetAllCollections:input_type -> proto.RequestId
-	30, // 62: proto.Content.GetCollection:input_type -> proto.RequestId
-	19, // 63: proto.Content.CreateCollection:input_type -> proto.Collection
-	30, // 64: proto.Content.RemoveCollection:input_type -> proto.RequestId
-	30, // 65: proto.Content.GetUserFavorites:input_type -> proto.RequestId
-	30, // 66: proto.Content.GetUserFavoritesOptimized:input_type -> proto.RequestId
-	21, // 67: proto.Content.CreateFavorite:input_type -> proto.FavoritesRequest
-	21, // 68: proto.Content.RemoveFavorite:input_type -> proto.FavoritesRequest
-	5,  // 69: proto.Content.CreateHashtag:input_type -> proto.Hashtag
-	30, // 70: proto.Content.GetAllHighlights:input_type -> proto.RequestId
-	30, // 71: proto.Content.GetHighlight:input_type -> proto.RequestId
-	27, // 72: proto.Content.CreateHighlight:input_type -> proto.Highlight
-	30, // 73: proto.Content.RemoveHighlight:input_type -> proto.RequestId
-	29, // 74: proto.Content.CreateHighlightStory:input_type -> proto.HighlightRequest
-	29, // 75: proto.Content.RemoveHighlightStory:input_type -> proto.HighlightRequest
-	34, // 76: proto.Content.CreateContentComplaint:input_type -> proto.ContentComplaint
-	30, // 77: proto.Content.DeleteComplaintByUserId:input_type -> proto.RequestId
-	32, // 78: proto.Content.GetAllContentComplaints:input_type -> proto.EmptyRequestContent
-	30, // 79: proto.Content.RejectById:input_type -> proto.RequestId
-	32, // 80: proto.Content.GetAds:input_type -> proto.EmptyRequestContent
-	13, // 81: proto.Content.CreateAd:input_type -> proto.Ad
-	30, // 82: proto.Content.IncrementLinkClicks:input_type -> proto.RequestId
-	32, // 83: proto.Content.GetCampaigns:input_type -> proto.EmptyRequestContent
-	30, // 84: proto.Content.GetCampaign:input_type -> proto.RequestId
-	15, // 85: proto.Content.CreateCampaign:input_type -> proto.Campaign
-	15, // 86: proto.Content.UpdateCampaign:input_type -> proto.Campaign
-	30, // 87: proto.Content.DeleteCampaign:input_type -> proto.RequestId
-	32, // 88: proto.Content.GetAdCategories:input_type -> proto.EmptyRequestContent
-	17, // 89: proto.Content.CreateAdCategory:input_type -> proto.AdCategory
-	32, // 90: proto.Content.GetUsersAdCategories:input_type -> proto.EmptyRequestContent
-	30, // 91: proto.Content.CreateUserAdCategories:input_type -> proto.RequestId
-	18, // 92: proto.Content.UpdateUsersAdCategories:input_type -> proto.AdCategoryArray
-	33, // 93: proto.Content.CreatePost:output_type -> proto.EmptyResponseContent
-	6,  // 94: proto.Content.GetAllPostsReduced:output_type -> proto.ReducedPostArray
-	7,  // 95: proto.Content.GetAllPosts:output_type -> proto.PostArray
-	7,  // 96: proto.Content.GetPostsForUser:output_type -> proto.PostArray
-	33, // 97: proto.Content.RemovePost:output_type -> proto.EmptyResponseContent
-	0,  // 98: proto.Content.GetPostById:output_type -> proto.Post
-	7,  // 99: proto.Content.SearchContentByLocation:output_type -> proto.PostArray
-	7,  // 100: proto.Content.GetPostsByHashtag:output_type -> proto.PostArray
-	4,  // 101: proto.Content.GetAllHashtags:output_type -> proto.Hashtags
-	33, // 102: proto.Content.CreateStory:output_type -> proto.EmptyResponseContent
-	11, // 103: proto.Content.GetAllStories:output_type -> proto.StoriesHome
-	9,  // 104: proto.Content.GetStoriesForUser:output_type -> proto.StoriesArray
-	9,  // 105: proto.Content.GetMyStories:output_type -> proto.StoriesArray
-	33, // 106: proto.Content.RemoveStory:output_type -> proto.EmptyResponseContent
-	8,  // 107: proto.Content.GetStoryById:output_type -> proto.Story
-	33, // 108: proto.Content.CreateComment:output_type -> proto.EmptyResponseContent
-	26, // 109: proto.Content.GetCommentsForPost:output_type -> proto.CommentsArray
-	33, // 110: proto.Content.CreateLike:output_type -> proto.EmptyResponseContent
-	24, // 111: proto.Content.GetLikesForPost:output_type -> proto.LikesArray
-	24, // 112: proto.Content.GetDislikesForPost:output_type -> proto.LikesArray
-	7,  // 113: proto.Content.GetUserLikedOrDislikedPosts:output_type -> proto.PostArray
-	22, // 114: proto.Content.GetAllCollections:output_type -> proto.CollectionsArray
-	19, // 115: proto.Content.GetCollection:output_type -> proto.Collection
-	19, // 116: proto.Content.CreateCollection:output_type -> proto.Collection
-	33, // 117: proto.Content.RemoveCollection:output_type -> proto.EmptyResponseContent
-	20, // 118: proto.Content.GetUserFavorites:output_type -> proto.Favorites
-	20, // 119: proto.Content.GetUserFavoritesOptimized:output_type -> proto.Favorites
-	33, // 120: proto.Content.CreateFavorite:output_type -> proto.EmptyResponseContent
-	33, // 121: proto.Content.RemoveFavorite:output_type -> proto.EmptyResponseContent
-	5,  // 122: proto.Content.CreateHashtag:output_type -> proto.Hashtag
-	28, // 123: proto.Content.GetAllHighlights:output_type -> proto.HighlightsArray
-	27, // 124: proto.Content.GetHighlight:output_type -> proto.Highlight
-	27, // 125: proto.Content.CreateHighlight:output_type -> proto.Highlight
-	33, // 126: proto.Content.RemoveHighlight:output_type -> proto.EmptyResponseContent
-	33, // 127: proto.Content.CreateHighlightStory:output_type -> proto.EmptyResponseContent
-	33, // 128: proto.Content.RemoveHighlightStory:output_type -> proto.EmptyResponseContent
-	33, // 129: proto.Content.CreateContentComplaint:output_type -> proto.EmptyResponseContent
-	33, // 130: proto.Content.DeleteComplaintByUserId:output_type -> proto.EmptyResponseContent
-	35, // 131: proto.Content.GetAllContentComplaints:output_type -> proto.ContentComplaintArray
-	33, // 132: proto.Content.RejectById:output_type -> proto.EmptyResponseContent
-	14, // 133: proto.Content.GetAds:output_type -> proto.AdArray
-	33, // 134: proto.Content.CreateAd:output_type -> proto.EmptyResponseContent
-	33, // 135: proto.Content.IncrementLinkClicks:output_type -> proto.EmptyResponseContent
-	16, // 136: proto.Content.GetCampaigns:output_type -> proto.CampaignArray
-	15, // 137: proto.Content.GetCampaign:output_type -> proto.Campaign
-	33, // 138: proto.Content.CreateCampaign:output_type -> proto.EmptyResponseContent
-	33, // 139: proto.Content.UpdateCampaign:output_type -> proto.EmptyResponseContent
-	33, // 140: proto.Content.DeleteCampaign:output_type -> proto.EmptyResponseContent
-	18, // 141: proto.Content.GetAdCategories:output_type -> proto.AdCategoryArray
-	33, // 142: proto.Content.CreateAdCategory:output_type -> proto.EmptyResponseContent
-	18, // 143: proto.Content.GetUsersAdCategories:output_type -> proto.AdCategoryArray
-	33, // 144: proto.Content.CreateUserAdCategories:output_type -> proto.EmptyResponseContent
-	33, // 145: proto.Content.UpdateUsersAdCategories:output_type -> proto.EmptyResponseContent
-	93, // [93:146] is the sub-list for method output_type
-	40, // [40:93] is the sub-list for method input_type
-	40, // [40:40] is the sub-list for extension type_name
-	40, // [40:40] is the sub-list for extension extendee
-	0,  // [0:40] is the sub-list for field type_name
+	39, // 30: proto.CampaignStats.startDate:type_name -> google.protobuf.Timestamp
+	39, // 31: proto.CampaignStats.endDate:type_name -> google.protobuf.Timestamp
+	20, // 32: proto.CampaignStats.influencers:type_name -> proto.InfluencerStats
+	21, // 33: proto.InfluencerStats.ads:type_name -> proto.AdStats
+	0,  // 34: proto.Collection.posts:type_name -> proto.Post
+	22, // 35: proto.Favorites.collections:type_name -> proto.Collection
+	0,  // 36: proto.Favorites.unclassified:type_name -> proto.Post
+	22, // 37: proto.CollectionsArray.collections:type_name -> proto.Collection
+	26, // 38: proto.LikesArray.likes:type_name -> proto.Like
+	39, // 39: proto.Comment.createdAt:type_name -> google.protobuf.Timestamp
+	28, // 40: proto.CommentsArray.comments:type_name -> proto.Comment
+	8,  // 41: proto.Highlight.stories:type_name -> proto.Story
+	30, // 42: proto.HighlightsArray.highlights:type_name -> proto.Highlight
+	37, // 43: proto.ContentComplaintArray.content_complaints:type_name -> proto.ContentComplaint
+	0,  // 44: proto.Content.CreatePost:input_type -> proto.Post
+	35, // 45: proto.Content.GetAllPostsReduced:input_type -> proto.EmptyRequestContent
+	35, // 46: proto.Content.GetAllPosts:input_type -> proto.EmptyRequestContent
+	33, // 47: proto.Content.GetPostsForUser:input_type -> proto.RequestId
+	33, // 48: proto.Content.RemovePost:input_type -> proto.RequestId
+	33, // 49: proto.Content.GetPostById:input_type -> proto.RequestId
+	34, // 50: proto.Content.SearchContentByLocation:input_type -> proto.SearchLocationRequest
+	5,  // 51: proto.Content.GetPostsByHashtag:input_type -> proto.Hashtag
+	35, // 52: proto.Content.GetAllHashtags:input_type -> proto.EmptyRequestContent
+	8,  // 53: proto.Content.CreateStory:input_type -> proto.Story
+	35, // 54: proto.Content.GetAllStories:input_type -> proto.EmptyRequestContent
+	33, // 55: proto.Content.GetStoriesForUser:input_type -> proto.RequestId
+	33, // 56: proto.Content.GetMyStories:input_type -> proto.RequestId
+	33, // 57: proto.Content.RemoveStory:input_type -> proto.RequestId
+	33, // 58: proto.Content.GetStoryById:input_type -> proto.RequestId
+	28, // 59: proto.Content.CreateComment:input_type -> proto.Comment
+	33, // 60: proto.Content.GetCommentsForPost:input_type -> proto.RequestId
+	26, // 61: proto.Content.CreateLike:input_type -> proto.Like
+	33, // 62: proto.Content.GetLikesForPost:input_type -> proto.RequestId
+	33, // 63: proto.Content.GetDislikesForPost:input_type -> proto.RequestId
+	26, // 64: proto.Content.GetUserLikedOrDislikedPosts:input_type -> proto.Like
+	33, // 65: proto.Content.GetAllCollections:input_type -> proto.RequestId
+	33, // 66: proto.Content.GetCollection:input_type -> proto.RequestId
+	22, // 67: proto.Content.CreateCollection:input_type -> proto.Collection
+	33, // 68: proto.Content.RemoveCollection:input_type -> proto.RequestId
+	33, // 69: proto.Content.GetUserFavorites:input_type -> proto.RequestId
+	33, // 70: proto.Content.GetUserFavoritesOptimized:input_type -> proto.RequestId
+	24, // 71: proto.Content.CreateFavorite:input_type -> proto.FavoritesRequest
+	24, // 72: proto.Content.RemoveFavorite:input_type -> proto.FavoritesRequest
+	5,  // 73: proto.Content.CreateHashtag:input_type -> proto.Hashtag
+	33, // 74: proto.Content.GetAllHighlights:input_type -> proto.RequestId
+	33, // 75: proto.Content.GetHighlight:input_type -> proto.RequestId
+	30, // 76: proto.Content.CreateHighlight:input_type -> proto.Highlight
+	33, // 77: proto.Content.RemoveHighlight:input_type -> proto.RequestId
+	32, // 78: proto.Content.CreateHighlightStory:input_type -> proto.HighlightRequest
+	32, // 79: proto.Content.RemoveHighlightStory:input_type -> proto.HighlightRequest
+	37, // 80: proto.Content.CreateContentComplaint:input_type -> proto.ContentComplaint
+	33, // 81: proto.Content.DeleteComplaintByUserId:input_type -> proto.RequestId
+	35, // 82: proto.Content.GetAllContentComplaints:input_type -> proto.EmptyRequestContent
+	33, // 83: proto.Content.RejectById:input_type -> proto.RequestId
+	35, // 84: proto.Content.GetAds:input_type -> proto.EmptyRequestContent
+	13, // 85: proto.Content.CreateAd:input_type -> proto.Ad
+	33, // 86: proto.Content.IncrementLinkClicks:input_type -> proto.RequestId
+	35, // 87: proto.Content.GetCampaigns:input_type -> proto.EmptyRequestContent
+	33, // 88: proto.Content.GetCampaign:input_type -> proto.RequestId
+	33, // 89: proto.Content.GetCampaignStats:input_type -> proto.RequestId
+	15, // 90: proto.Content.CreateCampaign:input_type -> proto.Campaign
+	15, // 91: proto.Content.UpdateCampaign:input_type -> proto.Campaign
+	33, // 92: proto.Content.DeleteCampaign:input_type -> proto.RequestId
+	35, // 93: proto.Content.GetAdCategories:input_type -> proto.EmptyRequestContent
+	17, // 94: proto.Content.CreateAdCategory:input_type -> proto.AdCategory
+	35, // 95: proto.Content.GetUsersAdCategories:input_type -> proto.EmptyRequestContent
+	33, // 96: proto.Content.CreateUserAdCategories:input_type -> proto.RequestId
+	18, // 97: proto.Content.UpdateUsersAdCategories:input_type -> proto.AdCategoryArray
+	36, // 98: proto.Content.CreatePost:output_type -> proto.EmptyResponseContent
+	6,  // 99: proto.Content.GetAllPostsReduced:output_type -> proto.ReducedPostArray
+	7,  // 100: proto.Content.GetAllPosts:output_type -> proto.PostArray
+	7,  // 101: proto.Content.GetPostsForUser:output_type -> proto.PostArray
+	36, // 102: proto.Content.RemovePost:output_type -> proto.EmptyResponseContent
+	0,  // 103: proto.Content.GetPostById:output_type -> proto.Post
+	7,  // 104: proto.Content.SearchContentByLocation:output_type -> proto.PostArray
+	7,  // 105: proto.Content.GetPostsByHashtag:output_type -> proto.PostArray
+	4,  // 106: proto.Content.GetAllHashtags:output_type -> proto.Hashtags
+	36, // 107: proto.Content.CreateStory:output_type -> proto.EmptyResponseContent
+	11, // 108: proto.Content.GetAllStories:output_type -> proto.StoriesHome
+	9,  // 109: proto.Content.GetStoriesForUser:output_type -> proto.StoriesArray
+	9,  // 110: proto.Content.GetMyStories:output_type -> proto.StoriesArray
+	36, // 111: proto.Content.RemoveStory:output_type -> proto.EmptyResponseContent
+	8,  // 112: proto.Content.GetStoryById:output_type -> proto.Story
+	36, // 113: proto.Content.CreateComment:output_type -> proto.EmptyResponseContent
+	29, // 114: proto.Content.GetCommentsForPost:output_type -> proto.CommentsArray
+	36, // 115: proto.Content.CreateLike:output_type -> proto.EmptyResponseContent
+	27, // 116: proto.Content.GetLikesForPost:output_type -> proto.LikesArray
+	27, // 117: proto.Content.GetDislikesForPost:output_type -> proto.LikesArray
+	7,  // 118: proto.Content.GetUserLikedOrDislikedPosts:output_type -> proto.PostArray
+	25, // 119: proto.Content.GetAllCollections:output_type -> proto.CollectionsArray
+	22, // 120: proto.Content.GetCollection:output_type -> proto.Collection
+	22, // 121: proto.Content.CreateCollection:output_type -> proto.Collection
+	36, // 122: proto.Content.RemoveCollection:output_type -> proto.EmptyResponseContent
+	23, // 123: proto.Content.GetUserFavorites:output_type -> proto.Favorites
+	23, // 124: proto.Content.GetUserFavoritesOptimized:output_type -> proto.Favorites
+	36, // 125: proto.Content.CreateFavorite:output_type -> proto.EmptyResponseContent
+	36, // 126: proto.Content.RemoveFavorite:output_type -> proto.EmptyResponseContent
+	5,  // 127: proto.Content.CreateHashtag:output_type -> proto.Hashtag
+	31, // 128: proto.Content.GetAllHighlights:output_type -> proto.HighlightsArray
+	30, // 129: proto.Content.GetHighlight:output_type -> proto.Highlight
+	30, // 130: proto.Content.CreateHighlight:output_type -> proto.Highlight
+	36, // 131: proto.Content.RemoveHighlight:output_type -> proto.EmptyResponseContent
+	36, // 132: proto.Content.CreateHighlightStory:output_type -> proto.EmptyResponseContent
+	36, // 133: proto.Content.RemoveHighlightStory:output_type -> proto.EmptyResponseContent
+	36, // 134: proto.Content.CreateContentComplaint:output_type -> proto.EmptyResponseContent
+	36, // 135: proto.Content.DeleteComplaintByUserId:output_type -> proto.EmptyResponseContent
+	38, // 136: proto.Content.GetAllContentComplaints:output_type -> proto.ContentComplaintArray
+	36, // 137: proto.Content.RejectById:output_type -> proto.EmptyResponseContent
+	14, // 138: proto.Content.GetAds:output_type -> proto.AdArray
+	36, // 139: proto.Content.CreateAd:output_type -> proto.EmptyResponseContent
+	36, // 140: proto.Content.IncrementLinkClicks:output_type -> proto.EmptyResponseContent
+	16, // 141: proto.Content.GetCampaigns:output_type -> proto.CampaignArray
+	15, // 142: proto.Content.GetCampaign:output_type -> proto.Campaign
+	19, // 143: proto.Content.GetCampaignStats:output_type -> proto.CampaignStats
+	36, // 144: proto.Content.CreateCampaign:output_type -> proto.EmptyResponseContent
+	36, // 145: proto.Content.UpdateCampaign:output_type -> proto.EmptyResponseContent
+	36, // 146: proto.Content.DeleteCampaign:output_type -> proto.EmptyResponseContent
+	18, // 147: proto.Content.GetAdCategories:output_type -> proto.AdCategoryArray
+	36, // 148: proto.Content.CreateAdCategory:output_type -> proto.EmptyResponseContent
+	18, // 149: proto.Content.GetUsersAdCategories:output_type -> proto.AdCategoryArray
+	36, // 150: proto.Content.CreateUserAdCategories:output_type -> proto.EmptyResponseContent
+	36, // 151: proto.Content.UpdateUsersAdCategories:output_type -> proto.EmptyResponseContent
+	98, // [98:152] is the sub-list for method output_type
+	44, // [44:98] is the sub-list for method input_type
+	44, // [44:44] is the sub-list for extension type_name
+	44, // [44:44] is the sub-list for extension extendee
+	0,  // [0:44] is the sub-list for field type_name
 }
 
 func init() { file_content_proto_init() }
@@ -3413,7 +3853,7 @@ func file_content_proto_init() {
 			}
 		}
 		file_content_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Collection); i {
+			switch v := v.(*CampaignStats); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3425,7 +3865,7 @@ func file_content_proto_init() {
 			}
 		}
 		file_content_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Favorites); i {
+			switch v := v.(*InfluencerStats); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3437,7 +3877,7 @@ func file_content_proto_init() {
 			}
 		}
 		file_content_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*FavoritesRequest); i {
+			switch v := v.(*AdStats); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3449,7 +3889,7 @@ func file_content_proto_init() {
 			}
 		}
 		file_content_proto_msgTypes[22].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CollectionsArray); i {
+			switch v := v.(*Collection); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3461,7 +3901,7 @@ func file_content_proto_init() {
 			}
 		}
 		file_content_proto_msgTypes[23].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Like); i {
+			switch v := v.(*Favorites); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3473,7 +3913,7 @@ func file_content_proto_init() {
 			}
 		}
 		file_content_proto_msgTypes[24].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*LikesArray); i {
+			switch v := v.(*FavoritesRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3485,7 +3925,7 @@ func file_content_proto_init() {
 			}
 		}
 		file_content_proto_msgTypes[25].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Comment); i {
+			switch v := v.(*CollectionsArray); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3497,7 +3937,7 @@ func file_content_proto_init() {
 			}
 		}
 		file_content_proto_msgTypes[26].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CommentsArray); i {
+			switch v := v.(*Like); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3509,7 +3949,7 @@ func file_content_proto_init() {
 			}
 		}
 		file_content_proto_msgTypes[27].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Highlight); i {
+			switch v := v.(*LikesArray); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3521,7 +3961,7 @@ func file_content_proto_init() {
 			}
 		}
 		file_content_proto_msgTypes[28].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*HighlightsArray); i {
+			switch v := v.(*Comment); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3533,7 +3973,7 @@ func file_content_proto_init() {
 			}
 		}
 		file_content_proto_msgTypes[29].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*HighlightRequest); i {
+			switch v := v.(*CommentsArray); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3545,7 +3985,7 @@ func file_content_proto_init() {
 			}
 		}
 		file_content_proto_msgTypes[30].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RequestId); i {
+			switch v := v.(*Highlight); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3557,7 +3997,7 @@ func file_content_proto_init() {
 			}
 		}
 		file_content_proto_msgTypes[31].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*SearchLocationRequest); i {
+			switch v := v.(*HighlightsArray); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3569,7 +4009,7 @@ func file_content_proto_init() {
 			}
 		}
 		file_content_proto_msgTypes[32].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*EmptyRequestContent); i {
+			switch v := v.(*HighlightRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3581,7 +4021,7 @@ func file_content_proto_init() {
 			}
 		}
 		file_content_proto_msgTypes[33].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*EmptyResponseContent); i {
+			switch v := v.(*RequestId); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3593,7 +4033,7 @@ func file_content_proto_init() {
 			}
 		}
 		file_content_proto_msgTypes[34].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ContentComplaint); i {
+			switch v := v.(*SearchLocationRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3605,6 +4045,42 @@ func file_content_proto_init() {
 			}
 		}
 		file_content_proto_msgTypes[35].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*EmptyRequestContent); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_content_proto_msgTypes[36].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*EmptyResponseContent); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_content_proto_msgTypes[37].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ContentComplaint); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_content_proto_msgTypes[38].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContentComplaintArray); i {
 			case 0:
 				return &v.state
@@ -3623,7 +4099,7 @@ func file_content_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_content_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   36,
+			NumMessages:   39,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

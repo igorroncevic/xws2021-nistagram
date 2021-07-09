@@ -28,7 +28,7 @@ func SetupContentRBAC(db *gorm.DB) error {
 			getAllHighlights, getHighlight, createHighlight, removeHighlight, createHighlightStory, removeHighlightStory, getUserLikedOrDislikedPosts,
 			createContentComplaint, getAllContentComplaints, rejectById, deleteComplaintByUserId,
 			getAds, createAd, incrementLinkClicks,
-			getCampaigns, getCampaign, createCampaign, updateCampaign, deleteCampaign,
+			getCampaigns, getCampaign, getCampaignStats, createCampaign, updateCampaign, deleteCampaign,
 			getAdCategories, getAdCategory, createAdCategory, createUserAdCategories, getUsersAdCategories, updateUsersAdCategories,
 		}
 		result = db.Create(&permissions)
@@ -78,7 +78,7 @@ func SetupContentRBAC(db *gorm.DB) error {
 			adminDeleteComplaintByUserId,nonregisteredDeleteComplaintByUserId,basicDeleteComplaintByUserId, verifiedDeleteComplaintByUserId, agentDeleteComplaintByUserId,
 			basicGetAds, agentGetAds, nonregisteredGetAds, verifiedGetAds, adminGetAds,
 			agentCreateAd,
-			agentCreateCampaign, agentGetCampaigns, agentGetCampaign, agentUpdateCampaign, agentDeleteCampaign,
+			agentCreateCampaign, agentGetCampaigns, agentGetCampaign, agentGetCampaignStats, agentUpdateCampaign, agentDeleteCampaign,
 			basicGetAdCategories, nonregisteredGetAdCategories, verifiedGetAdCategories, agentGetAdCategories, adminGetAdCategories,
 			basicGetAdCategory, nonregisteredGetAdCategory, verifiedGetAdCategory, agentGetAdCategory, adminGetAdCategory,
 			adminCreateAdCategory,
@@ -166,6 +166,7 @@ var (
 
 	getCampaigns 				= Permission{Id: "cb810786-dea4-4774-940d-d4e4d693d6f4", Name: "GetCampaigns"}
 	getCampaign 				= Permission{Id: "8e3a5753-3dac-4f69-a1ad-124143906070", Name: "GetCampaign"}
+	getCampaignStats 			= Permission{Id: "dc0e54e9-9cf7-4195-b4d7-4de4383328c4", Name: "GetCampaignStats"}
 	createCampaign 				= Permission{Id: "5b194118-4624-4725-b891-cba62eb5b506", Name: "CreateCampaign"}
 	updateCampaign 				= Permission{Id: "3588ce92-6da6-4401-95e2-0af71b2e11c9", Name: "UpdateCampaign"}
 	deleteCampaign 				= Permission{Id: "f54196d5-81e6-4364-86dd-45f8d864d3c1", Name: "DeleteCampaign"}
@@ -394,6 +395,7 @@ var (
 
 	// Campaigns
 	agentGetCampaign			  = RolePermission{RoleId: agent.Id, PermissionId: getCampaign.Id}
+	agentGetCampaignStats		  = RolePermission{RoleId: agent.Id, PermissionId: getCampaignStats.Id}
 	agentGetCampaigns			  = RolePermission{RoleId: agent.Id, PermissionId: getCampaigns.Id}
 	agentCreateCampaign			  = RolePermission{RoleId: agent.Id, PermissionId: createCampaign.Id}
 	agentUpdateCampaign			  = RolePermission{RoleId: agent.Id, PermissionId: updateCampaign.Id}
