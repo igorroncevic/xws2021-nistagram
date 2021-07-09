@@ -6,6 +6,7 @@ import (
 	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/david-drvar/xws2021-nistagram/recommendation_service/model"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
+	"github.com/onsi/gomega/format"
 )
 
 type FollowersRepository interface {
@@ -70,6 +71,35 @@ func (repository *followersRepository) GetUsers(ctx context.Context, userId stri
 		return nil, err
 	}
 	return users, nil
+}
+
+func (repository *followersRepository) GetRandomUsers(ctx context.Context, limit int) ([]model.User, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetRandomUsers")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	session := repository.driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
+	defer session.Close()
+
+	result , err := session.WriteTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
+		result, err := transaction.Run(
+			"MATCH (a:User) RETURN a.id LIMIT " +  ,
+			map[string]interface{}{
+				"UserId" : u.UserId,
+			})
+
+		if err != nil {
+			return nil, err
+		}
+		if result.Next()  {
+			return true, nil
+		}
+		return false, errors.New("error: can not create user ")
+	})
+	if err != nil || result == nil {
+		return false, err
+	}
+	return true, nil
 }
 
 func (repository *followersRepository) GetLimitedFriends(ctx context.Context, userId  string, limit int) ([]model.User, error) {

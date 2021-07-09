@@ -44,6 +44,8 @@ func (recommendation *RecommendationService) RecommendationPattern(ctx context.C
 	limitedFriends, err := recommendation.followersRepository.GetLimitedFriends(ctx, userId, 5)
 	if err != nil {
 		return nil, errors.New("Could not get limited friends!")
+	}else if len(limitedFriends) == 0 {
+
 	}
 
 	//Odredjeni broj usera koje ne prati, ali imaju zajednicke prijatelje
