@@ -12,7 +12,7 @@ const PostPreviewModal = (props) => {
             contentClassName="content" 
             show={showModal} 
             onHide={() => setShowModal(false)}>
-            <Post className="Post" shouldReload={shouldReload} post={post} setPosts={setPosts} isAd={post.link !== ""} />
+            <Post className="Post" shouldReload={shouldReload} post={post} setPosts={setPosts} isAd={post.link ? post.link : ""} />
         </Modal>
     )
 }

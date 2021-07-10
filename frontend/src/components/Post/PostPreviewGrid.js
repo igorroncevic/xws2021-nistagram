@@ -7,18 +7,18 @@ import "./../../style/PostPreviewGrid.css"
 const PostPreviewGrid = (props) => {
     const { shouldReload } = props;
 
-    const [localPosts, setLocalPosts] = useState([])
+    const [localPosts, setLocalPosts] = useState([...props.posts])
     const [selectedPost, setSelectedPost] = useState({});
     const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         setLocalPosts([...props.posts])
-        console.log(props.posts)
     }, [props.posts])
 
     const openPost = (selectPost) => {
-        selectPost.link === "" && setSelectedPost(localPosts.filter(post => post.id === selectPost.id)[0]);
-        selectPost.link !== "" && setSelectedPost(localPosts.filter(post => post.post.id === selectPost.id)[0]);
+        console.log(localPosts.filter(post => post.id === selectPost.id)[0])
+        !selectPost.link && setSelectedPost(localPosts.filter(post => post.id === selectPost.id)[0]);
+        selectPost.link && setSelectedPost(localPosts.filter(post => post.post.id === selectPost.id)[0]);
         setShowModal(true);
     }
 
