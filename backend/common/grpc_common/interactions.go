@@ -390,3 +390,17 @@ func CreateUserAdCategories(ctx context.Context, userId string) error {
 
 	return nil
 }
+
+func GetCampaignStats(ctx context.Context, campaignId string) (*protopb.CampaignStats, error) {
+	conn, err := CreateGrpcConnection(Content_service_address)
+	if err != nil{ return nil, err }
+	defer conn.Close()
+
+	contentClient := GetContentClient(conn)
+
+	stats, err := contentClient.GetCampaignStats(ctx, &protopb.RequestId{Id: campaignId})
+	if err != nil { return nil, err }
+
+	return stats, nil
+}
+

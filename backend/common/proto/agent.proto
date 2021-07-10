@@ -50,6 +50,13 @@ service Agent {
     };
   }
 
+  /* Campaigns */
+  rpc CreateCampaignReport (RequestIdAgent) returns (EmptyResponseAgent) {
+    option(google.api.http) = {
+      get: "/campaigns/{id}"
+    };
+  }
+
   /*    Orders    */
   rpc OrderProduct (Order) returns (EmptyResponseAgent) {
     option(google.api.http) = {
@@ -71,7 +78,6 @@ service Agent {
       body : "*"
     };
   }
-
 
 
   /*    Users    */

@@ -19,6 +19,7 @@ func SetupAgentsRBAC(db *gorm.DB) error {
 		permissions := []Permission{
 			createProduct, getUserByUsernameAgent, getAllProductsByAgentId, getAllProducts,
 			getProductById, deleteProduct, updateProduct, orderProduct, getOrdersByUser, getOrdersByAgent, getKeyByUserIdAgent, updateKey,
+			createCampaignReport,
 		}
 		result = db.Create(&permissions)
 		if result.Error != nil {
@@ -38,6 +39,7 @@ func SetupAgentsRBAC(db *gorm.DB) error {
 			agentGetOrdersByAgent,
 			agentGetKeyByUserIdAgent,
 			agentUpdateKey,
+			agentCreateCampaignReport,
 		}
 		result = db.Create(&rolePermissions)
 		if result.Error != nil {
@@ -75,6 +77,7 @@ var (
 	getOrdersByAgent        = Permission{Id: "ee1a39fc-a246-41fc-976b-5b12e2a1319a", Name: "GetOrdersByAgent"}
 	getKeyByUserIdAgent     = Permission{Id: "270be199-1363-4cff-b097-eda20b22d29e", Name: "GetKeyByUserId"}
 	updateKey               = Permission{Id: "7b8d59ee-3fc5-4773-acb8-fae32fcde531", Name: "UpdateKey"}
+	createCampaignReport    = Permission{Id: "d66348f5-8c6e-4e4a-b3ac-3d8d0fb4f2a5", Name: "CreateCampaignReport"}
 )
 
 var (
@@ -105,4 +108,6 @@ var (
 	agentGetKeyByUserIdAgent = RolePermission{RoleId: agent.Id, PermissionId: getKeyByUserIdAgent.Id}
 
 	agentUpdateKey = RolePermission{RoleId: agent.Id, PermissionId: updateKey.Id}
+
+	agentCreateCampaignReport = RolePermission{RoleId: agent.Id, PermissionId: createCampaignReport.Id}
 )

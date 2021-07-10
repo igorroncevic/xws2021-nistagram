@@ -5,6 +5,7 @@ go 1.16
 replace github.com/david-drvar/xws2021-nistagram/common => ./../common
 
 require (
+	github.com/beevik/etree v1.1.0 // indirect
 	github.com/david-drvar/xws2021-nistagram/common v0.0.1
 	github.com/google/uuid v1.1.2
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect

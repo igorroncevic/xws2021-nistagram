@@ -36,3 +36,43 @@ func (o Order) ConvertToGrpc() *protopb.Order {
 		ProductName: o.ProductName,
 	}
 }
+
+type CampaignStats struct {
+	Id 			 string
+	Name		 string
+	IsOneTime 	 bool
+	StartDate 	 time.Time
+	EndDate 	 time.Time
+	StartTime	 int
+	EndTime		 int
+	Placements   int
+	Category	 string
+	Type		 string
+	Influencers	 []InfluencerStats
+	Likes	 	 int
+	Dislikes 	 int
+	Comments 	 int
+	Clicks   	 int
+}
+
+type AdStats struct {
+	Id 		 string
+	Media    []string
+	Type	 string
+	Hashtags []string
+	Location string
+	Likes	 int
+	Dislikes int
+	Comments int
+	Clicks   int
+}
+
+type InfluencerStats struct {
+	Id				string
+	Username		string
+	Ads			    []AdStats
+	TotalLikes		int
+	TotalDislikes	int
+	TotalComments	int
+	TotalClicks		int
+}

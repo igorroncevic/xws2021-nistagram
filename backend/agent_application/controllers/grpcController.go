@@ -15,6 +15,7 @@ type Server struct {
 	protopb.UnimplementedAgentServer
 	userController    *UserGrpcController
 	productController *ProductGrpcController
+	campaignController *CampaignGrpcController
 	tracer            otgo.Tracer
 	closer            io.Closer
 }
@@ -22,12 +23,14 @@ type Server struct {
 func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger) (*Server, error) {
 	newUserController, _ := NewUserController(db, jwtManager, logger)
 	newProductController, _ := NewProductController(db, jwtManager, logger)
+	newCampaignController, _ := NewCampaignController(db, jwtManager, logger)
 
 	tracer, closer := tracer.Init("agentService")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
 		userController:    newUserController,
 		productController: newProductController,
+		campaignController: newCampaignController,
 		tracer:            tracer,
 		closer:            closer,
 	}, nil
@@ -95,4 +98,8 @@ func (s *Server) GetKeyByUserId(ctx context.Context, in *protopb.RequestIdAgent)
 
 func (s *Server) UpdateKey(ctx context.Context, in *protopb.ApiTokenAgent) (*protopb.EmptyResponseAgent, error) {
 	return s.userController.UpdateKey(ctx, in)
+}
+
+func (s *Server) CreateCampaignReport(ctx context.Context, in *protopb.RequestIdAgent) (*protopb.EmptyResponseAgent, error) {
+	return s.campaignController.CreateCampaignReport(ctx, in)
 }
