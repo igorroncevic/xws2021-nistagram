@@ -109,7 +109,7 @@ func (repository *storyRepository) GetStoryById(ctx context.Context, id string) 
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	story := &persistence.Story{}
-	result := repository.DB.Where("id = ? AND created_at <= ?", id, time.Now()).First(&story)
+	result := repository.DB.Where("id = ?", id).First(&story)
 	if result.Error != nil {
 		return story, result.Error
 	}
@@ -125,7 +125,7 @@ func (repository *storyRepository) CreateStory(ctx context.Context, story *domai
 
 	var storyToSave persistence.Story
 	storyToSave = storyToSave.ConvertToPersistence(*story)
-	if storyToSave.CreatedAt == *new(time.Time) {
+	if storyToSave.CreatedAt.IsZero() || (storyToSave.CreatedAt.Year()==1970 && storyToSave.CreatedAt.Month()==1 &&  storyToSave.CreatedAt.Day()==1)  {
 		storyToSave.CreatedAt = time.Now()
 	}
 

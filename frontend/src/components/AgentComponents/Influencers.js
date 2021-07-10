@@ -1,15 +1,16 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import Navigation from "../HomePage/Navigation";
 import userService from "../../services/user.service";
 import toastService from "../../services/toast.service";
-import {useSelector} from "react-redux";
+import { useSelector } from "react-redux";
 import ProfileForSug from "../HomePage/ProfileForSug";
-import {Button, Dropdown, FormControl, Modal} from "react-bootstrap";
+import { Button, Dropdown, FormControl, Modal } from "react-bootstrap";
 import followersService from "../../services/followers.service";
-import {ReactComponent as Plus} from "../../images/icons/plus.svg";
+import { ReactComponent as Plus } from "../../images/icons/plus.svg";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import campaignsService from "../../services/campaigns.service";
+import moment from 'moment';
 
 const Influencers = () => {
     const [influencers, setInfluencers] = useState([])
@@ -27,8 +28,6 @@ const Influencers = () => {
         getCampaigns()
     }, []);
 
-
-
     async function getInfluencers() {
         const response = await userService.getInfluencers({
             //   id: store.user.id,
@@ -44,7 +43,7 @@ const Influencers = () => {
 
     async function getCampaigns() {
         const response = await campaignsService.getAgentsCampaigns({
-               id: store.user.id,
+            id: store.user.id,
             jwt: store.user.jwt,
         })
         if (response.status === 200) {
@@ -56,16 +55,16 @@ const Influencers = () => {
     }
 
 
-     function checkConnection(users){
-         users.map((user, i) => {
-            if(user.isProfilePublic==false){
+    function checkConnection(users) {
+        users.map((user, i) => {
+            if (user.isProfilePublic == false) {
                 GetFollowersConnection(user)
-            }else{
-                let temp={id:user.id,username:user.username, firstname:user.firstName, lastname:user.lastName,profilePhoto:user.profilePhoto,isApprovedRequest:true,requestIsPending:false}
-                if(renderInfluencers.some(item => item.id === temp.id)){
+            } else {
+                let temp = { id: user.id, username: user.username, firstname: user.firstName, lastname: user.lastName, profilePhoto: user.profilePhoto, isApprovedRequest: true, requestIsPending: false }
+                if (renderInfluencers.some(item => item.id === temp.id)) {
                     return;
                 }
-                setRenderInfluencers(renderInfluencers=>[...renderInfluencers, temp])
+                setRenderInfluencers(renderInfluencers => [...renderInfluencers, temp])
             }
         });
     }
@@ -76,12 +75,12 @@ const Influencers = () => {
             followerId: value.id,
         })
         if (response.status === 200) {
-            let temp={id:value.id,username:value.username,firstname:value.firstName, lastname:value.lastName,profilePhoto:value.profilePhoto, isApprovedRequest:response.data.isApprovedRequest,requestIsPending:response.data.requestIsPending }
-            if(renderInfluencers.some(item => item.id === temp.id)){
-                    return;
-                    
+            let temp = { id: value.id, username: value.username, firstname: value.firstName, lastname: value.lastName, profilePhoto: value.profilePhoto, isApprovedRequest: response.data.isApprovedRequest, requestIsPending: response.data.requestIsPending }
+            if (renderInfluencers.some(item => item.id === temp.id)) {
+                return;
+
             }
-            setRenderInfluencers(renderInfluencers=>[...renderInfluencers, temp])
+            setRenderInfluencers(renderInfluencers => [...renderInfluencers, temp])
         } else {
             console.log("followings ne radi")
         }
@@ -109,10 +108,10 @@ const Influencers = () => {
         }
         const response = await campaignsService.createCampaignRequest({
             agentId: store.user.id,
-            influencerId:modalUser.id,
-            campaignId:campaign.id,
-            status:'Pending',
-            postAt:dateTime,
+            influencerId: modalUser.id,
+            campaignId: campaign.id,
+            status: 'Pending',
+            postAt: dateTime,
             jwt: store.user.jwt,
         })
         if (response.status === 200) {
@@ -123,34 +122,41 @@ const Influencers = () => {
         }
     }
 
+    const renderCampaignOptions = () => {
+        return campaigns.map((campaign, i) => {
+            if (moment(campaign.endDate).isBefore(moment(Date.now()))) return ""
+            return (<Dropdown.Item onClick={() => setCampaignForInfluencer(campaign)}>{campaign.name}</Dropdown.Item>)
+        })               
+    }
+
     return (
-        <div style={{marginTop: '6%'}}>
-            <Navigation/>
-            <div style={{marginLeft: '20%', marginRight: '20%'}}>
-                <h3 style={{borderBottom: '1px solid black'}}>Influencers</h3>
-                <div style={{marginTop: '4%'}}>
+        <div style={{ marginTop: '6%' }}>
+            <Navigation />
+            <div style={{ marginLeft: '20%', marginRight: '20%' }}>
+                <h3 style={{ borderBottom: '1px solid black' }}>Influencers</h3>
+                <div style={{ marginTop: '4%' }}>
                     {renderInfluencers.map((user, i) =>
-                        <div style={{display: 'flex', borderBottom: '1px solid #dbe0de', marginTop: '5px'}}>
+                        <div style={{ display: 'flex', borderBottom: '1px solid #dbe0de', marginTop: '5px' }}>
                             <ProfileForSug user={user} username={user.username} firstName={user.firstName}
-                                           lastName={user.lastName} urlText="Follow" iconSize="big" captionSize="small" caption="influencer"
-                                           image={user.profilePhoto} storyBorder={true}/>
-                            {(!user.isProfilePublic && !user.isApprovedRequest && ! user.requestIsPending) &&
+                                lastName={user.lastName} urlText="Follow" iconSize="big" captionSize="small" caption="influencer"
+                                image={user.profilePhoto} storyBorder={true} />
+                            {(!user.isProfilePublic && !user.isApprovedRequest && !user.requestIsPending) &&
                                 <div>
-                                    <p style={{fontSize: '0.75em', paddingLeft: '250px',paddingBottom: '0.2em', paddingTop: '1.5em', color: 'red'}}>
+                                    <p style={{ fontSize: '0.75em', paddingLeft: '250px', paddingBottom: '0.2em', paddingTop: '1.5em', color: 'red' }}>
                                         This account is private. Follow for more info.</p>
                                 </div>
                             }
-                            { user.requestIsPending &&
+                            {user.requestIsPending &&
                                 <div>
-                                    <p style={{fontSize: '0.75em', paddingLeft: '250px',paddingBottom: '0.2em', paddingTop: '1.5em', color: 'green'}}>
+                                    <p style={{ fontSize: '0.75em', paddingLeft: '250px', paddingBottom: '0.2em', paddingTop: '1.5em', color: 'green' }}>
                                         Follow request is pending</p>
                                 </div>
                             }
-                            { (user.isProfilePublic || (!user.isProfilePublic && user.isApprovedRequest && !user.requestIsPending)) &&
-                                <div style={{paddingLeft: '250px'}}>
+                            {(user.isProfilePublic || (!user.isProfilePublic && user.isApprovedRequest && !user.requestIsPending)) &&
+                                <div style={{ paddingLeft: '250px' }}>
                                     <Button
-                                        style={{marginLeft: '5px', marginTop: '22px', height: '32px', fontSize: '15px'}}
-                                        variant="success"  onClick={() => handleModal(user)}>Hire for compaign </Button>
+                                        style={{ marginLeft: '5px', marginTop: '22px', height: '32px', fontSize: '15px' }}
+                                        variant="success" onClick={() => handleModal(user)}>Hire for compaign </Button>
 
                                 </div>
                             }
@@ -164,63 +170,60 @@ const Influencers = () => {
                 <Modal.Header closeButton>
                     <Modal.Title>Hire for campaign</Modal.Title>
                 </Modal.Header>
-                <Modal.Body style={{background:'#e4e6e5'}}>
+                <Modal.Body style={{ background: '#e4e6e5' }}>
                     <div>
-                        <div style={{borderBottom: '1px solid #dbe0de'}}>
+                        <div style={{ borderBottom: '1px solid #dbe0de' }}>
                             <h6>Influencers info:</h6>
                             <tr>
                                 <td>Username:</td>
-                                <td ><p style={{marginLeft:'15px'}}>{modalUser.username}</p></td>
+                                <td ><p style={{ marginLeft: '15px' }}>{modalUser.username}</p></td>
                             </tr>
 
                             <tr>
                                 <td>First name:</td>
-                                <td ><p style={{marginLeft:'15px'}}>{modalUser.firstname}</p></td>
+                                <td ><p style={{ marginLeft: '15px' }}>{modalUser.firstname}</p></td>
                             </tr>
                             <tr>
                                 <td>Last name:</td>
-                                <td ><p style={{marginLeft:'15px'}}>{modalUser.lastname}</p></td>
+                                <td ><p style={{ marginLeft: '15px' }}>{modalUser.lastname}</p></td>
                             </tr>
                         </div>
-                        <div style={{background:'#b6beba'}}>
-                      <tr>
-                          <td>Campaign:</td>
-                          <Dropdown>
-                              <Dropdown.Toggle variant="link" id="dropdown-basic">
-                                  <Plus className="icon" style={{maxWidth:'20px', marginLeft:'20px'}}/>
-                              </Dropdown.Toggle>
-                                  {campaigns.map((campaign, i) =>
-                                      <Dropdown.Menu>
-                                      <Dropdown.Item onClick={() => setCampaignForInfluencer(campaign)}>{campaign.name}</Dropdown.Item>
-                                      </Dropdown.Menu>
+                        <div style={{ background: '#b6beba' }}>
+                            <tr>
+                                <td>Campaign:</td>
+                                <Dropdown>
+                                    <Dropdown.Toggle variant="link" id="dropdown-basic">
+                                        <Plus className="icon" style={{ maxWidth: '20px', marginLeft: '20px' }} />
+                                    </Dropdown.Toggle>
+                                    <Dropdown.Menu>
+                                    { renderCampaignOptions() }
+                                    </Dropdown.Menu>
 
-                                  )}
+                                </Dropdown>
+                            </tr>
+                            <tr>
+                                <td >  <p style={{ marginRight: '10px' }}>Date and time posted at: </p></td>
+                                <DatePicker
+                                    onChange={date => setDateTime(date)}
 
-                          </Dropdown>
-                      </tr>
-                        <tr>
-                            <td >  <p style={{marginRight:'10px'}}>Date and time posted at: </p></td>
-                            <DatePicker
-                                onChange={date => setDateTime(date)}
+                                    selected={dateTime}
+                                    onChange={date => setDateTime(date)}
+                                    showTimeSelect
+                                    timeFormat="HH:mm"
+                                    timeIntervals={15}
+                                    timeCaption="time"
+                                    dateFormat="MMMM d, yyyy h:mm aa"
+                                    startDate={startDate}
+                                    minDate={startDate}
 
-                                selected={dateTime}
-                                onChange={date => setDateTime(date)}
-                                showTimeSelect
-                                timeFormat="HH:mm"
-                                timeIntervals={15}
-                                timeCaption="time"
-                                dateFormat="MMMM d, yyyy h:mm aa"
-                                startDate={startDate}
-                                minDate={startDate}
+                                />
 
-                            />
-
-                        </tr>
+                            </tr>
                         </div>
                         <tr>
                             <Button
-                                style={{marginLeft: '5px', marginTop: '22px', height: '32px', fontSize: '15px'}}
-                                variant="success"  onClick={() => createCampaignRequest(modalUser)}>Create campaign request</Button>
+                                style={{ marginLeft: '5px', marginTop: '22px', height: '32px', fontSize: '15px' }}
+                                variant="success" onClick={() => createCampaignRequest(modalUser)}>Create campaign request</Button>
                         </tr>
                     </div>
 
@@ -229,4 +232,4 @@ const Influencers = () => {
         </div>
     );
 }
-export  default  Influencers;
+export default Influencers;
