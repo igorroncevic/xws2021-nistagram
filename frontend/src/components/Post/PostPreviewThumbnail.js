@@ -8,8 +8,6 @@ import "./../../style/PostPreviewThumbnail.css"
 const PostPreviewThumbnail = (props) => {
     const { post, openPost } = props;
 
-    console.log(post)
-
     return (
         <div className="postPreviewThumbnail__Wrapper" onClick={() => openPost(post)}>
             <img src={post.media[0].content} className="thumbnail" alt="" />

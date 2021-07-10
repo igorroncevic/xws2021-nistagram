@@ -109,8 +109,13 @@ const Profile = () => {
                 if(ad.post.type === "Post") postAds.push(ad)
                 if(ad.post.type === "Story") storyAds.push(ad)
             })
+
+            let allPosts = [...posts, ...postAds]
+            allPosts = allPosts.sort(function(a, b){
+                return a.createdAt > b.createdAt
+            })
             
-            setPosts([...posts, ...postAds])
+            setPosts([...allPosts])
             setLoadingPosts(false);
             return storyAds
         } else {

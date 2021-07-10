@@ -16,7 +16,6 @@ const PostPreviewGrid = (props) => {
     }, [props.posts])
 
     const openPost = (selectPost) => {
-        console.log(localPosts.filter(post => post.id === selectPost.id)[0])
         !selectPost.link && setSelectedPost(localPosts.filter(post => post.id === selectPost.id)[0]);
         selectPost.link && setSelectedPost(localPosts.filter(post => post.post.id === selectPost.id)[0]);
         setShowModal(true);
