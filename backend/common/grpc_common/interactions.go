@@ -130,6 +130,12 @@ func GetHomepageUsers(ctx context.Context, userId string) ([]string, error){
 
 	userIds := []string{}
 	for _, following := range followingResponse.Users{
+		blocked, err := CheckIfBlocked(ctx, following.UserId, userId)
+		if err != nil || blocked { continue }
+
+		active, err := CheckIsActive(ctx, following.UserId)
+		if err != nil || !active { continue }
+
 		userIds = append(userIds, following.UserId)
 	}
 
@@ -153,11 +159,35 @@ func GetHomepageUsers(ctx context.Context, userId string) ([]string, error){
 		}
 
 		if !found {
+			blocked, err := CheckIfBlocked(ctx, publicUser, userId)
+			if err != nil || blocked { continue }
+
+			active, err := CheckIsActive(ctx, publicUser)
+			if err != nil || !active { continue }
+
+			muted, err := CheckIsMuted(ctx, publicUser, userId)
+			if err != nil || muted { continue }
+
 			userIds = append(userIds, publicUser)
 		}
 	}
 
 	return userIds, nil
+}
+
+func CheckIsMuted(ctx context.Context, requestedUserId string, requestingUserId string) (bool, error) {
+	conn, err := CreateGrpcConnection(Recommendation_service_address)
+	if err != nil{ return true, status.Errorf(codes.Unknown, err.Error()) }
+	defer conn.Close()
+
+	followerClient := GetFollowersClient(conn)
+	isMuted, err := followerClient.CheckIfMuted(ctx, &protopb.Follower{
+		UserId: requestingUserId,
+		FollowerId: requestedUserId,
+	})
+	if err != nil{ return true, status.Errorf(codes.Unknown, err.Error()) }
+
+	return isMuted.Response, nil
 }
 
 func GetCloseFriends(ctx context.Context, userId string) ([]string, error){
@@ -169,6 +199,27 @@ func GetCloseFriends(ctx context.Context, userId string) ([]string, error){
 
 	followerClient := GetFollowersClient(conn)
 	closeFriends, err := followerClient.GetCloseFriends(ctx, &protopb.RequestIdFollowers{
+		Id: userId,
+	})
+	if err != nil{ return []string{}, status.Errorf(codes.Unknown, err.Error()) }
+
+	userIds := []string{}
+	for _, closeFriend := range closeFriends.Users{
+		userIds = append(userIds, closeFriend.UserId)
+	}
+
+	return userIds, nil
+}
+
+func GetCloseFriendsReversed(ctx context.Context, userId string) ([]string, error){
+	conn, err := CreateGrpcConnection(Recommendation_service_address)
+	if err != nil{
+		return []string{}, status.Errorf(codes.Unknown, err.Error())
+	}
+	defer conn.Close()
+
+	followerClient := GetFollowersClient(conn)
+	closeFriends, err := followerClient.GetCloseFriendsReversed(ctx, &protopb.RequestIdFollowers{
 		Id: userId,
 	})
 	if err != nil{ return []string{}, status.Errorf(codes.Unknown, err.Error()) }

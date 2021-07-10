@@ -70,7 +70,7 @@ func (repository *postRepository) GetPostsForUser(ctx context.Context, id string
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	posts := []persistence.Post{}
-	result := repository.DB.Order("created_at desc").Where("user_id = ?", id).Find(&posts)
+	result := repository.DB.Order("created_at desc").Where("user_id = ? AND created_at <= ? AND is_ad = false", id, time.Now()).Find(&posts)
 	if result.Error != nil {
 		return posts, result.Error
 	}
@@ -83,8 +83,9 @@ func (repository *postRepository) GetPostById(ctx context.Context, id string) (*
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
+	now := time.Now()
 	post := &persistence.Post{}
-	result := repository.DB.Where("id = ?", id).First(&post)
+	result := repository.DB.Where("id = ? AND created_at <= ?", id, now).First(&post)
 	if result.Error != nil {
 		return post, result.Error
 	}
@@ -99,7 +100,8 @@ func (repository *postRepository) CreatePost(ctx context.Context, post *domain.P
 
 	var postToSave persistence.Post
 	postToSave = postToSave.ConvertToPersistence(*post)
-	if postToSave.CreatedAt.IsZero() {
+
+	if postToSave.CreatedAt.IsZero()  {
 		postToSave.CreatedAt = time.Now()
 	}
 	err := repository.DB.Transaction(func(tx *gorm.DB) error {
