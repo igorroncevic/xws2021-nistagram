@@ -56,6 +56,13 @@ service Followers {
         };
     }
 
+    rpc CheckIfMuted (Follower) returns (BooleanResponseFollowers) {
+        option(google.api.http) = {
+            post: "/api/followers/muted",
+            body: "*"
+        };
+    }
+
     rpc GetCloseFriends (RequestIdFollowers) returns (CreateUserResponse) {
         option(google.api.http) = {
             get: "/api/followers/close/{id}",
@@ -137,6 +144,10 @@ message RequestIdFollowers{
 message RequestForNotification {
     string userId = 1;
     string notificationType = 2;
+}
+
+message BooleanResponseFollowers {
+    bool response = 1;
 }
 
 message EmptyResponseFollowers {}

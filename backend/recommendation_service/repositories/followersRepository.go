@@ -18,6 +18,7 @@ type FollowersRepository interface {
 	DeleteBiDirectedConnection (context.Context, model.Follower) (bool, error)
 	UpdateUserConnection(context.Context, model.Follower) (*model.Follower,error)
 	GetFollowersConnection(context.Context, model.Follower) (*model.Follower, error)
+	CheckIfMuted(context.Context, string) ([]model.User, error)
 	GetCloseFriends(context.Context, string) ([]model.User, error)
 	GetCloseFriendsReversed(context.Context, string) ([]model.User, error)
     GetUsersForNotificationEnabled( context.Context,  string, string) ([]model.User, error)
@@ -88,6 +89,11 @@ func (repository *followersRepository) GetUsersForNotificationEnabled(ctx contex
 func (repository *followersRepository) GetAllFollowingsForHomepage(ctx context.Context, userId string) ([]model.User, error){
 	query := "MATCH (a:User {id : $UserId})-[r:Follows]->(b:User) WHERE r.IsApprovedRequest = true AND r.IsMuted = false RETURN b.id"
 	return repository.GetUsers(ctx, userId, query)
+}
+
+func (repository *followersRepository) CheckIfMuted(ctx context.Context, id string) ([]model.User, error){
+	query := "MATCH (a:User {id : $UserId})-[r:Follows]->(b:User) WHERE r.IsApprovedRequest = true AND r.IsMuted = false RETURN b.id"
+	return repository.GetUsers(ctx, id, query)
 }
 
 func (repository *followersRepository) GetCloseFriends(ctx context.Context, id string) ([]model.User, error){

@@ -73,6 +73,19 @@ func (controller *FollowersGrpcController) GetAllFollowingsForHomepage(ctx conte
 	return &protopb.CreateUserResponse{Users: user.ConvertAllToGrpc(users)}, err
 }
 
+func (controller *FollowersGrpcController) CheckIfMuted(ctx context.Context, in *protopb.Follower) (*protopb.BooleanResponseFollowers, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CheckIfMuted")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	isMuted, err := controller.service.CheckIfMuted(ctx, in.FollowerId, in.UserId)
+	if err != nil {
+		return nil, errors.New("could not get close friends")
+	}
+
+	return &protopb.BooleanResponseFollowers{ Response: isMuted }, nil
+}
+
 func (controller *FollowersGrpcController) GetCloseFriends(ctx context.Context, in *protopb.RequestIdFollowers) (*protopb.CreateUserResponse, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetCloseFriends")
 	defer span.Finish()

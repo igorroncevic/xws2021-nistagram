@@ -81,6 +81,25 @@ func (service *FollowersService) GetAllFollowingsForHomepage(ctx context.Context
 	return service.repository.GetAllFollowingsForHomepage(ctx, userId)
 }
 
+func (service *FollowersService) CheckIfMuted(ctx context.Context, userId string, requestingUserId string) (bool, error) {
+	span := tracer.StartSpanFromContextMetadata(ctx, "CheckIfMuted")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	nonmuteds, err := service.repository.CheckIfMuted(ctx, requestingUserId)
+	if err != nil { return true, err }
+
+	isMuted := true
+	for _, nonmuted := range nonmuteds{
+		if nonmuted.UserId == userId{
+			isMuted = false
+			break
+		}
+	}
+
+	return isMuted, nil
+}
+
 func (service *FollowersService) GetCloseFriends(ctx context.Context, userId string) ([]model.User, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetCloseFriends")
 	defer span.Finish()

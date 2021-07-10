@@ -25,6 +25,7 @@ type FollowersClient interface {
 	GetAllFollowers(ctx context.Context, in *CreateUserRequestFollowers, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	GetAllFollowing(ctx context.Context, in *CreateUserRequestFollowers, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	GetAllFollowingsForHomepage(ctx context.Context, in *CreateUserRequestFollowers, opts ...grpc.CallOption) (*CreateUserResponse, error)
+	CheckIfMuted(ctx context.Context, in *Follower, opts ...grpc.CallOption) (*BooleanResponseFollowers, error)
 	GetCloseFriends(ctx context.Context, in *RequestIdFollowers, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	GetCloseFriendsReversed(ctx context.Context, in *RequestIdFollowers, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	UpdateUserConnection(ctx context.Context, in *CreateFollowerRequest, opts ...grpc.CallOption) (*CreateFollowerResponse, error)
@@ -104,6 +105,15 @@ func (c *followersClient) GetAllFollowingsForHomepage(ctx context.Context, in *C
 	return out, nil
 }
 
+func (c *followersClient) CheckIfMuted(ctx context.Context, in *Follower, opts ...grpc.CallOption) (*BooleanResponseFollowers, error) {
+	out := new(BooleanResponseFollowers)
+	err := c.cc.Invoke(ctx, "/proto.Followers/CheckIfMuted", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *followersClient) GetCloseFriends(ctx context.Context, in *RequestIdFollowers, opts ...grpc.CallOption) (*CreateUserResponse, error) {
 	out := new(CreateUserResponse)
 	err := c.cc.Invoke(ctx, "/proto.Followers/GetCloseFriends", in, out, opts...)
@@ -169,6 +179,7 @@ type FollowersServer interface {
 	GetAllFollowers(context.Context, *CreateUserRequestFollowers) (*CreateUserResponse, error)
 	GetAllFollowing(context.Context, *CreateUserRequestFollowers) (*CreateUserResponse, error)
 	GetAllFollowingsForHomepage(context.Context, *CreateUserRequestFollowers) (*CreateUserResponse, error)
+	CheckIfMuted(context.Context, *Follower) (*BooleanResponseFollowers, error)
 	GetCloseFriends(context.Context, *RequestIdFollowers) (*CreateUserResponse, error)
 	GetCloseFriendsReversed(context.Context, *RequestIdFollowers) (*CreateUserResponse, error)
 	UpdateUserConnection(context.Context, *CreateFollowerRequest) (*CreateFollowerResponse, error)
@@ -202,6 +213,9 @@ func (UnimplementedFollowersServer) GetAllFollowing(context.Context, *CreateUser
 }
 func (UnimplementedFollowersServer) GetAllFollowingsForHomepage(context.Context, *CreateUserRequestFollowers) (*CreateUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllFollowingsForHomepage not implemented")
+}
+func (UnimplementedFollowersServer) CheckIfMuted(context.Context, *Follower) (*BooleanResponseFollowers, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckIfMuted not implemented")
 }
 func (UnimplementedFollowersServer) GetCloseFriends(context.Context, *RequestIdFollowers) (*CreateUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCloseFriends not implemented")
@@ -360,6 +374,24 @@ func _Followers_GetAllFollowingsForHomepage_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Followers_CheckIfMuted_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Follower)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FollowersServer).CheckIfMuted(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Followers/CheckIfMuted",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FollowersServer).CheckIfMuted(ctx, req.(*Follower))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Followers_GetCloseFriends_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RequestIdFollowers)
 	if err := dec(in); err != nil {
@@ -502,6 +534,10 @@ var Followers_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllFollowingsForHomepage",
 			Handler:    _Followers_GetAllFollowingsForHomepage_Handler,
+		},
+		{
+			MethodName: "CheckIfMuted",
+			Handler:    _Followers_CheckIfMuted_Handler,
 		},
 		{
 			MethodName: "GetCloseFriends",
