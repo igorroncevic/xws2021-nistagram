@@ -69,10 +69,10 @@ const Profile = () => {
                 await getUserPrivacy(tempUser.id);
                 await getFollowers(tempUser.id);
                 await getFollowing(tempUser.id);
-                await getPosts(tempUser.id, tempUser.role);
+                const posts = await getPosts(tempUser.id, tempUser.role);
                 let storyAds = [];
                 if(tempUser.role === "Agent" || tempUser.role === "Verified") {
-                   storyAds = await getAds(tempUser.id)
+                   storyAds = await getAds(tempUser.id, posts)
                 }
                 await getStories(tempUser, storyAds);
                 await getHighlights(tempUser.id);
@@ -89,13 +89,14 @@ const Profile = () => {
         if (response.status === 200) {
             setPosts([...response.data.posts])
             if(role !== "Agent" && role !== "Verified") setLoadingPosts(false);
+            return [...response.data.posts]
         } else {
             console.log(response);
             toastService.show("error", "Could not retrieve user's posts.")
         }
     }
 
-    const getAds = async (userId) => {
+    const getAds = async (userId, posts) => {
         const response = await adsService.getAdsFromInfluencer({
             jwt: store.user.jwt,
             userId: userId
