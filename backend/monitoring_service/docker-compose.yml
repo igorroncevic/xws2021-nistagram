@@ -9,7 +9,7 @@ services:
 
   kafka:
     image: wurstmeister/kafka
-    container_name: kafka
+    container_name: kafka_util
     ports:
       - "9092:9092"
     environment:
