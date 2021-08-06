@@ -3,11 +3,11 @@ package controllers
 import (
 	"context"
 	"errors"
-	"github.com/david-drvar/xws2021-nistagram/common/logger"
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/recommendation_service/model"
-	"github.com/david-drvar/xws2021-nistagram/recommendation_service/services"
+	"github.com/igorroncevic/xws2021-nistagram/common/logger"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/recommendation_service/model"
+	"github.com/igorroncevic/xws2021-nistagram/recommendation_service/services"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 )
 
@@ -83,7 +83,7 @@ func (controller *FollowersGrpcController) CheckIfMuted(ctx context.Context, in 
 		return nil, errors.New("could not get close friends")
 	}
 
-	return &protopb.BooleanResponseFollowers{ Response: isMuted }, nil
+	return &protopb.BooleanResponseFollowers{Response: isMuted}, nil
 }
 
 func (controller *FollowersGrpcController) GetCloseFriends(ctx context.Context, in *protopb.RequestIdFollowers) (*protopb.CreateUserResponse, error) {
@@ -179,18 +179,18 @@ func (controller *FollowersGrpcController) CreateUser(ctx context.Context, in *p
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	controller.logger.ToStdoutAndFile("CreateUser", "Create user node attempt for " + in.User.UserId, logger.Info)
+	controller.logger.ToStdoutAndFile("CreateUser", "Create user node attempt for "+in.User.UserId, logger.Info)
 
 	var user = model.User{}
 	user = *user.ConvertFromGrpc(in.User)
 	_, err := controller.service.CreateUser(ctx, user)
 
 	if err != nil {
-		controller.logger.ToStdoutAndFile("CreateUser", "Create user node attempt failed for " + in.User.UserId, logger.Error)
+		controller.logger.ToStdoutAndFile("CreateUser", "Create user node attempt failed for "+in.User.UserId, logger.Error)
 		return &protopb.EmptyResponseFollowers{}, errors.New("could not create User")
 	}
 
-	controller.logger.ToStdoutAndFile("CreateUser", "Create user node attempt successful for " + in.User.UserId, logger.Info)
+	controller.logger.ToStdoutAndFile("CreateUser", "Create user node attempt successful for "+in.User.UserId, logger.Info)
 	return &protopb.EmptyResponseFollowers{}, nil
 }
 
@@ -210,7 +210,7 @@ func (controller *FollowersGrpcController) UpdateUserConnection(ctx context.Cont
 	return &protopb.CreateFollowerResponse{Follower: result.ConvertToGrpc()}, nil
 }
 
-func (controller *FollowersGrpcController)  AcceptFollowRequest(ctx context.Context,in *protopb.CreateFollowerRequest) (*protopb.CreateFollowerResponse, error) {
+func (controller *FollowersGrpcController) AcceptFollowRequest(ctx context.Context, in *protopb.CreateFollowerRequest) (*protopb.CreateFollowerResponse, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "AcceptFollowRequest")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)

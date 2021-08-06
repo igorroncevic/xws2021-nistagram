@@ -1,9 +1,9 @@
 package domain
 
 import (
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/persistence"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

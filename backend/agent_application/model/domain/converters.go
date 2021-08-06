@@ -1,7 +1,7 @@
 package domain
 
 import (
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -12,7 +12,7 @@ func (l LoginRequest) ConvertFromGrpc(request *protopb.LoginRequestAgentApp) Log
 	}
 }
 
-func (s CampaignStats) ConvertToGrpc() *protopb.CampaignStats{
+func (s CampaignStats) ConvertToGrpc() *protopb.CampaignStats {
 	return &protopb.CampaignStats{
 		Id:          s.Id,
 		Name:        s.Name,
@@ -32,7 +32,7 @@ func (s CampaignStats) ConvertToGrpc() *protopb.CampaignStats{
 	}
 }
 
-func (s InfluencerStats) ConvertToGrpc() *protopb.InfluencerStats{
+func (s InfluencerStats) ConvertToGrpc() *protopb.InfluencerStats {
 	return &protopb.InfluencerStats{
 		Id:            s.Id,
 		Username:      s.Username,
@@ -44,7 +44,7 @@ func (s InfluencerStats) ConvertToGrpc() *protopb.InfluencerStats{
 	}
 }
 
-func (a AdStats) ConvertToGrpc() *protopb.AdStats{
+func (a AdStats) ConvertToGrpc() *protopb.AdStats {
 	return &protopb.AdStats{
 		Id:       a.Id,
 		Media:    a.Media,
@@ -58,26 +58,26 @@ func (a AdStats) ConvertToGrpc() *protopb.AdStats{
 	}
 }
 
-func ConvertMultipleAdStatsToGrpc(adStats []AdStats) []*protopb.AdStats{
+func ConvertMultipleAdStatsToGrpc(adStats []AdStats) []*protopb.AdStats {
 	result := []*protopb.AdStats{}
 	for _, ad := range adStats {
-		result =append(result, ad.ConvertToGrpc())
+		result = append(result, ad.ConvertToGrpc())
 	}
 
 	return result
 }
 
-func ConvertMultipleInfluencerStatsToGrpc(influencerStats []InfluencerStats) []*protopb.InfluencerStats{
+func ConvertMultipleInfluencerStatsToGrpc(influencerStats []InfluencerStats) []*protopb.InfluencerStats {
 	result := []*protopb.InfluencerStats{}
 	for _, stat := range influencerStats {
-		result =append(result, stat.ConvertToGrpc())
+		result = append(result, stat.ConvertToGrpc())
 	}
 
 	return result
 }
 
 // FromGrpc
-func (s CampaignStats) ConvertFromGrpc(stats *protopb.CampaignStats) CampaignStats{
+func (s CampaignStats) ConvertFromGrpc(stats *protopb.CampaignStats) CampaignStats {
 	return CampaignStats{
 		Id:          stats.Id,
 		Name:        stats.Name,
@@ -97,7 +97,7 @@ func (s CampaignStats) ConvertFromGrpc(stats *protopb.CampaignStats) CampaignSta
 	}
 }
 
-func (s InfluencerStats) ConvertFromGrpc(stats *protopb.InfluencerStats) InfluencerStats{
+func (s InfluencerStats) ConvertFromGrpc(stats *protopb.InfluencerStats) InfluencerStats {
 	return InfluencerStats{
 		Id:            stats.Id,
 		Username:      stats.Username,
@@ -109,7 +109,7 @@ func (s InfluencerStats) ConvertFromGrpc(stats *protopb.InfluencerStats) Influen
 	}
 }
 
-func (a AdStats) ConvertFromGrpc(stats *protopb.AdStats) AdStats{
+func (a AdStats) ConvertFromGrpc(stats *protopb.AdStats) AdStats {
 	return AdStats{
 		Id:       stats.Id,
 		Media:    stats.Media,
@@ -123,7 +123,7 @@ func (a AdStats) ConvertFromGrpc(stats *protopb.AdStats) AdStats{
 	}
 }
 
-func ConvertMultipleAdStatsFromGrpc(adStats []*protopb.AdStats) []AdStats{
+func ConvertMultipleAdStatsFromGrpc(adStats []*protopb.AdStats) []AdStats {
 	result := []AdStats{}
 	for _, ad := range adStats {
 		var domainStats AdStats
@@ -133,11 +133,11 @@ func ConvertMultipleAdStatsFromGrpc(adStats []*protopb.AdStats) []AdStats{
 	return result
 }
 
-func ConvertMultipleInfluencerStatsFromGrpc(influencerStats []*protopb.InfluencerStats) []InfluencerStats{
+func ConvertMultipleInfluencerStatsFromGrpc(influencerStats []*protopb.InfluencerStats) []InfluencerStats {
 	result := []InfluencerStats{}
 	for _, stat := range influencerStats {
 		var domainStats InfluencerStats
-		result =append(result, domainStats.ConvertFromGrpc(stat))
+		result = append(result, domainStats.ConvertFromGrpc(stat))
 	}
 
 	return result

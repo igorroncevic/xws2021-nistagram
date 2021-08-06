@@ -2,9 +2,9 @@ package services
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/content_service/repositories"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/repositories"
 
 	"gorm.io/gorm"
 )
@@ -40,7 +40,7 @@ func (service *ComplaintService) GetAllContentComplaints(ctx context.Context) ([
 	return service.complaintRepository.GetAllContentComplaints(ctx)
 }
 
-func (service *ComplaintService) RejectById (ctx context.Context, id string) error {
+func (service *ComplaintService) RejectById(ctx context.Context, id string) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RejectById")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)

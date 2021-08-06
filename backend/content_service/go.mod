@@ -1,13 +1,13 @@
-module github.com/david-drvar/xws2021-nistagram/content_service
+module github.com/igorroncevic/xws2021-nistagram/content_service
 
 go 1.16
 
-replace github.com/david-drvar/xws2021-nistagram/content_service => ./content_service
+replace github.com/igorroncevic/xws2021-nistagram/content_service => ./content_service
 
-replace github.com/david-drvar/xws2021-nistagram/common => ./../common
+replace github.com/igorroncevic/xws2021-nistagram/common => ./../common
 
 require (
-	github.com/david-drvar/xws2021-nistagram/common v0.0.1
+	github.com/igorroncevic/xws2021-nistagram/common v0.0.1
 	github.com/dvwright/xss-mw v0.0.0-20191029162136-7a0dab86d8f6 // indirect
 	github.com/gin-gonic/gin v1.7.2 // indirect
 	github.com/google/uuid v1.1.2

@@ -1,13 +1,13 @@
 package main
 
 import (
-	"github.com/david-drvar/xws2021-nistagram/chat_service/controllers"
-	"github.com/david-drvar/xws2021-nistagram/chat_service/util/setup"
-	"github.com/david-drvar/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/chat_service/controllers"
+	"github.com/igorroncevic/xws2021-nistagram/chat_service/util/setup"
+	"github.com/igorroncevic/xws2021-nistagram/common"
 	"os"
 )
 
-func main(){
+func main() {
 	if os.Getenv("Docker_env") == "" {
 		SetupEnvVariables()
 	}
@@ -16,7 +16,7 @@ func main(){
 	if err != nil {
 		panic("Cannot setup database tables. Error message: " + err.Error())
 	}
-	controller , _:= controllers.NewMessageController(db)
+	controller, _ := controllers.NewMessageController(db)
 	setup.ServerSetup(controller)
 }
 

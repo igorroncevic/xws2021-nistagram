@@ -2,9 +2,9 @@ package repositories
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/persistence"
 	"gorm.io/gorm"
 )
 
@@ -23,10 +23,10 @@ func NewCommentRepo(db *gorm.DB) (*commentRepository, error) {
 		panic("CommentRepository not created, gorm.DB is nil")
 	}
 
-	return &commentRepository{ DB: db }, nil
+	return &commentRepository{DB: db}, nil
 }
 
-func (repository *commentRepository) GetCommentsForPost(ctx context.Context, postId string) ([]persistence.Comment, error){
+func (repository *commentRepository) GetCommentsForPost(ctx context.Context, postId string) ([]persistence.Comment, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetCommentsForPost")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -41,7 +41,7 @@ func (repository *commentRepository) GetCommentsForPost(ctx context.Context, pos
 	return comments, nil
 }
 
-func (repository *commentRepository) GetCommentsNumForPost(ctx context.Context, postId string) (int, error){
+func (repository *commentRepository) GetCommentsNumForPost(ctx context.Context, postId string) (int, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetCommentsNumForPost")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -56,7 +56,7 @@ func (repository *commentRepository) GetCommentsNumForPost(ctx context.Context, 
 	return int(comments), nil
 }
 
-func (repository *commentRepository) CreateComment(ctx context.Context, comment domain.Comment) error{
+func (repository *commentRepository) CreateComment(ctx context.Context, comment domain.Comment) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateComment")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)

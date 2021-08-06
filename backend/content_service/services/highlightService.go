@@ -2,9 +2,9 @@ package services
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/content_service/repositories"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/repositories"
 	"gorm.io/gorm"
 )
 
@@ -13,14 +13,16 @@ type HighlightService struct {
 	storyService        *StoryService
 }
 
-func NewHighlightService(db *gorm.DB) (*HighlightService, error){
+func NewHighlightService(db *gorm.DB) (*HighlightService, error) {
 	highlightRepository, err := repositories.NewHighlightRepo(db)
 	if err != nil {
 		return nil, err
 	}
 
 	storyService, err := NewStoryService(db)
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 
 	return &HighlightService{
 		highlightRepository,
@@ -78,9 +80,11 @@ func (service *HighlightService) CreateHighlightStory(ctx context.Context, highl
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	err := service.highlightRepository.CreateHighlightStory(ctx, highlightRequest)
-	if err != nil{ return err }
+	if err != nil {
+		return err
+	}
 
-	return  nil
+	return nil
 }
 func (service *HighlightService) RemoveHighlightStory(ctx context.Context, highlightRequest domain.HighlightRequest) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveHighlightStory")
@@ -88,7 +92,9 @@ func (service *HighlightService) RemoveHighlightStory(ctx context.Context, highl
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	err := service.highlightRepository.RemoveHighlightStory(ctx, highlightRequest)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -99,7 +105,9 @@ func (service *HighlightService) CreateHighlight(ctx context.Context, highlight 
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	dbHighlight, err := service.highlightRepository.CreateHighlight(ctx, highlight)
-	if err != nil { return domain.Highlight{}, err }
+	if err != nil {
+		return domain.Highlight{}, err
+	}
 
 	converted := dbHighlight.ConvertToDomain([]domain.Story{})
 

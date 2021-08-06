@@ -2,12 +2,12 @@ package controllers
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/common"
-	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/content_service/services"
+	"github.com/igorroncevic/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/common/grpc_common"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/services"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -16,7 +16,7 @@ import (
 type FavoritesGrpcController struct {
 	service     *services.FavoritesService
 	postService *services.PostService
-	jwtManager *common.JWTManager
+	jwtManager  *common.JWTManager
 }
 
 func NewFavoritesController(db *gorm.DB, jwtManager *common.JWTManager) (*FavoritesGrpcController, error) {
@@ -45,9 +45,9 @@ func (c *FavoritesGrpcController) GetAllCollections(ctx context.Context, in *pro
 
 	if err != nil {
 		return &protopb.CollectionsArray{}, status.Errorf(codes.Unknown, err.Error())
-	}  else if claims.UserId == "" {
+	} else if claims.UserId == "" {
 		return &protopb.CollectionsArray{}, status.Errorf(codes.InvalidArgument, "no user id provided")
-	}  else if claims.UserId != in.Id {
+	} else if claims.UserId != in.Id {
 		return &protopb.CollectionsArray{}, status.Errorf(codes.Unknown, "cannot get another user's collections")
 	}
 
@@ -74,9 +74,9 @@ func (c *FavoritesGrpcController) GetCollection(ctx context.Context, in *protopb
 
 	if err != nil {
 		return &protopb.Collection{}, status.Errorf(codes.Unknown, "could not retrieve collection")
-	}else if claims.UserId == "" {
+	} else if claims.UserId == "" {
 		return &protopb.Collection{}, status.Errorf(codes.InvalidArgument, "no user id provided")
-	}  else if claims.UserId != in.Id {
+	} else if claims.UserId != in.Id {
 		return &protopb.Collection{}, status.Errorf(codes.Unknown, "cannot get another user's collection")
 	}
 
@@ -98,9 +98,9 @@ func (c *FavoritesGrpcController) GetUserFavorites(ctx context.Context, in *prot
 
 	if err != nil {
 		return &protopb.Favorites{}, status.Errorf(codes.Unknown, "could not retrieve favorites")
-	}else if claims.UserId == "" {
+	} else if claims.UserId == "" {
 		return &protopb.Favorites{}, status.Errorf(codes.InvalidArgument, "no user id provided")
-	}  else if claims.UserId != in.Id {
+	} else if claims.UserId != in.Id {
 		return &protopb.Favorites{}, status.Errorf(codes.Unknown, "cannot get another user's favorites")
 	}
 
@@ -122,9 +122,9 @@ func (c *FavoritesGrpcController) GetUserFavoritesOptimized(ctx context.Context,
 
 	if err != nil {
 		return &protopb.Favorites{}, status.Errorf(codes.Unknown, "could not retrieve favorites")
-	}else if claims.UserId == "" {
+	} else if claims.UserId == "" {
 		return &protopb.Favorites{}, status.Errorf(codes.InvalidArgument, "no user id provided")
-	}  else if claims.UserId != in.Id {
+	} else if claims.UserId != in.Id {
 		return &protopb.Favorites{}, status.Errorf(codes.Unknown, "cannot get another user's favorites")
 	}
 
@@ -146,16 +146,18 @@ func (c *FavoritesGrpcController) CreateFavorite(ctx context.Context, in *protop
 
 	if err != nil {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create favorite")
-	}else if claims.UserId == "" {
+	} else if claims.UserId == "" {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "no user id provided")
-	}  else if claims.UserId != in.UserId {
+	} else if claims.UserId != in.UserId {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot create favorite for another user")
 	}
 
 	post, err := c.postService.GetReducedPostData(ctx, in.PostId)
-	if err != nil { return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot create favorite") }
+	if err != nil {
+		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot create favorite")
+	}
 
-	if post.UserId != claims.UserId{
+	if post.UserId != claims.UserId {
 		following, err := grpc_common.CheckFollowInteraction(ctx, post.UserId, claims.UserId)
 		if err != nil {
 			return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
@@ -172,7 +174,7 @@ func (c *FavoritesGrpcController) CreateFavorite(ctx context.Context, in *protop
 		}
 
 		// If used is blocked or his profile is private and did not approve your request
-		if isBlocked || (!isPublic && !following.IsApprovedRequest ) {
+		if isBlocked || (!isPublic && !following.IsApprovedRequest) {
 			return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
 		}
 	}
@@ -196,9 +198,9 @@ func (c *FavoritesGrpcController) RemoveFavorite(ctx context.Context, in *protop
 
 	if err != nil {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not remove favorite")
-	}else if claims.UserId == "" {
+	} else if claims.UserId == "" {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "no user id provided")
-	}  else if claims.UserId != in.UserId {
+	} else if claims.UserId != in.UserId {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot remove favorite for another user")
 	}
 
@@ -221,9 +223,9 @@ func (c *FavoritesGrpcController) CreateCollection(ctx context.Context, in *prot
 
 	if err != nil {
 		return &protopb.Collection{}, status.Errorf(codes.Unknown, "could not create collection")
-	}else if claims.UserId == "" {
+	} else if claims.UserId == "" {
 		return &protopb.Collection{}, status.Errorf(codes.InvalidArgument, "no user id provided")
-	}  else if claims.UserId != in.UserId {
+	} else if claims.UserId != in.UserId {
 		return &protopb.Collection{}, status.Errorf(codes.Unknown, "cannot create collection for another user")
 	}
 
@@ -247,7 +249,7 @@ func (c *FavoritesGrpcController) RemoveCollection(ctx context.Context, in *prot
 
 	if err != nil {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create favorite")
-	}else if claims.UserId == "" {
+	} else if claims.UserId == "" {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "no user id provided")
 	}
 

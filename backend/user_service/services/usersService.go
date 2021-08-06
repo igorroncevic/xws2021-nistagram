@@ -3,20 +3,15 @@ package services
 import (
 	"context"
 	"errors"
-	"github.com/david-drvar/xws2021-nistagram/common/security"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
-	"github.com/david-drvar/xws2021-nistagram/user_service/repositories"
-	"github.com/david-drvar/xws2021-nistagram/user_service/saga"
-
-	//"github.com/david-drvar/xws2021-nistagram/user_service/saga"
-	"github.com/david-drvar/xws2021-nistagram/user_service/util"
-	"github.com/david-drvar/xws2021-nistagram/user_service/util/encryption"
-	//"github.com/david-drvar/xws2021-nistagram/user_service/util/setup"
-
-	//"github.com/david-drvar/xws2021-nistagram/user_service/util/setup"
+	"github.com/igorroncevic/xws2021-nistagram/common/security"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/repositories"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/saga"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/util"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/util/encryption"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 	"time"
@@ -71,7 +66,6 @@ func (service *UserService) GetUser(ctx context.Context, requestedUserId string)
 		return domain.User{}, err
 	}
 
-	//TODO Get user's additional info
 	var converted *domain.User
 	converted = converted.GenerateUserDTO(dbUser, additionalInfo)
 

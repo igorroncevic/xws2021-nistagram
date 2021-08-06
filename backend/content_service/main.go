@@ -1,24 +1,28 @@
 package main
 
 import (
-	"github.com/david-drvar/xws2021-nistagram/common"
-	"github.com/david-drvar/xws2021-nistagram/common/interceptors/rbac"
-	"github.com/david-drvar/xws2021-nistagram/common/logger"
-	"github.com/david-drvar/xws2021-nistagram/content_service/util/setup"
+	"github.com/igorroncevic/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/common/interceptors/rbac"
+	"github.com/igorroncevic/xws2021-nistagram/common/logger"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/util/setup"
 	"os"
 )
 
-func main(){
+func main() {
 	if os.Getenv("Docker_env") == "" {
 		SetupEnvVariables()
 	}
 
 	db := common.InitDatabase(common.ContentDatabase)
 	err := setup.FillDatabase(db)
-	if err != nil { panic("Cannot setup database tables. Error message: " + err.Error()) }
+	if err != nil {
+		panic("Cannot setup database tables. Error message: " + err.Error())
+	}
 
 	err = rbac.SetupContentRBAC(db)
-	if err != nil { panic("Cannot setup rbac tables. Error message: " + err.Error()) }
+	if err != nil {
+		panic("Cannot setup rbac tables. Error message: " + err.Error())
+	}
 
 	customLogger := logger.NewLogger()
 	setup.GRPCServer(db, customLogger)
@@ -30,4 +34,3 @@ func SetupEnvVariables() {
 	os.Setenv("DB_USER", "postgres")
 	os.Setenv("DB_PW", "root")
 }
-

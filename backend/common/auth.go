@@ -17,8 +17,8 @@ type JWTManager struct {
 	tokenDuration time.Duration
 }
 
-type Credentials struct{
-	Email string `json:"email"`
+type Credentials struct {
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
@@ -29,10 +29,10 @@ type Claims struct {
 }
 
 func NewJWTManager(secretKey string, tokenDuration time.Duration) *JWTManager {
-	return &JWTManager{ secretKey: secretKey, tokenDuration: tokenDuration }
+	return &JWTManager{secretKey: secretKey, tokenDuration: tokenDuration}
 }
 
-func (manager *JWTManager) AuthMiddleware(next http.Handler) http.Handler{
+func (manager *JWTManager) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasSuffix(r.URL.String(), "favicon.ico") {
 			// Allow favicon.ico to load
@@ -41,7 +41,7 @@ func (manager *JWTManager) AuthMiddleware(next http.Handler) http.Handler{
 
 		authHeader := r.Header.Get("Authorization")
 		splitHeader := strings.Split(authHeader, " ")
-		if len(splitHeader) != 2{
+		if len(splitHeader) != 2 {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -49,19 +49,19 @@ func (manager *JWTManager) AuthMiddleware(next http.Handler) http.Handler{
 		jwtString := splitHeader[1]
 		_, err := manager.ValidateJWT(jwtString)
 
-		if err != nil{
+		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
-		}else{
+		} else {
 			next.ServeHTTP(w, r)
 		}
 	})
 }
 
-func (manager *JWTManager) GenerateJwt(id string, role string) (string, error){
+func (manager *JWTManager) GenerateJwt(id string, role string) (string, error) {
 	claims := &Claims{
 		UserId: id,
-		Role: role,
+		Role:   role,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(manager.tokenDuration).Unix(),
 		},
@@ -69,7 +69,6 @@ func (manager *JWTManager) GenerateJwt(id string, role string) (string, error){
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	//log.Println(manager.secretKey, []byte(manager.secretKey))
 	tokenString, err := token.SignedString([]byte(manager.secretKey))
 	if err != nil {
 		// If there is an error in creating the JWT return an internal server error
@@ -79,14 +78,14 @@ func (manager *JWTManager) GenerateJwt(id string, role string) (string, error){
 	return tokenString, nil
 }
 
-func (manager *JWTManager) ValidateJWT(jwtString string) (*Claims, error){
+func (manager *JWTManager) ValidateJWT(jwtString string) (*Claims, error) {
 	if jwtString == "" {
 		return nil, errors.New("unauthorized")
 	}
 
 	// This method will return an error if the token is invalid (if it has expired according to the expiry time
 	// we set on sign in), or if the signature does not match
-	token, err := jwt.ParseWithClaims(jwtString, &Claims{}, func(token *jwt.Token)(interface{}, error){
+	token, err := jwt.ParseWithClaims(jwtString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(manager.secretKey), nil
 	})
 
@@ -98,7 +97,7 @@ func (manager *JWTManager) ValidateJWT(jwtString string) (*Claims, error){
 		return nil, errors.New("bad request")
 	}
 
-	if !token.Valid{
+	if !token.Valid {
 		return nil, errors.New("unauthorized")
 	}
 
@@ -128,7 +127,7 @@ func (manager *JWTManager) ExtractClaimsFromMetadata(ctx context.Context) (*Clai
 	}
 	accessToken := headerParts[1]
 
-	token, _ := jwt.ParseWithClaims(accessToken, &Claims{}, func(token *jwt.Token)(interface{}, error){
+	token, _ := jwt.ParseWithClaims(accessToken, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(manager.secretKey), nil
 	})
 
@@ -141,23 +140,23 @@ func (manager *JWTManager) ExtractClaimsFromMetadata(ctx context.Context) (*Clai
 }
 
 // Create a refresh route?
-func (manager *JWTManager) RefreshJWT(jwtString string) (string, time.Time, int, error){
+func (manager *JWTManager) RefreshJWT(jwtString string) (string, time.Time, int, error) {
 	claims := &Claims{}
 
 	// This method will return an error if the token is invalid (if it has expired according to the expiry time
 	// we set on sign in), or if the signature does not match
-	tkn, err := jwt.ParseWithClaims(jwtString, claims, func(token *jwt.Token)(interface{}, error){
+	tkn, err := jwt.ParseWithClaims(jwtString, claims, func(token *jwt.Token) (interface{}, error) {
 		return jwtString, nil
 	})
 
 	if err != nil {
-		if err == jwt.ErrSignatureInvalid{
+		if err == jwt.ErrSignatureInvalid {
 			return "", time.Now(), http.StatusUnauthorized, errors.New("unauthorized")
 		}
 		return "", time.Now(), http.StatusBadRequest, errors.New("bad request")
 	}
 
-	if !tkn.Valid{
+	if !tkn.Valid {
 		return "", time.Now(), http.StatusUnauthorized, errors.New("unauthorized")
 	}
 
@@ -179,4 +178,3 @@ func (manager *JWTManager) RefreshJWT(jwtString string) (string, time.Time, int,
 
 	return tokenString, expirationTime, http.StatusOK, nil
 }
-

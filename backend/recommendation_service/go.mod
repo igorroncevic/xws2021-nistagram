@@ -1,11 +1,11 @@
-module github.com/david-drvar/xws2021-nistagram/recommendation_service
+module github.com/igorroncevic/xws2021-nistagram/recommendation_service
 
 go 1.16
 
-replace github.com/david-drvar/xws2021-nistagram/common => ./../common
+replace github.com/igorroncevic/xws2021-nistagram/common => ./../common
 
 require (
-	github.com/david-drvar/xws2021-nistagram/common v0.0.1
+	github.com/igorroncevic/xws2021-nistagram/common v0.0.1
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.4.0

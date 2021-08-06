@@ -1,16 +1,17 @@
-module github.com/david-drvar/xws2021-nistagram/user_service
+module github.com/igorroncevic/xws2021-nistagram/user_service
 
 go 1.16
 
-replace github.com/david-drvar/xws2021-nistagram/common => ./../common
+replace github.com/igorroncevic/xws2021-nistagram/common => ./../common
 
 require (
-	github.com/david-drvar/xws2021-nistagram/common v0.0.1
+	github.com/araddon/gou v0.0.0-20190110011759-c797efecbb61 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/google/uuid v1.2.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.4.0
+	github.com/igorroncevic/xws2021-nistagram/common v0.0.1
 	github.com/jackc/pgconn v1.8.1
 	github.com/jackc/pgproto3/v2 v2.0.7 // indirect
 	github.com/lytics/confl v0.0.0-20200313154245-08c6aed5f53f

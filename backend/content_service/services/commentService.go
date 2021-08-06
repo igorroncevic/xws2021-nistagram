@@ -3,10 +3,10 @@ package services
 import (
 	"context"
 	"errors"
-	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/content_service/repositories"
+	"github.com/igorroncevic/xws2021-nistagram/common/grpc_common"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/repositories"
 	"gorm.io/gorm"
 )
 
@@ -15,7 +15,7 @@ type CommentService struct {
 	contentRepository repositories.PostRepository
 }
 
-func NewCommentService(db *gorm.DB) (*CommentService, error){
+func NewCommentService(db *gorm.DB) (*CommentService, error) {
 	commentRepository, err := repositories.NewCommentRepo(db)
 	if err != nil {
 		return nil, err
@@ -73,11 +73,11 @@ func (service CommentService) GetCommentsForPost(ctx context.Context, id string)
 	comments := []domain.Comment{}
 
 	dbComments, err := service.commentRepository.GetCommentsForPost(ctx, id)
-	if err != nil{
+	if err != nil {
 		return comments, err
 	}
 
-	for _, comment := range dbComments{
+	for _, comment := range dbComments {
 		username, err := grpc_common.GetUsernameById(ctx, comment.UserId)
 		if err == nil {
 			comments = append(comments, comment.ConvertToDomain(username))

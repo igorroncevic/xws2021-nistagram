@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/david-drvar/xws2021-nistagram/user_service/util"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/util"
 	"image"
 	"log"
 	"os"

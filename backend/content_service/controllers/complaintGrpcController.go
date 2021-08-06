@@ -2,11 +2,11 @@ package controllers
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/common"
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/content_service/services"
+	"github.com/igorroncevic/xws2021-nistagram/common"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/services"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -70,7 +70,7 @@ func (c *ComplaintGrpcController) GetAllContentComplaints(ctx context.Context, i
 	return &protopb.ContentComplaintArray{ContentComplaints: responseComplaints}, nil
 }
 
-func (c *ComplaintGrpcController) RejectById (ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent,error) {
+func (c *ComplaintGrpcController) RejectById(ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RejectById")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)

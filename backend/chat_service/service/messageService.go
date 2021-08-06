@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/chat_service/model"
-	"github.com/david-drvar/xws2021-nistagram/chat_service/repository"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/chat_service/model"
+	"github.com/igorroncevic/xws2021-nistagram/chat_service/repository"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
 	"gorm.io/gorm"
 )
 
@@ -12,11 +12,11 @@ type MessageService struct {
 	repository repository.MessageRepository
 }
 
-func NewMessageService(db *gorm.DB) (*MessageService, error){
+func NewMessageService(db *gorm.DB) (*MessageService, error) {
 	repository, _ := repository.NewMessageRepository(db)
 	return &MessageService{
 		repository: repository,
-	},nil
+	}, nil
 }
 
 func (s MessageService) SaveMessage(ctx context.Context, message model.Message) error {
@@ -27,7 +27,7 @@ func (s MessageService) SaveMessage(ctx context.Context, message model.Message) 
 	return s.repository.SaveMessage(ctx, message)
 }
 
-func (s MessageService)	DeleteMessage(ctx context.Context, id string) error {
+func (s MessageService) DeleteMessage(ctx context.Context, id string) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteMessage")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -45,7 +45,7 @@ func (s MessageService) GetMessagesForChatRoom(ctx context.Context, roomId strin
 
 }
 
-func (s MessageService) GetChatRoomsForUser(ctx context.Context, userId string) ([]model.ChatRoom, error){
+func (s MessageService) GetChatRoomsForUser(ctx context.Context, userId string) ([]model.ChatRoom, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetChatRoomsForUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -53,7 +53,7 @@ func (s MessageService) GetChatRoomsForUser(ctx context.Context, userId string) 
 	return s.repository.GetChatRoomsForUser(ctx, userId)
 }
 
-func (s MessageService) CreateChatRoom(ctx context.Context, room model.ChatRoom) (*model.ChatRoom, error){
+func (s MessageService) CreateChatRoom(ctx context.Context, room model.ChatRoom) (*model.ChatRoom, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateChatRoom")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)

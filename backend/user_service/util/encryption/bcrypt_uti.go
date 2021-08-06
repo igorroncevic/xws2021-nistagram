@@ -5,7 +5,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func HashAndSalt(password []byte) string{
+func HashAndSalt(password []byte) string {
 	hash, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
 	if err != nil {
 		fmt.Println(err)
@@ -13,6 +13,6 @@ func HashAndSalt(password []byte) string{
 	return string(hash)
 }
 
-func CompareHashAndPassword(hash []byte, password []byte) error{
+func CompareHashAndPassword(hash []byte, password []byte) error {
 	return bcrypt.CompareHashAndPassword(hash, password)
 }

@@ -4,15 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
-	"github.com/david-drvar/xws2021-nistagram/user_service/saga"
-	"github.com/david-drvar/xws2021-nistagram/user_service/util"
-	"github.com/david-drvar/xws2021-nistagram/user_service/util/encryption"
-	"github.com/david-drvar/xws2021-nistagram/user_service/util/images"
 	"github.com/google/uuid"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/saga"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/util"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/util/encryption"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/util/images"
 	"gorm.io/gorm"
 	"time"
 )
@@ -360,7 +360,6 @@ func (repository *userRepository) CreateUserWithAdditionalInfo(ctx context.Conte
 	var userReturn *domain.User
 	userReturn = userReturn.GenerateUserDTO(*user, *userAdditionalInfo)
 
-	//todo SAGA
 	m := saga.Message{Service: saga.ServiceRecommendation, SenderService: saga.ServiceUser, Action: saga.ActionStart, UserId: user.Id}
 	repository.redisServer.Orchestrator.Next(saga.RecommendationChannel, saga.ServiceRecommendation, m)
 

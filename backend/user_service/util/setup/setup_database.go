@@ -1,7 +1,7 @@
 package setup
 
 import (
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/persistence"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +18,7 @@ func FillDatabase(db *gorm.DB) error {
 		&persistence.APIKeys{},
 		&persistence.UserNotification{},
 		&persistence.CampaignRequest{},
-		)
+	)
 
 	return err
 }

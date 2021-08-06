@@ -3,9 +3,9 @@ package repository
 import (
 	"context"
 	"errors"
-	"github.com/david-drvar/xws2021-nistagram/chat_service/model"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/google/uuid"
+	"github.com/igorroncevic/xws2021-nistagram/chat_service/model"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
 	"gorm.io/gorm"
 	"time"
 )
@@ -19,8 +19,8 @@ type MessageRepository interface {
 	CreateMessageRequest(context.Context, *model.MessageRequest) (*model.MessageRequest, error)
 	AcceptMessageRequest(context.Context, model.MessageRequest) error
 	DeclineMessageRequest(context.Context, model.MessageRequest) error
-	GetChatRoomByUsers( context.Context,  model.ChatRoom) (*model.ChatRoom, error)
-	SeenPhotoOrVideo( context.Context,  string) error
+	GetChatRoomByUsers(context.Context, model.ChatRoom) (*model.ChatRoom, error)
+	SeenPhotoOrVideo(context.Context, string) error
 }
 
 type messageRepository struct {
@@ -205,7 +205,7 @@ func (repo *messageRepository) SeenPhotoOrVideo(ctx context.Context, id string) 
 	result := repo.db.Where("id = ?", id).Updates(&model.Message{IsRead: true, IsMediaOpened: true})
 	if result.Error != nil {
 		return errors.New("Something went wrong after seen video")
-	}else if result.RowsAffected == 0 {
+	} else if result.RowsAffected == 0 {
 		return errors.New("Something went wrong after seen video")
 	}
 

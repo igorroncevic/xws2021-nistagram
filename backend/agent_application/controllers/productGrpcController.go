@@ -2,12 +2,12 @@ package controllers
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/agent_application/model/persistence"
-	"github.com/david-drvar/xws2021-nistagram/agent_application/services"
-	"github.com/david-drvar/xws2021-nistagram/common"
-	"github.com/david-drvar/xws2021-nistagram/common/logger"
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/agent_application/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/agent_application/services"
+	"github.com/igorroncevic/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/common/logger"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"

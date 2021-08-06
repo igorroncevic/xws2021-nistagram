@@ -3,15 +3,14 @@ package repositories
 import (
 	"context"
 	"errors"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/persistence"
 	"gorm.io/gorm"
 )
 
 type ApiKeyRepository interface {
-	SaveApiToken( context.Context, *persistence.APIKeys) error
-	GetKeyByUserId( context.Context,  string) (string, error)
-
+	SaveApiToken(context.Context, *persistence.APIKeys) error
+	GetKeyByUserId(context.Context, string) (string, error)
 }
 
 type apiKeyRepository struct {
@@ -26,11 +25,10 @@ func NewApiTokenRepository(db *gorm.DB) (ApiKeyRepository, error) {
 	return &apiKeyRepository{DB: db}, nil
 }
 
-func (repo *apiKeyRepository) SaveApiToken( ctx context.Context, apiKey *persistence.APIKeys) error {
+func (repo *apiKeyRepository) SaveApiToken(ctx context.Context, apiKey *persistence.APIKeys) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "SaveApiToken")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
-
 
 	result := repo.DB.Where("user_id = ?", apiKey.UserId).Delete(&persistence.APIKeys{})
 	if result.Error != nil {
@@ -40,7 +38,7 @@ func (repo *apiKeyRepository) SaveApiToken( ctx context.Context, apiKey *persist
 	result = repo.DB.Create(&apiKey)
 	if result.Error != nil {
 		return result.Error
-	}else if result.RowsAffected == 0 {
+	} else if result.RowsAffected == 0 {
 		return errors.New("Could not save api key!")
 	}
 	return nil
@@ -59,6 +57,3 @@ func (repo *apiKeyRepository) GetKeyByUserId(ctx context.Context, id string) (st
 
 	return key.APIKey, nil
 }
-
-
-

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/david-drvar/xws2021-nistagram/common"
-	"github.com/david-drvar/xws2021-nistagram/common/interceptors/rbac"
-	"github.com/david-drvar/xws2021-nistagram/user_service/util/setup"
+	"github.com/igorroncevic/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/common/interceptors/rbac"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/util/setup"
 	"os"
 )
 

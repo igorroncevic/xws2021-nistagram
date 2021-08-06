@@ -1,9 +1,9 @@
 package setup
 
 import (
-	"github.com/david-drvar/xws2021-nistagram/chat_service/controllers"
-	"github.com/david-drvar/xws2021-nistagram/common"
 	"github.com/gorilla/mux"
+	"github.com/igorroncevic/xws2021-nistagram/chat_service/controllers"
+	"github.com/igorroncevic/xws2021-nistagram/common"
 	"net/http"
 )
 

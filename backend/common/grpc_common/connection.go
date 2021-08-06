@@ -2,8 +2,8 @@ package grpc_common
 
 import (
 	"context"
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
 	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
 	otgo "github.com/opentracing/opentracing-go"
 	"google.golang.org/grpc"
 	"log"
@@ -18,9 +18,9 @@ func CreateGrpcConnection(address string) (*grpc.ClientConn, error) {
 		grpc.WithBlock(),
 		grpc.WithInsecure(),
 		grpc.WithDefaultCallOptions(
-			grpc.MaxCallSendMsgSize(4 << 30),
-			grpc.MaxCallRecvMsgSize(4 << 30),
-			),
+			grpc.MaxCallSendMsgSize(4<<30),
+			grpc.MaxCallRecvMsgSize(4<<30),
+		),
 		grpc.WithUnaryInterceptor(
 			grpc_opentracing.UnaryClientInterceptor(
 				grpc_opentracing.WithTracer(otgo.GlobalTracer()),
@@ -35,7 +35,7 @@ func CreateGrpcConnection(address string) (*grpc.ClientConn, error) {
 }
 
 // MUST use defer outside the function, not in it
-func GetClientConnection(address string) (*grpc.ClientConn, error){
+func GetClientConnection(address string) (*grpc.ClientConn, error) {
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("could not connect to %s ", err)
@@ -44,15 +44,15 @@ func GetClientConnection(address string) (*grpc.ClientConn, error){
 	return conn, err
 }
 
-func GetFollowersClient(conn *grpc.ClientConn) protopb.FollowersClient{
+func GetFollowersClient(conn *grpc.ClientConn) protopb.FollowersClient {
 	return protopb.NewFollowersClient(conn)
 }
 
-func GetUsersClient(conn *grpc.ClientConn) protopb.UsersClient{
+func GetUsersClient(conn *grpc.ClientConn) protopb.UsersClient {
 	return protopb.NewUsersClient(conn)
 }
 
-func GetPrivacyClient(conn *grpc.ClientConn) protopb.PrivacyClient{
+func GetPrivacyClient(conn *grpc.ClientConn) protopb.PrivacyClient {
 	return protopb.NewPrivacyClient(conn)
 }
 

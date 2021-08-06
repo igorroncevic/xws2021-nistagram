@@ -2,19 +2,19 @@ package controllers
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/common"
-	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/content_service/services"
+	"github.com/igorroncevic/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/common/grpc_common"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/services"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
 
 type CommentGrpcController struct {
-	service 	*services.CommentService
+	service     *services.CommentService
 	postService *services.PostService
 	jwtManager  *common.JWTManager
 }
@@ -48,7 +48,7 @@ func (s *CommentGrpcController) CreateComment(ctx context.Context, in *protopb.C
 
 	if claims.UserId == "" {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unauthenticated, "cannot create comment")
-	}else if comment.UserId != claims.UserId{
+	} else if comment.UserId != claims.UserId {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "cannot create comment for someone else")
 	}
 
@@ -71,21 +71,29 @@ func (s *CommentGrpcController) GetCommentsForPost(ctx context.Context, id strin
 		return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
-	if claims.UserId == ""{
+	if claims.UserId == "" {
 		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, post.UserId)
-		if err != nil { return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, err.Error()) }
-		if !isPublic{
+		if err != nil {
+			return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, err.Error())
+		}
+		if !isPublic {
 			return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, "this post is not public")
 		}
-	}else if claims.UserId != post.UserId{
+	} else if claims.UserId != post.UserId {
 		following, err := grpc_common.CheckFollowInteraction(ctx, post.UserId, claims.UserId)
-		if err != nil { return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, err.Error()) }
+		if err != nil {
+			return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, err.Error())
+		}
 
 		isPublic, err := grpc_common.CheckIfPublicProfile(ctx, post.UserId)
-		if err != nil { return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, err.Error()) }
+		if err != nil {
+			return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, err.Error())
+		}
 
 		isBlocked, err := grpc_common.CheckIfBlocked(ctx, post.UserId, claims.UserId)
-		if err != nil { return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, err.Error()) }
+		if err != nil {
+			return &protopb.CommentsArray{}, status.Errorf(codes.Unknown, err.Error())
+		}
 
 		if (!following.IsApprovedRequest && !isPublic) || isBlocked {
 			return &protopb.CommentsArray{}, status.Errorf(codes.PermissionDenied, "cannot access this post")

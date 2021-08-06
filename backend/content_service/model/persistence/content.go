@@ -1,7 +1,7 @@
 package persistence
 
 import (
-	"github.com/david-drvar/xws2021-nistagram/content_service/model"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model"
 	"time"
 )
 
@@ -88,41 +88,41 @@ type RegistrationRequest struct {
 }
 
 type Ad struct {
-	Id           string `gorm:"primaryKey"`
-	Link         string
-	CampaignId   string
-	PostId       string
-	LinkClicks   int
-	Type		 string
+	Id         string `gorm:"primaryKey"`
+	Link       string
+	CampaignId string
+	PostId     string
+	LinkClicks int
+	Type       string
 }
 
 type Campaign struct {
 	Id           string `gorm:"primaryKey"`
-	Name		 string
+	Name         string
 	IsOneTime    bool
 	StartDate    time.Time
 	EndDate      time.Time
-	StartTime	 int
-	EndTime		 int
+	StartTime    int
+	EndTime      int
 	Placements   int
 	AgentId      string
 	AdCategoryId string
 	LastUpdated  time.Time
-	Type		 string
+	Type         string
 }
 
 // Only dates and categories can be made
 type CampaignChanges struct {
-	Id			 string `gorm:"primaryKey"`
+	Id           string `gorm:"primaryKey"`
 	CampaignId   string
-	Name		 string
+	Name         string
 	AdCategoryId string
 	StartDate    time.Time
 	EndDate      time.Time
-	StartTime	 int
-	EndTime		 int
-	Applied 	 bool
-	ValidFrom	 time.Time
+	StartTime    int
+	EndTime      int
+	Applied      bool
+	ValidFrom    time.Time
 }
 
 type CampaignInfluencerRequest struct {
@@ -133,8 +133,6 @@ type CampaignInfluencerRequest struct {
 	Status       model.RequestStatus
 	PostAt       time.Time
 }
-
-
 
 type ContentComplaint struct {
 	Id       string `gorm:"primaryKey"`

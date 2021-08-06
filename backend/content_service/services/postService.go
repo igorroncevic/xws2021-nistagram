@@ -5,12 +5,12 @@ import (
 	"errors"
 	"log"
 
-	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
-	"github.com/david-drvar/xws2021-nistagram/content_service/repositories"
+	"github.com/igorroncevic/xws2021-nistagram/common/grpc_common"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/repositories"
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
 )
@@ -122,7 +122,7 @@ func (service *PostService) CreatePost(ctx context.Context, post *domain.Post) e
 		return errors.New("cannot create empty post")
 	}
 
-	_, err :=  service.postRepository.CreatePost(ctx, post)
+	_, err := service.postRepository.CreatePost(ctx, post)
 	if err != nil {
 		return err
 	}
@@ -208,7 +208,6 @@ func (service *PostService) GetPostById(ctx context.Context, id string) (domain.
 	if err != nil {
 		return domain.Post{}, err
 	}
-
 
 	dbMedia, err := service.mediaRepository.GetMediaForPost(ctx, dbPost.Id)
 	if err != nil {
@@ -430,7 +429,7 @@ func (service *PostService) GetPostsForUser(ctx context.Context, id string) ([]d
 	res, err := grpc_common.CheckIsActive(ctx, id)
 	if err != nil {
 		return nil, err
-	}else if res == false {
+	} else if res == false {
 		return nil, errors.New("User is not active!")
 	}
 

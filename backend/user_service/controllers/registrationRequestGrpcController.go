@@ -2,26 +2,26 @@ package controllers
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/common"
-	"github.com/david-drvar/xws2021-nistagram/common/logger"
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
-	"github.com/david-drvar/xws2021-nistagram/user_service/saga"
-	"github.com/david-drvar/xws2021-nistagram/user_service/services"
+	"github.com/igorroncevic/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/common/logger"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/saga"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/services"
 	"gorm.io/gorm"
 )
 
 type RegistrationRequestController struct {
-	service    *services.RegistrationRequestService
+	service       *services.RegistrationRequestService
 	apiKeyService *services.ApiKeyService
-	jwtManager *common.JWTManager
-	logger     *logger.Logger
+	jwtManager    *common.JWTManager
+	logger        *logger.Logger
 }
 
 func NewRegistrationRequestController(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger, redis *saga.RedisServer) (*RegistrationRequestController, error) {
-	service, err := services.NewRegistrationRequestService(db,redis)
+	service, err := services.NewRegistrationRequestService(db, redis)
 	if err != nil {
 		return nil, err
 	}
@@ -69,5 +69,5 @@ func (controller *RegistrationRequestController) GetAllPendingRequests(ctx conte
 
 	}
 
-	return &protopb.ResponseRequests{RegistrationRequests : retVal}, nil
+	return &protopb.ResponseRequests{RegistrationRequests: retVal}, nil
 }

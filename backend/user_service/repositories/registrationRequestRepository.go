@@ -3,10 +3,10 @@ package repositories
 import (
 	"context"
 	"errors"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
-	"github.com/david-drvar/xws2021-nistagram/user_service/saga"
 	"github.com/google/uuid"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/saga"
 	"gorm.io/gorm"
 	"time"
 )
@@ -14,14 +14,12 @@ import (
 type RegistrationRequestRepository interface {
 	CreateRegistrationRequest(context.Context, string) error
 	GetAllPendingRequests(context.Context) ([]persistence.RegistrationRequest, error)
-	UpdateRequest(context.Context, persistence.RegistrationRequest) (*persistence.RegistrationRequest,error)
-
+	UpdateRequest(context.Context, persistence.RegistrationRequest) (*persistence.RegistrationRequest, error)
 }
 
 type registrationRequestRepository struct {
-	DB                *gorm.DB
-	redisServer       saga.RedisServer
-
+	DB          *gorm.DB
+	redisServer saga.RedisServer
 }
 
 func NewRegistrationRequestRepo(db *gorm.DB, redisServer *saga.RedisServer) (*registrationRequestRepository, error) {
@@ -31,15 +29,15 @@ func NewRegistrationRequestRepo(db *gorm.DB, redisServer *saga.RedisServer) (*re
 	return &registrationRequestRepository{DB: db, redisServer: *redisServer}, nil
 }
 
-func (repo *registrationRequestRepository) 	CreateRegistrationRequest(ctx context.Context, userId  string) error{
+func (repo *registrationRequestRepository) CreateRegistrationRequest(ctx context.Context, userId string) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateRegistrationRequest")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	result := repo.DB.Create(&persistence.RegistrationRequest{CreatedAt: time.Now(),Id:uuid.New().String(), UserId: userId, Status: "Pending"})
+	result := repo.DB.Create(&persistence.RegistrationRequest{CreatedAt: time.Now(), Id: uuid.New().String(), UserId: userId, Status: "Pending"})
 	if result.Error != nil {
 		return errors.New("Could not create registration request!")
-	}else if result.RowsAffected != 1 {
+	} else if result.RowsAffected != 1 {
 		return errors.New("Could not create registration request!")
 	}
 
@@ -59,7 +57,7 @@ func (repo *registrationRequestRepository) GetAllPendingRequests(ctx context.Con
 	return requests, nil
 }
 
-func (repo *registrationRequestRepository) 	UpdateRequest(ctx context.Context, request persistence.RegistrationRequest) (*persistence.RegistrationRequest, error){
+func (repo *registrationRequestRepository) UpdateRequest(ctx context.Context, request persistence.RegistrationRequest) (*persistence.RegistrationRequest, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateRequest")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -67,7 +65,7 @@ func (repo *registrationRequestRepository) 	UpdateRequest(ctx context.Context, r
 	result := repo.DB.Where("id = ?", request.Id).Updates(&persistence.RegistrationRequest{Status: request.Status})
 	if result.Error != nil {
 		return nil, errors.New("Could not update request")
-	}else if result.RowsAffected == 0 {
+	} else if result.RowsAffected == 0 {
 		return nil, errors.New("Could not update request")
 	}
 	result = repo.DB.Where("id = ?", request.Id).Find(&request)

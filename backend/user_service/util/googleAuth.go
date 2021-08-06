@@ -16,7 +16,7 @@ type GoogleClaims struct {
 	EmailVerified bool   `json:"email_verified"`
 	FirstName     string `json:"given_name"`
 	LastName      string `json:"family_name"`
-	Sub			  string `json:"sub"`
+	Sub           string `json:"sub"`
 	jwt.StandardClaims
 }
 
@@ -28,7 +28,7 @@ type GoogleAuthCredentials struct {
 func loadGoogleCredentials() GoogleAuthCredentials {
 	var googleAuthCredentials GoogleAuthCredentials
 	if _, err := confl.DecodeFile("./googleauth.conf", &googleAuthCredentials); err != nil {
-		panic(err)	// TODO Don't panic bro
+		panic(err) // TODO Don't panic bro
 	}
 	return googleAuthCredentials
 }

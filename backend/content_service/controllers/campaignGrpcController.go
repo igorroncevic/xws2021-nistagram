@@ -3,19 +3,19 @@ package controllers
 import (
 	"context"
 	"errors"
-	"github.com/david-drvar/xws2021-nistagram/common"
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/content_service/services"
+	"github.com/igorroncevic/xws2021-nistagram/common"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/services"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
 
 type CampaignGrpcController struct {
-	service 	*services.CampaignService
-	jwtManager  *common.JWTManager
+	service    *services.CampaignService
+	jwtManager *common.JWTManager
 }
 
 func NewCampaignController(db *gorm.DB, jwtManager *common.JWTManager) (*CampaignGrpcController, error) {
@@ -37,7 +37,9 @@ func (controller *CampaignGrpcController) GetCampaign(ctx context.Context, in *p
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	campaign, err := controller.service.GetCampaign(ctx, in.Id)
-	if err != nil { return &protopb.Campaign{}, err }
+	if err != nil {
+		return &protopb.Campaign{}, err
+	}
 
 	return campaign.ConvertToGrpc(), nil
 }
@@ -49,10 +51,12 @@ func (controller *CampaignGrpcController) GetCampaigns(ctx context.Context, in *
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	campaigns, err := controller.service.GetCampaigns(ctx, claims.UserId)
-	if err != nil { return &protopb.CampaignArray{}, err }
+	if err != nil {
+		return &protopb.CampaignArray{}, err
+	}
 
 	responseCampaigns := []*protopb.Campaign{}
-	for _, campaign := range campaigns{
+	for _, campaign := range campaigns {
 		responseCampaigns = append(responseCampaigns, campaign.ConvertToGrpc())
 	}
 
@@ -71,7 +75,9 @@ func (controller *CampaignGrpcController) CreateCampaign(ctx context.Context, in
 	campaign = campaign.ConvertFromGrpc(in)
 
 	err := controller.service.CreateCampaign(ctx, campaign)
-	if err != nil { return &protopb.EmptyResponseContent{}, err }
+	if err != nil {
+		return &protopb.EmptyResponseContent{}, err
+	}
 
 	return &protopb.EmptyResponseContent{}, nil
 }
@@ -90,7 +96,9 @@ func (controller *CampaignGrpcController) UpdateCampaign(ctx context.Context, in
 	}
 
 	err := controller.service.UpdateCampaign(ctx, campaign)
-	if err != nil { return &protopb.EmptyResponseContent{}, err }
+	if err != nil {
+		return &protopb.EmptyResponseContent{}, err
+	}
 
 	return &protopb.EmptyResponseContent{}, nil
 }
@@ -102,11 +110,12 @@ func (controller *CampaignGrpcController) DeleteCampaign(ctx context.Context, in
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	err := controller.service.DeleteCampaign(ctx, in.Id)
-	if err != nil { return &protopb.EmptyResponseContent{}, err }
+	if err != nil {
+		return &protopb.EmptyResponseContent{}, err
+	}
 
 	return &protopb.EmptyResponseContent{}, nil
 }
-
 
 func (controller *CampaignGrpcController) GetCampaignStats(ctx context.Context, in *protopb.RequestId) (*protopb.CampaignStats, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetCampaignStats")
@@ -115,7 +124,9 @@ func (controller *CampaignGrpcController) GetCampaignStats(ctx context.Context, 
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	stats, err := controller.service.GetCampaignStatistics(ctx, claims.UserId, in.Id)
-	if err != nil { return &protopb.CampaignStats{}, err }
+	if err != nil {
+		return &protopb.CampaignStats{}, err
+	}
 
 	return stats.ConvertToGrpc(), nil
 }

@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"github.com/david-drvar/xws2021-nistagram/content_service/model"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model"
 	"time"
 )
 
@@ -14,7 +14,7 @@ type Objava struct {
 	Location    string
 	CreatedAt   time.Time
 	Media       []Media
-	Hashtags 	[]Hashtag
+	Hashtags    []Hashtag
 }
 
 type Post struct {
@@ -124,37 +124,36 @@ type HighlightRequest struct {
 	StoryId     string
 }
 
-
 type RegistrationRequest struct {
 	Id        string
 	UserId    string
 	CreatedAt time.Time
 	Status    model.RequestStatus
-	Username string
+	Username  string
 }
 
 type Ad struct {
-	Id 			 string
-	Link 		 string
-	CampaignId   string
-	Post 		 Post
-	LinkClicks   int
+	Id         string
+	Link       string
+	CampaignId string
+	Post       Post
+	LinkClicks int
 }
 
 type Campaign struct {
-	Id 			 string
-	Name		 string
-	IsOneTime 	 bool
-	StartDate 	 time.Time
-	EndDate 	 time.Time
-	StartTime	 int
-	EndTime		 int
-	Placements   int
-	AgentId 	 string
-	Category	 AdCategory
-	LastUpdated  time.Time
-	Ads			 []Ad
-	Type		 model.PostType
+	Id          string
+	Name        string
+	IsOneTime   bool
+	StartDate   time.Time
+	EndDate     time.Time
+	StartTime   int
+	EndTime     int
+	Placements  int
+	AgentId     string
+	Category    AdCategory
+	LastUpdated time.Time
+	Ads         []Ad
+	Type        model.PostType
 }
 
 type CampaignInfluencerRequest struct {
@@ -180,50 +179,50 @@ type AdCategory struct {
 }
 
 type CampaignChanges struct {
-	CampaignId 	 string
-	Name		 string
+	CampaignId   string
+	Name         string
 	AdCategoryId string
-	StartDate 	 time.Time
-	EndDate		 time.Time
+	StartDate    time.Time
+	EndDate      time.Time
 	PlacementNum int
 }
 
 type CampaignStats struct {
-	Id 			 string
-	Name		 string
-	IsOneTime 	 bool
-	StartDate 	 time.Time
-	EndDate 	 time.Time
-	StartTime	 int
-	EndTime		 int
-	Placements   int
-	Category	 string
-	Type		 string
-	Influencers	 []InfluencerStats
-	Likes	 	 int
-	Dislikes 	 int
-	Comments 	 int
-	Clicks   	 int
+	Id          string
+	Name        string
+	IsOneTime   bool
+	StartDate   time.Time
+	EndDate     time.Time
+	StartTime   int
+	EndTime     int
+	Placements  int
+	Category    string
+	Type        string
+	Influencers []InfluencerStats
+	Likes       int
+	Dislikes    int
+	Comments    int
+	Clicks      int
 }
 
 type AdStats struct {
-	Id 		 string
+	Id       string
 	Media    []string
-	Type	 string
+	Type     string
 	Hashtags []string
 	Location string
-	Likes	 int
+	Likes    int
 	Dislikes int
 	Comments int
 	Clicks   int
 }
 
 type InfluencerStats struct {
-	Id				string
-	Username		string
-	Ads			    []AdStats
-	TotalLikes		int
-	TotalDislikes	int
-	TotalComments	int
-	TotalClicks		int
+	Id            string
+	Username      string
+	Ads           []AdStats
+	TotalLikes    int
+	TotalDislikes int
+	TotalComments int
+	TotalClicks   int
 }

@@ -3,21 +3,21 @@ package repositories
 import (
 	"context"
 	"errors"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
 	"github.com/google/uuid"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/persistence"
 	"gorm.io/gorm"
 	"time"
 )
 
 type NotificationRepository interface {
 	CreateNotification(context.Context, *persistence.UserNotification) error
-	GetUserNotifications( context.Context,  string) ([]persistence.UserNotification, error)
-	DeleteNotification(context.Context, string ) (bool, error)
-	ReadAllNotifications( context.Context,  string) error
+	GetUserNotifications(context.Context, string) ([]persistence.UserNotification, error)
+	DeleteNotification(context.Context, string) (bool, error)
+	ReadAllNotifications(context.Context, string) error
 	DeleteByTypeAndCreator(ctx context.Context, notification *persistence.UserNotification) error
 	UpdateNotification(ctx context.Context, notification *persistence.UserNotification) error
-	GetByTypeAndCreator( context.Context, *persistence.UserNotification) (*persistence.UserNotification, error)
+	GetByTypeAndCreator(context.Context, *persistence.UserNotification) (*persistence.UserNotification, error)
 }
 type notificationRepository struct {
 	DB *gorm.DB
@@ -54,23 +54,21 @@ func (repository *notificationRepository) CreateNotification(ctx context.Context
 func (repository *notificationRepository) CheckIfAlreadyExists(notification *persistence.UserNotification) error {
 	var checkNotification *persistence.UserNotification
 
-	if notification.Type!="Comment" {
+	if notification.Type != "Comment" {
 		repository.DB.Where("creator_id = ?", notification.CreatorId).Where("type = ?", notification.Type).Where("user_id = ?", notification.UserId).Find(&checkNotification)
-		if checkNotification.NotificationId != "" && (notification.Type=="FollowPublic" || notification.Type=="FollowPrivate"){
+		if checkNotification.NotificationId != "" && (notification.Type == "FollowPublic" || notification.Type == "FollowPrivate") {
 			return errors.New("Notification already exists")
 		}
 		repository.DB.Where("creator_id = ?", notification.CreatorId).Where("type = ?", "Like").Where("content_id = ?", notification.ContentId).Find(&checkNotification)
-		if checkNotification.NotificationId != "" && notification.Type=="Like"{
+		if checkNotification.NotificationId != "" && notification.Type == "Like" {
 			return errors.New("Notification already exists")
 		}
 		repository.DB.Where("creator_id = ?", notification.CreatorId).Where("type = ?", "Dislike").Where("content_id = ?", notification.ContentId).Find(&checkNotification)
-		if checkNotification.NotificationId != "" && notification.Type=="Dislike"{
+		if checkNotification.NotificationId != "" && notification.Type == "Dislike" {
 			return errors.New("Notification already exists")
 		}
 
 	}
-
-
 
 	return nil
 }
@@ -80,7 +78,7 @@ func (repository *notificationRepository) ReadAllNotifications(ctx context.Conte
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	result := repository.DB.Model(&persistence.UserNotification{}).Where("user_id = ?", userId ).Updates(persistence.UserNotification{IsRead: true})
+	result := repository.DB.Model(&persistence.UserNotification{}).Where("user_id = ?", userId).Updates(persistence.UserNotification{IsRead: true})
 	if result.Error != nil {
 		return errors.New("Could not read notifications!")
 	}
@@ -88,7 +86,7 @@ func (repository *notificationRepository) ReadAllNotifications(ctx context.Conte
 	return nil
 }
 
-func (repository *notificationRepository) GetUserNotifications(ctx context.Context,userId string) ([]persistence.UserNotification, error){
+func (repository *notificationRepository) GetUserNotifications(ctx context.Context, userId string) ([]persistence.UserNotification, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetUserNotifications")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -156,7 +154,7 @@ func (repository *notificationRepository) UpdateNotification(ctx context.Context
 	db := repository.DB.Model(&notification).Where("notification_id = ?", notification.NotificationId).Updates(persistence.UserNotification{Type: notification.Type, Text: notification.Text, CreatedAt: time.Now()})
 	if db.Error != nil {
 		return errors.New("Could not update notification!")
-	}else if db.RowsAffected == 0 {
+	} else if db.RowsAffected == 0 {
 		return errors.New("Could not update notification! Rows affected 0")
 	}
 

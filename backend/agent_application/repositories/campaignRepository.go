@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/beevik/etree"
-	"github.com/david-drvar/xws2021-nistagram/agent_application/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/agent_application/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
 	"gorm.io/gorm"
 )
 
@@ -25,7 +25,7 @@ func NewCampaignRepo(db *gorm.DB) (*campaignRepository, error) {
 	return &campaignRepository{DB: db}, nil
 }
 
-func (repository *campaignRepository) CreateCampaignReport(ctx context.Context, stats domain.CampaignStats) error{
+func (repository *campaignRepository) CreateCampaignReport(ctx context.Context, stats domain.CampaignStats) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateCampaignReport")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -73,7 +73,7 @@ func (repository *campaignRepository) CreateCampaignReport(ctx context.Context, 
 
 	influencers := campaign.CreateElement("influencers")
 	influencers.CreateText("Influencer stats")
-	for _, influencer := range stats.Influencers{
+	for _, influencer := range stats.Influencers {
 		singleInfluencer := influencers.CreateElement("influencer")
 		singleInfluencer.CreateAttr("id", influencer.Id)
 
@@ -91,7 +91,7 @@ func (repository *campaignRepository) CreateCampaignReport(ctx context.Context, 
 
 		ads := singleInfluencer.CreateElement("ads")
 		ads.CreateText(influencer.Username + "'s ads")
-		for _, ad := range influencer.Ads{
+		for _, ad := range influencer.Ads {
 			singleAd := ads.CreateElement("ad")
 			singleAd.CreateAttr("id", ad.Id)
 
@@ -104,15 +104,15 @@ func (repository *campaignRepository) CreateCampaignReport(ctx context.Context, 
 			hashtags := singleAd.CreateElement("hashtags")
 			if len(ad.Hashtags) == 0 {
 				hashtags.CreateText(" None")
-			}else{
+			} else {
 				hashtagsText := "Hashtags:"
-				for _, hashtag := range ad.Hashtags{
+				for _, hashtag := range ad.Hashtags {
 					hashtagsText += " #" + hashtag
 				}
 				hashtags.CreateText(hashtagsText)
 			}
 
-			if ad.Type == "Post"{
+			if ad.Type == "Post" {
 				likes := singleAd.CreateElement("likes")
 				likes.CreateText(fmt.Sprintf("Number of likes on this ad: %d", ad.Likes))
 

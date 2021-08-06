@@ -3,20 +3,20 @@ package repositories
 import (
 	"context"
 	"errors"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/persistence"
 	"gorm.io/gorm"
 )
 
 type PrivacyRepository interface {
-	CreatePrivacy(context.Context, *persistence.Privacy) 	(persistence.Privacy, error)
-	UpdatePrivacy(context.Context, *persistence.Privacy) 	(bool, error)
-	BlockUser(context.Context, *persistence.BlockedUsers) 	(bool, error)
+	CreatePrivacy(context.Context, *persistence.Privacy) (persistence.Privacy, error)
+	UpdatePrivacy(context.Context, *persistence.Privacy) (bool, error)
+	BlockUser(context.Context, *persistence.BlockedUsers) (bool, error)
 	UnBlockUser(context.Context, *persistence.BlockedUsers) (bool, error)
-	CheckIfBlocked(context.Context, string, string) 		(bool, error)
-	GetUserPrivacy(context.Context, string) 				(*persistence.Privacy, error)
-	GetAlLPublicUsers(context.Context) 						([]persistence.Privacy, error)
-	GetBlockedUsers(context.Context, string)     ([]persistence.BlockedUsers, error)
+	CheckIfBlocked(context.Context, string, string) (bool, error)
+	GetUserPrivacy(context.Context, string) (*persistence.Privacy, error)
+	GetAlLPublicUsers(context.Context) ([]persistence.Privacy, error)
+	GetBlockedUsers(context.Context, string) ([]persistence.BlockedUsers, error)
 }
 
 type privacyRepository struct {
@@ -111,9 +111,9 @@ func (repository *privacyRepository) UpdatePrivacy(ctx context.Context, p *persi
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	if err := repository.DB.Model(&p).Updates(map[string]interface{}{
-		"is_tag_enabled":          p.IsTagEnabled,
+		"is_tag_enabled":    p.IsTagEnabled,
 		"is_profile_public": p.IsProfilePublic,
-		"is_dm_public": p.IsDMPublic,
+		"is_dm_public":      p.IsDMPublic,
 	}).Error; err != nil {
 		return false, err
 	}
@@ -135,7 +135,7 @@ func (repository *privacyRepository) GetUserPrivacy(ctx context.Context, userId 
 	return &privacy, nil
 }
 
-func (repository *privacyRepository) GetAlLPublicUsers(ctx context.Context) ([]persistence.Privacy, error){
+func (repository *privacyRepository) GetAlLPublicUsers(ctx context.Context) ([]persistence.Privacy, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAlLPublicUsers")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -146,8 +146,6 @@ func (repository *privacyRepository) GetAlLPublicUsers(ctx context.Context) ([]p
 	if db.Error != nil {
 		return nil, nil
 	}
-
-
 
 	return privacies, nil
 }

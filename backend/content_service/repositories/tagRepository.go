@@ -2,16 +2,16 @@ package repositories
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/persistence"
 	"gorm.io/gorm"
 )
 
 type TagRepository interface {
 	GetTagsForMedia(context.Context, string) ([]domain.Tag, error)
 	CreateTag(context.Context, domain.Tag) error
-    RemoveTag(context.Context, persistence.Tag) error
+	RemoveTag(context.Context, persistence.Tag) error
 }
 
 type tagRepository struct {
@@ -23,10 +23,10 @@ func NewTagRepo(db *gorm.DB) (*tagRepository, error) {
 		panic("TagRepository not created, gorm.DB is nil")
 	}
 
-	return &tagRepository{ DB: db }, nil
+	return &tagRepository{DB: db}, nil
 }
 
-func (repository *tagRepository) GetTagsForMedia(ctx context.Context, mediaId string) ([]domain.Tag, error){
+func (repository *tagRepository) GetTagsForMedia(ctx context.Context, mediaId string) ([]domain.Tag, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetTagsForMedia")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -45,7 +45,7 @@ func (repository *tagRepository) GetTagsForMedia(ctx context.Context, mediaId st
 	return tags, nil
 }
 
-func (repository *tagRepository) CreateTag(ctx context.Context, tag domain.Tag) error{
+func (repository *tagRepository) CreateTag(ctx context.Context, tag domain.Tag) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateTag")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -62,7 +62,7 @@ func (repository *tagRepository) CreateTag(ctx context.Context, tag domain.Tag) 
 	return nil
 }
 
-func (repository *tagRepository) RemoveTag(ctx context.Context, tag persistence.Tag) error{
+func (repository *tagRepository) RemoveTag(ctx context.Context, tag persistence.Tag) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveTag")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)

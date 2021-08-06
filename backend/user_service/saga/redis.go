@@ -2,8 +2,8 @@ package saga
 
 import (
 	"encoding/json"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
 	"github.com/go-redis/redis"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/persistence"
 	"gorm.io/gorm"
 	"log"
 )
@@ -52,13 +52,12 @@ func (rs *RedisServer) RedisConnection() {
 
 				// Happy Flow
 				if m.Action == ActionStart {
-					//user service nema action start jer on ne mora nista da uradi posle recommendation servisa
+					// User service does not have action start because it doesn't need to do anything after recommendation service
 				}
 
 				// Rollback flow
 				if m.Action == ActionRollback {
-					//brises user-a jer je recommendation service puknuo
-					print("AAA FROM USER SERVER")
+					// Rollback user creation because recommendation service failed
 					var user persistence.User
 					var userPrivacy persistence.Privacy
 					var userAdditionalInfo persistence.UserAdditionalInfo

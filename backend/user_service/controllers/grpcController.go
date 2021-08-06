@@ -2,13 +2,11 @@ package controllers
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/common"
-	"github.com/david-drvar/xws2021-nistagram/common/logger"
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/user_service/saga"
-
-	//"github.com/david-drvar/xws2021-nistagram/user_service/util/setup"
+	"github.com/igorroncevic/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/common/logger"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/saga"
 	otgo "github.com/opentracing/opentracing-go"
 	"gorm.io/gorm"
 	"io"
@@ -239,8 +237,6 @@ func (s *Server) UpdateRequest(ctx context.Context, in *protopb.RegistrationRequ
 	return s.registrationRequestController.UpdateRequest(ctx, in)
 }
 
-//Api key metode
-
 func (s *Server) GetKeyByUserId(ctx context.Context, in *protopb.RequestIdUsers) (*protopb.ApiTokenResponse, error) {
 	return s.apiTokenController.GetKeyByUserId(ctx, in)
 }
@@ -252,4 +248,3 @@ func (s *Server) GenerateApiToken(ctx context.Context, in *protopb.RequestIdUser
 func (s *Server) ValidateKey(ctx context.Context, in *protopb.ApiTokenResponse) (*protopb.EmptyResponse, error) {
 	return s.apiTokenController.ValidateKey(ctx, in)
 }
-

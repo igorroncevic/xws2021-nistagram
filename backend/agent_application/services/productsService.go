@@ -2,11 +2,11 @@ package services
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/agent_application/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/agent_application/model/persistence"
-	"github.com/david-drvar/xws2021-nistagram/agent_application/repositories"
-	"github.com/david-drvar/xws2021-nistagram/agent_application/util/images"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/agent_application/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/agent_application/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/agent_application/repositories"
+	"github.com/igorroncevic/xws2021-nistagram/agent_application/util/images"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
 	"gorm.io/gorm"
 )
 

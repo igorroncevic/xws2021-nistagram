@@ -3,9 +3,9 @@ package saga
 import (
 	"context"
 	"encoding/json"
-	"github.com/david-drvar/xws2021-nistagram/recommendation_service/model"
-	"github.com/david-drvar/xws2021-nistagram/recommendation_service/services"
 	"github.com/go-redis/redis"
+	"github.com/igorroncevic/xws2021-nistagram/recommendation_service/model"
+	"github.com/igorroncevic/xws2021-nistagram/recommendation_service/services"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"log"
 )
@@ -53,13 +53,10 @@ func (os *redisServer) RedisConnection() {
 
 				// Happy Flow
 				if m.Action == ActionStart {
-					//todo upisi u bazu novog usera
-					print("AAA from RECOMMENDATION SERVER")
 					_, err := os.followersService.CreateUser(context.Background(), model.User{UserId: m.UserId})
 					if err != nil {
 						sendToReplyChannel(client, m, ActionError, ServiceUser, ServiceRecommendation)
 					}
-					//sendToReplyChannel(client, m, ActionError, ServiceUser, ServiceRecommendation)
 					sendToReplyChannel(client, m, ActionDone, ServiceUser, ServiceRecommendation)
 				}
 

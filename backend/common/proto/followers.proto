@@ -7,162 +7,162 @@ option go_package = "github.com/xws2021-nistagram/common/proto";
 
 service Followers {
 
-    rpc CreateUserConnection (CreateFollowerRequest) returns (EmptyResponseFollowers) {
-        option(google.api.http) = {
-            post: "/api/followers/create_connection",
-            body: "*"
-        };
-    }
+  rpc CreateUserConnection (CreateFollowerRequest) returns (EmptyResponseFollowers) {
+    option(google.api.http) = {
+      post: "/api/followers/create_connection",
+      body: "*"
+    };
+  }
 
-    rpc CreateUser (CreateUserRequestFollowers) returns (EmptyResponseFollowers){
-        option(google.api.http) = {
-            post: "/api/followers",
-            body: "user"
-        };
-    }
+  rpc CreateUser (CreateUserRequestFollowers) returns (EmptyResponseFollowers){
+    option(google.api.http) = {
+      post: "/api/followers",
+      body: "user"
+    };
+  }
 
-    rpc DeleteDirectedConnection (CreateFollowerRequest) returns (EmptyResponseFollowers){
-        option(google.api.http) = {
-            post: "/api/followers/delete_directed",
-            body: "follower"
-        };
-    }
+  rpc DeleteDirectedConnection (CreateFollowerRequest) returns (EmptyResponseFollowers){
+    option(google.api.http) = {
+      post: "/api/followers/delete_directed",
+      body: "follower"
+    };
+  }
 
-    rpc DeleteBiDirectedConnection (CreateFollowerRequest) returns (EmptyResponseFollowers){
-        option(google.api.http) = {
-            post: "/api/followers/delete_biDirected",
-            body: "follower"
-        };
-    }
+  rpc DeleteBiDirectedConnection (CreateFollowerRequest) returns (EmptyResponseFollowers){
+    option(google.api.http) = {
+      post: "/api/followers/delete_biDirected",
+      body: "follower"
+    };
+  }
 
-    rpc GetAllFollowers (CreateUserRequestFollowers) returns (CreateUserResponse) {
-        option(google.api.http) = {
-            post: "/api/followers/get_followers",
-            body: "*"
-        };
-    }
+  rpc GetAllFollowers (CreateUserRequestFollowers) returns (CreateUserResponse) {
+    option(google.api.http) = {
+      post: "/api/followers/get_followers",
+      body: "*"
+    };
+  }
 
-    rpc GetAllFollowing (CreateUserRequestFollowers) returns (CreateUserResponse) {
-        option(google.api.http) = {
-            post: "/api/followers/get_followings",
-            body: "*"
-        };
-    }
+  rpc GetAllFollowing (CreateUserRequestFollowers) returns (CreateUserResponse) {
+    option(google.api.http) = {
+      post: "/api/followers/get_followings",
+      body: "*"
+    };
+  }
 
-    rpc GetAllFollowingsForHomepage (CreateUserRequestFollowers) returns (CreateUserResponse) {
-        option(google.api.http) = {
-            post: "/api/followers/get_followingss", // TODO
-            body: "user"
-        };
-    }
+  rpc GetAllFollowingsForHomepage (CreateUserRequestFollowers) returns (CreateUserResponse) {
+    option(google.api.http) = {
+      post: "/api/followers/get_followingss", // TODO
+      body: "user"
+    };
+  }
 
-    rpc CheckIfMuted (Follower) returns (BooleanResponseFollowers) {
-        option(google.api.http) = {
-            post: "/api/followers/muted",
-            body: "*"
-        };
-    }
+  rpc CheckIfMuted (Follower) returns (BooleanResponseFollowers) {
+    option(google.api.http) = {
+      post: "/api/followers/muted",
+      body: "*"
+    };
+  }
 
-    rpc GetCloseFriends (RequestIdFollowers) returns (CreateUserResponse) {
-        option(google.api.http) = {
-            get: "/api/followers/close/{id}",
-        };
-    }
+  rpc GetCloseFriends (RequestIdFollowers) returns (CreateUserResponse) {
+    option(google.api.http) = {
+      get: "/api/followers/close/{id}",
+    };
+  }
 
-    rpc GetCloseFriendsReversed (RequestIdFollowers) returns (CreateUserResponse) {
-        option(google.api.http) = {
-            get: "/api/followers/close/reversed/{id}",
-        };
-    }
+  rpc GetCloseFriendsReversed (RequestIdFollowers) returns (CreateUserResponse) {
+    option(google.api.http) = {
+      get: "/api/followers/close/reversed/{id}",
+    };
+  }
 
-    rpc UpdateUserConnection (CreateFollowerRequest) returns (CreateFollowerResponse) {
-        option(google.api.http) = {
-            post: "/api/followers/update_follower",
-            body: "follower"
-        };
-    }
+  rpc UpdateUserConnection (CreateFollowerRequest) returns (CreateFollowerResponse) {
+    option(google.api.http) = {
+      post: "/api/followers/update_follower",
+      body: "follower"
+    };
+  }
 
-    rpc AcceptFollowRequest (CreateFollowerRequest) returns (CreateFollowerResponse) {
-        option(google.api.http) = {
-            post: "/api/followers/accept_request",
-            body: "follower"
-        };
-    }
+  rpc AcceptFollowRequest (CreateFollowerRequest) returns (CreateFollowerResponse) {
+    option(google.api.http) = {
+      post: "/api/followers/accept_request",
+      body: "follower"
+    };
+  }
 
-    rpc GetFollowersConnection (Follower) returns (Follower) {
-        option(google.api.http) = {
-            post: "/api/followers/connection",
-            body: "*"
-        };
-    }
+  rpc GetFollowersConnection (Follower) returns (Follower) {
+    option(google.api.http) = {
+      post: "/api/followers/connection",
+      body: "*"
+    };
+  }
 
-    rpc GetUsersForNotificationEnabled (RequestForNotification) returns (CreateUserResponse) {
-        option(google.api.http) = {
-            post: "/api/followers/get_users_for_notifications",
-            body: "*"
-        };
-    }
+  rpc GetUsersForNotificationEnabled (RequestForNotification) returns (CreateUserResponse) {
+    option(google.api.http) = {
+      post: "/api/followers/get_users_for_notifications",
+      body: "*"
+    };
+  }
 
-    rpc RecommendationPattern(RequestIdFollowers) returns (RecommendationResponse) {
-        option(google.api.http) = {
-            get: "/api/followers/recommendation/{id}",
-        };
-    }
+  rpc RecommendationPattern(RequestIdFollowers) returns (RecommendationResponse) {
+    option(google.api.http) = {
+      get: "/api/followers/recommendation/{id}",
+    };
+  }
 }
 
 message Follower {
-    string userId = 1;
-    string followerId = 2;
-    bool isMuted = 3;
-    bool isCloseFriends = 4;
-    bool isApprovedRequest = 5;
-    bool isMessageNotificationEnabled = 6;
-    bool isPostNotificationEnabled = 7;
-    bool isStoryNotificationEnabled = 8;
-    bool isCommentNotificationEnabled = 9;
-    bool requestIsPending = 10;
+  string userId = 1;
+  string followerId = 2;
+  bool isMuted = 3;
+  bool isCloseFriends = 4;
+  bool isApprovedRequest = 5;
+  bool isMessageNotificationEnabled = 6;
+  bool isPostNotificationEnabled = 7;
+  bool isStoryNotificationEnabled = 8;
+  bool isCommentNotificationEnabled = 9;
+  bool requestIsPending = 10;
 }
 
 message UserFollowers {
-    string UserId = 1;
+  string UserId = 1;
 }
 
 message CreateUserRequestFollowers {
-    UserFollowers user = 1;
+  UserFollowers user = 1;
 }
 
 message CreateUserResponse {
-    repeated UserFollowers users = 1;
+  repeated UserFollowers users = 1;
 }
 
 message CreateFollowerResponse {
-    Follower follower = 1;
+  Follower follower = 1;
 }
 
 message CreateFollowerRequest {
-    Follower follower = 1;
+  Follower follower = 1;
 }
 
 message RequestIdFollowers{
-    string id = 1;
+  string id = 1;
 }
 
 message Recommendation {
-    string userId = 1;
-    string percentage = 2;
+  string userId = 1;
+  string percentage = 2;
 }
 
 message RecommendationResponse {
-    repeated Recommendation recommendations = 1;
+  repeated Recommendation recommendations = 1;
 }
 
 message RequestForNotification {
-    string userId = 1;
-    string notificationType = 2;
+  string userId = 1;
+  string notificationType = 2;
 }
 
 message BooleanResponseFollowers {
-    bool response = 1;
+  bool response = 1;
 }
 
 message EmptyResponseFollowers {}

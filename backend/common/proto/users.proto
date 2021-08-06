@@ -292,14 +292,14 @@ message CreateNotificationRequest {
 }
 
 message Notification {
-   string id = 1;
-   string userId = 2;
-   string creatorId = 3;
-   string text = 4;
-   string type = 5;
-   bool isRead = 6;
-   string contentId = 7;
-   google.protobuf.Timestamp createdAt = 8;
+  string id = 1;
+  string userId = 2;
+  string creatorId = 3;
+  string text = 4;
+  string type = 5;
+  bool isRead = 6;
+  string contentId = 7;
+  google.protobuf.Timestamp createdAt = 8;
 }
 
 message CreateNotificationResponse {
@@ -328,9 +328,9 @@ message User {
   bool isActive = 12;
   string biography = 13;
   string website = 14;
-  string resetCode=15;
-  bool approvedAccount=16;
-  google.protobuf.Timestamp tokenEnd=17;
+  string resetCode = 15;
+  bool approvedAccount = 16;
+  google.protobuf.Timestamp tokenEnd = 17;
 }
 
 message UsersDTO {
@@ -348,9 +348,9 @@ message UsersDTO {
   string biography = 12;
   string website = 13;
   string category = 14;
-  string resetCode=15;
-  bool approvedAccount=16;
-  google.protobuf.Timestamp tokenEnd=17;
+  string resetCode = 15;
+  bool approvedAccount = 16;
+  google.protobuf.Timestamp tokenEnd = 17;
 }
 
 message InfluencerSearch {
@@ -473,7 +473,7 @@ message ApiTokenResponse {
 }
 
 message ResponseRequests {
- repeated RegistrationRequest registrationRequests = 1;
+  repeated RegistrationRequest registrationRequests = 1;
 }
 
 message VerificationRequest {

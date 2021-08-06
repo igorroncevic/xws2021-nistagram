@@ -10,17 +10,17 @@ import (
 type Encoder func(io.Writer, image.Image) error
 
 const (
-	EncoderSaving  = "saving"
-	EncoderLoading = "loading"
+	EncoderSaving        = "saving"
+	EncoderLoading       = "loading"
 	EncoderMediumQuality = 70
-	EncoderMaxQuality = 100
+	EncoderMaxQuality    = 100
 )
 
 // GetJPEGEncoder modes are saving or loading.
 // Saving will reduce quality but happen only once
 // whereas loading with always load it with max quality that it has.
 func GetJPEGEncoder(mode string) Encoder {
-	switch mode{
+	switch mode {
 	case EncoderSaving:
 		return jpegEncoder(EncoderMediumQuality)
 	case EncoderLoading:

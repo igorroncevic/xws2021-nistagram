@@ -3,12 +3,13 @@ package model
 import "fmt"
 
 type PostType string
-const(
+
+const (
 	TypePost  PostType = "Post"
 	TypeStory PostType = "Story"
 )
 
-func (pt PostType) String() string{
+func (pt PostType) String() string {
 	switch pt {
 	case TypePost:
 		return "Post"
@@ -19,7 +20,7 @@ func (pt PostType) String() string{
 	}
 }
 
-func GetPostType(pt string) PostType{
+func GetPostType(pt string) PostType {
 	switch pt {
 	case "Post", "post":
 		return TypePost
@@ -31,12 +32,13 @@ func GetPostType(pt string) PostType{
 }
 
 type MediaType string
-const(
+
+const (
 	TypeImage MediaType = "Image"
 	TypeVideo           = "Video"
 )
 
-func (mt MediaType) String() string{
+func (mt MediaType) String() string {
 	switch mt {
 	case TypeImage:
 		return "Image"
@@ -47,7 +49,7 @@ func (mt MediaType) String() string{
 	}
 }
 
-func GetMediaType(mt string) MediaType{
+func GetMediaType(mt string) MediaType {
 	switch mt {
 	case "Image":
 		return TypeImage
@@ -59,13 +61,14 @@ func GetMediaType(mt string) MediaType{
 }
 
 type RequestStatus string
-const(
+
+const (
 	Pending  RequestStatus = "Pending"
 	Accepted               = "Accepted"
 	Rejected               = "Rejected"
 )
 
-func (mt RequestStatus) String() string{
+func (mt RequestStatus) String() string {
 	switch mt {
 	case Pending:
 		return "Pending"
@@ -78,7 +81,7 @@ func (mt RequestStatus) String() string{
 	}
 }
 
-func GetRequestStatus(mt string) RequestStatus{
+func GetRequestStatus(mt string) RequestStatus {
 	switch mt {
 	case "Pending":
 		return Pending
@@ -92,7 +95,8 @@ func GetRequestStatus(mt string) RequestStatus{
 }
 
 type ComplaintCategory string
-const(
+
+const (
 	Gore       ComplaintCategory = "Gore"
 	Nudity                       = "Nudity"
 	Violence                     = "Violence"
@@ -105,7 +109,7 @@ const(
 	Other                        = "Other"
 )
 
-func (cc ComplaintCategory) String() string{
+func (cc ComplaintCategory) String() string {
 	switch cc {
 	case Gore:
 		return "Gore"
@@ -130,7 +134,7 @@ func (cc ComplaintCategory) String() string{
 	}
 }
 
-func GetComplaintCategory(cc string) ComplaintCategory{
+func GetComplaintCategory(cc string) ComplaintCategory {
 	switch cc {
 	case "Gore":
 		return Gore

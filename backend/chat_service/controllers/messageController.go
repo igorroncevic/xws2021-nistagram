@@ -3,11 +3,11 @@ package controllers
 import (
 	"context"
 	"encoding/json"
-	"github.com/david-drvar/xws2021-nistagram/chat_service/model"
-	"github.com/david-drvar/xws2021-nistagram/chat_service/service"
-	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
 	"github.com/gorilla/mux"
+	"github.com/igorroncevic/xws2021-nistagram/chat_service/model"
+	"github.com/igorroncevic/xws2021-nistagram/chat_service/service"
+	"github.com/igorroncevic/xws2021-nistagram/common/grpc_common"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
 	"gorm.io/gorm"
 	"net/http"
 )
@@ -27,7 +27,7 @@ func NewMessageController(db *gorm.DB) (*MessageController, error) {
 	}, err
 }
 
-func (c MessageController) SaveMessage(w http.ResponseWriter, r *http.Request)  {
+func (c MessageController) SaveMessage(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	span := tracer.StartSpanFromContextMetadata(ctx, "SaveMessage")
 	defer span.Finish()
@@ -47,7 +47,7 @@ func (c MessageController) SaveMessage(w http.ResponseWriter, r *http.Request)  
 
 }
 
-func (c MessageController)	DeleteMessage(w http.ResponseWriter, r *http.Request) {
+func (c MessageController) DeleteMessage(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteMessage")
 	defer span.Finish()
@@ -61,7 +61,6 @@ func (c MessageController)	DeleteMessage(w http.ResponseWriter, r *http.Request)
 		w.Write([]byte{})
 		return
 	}
-
 
 }
 
@@ -110,18 +109,18 @@ func (c MessageController) StartConversation(w http.ResponseWriter, r *http.Requ
 	var room model.ChatRoom
 	json.NewDecoder(r.Body).Decode(&room)
 
-	//proveri jel postoji room
+	// Check if room exists
 	chatRoom, err := c.Service.GetChatRoomByUsers(ctx, room)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte{})
 		return
-	}else if chatRoom.Id != "" {
+	} else if chatRoom.Id != "" {
 		json.NewEncoder(w).Encode(chatRoom)
 		return
 	}
 
-	//proveri sve silne provere za privacy usera
+	// User privacy checks
 	connection, err := grpc_common.CheckFollowInteraction(ctx, room.Person1, room.Person2)
 	if err != nil || connection.UserId == "" {
 		privacy, err := grpc_common.GetUserPrivacy(ctx, room.Person2)
@@ -130,14 +129,14 @@ func (c MessageController) StartConversation(w http.ResponseWriter, r *http.Requ
 			w.Write([]byte{})
 			return
 		}
-		if !privacy.IsProfilePublic || !privacy.IsDmPublic{
+		if !privacy.IsProfilePublic || !privacy.IsDmPublic {
 			_, err := c.Service.CreateMessageRequest(ctx, &model.MessageRequest{SenderId: room.Person1, ReceiverId: room.Person2})
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
 				w.Write([]byte{})
 				return
 			}
-			err = grpc_common.CreateNotification(ctx, room.Person2, room.Person1, "MessageRequest", "" )
+			err = grpc_common.CreateNotification(ctx, room.Person2, room.Person1, "MessageRequest", "")
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
 				w.Write([]byte{})
@@ -146,7 +145,7 @@ func (c MessageController) StartConversation(w http.ResponseWriter, r *http.Requ
 			w.Write([]byte{})
 			return
 		}
-		// kreira chatRoom ukoliko je sve public kod usera
+		// Create chat room if user's privacy is all public
 		roomRetVal, err := c.Service.CreateChatRoom(ctx, room)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -197,7 +196,7 @@ func (c *MessageController) CreateMessageRequest(w http.ResponseWriter, r *http.
 
 }
 
-func (c *MessageController) AcceptMessageRequest(w http.ResponseWriter, r *http.Request)  {
+func (c *MessageController) AcceptMessageRequest(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	span := tracer.StartSpanFromContextMetadata(ctx, "AcceptMessageRequest")
 	defer span.Finish()
@@ -222,7 +221,7 @@ func (c *MessageController) AcceptMessageRequest(w http.ResponseWriter, r *http.
 	json.NewEncoder(w).Encode(messageRequest)
 }
 
-func (c *MessageController) DeclineMessageRequest(w http.ResponseWriter, r *http.Request)  {
+func (c *MessageController) DeclineMessageRequest(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	span := tracer.StartSpanFromContextMetadata(ctx, "AcceptMessageRequest")
 	defer span.Finish()

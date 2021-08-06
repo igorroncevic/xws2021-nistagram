@@ -2,13 +2,13 @@ package controllers
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/agent_application/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/agent_application/services"
-	"github.com/david-drvar/xws2021-nistagram/common"
-	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
-	"github.com/david-drvar/xws2021-nistagram/common/logger"
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/agent_application/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/agent_application/services"
+	"github.com/igorroncevic/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/common/grpc_common"
+	"github.com/igorroncevic/xws2021-nistagram/common/logger"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -44,13 +44,17 @@ func (controller *CampaignGrpcController) CreateCampaignReport(ctx context.Conte
 	//}
 
 	campaignStats, err := grpc_common.GetCampaignStats(ctx, in.Id)
-	if err != nil { return &protopb.EmptyResponseAgent{}, status.Errorf(codes.Unknown, err.Error()) }
+	if err != nil {
+		return &protopb.EmptyResponseAgent{}, status.Errorf(codes.Unknown, err.Error())
+	}
 
 	var stats domain.CampaignStats
 	stats = stats.ConvertFromGrpc(campaignStats)
 
 	err = controller.service.CreateCampaignReport(ctx, stats)
-	if err != nil { return &protopb.EmptyResponseAgent{}, status.Errorf(codes.Unknown, err.Error()) }
+	if err != nil {
+		return &protopb.EmptyResponseAgent{}, status.Errorf(codes.Unknown, err.Error())
+	}
 
 	return &protopb.EmptyResponseAgent{}, nil
 }

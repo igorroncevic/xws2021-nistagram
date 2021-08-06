@@ -21,7 +21,7 @@ func CheckBlacklistedPassword(password string) bool {
 	return false
 }
 
-func loadPasswords() ([]string, error){
+func loadPasswords() ([]string, error) {
 	pwd, _ := os.Getwd()
 
 	file, err := os.Open(filepath.Join(pwd, "password_blacklist.txt"))

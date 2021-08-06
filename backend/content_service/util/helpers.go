@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 )
 
-const(
+const (
 	filesystemLocation = "content"
 )
 
@@ -13,4 +13,3 @@ func GetContentLocation(filename string) string {
 	pwd, _ := os.Getwd()
 	return filepath.Join(pwd, filesystemLocation, filename)
 }
-

@@ -2,11 +2,11 @@ package controllers
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/common"
-	"github.com/david-drvar/xws2021-nistagram/common/logger"
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/user_service/services"
+	"github.com/igorroncevic/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/common/logger"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/services"
 	"gorm.io/gorm"
 )
 
@@ -22,9 +22,9 @@ func NewApiTokenGrpcController(db *gorm.DB, jwtManager *common.JWTManager, logge
 		return nil, err
 	}
 	return &ApiTokenGrpcController{
-		service: service,
+		service:    service,
 		jwtManager: jwtManager,
-		logger: logger,
+		logger:     logger,
 	}, nil
 }
 
@@ -57,8 +57,6 @@ func (controller *ApiTokenGrpcController) ValidateKey(ctx context.Context, in *p
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	err := controller.service.ValidateKey(ctx, in.Token)
-	return &protopb.EmptyResponse{},err
+	return &protopb.EmptyResponse{}, err
 
 }
-
-

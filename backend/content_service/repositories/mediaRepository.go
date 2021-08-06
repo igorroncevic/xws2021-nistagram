@@ -3,10 +3,10 @@ package repositories
 import (
 	"context"
 	"fmt"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
-	"github.com/david-drvar/xws2021-nistagram/content_service/util/images"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/util/images"
 	"gorm.io/gorm"
 	"time"
 )
@@ -26,10 +26,10 @@ func NewMediaRepo(db *gorm.DB) (*mediaRepository, error) {
 		panic("MediaRepository not created, gorm.DB is nil")
 	}
 
-	return &mediaRepository{ DB: db }, nil
+	return &mediaRepository{DB: db}, nil
 }
 
-func (repository *mediaRepository) GetMediaForPost(ctx context.Context, postId string) ([]persistence.Media, error){
+func (repository *mediaRepository) GetMediaForPost(ctx context.Context, postId string) ([]persistence.Media, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetMediaForPost")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -44,13 +44,13 @@ func (repository *mediaRepository) GetMediaForPost(ctx context.Context, postId s
 	return medias, nil
 }
 
-func (repository *mediaRepository) CreateMedia(ctx context.Context, media domain.Media) (persistence.Media, error){
+func (repository *mediaRepository) CreateMedia(ctx context.Context, media domain.Media) (persistence.Media, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateMedia")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	mimeType, err := images.GetImageType(media.Content)
-	if err != nil{
+	if err != nil {
 		return persistence.Media{}, err
 	}
 
@@ -59,7 +59,7 @@ func (repository *mediaRepository) CreateMedia(ctx context.Context, media domain
 	name := formatted + "." + mimeType
 
 	err = images.SaveImage(name, media.Content)
-	if err != nil{
+	if err != nil {
 		return persistence.Media{}, err
 	}
 
@@ -75,7 +75,7 @@ func (repository *mediaRepository) CreateMedia(ctx context.Context, media domain
 	return *dbMedia, nil
 }
 
-func (repository *mediaRepository) RemoveMedia(ctx context.Context, id string) error{
+func (repository *mediaRepository) RemoveMedia(ctx context.Context, id string) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveMedia")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)

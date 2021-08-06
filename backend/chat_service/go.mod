@@ -1,11 +1,11 @@
-module github.com/david-drvar/xws2021-nistagram/chat_service
+module github.com/igorroncevic/xws2021-nistagram/chat_service
 
 go 1.16
 
-replace github.com/david-drvar/xws2021-nistagram/common => ./../common
+replace github.com/igorroncevic/xws2021-nistagram/common => ./../common
 
 require (
-	github.com/david-drvar/xws2021-nistagram/common v0.0.1
+	github.com/igorroncevic/xws2021-nistagram/common v0.0.1
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.4.2

@@ -1,7 +1,7 @@
 package model
 
 import (
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
 )
 
 type User struct {
@@ -9,15 +9,15 @@ type User struct {
 }
 
 type Follower struct {
-	UserId                string
-	FollowerId            string
-	IsMuted               bool
-	IsCloseFriends        bool
-	IsApprovedRequest     bool
-	RequestIsPending     bool
+	UserId                       string
+	FollowerId                   string
+	IsMuted                      bool
+	IsCloseFriends               bool
+	IsApprovedRequest            bool
+	RequestIsPending             bool
 	IsMessageNotificationEnabled bool
-	IsPostNotificationEnabled bool
-	IsStoryNotificationEnabled bool
+	IsPostNotificationEnabled    bool
+	IsStoryNotificationEnabled   bool
 	IsCommentNotificationEnabled bool
 }
 
@@ -35,16 +35,16 @@ func (user *User) ConvertToGrpc() *protopb.UserFollowers {
 
 func (follower *Follower) ConvertToGrpc() *protopb.Follower {
 	return &protopb.Follower{
-		UserId:                follower.UserId,
-		FollowerId:            follower.FollowerId,
-		IsMuted:               follower.IsMuted,
-		IsMessageNotificationEnabled: follower.IsMessageNotificationEnabled ,
-		IsPostNotificationEnabled: follower.IsPostNotificationEnabled ,
-		IsStoryNotificationEnabled: follower.IsStoryNotificationEnabled ,
+		UserId:                       follower.UserId,
+		FollowerId:                   follower.FollowerId,
+		IsMuted:                      follower.IsMuted,
+		IsMessageNotificationEnabled: follower.IsMessageNotificationEnabled,
+		IsPostNotificationEnabled:    follower.IsPostNotificationEnabled,
+		IsStoryNotificationEnabled:   follower.IsStoryNotificationEnabled,
 		IsCommentNotificationEnabled: follower.IsCommentNotificationEnabled,
-		IsApprovedRequest:     follower.IsApprovedRequest,
-		RequestIsPending:     follower.RequestIsPending,
-		IsCloseFriends:        follower.IsCloseFriends,
+		IsApprovedRequest:            follower.IsApprovedRequest,
+		RequestIsPending:             follower.RequestIsPending,
+		IsCloseFriends:               follower.IsCloseFriends,
 	}
 }
 
@@ -58,16 +58,15 @@ func (user *User) ConvertAllToGrpc(users []User) []*protopb.UserFollowers {
 
 func (follower *Follower) ConvertFromGrpc(f *protopb.Follower) *Follower {
 	return &Follower{
-		UserId:                f.UserId,
-		FollowerId:            f.FollowerId,
-		IsMuted:               f.IsMuted,
-		IsCloseFriends:        f.IsCloseFriends,
-		IsApprovedRequest:     f.IsApprovedRequest,
-		IsMessageNotificationEnabled: f.IsMessageNotificationEnabled ,
-		IsPostNotificationEnabled: f.IsPostNotificationEnabled ,
-		IsStoryNotificationEnabled: f.IsStoryNotificationEnabled ,
+		UserId:                       f.UserId,
+		FollowerId:                   f.FollowerId,
+		IsMuted:                      f.IsMuted,
+		IsCloseFriends:               f.IsCloseFriends,
+		IsApprovedRequest:            f.IsApprovedRequest,
+		IsMessageNotificationEnabled: f.IsMessageNotificationEnabled,
+		IsPostNotificationEnabled:    f.IsPostNotificationEnabled,
+		IsStoryNotificationEnabled:   f.IsStoryNotificationEnabled,
 		IsCommentNotificationEnabled: f.IsCommentNotificationEnabled,
-		RequestIsPending: f.RequestIsPending,
-
+		RequestIsPending:             f.RequestIsPending,
 	}
 }

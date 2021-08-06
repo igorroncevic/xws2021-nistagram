@@ -3,10 +3,10 @@ package services
 import (
 	"context"
 	"errors"
-	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/content_service/repositories"
+	"github.com/igorroncevic/xws2021-nistagram/common/grpc_common"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/repositories"
 	"gorm.io/gorm"
 )
 
@@ -15,7 +15,7 @@ type FavoritesService struct {
 	contentService      *PostService
 }
 
-func NewFavoritesService(db *gorm.DB) (*FavoritesService, error){
+func NewFavoritesService(db *gorm.DB) (*FavoritesService, error) {
 	favoritesRepository, err := repositories.NewFavoritesRepo(db)
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func (service *FavoritesService) GetAllCollections(ctx context.Context, userId s
 	res, err := grpc_common.CheckIsActive(ctx, userId)
 	if err != nil {
 		return nil, err
-	}else if res == false {
+	} else if res == false {
 		return nil, errors.New("User is not active")
 	}
 
@@ -57,9 +57,11 @@ func (service *FavoritesService) GetAllCollections(ctx context.Context, userId s
 		}
 
 		posts := []domain.Post{}
-		for _, post := range dbPosts{
+		for _, post := range dbPosts {
 			converted, err := service.contentService.GetPostById(ctx, post.PostId)
-			if err != nil { return []domain.Collection{}, err }
+			if err != nil {
+				return []domain.Collection{}, err
+			}
 
 			posts = append(posts, converted)
 		}
@@ -86,9 +88,11 @@ func (service *FavoritesService) GetCollection(ctx context.Context, collectionId
 	}
 
 	posts := []domain.Post{}
-	for _, post := range dbPosts{
+	for _, post := range dbPosts {
 		converted, err := service.contentService.GetPostById(ctx, post.PostId)
-		if err != nil { return domain.Collection{}, err }
+		if err != nil {
+			return domain.Collection{}, err
+		}
 
 		posts = append(posts, converted)
 	}
@@ -144,10 +148,12 @@ func (service *FavoritesService) GetUserFavoritesOptimized(ctx context.Context, 
 	reducedCollections := []domain.Collection{}
 	for _, collection := range collections {
 		dbPosts, err := service.favoritesRepository.GetFavoritesFromCollection(ctx, collection.Id)
-		if err != nil { return domain.Favorites{}, err }
+		if err != nil {
+			return domain.Favorites{}, err
+		}
 
 		reducedPosts := []domain.Post{}
-		for _, post := range dbPosts{
+		for _, post := range dbPosts {
 			reducedPosts = append(reducedPosts, domain.Post{
 				Objava: domain.Objava{Id: post.PostId},
 			})
@@ -188,11 +194,11 @@ func (service *FavoritesService) CreateFavorite(ctx context.Context, favoritesRe
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	err := service.favoritesRepository.CreateFavorite(ctx, favoritesRequest)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 
-	return  nil
+	return nil
 }
 
 func (service *FavoritesService) RemoveFavorite(ctx context.Context, favoritesRequest domain.FavoritesRequest) error {

@@ -7,95 +7,95 @@ import "google/api/annotations.proto";
 option go_package = "github.com/xws2021-nistagram/common/proto";
 
 service Privacy {
-    rpc CreatePrivacy (CreatePrivacyRequest) returns (EmptyResponsePrivacy) {
-        option(google.api.http) = {
-            post: "/api/privacy",
-            body: "*"
-        };
-    }
+  rpc CreatePrivacy (CreatePrivacyRequest) returns (EmptyResponsePrivacy) {
+    option(google.api.http) = {
+      post: "/api/privacy",
+      body: "*"
+    };
+  }
 
-    rpc UpdatePrivacy (CreatePrivacyRequest) returns (EmptyResponsePrivacy) {
-        option(google.api.http) = {
-            post: "/api/privacy/update",
-            body: "*"
-        };
-    }
+  rpc UpdatePrivacy (CreatePrivacyRequest) returns (EmptyResponsePrivacy) {
+    option(google.api.http) = {
+      post: "/api/privacy/update",
+      body: "*"
+    };
+  }
 
-    rpc BlockUser (CreateBlockRequest) returns (EmptyResponsePrivacy) {
-        option(google.api.http) = {
-            post: "/api/privacy/block_user",
-            body: "block"
-        };
-    }
+  rpc BlockUser (CreateBlockRequest) returns (EmptyResponsePrivacy) {
+    option(google.api.http) = {
+      post: "/api/privacy/block_user",
+      body: "block"
+    };
+  }
 
-    rpc UnBlockUser (CreateBlockRequest) returns (EmptyResponsePrivacy) {
-        option(google.api.http) = {
-            post: "/api/privacy/unblock_user",
-            body: "block"
-        };
-    }
+  rpc UnBlockUser (CreateBlockRequest) returns (EmptyResponsePrivacy) {
+    option(google.api.http) = {
+      post: "/api/privacy/unblock_user",
+      body: "block"
+    };
+  }
 
-    rpc CheckIfBlocked (CreateBlockRequest) returns (BooleanResponse) {
-        option(google.api.http) = {
-            post: "/api/privacy/check_block",
-            body: "*"
-        };
-    }
+  rpc CheckIfBlocked (CreateBlockRequest) returns (BooleanResponse) {
+    option(google.api.http) = {
+      post: "/api/privacy/check_block",
+      body: "*"
+    };
+  }
 
-    rpc CheckUserProfilePublic (PrivacyRequest) returns (BooleanResponse) {
-        option(google.api.http) = {
-            post: "/api/privacy/isProfilePublic"
-            body: "*"
-        };
-    }
+  rpc CheckUserProfilePublic (PrivacyRequest) returns (BooleanResponse) {
+    option(google.api.http) = {
+      post: "/api/privacy/isProfilePublic"
+      body: "*"
+    };
+  }
 
-    rpc GetAllPublicUsers (RequestIdPrivacy) returns (StringArray) {
-        option(google.api.http) = {
-            get: "/api/privacy/public/{id}",
-        };
-    }
+  rpc GetAllPublicUsers (RequestIdPrivacy) returns (StringArray) {
+    option(google.api.http) = {
+      get: "/api/privacy/public/{id}",
+    };
+  }
 
-    rpc GetUserPrivacy (RequestIdPrivacy) returns (PrivacyMessage) {
-        option(google.api.http) = {
-            get: "/api/privacy/get_privacy/{id}",
-        };
-    }
+  rpc GetUserPrivacy (RequestIdPrivacy) returns (PrivacyMessage) {
+    option(google.api.http) = {
+      get: "/api/privacy/get_privacy/{id}",
+    };
+  }
 }
 
 message Block {
-    string UserId = 1;
-    string BlockedUserId = 2;
+  string UserId = 1;
+  string BlockedUserId = 2;
 }
 
 message PrivacyMessage {
-    string Id = 1;
-    bool isProfilePublic = 2;
-    bool isDmPublic = 3;
-    bool isTagEnabled = 4;
+  string Id = 1;
+  bool isProfilePublic = 2;
+  bool isDmPublic = 3;
+  bool isTagEnabled = 4;
 }
 
 message CreatePrivacyRequest {
-    PrivacyMessage privacy = 1;
+  PrivacyMessage privacy = 1;
 }
 
 message CreateBlockRequest {
-    Block block = 1;
+  Block block = 1;
 }
 
 message BooleanResponse {
-    bool response = 1;
+  bool response = 1;
 }
 
 message PrivacyRequest {
-    string userId = 1;
+  string userId = 1;
 }
 
 message StringArray {
-    repeated string ids = 1;
+  repeated string ids = 1;
 }
 
 message RequestIdPrivacy{
-    string id = 1;
+  string id = 1;
 }
 
 message EmptyResponsePrivacy {}

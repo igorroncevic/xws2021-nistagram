@@ -2,12 +2,12 @@ package controllers
 
 import (
 	"context"
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
-	"github.com/david-drvar/xws2021-nistagram/user_service/saga"
-	"github.com/david-drvar/xws2021-nistagram/user_service/services"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/saga"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/services"
 	"gorm.io/gorm"
 )
 

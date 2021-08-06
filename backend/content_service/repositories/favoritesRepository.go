@@ -3,28 +3,28 @@ package repositories
 import (
 	"context"
 	"errors"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/persistence"
 	"gorm.io/gorm"
 )
 
 type FavoritesRepository interface {
-	GetAllCollections(context.Context, string) 			 		 ([]persistence.Collection, error)
-	GetCollection(context.Context, string) 		 		 		 (persistence.Collection, error)
+	GetAllCollections(context.Context, string) ([]persistence.Collection, error)
+	GetCollection(context.Context, string) (persistence.Collection, error)
 
-	GetUnclassifiedFavorites(context.Context, string) 			 ([]persistence.Post, error)
-	GetFavoritesFromCollection(context.Context, string)  		 ([]persistence.Favorites, error)
+	GetUnclassifiedFavorites(context.Context, string) ([]persistence.Post, error)
+	GetFavoritesFromCollection(context.Context, string) ([]persistence.Favorites, error)
 
 	CreateFavorite(context.Context, domain.FavoritesRequest) error
 	RemoveFavorite(context.Context, domain.FavoritesRequest) error
 
 	CreateCollection(context.Context, domain.Collection) (persistence.Collection, error)
-	RemoveCollection(context.Context, string, string)    error
+	RemoveCollection(context.Context, string, string) error
 }
 
 type favoritesRepository struct {
-	DB                *gorm.DB
+	DB             *gorm.DB
 	postRepository PostRepository
 }
 
@@ -35,10 +35,10 @@ func NewFavoritesRepo(db *gorm.DB) (*favoritesRepository, error) {
 
 	contentRepository, _ := NewPostRepo(db)
 
-	return &favoritesRepository{ DB: db, postRepository: contentRepository }, nil
+	return &favoritesRepository{DB: db, postRepository: contentRepository}, nil
 }
 
-func (repository *favoritesRepository) GetAllCollections(ctx context.Context, userId string) ([]persistence.Collection, error){
+func (repository *favoritesRepository) GetAllCollections(ctx context.Context, userId string) ([]persistence.Collection, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllCollections")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -53,7 +53,7 @@ func (repository *favoritesRepository) GetAllCollections(ctx context.Context, us
 	return collections, nil
 }
 
-func (repository *favoritesRepository) GetCollection(ctx context.Context, collectionId string) (persistence.Collection, error){
+func (repository *favoritesRepository) GetCollection(ctx context.Context, collectionId string) (persistence.Collection, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetCollection")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -68,7 +68,7 @@ func (repository *favoritesRepository) GetCollection(ctx context.Context, collec
 	return collection, nil
 }
 
-func (repository *favoritesRepository) GetUnclassifiedFavorites(ctx context.Context, userId string) ([]persistence.Post, error){
+func (repository *favoritesRepository) GetUnclassifiedFavorites(ctx context.Context, userId string) ([]persistence.Post, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetUnclassifiedFavorites")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -85,7 +85,7 @@ func (repository *favoritesRepository) GetUnclassifiedFavorites(ctx context.Cont
 	return favorites, nil
 }
 
-func (repository *favoritesRepository) GetFavoritesFromCollection(ctx context.Context, collectionId string) ([]persistence.Favorites, error){
+func (repository *favoritesRepository) GetFavoritesFromCollection(ctx context.Context, collectionId string) ([]persistence.Favorites, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetFavoritesFromCollection")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -100,7 +100,7 @@ func (repository *favoritesRepository) GetFavoritesFromCollection(ctx context.Co
 	return favorites, nil
 }
 
-func (repository *favoritesRepository) CreateFavorite(ctx context.Context, favorites domain.FavoritesRequest) error{
+func (repository *favoritesRepository) CreateFavorite(ctx context.Context, favorites domain.FavoritesRequest) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateFavorite")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -116,7 +116,7 @@ func (repository *favoritesRepository) CreateFavorite(ctx context.Context, favor
 
 		if result.Error != nil {
 			return result.Error
-		}else if count == 0 {
+		} else if count == 0 {
 			return errors.New("user does not own that collection")
 		}
 	}
@@ -129,7 +129,7 @@ func (repository *favoritesRepository) CreateFavorite(ctx context.Context, favor
 
 		if result.Error != nil {
 			return result.Error
-		}else if count == 0 {
+		} else if count == 0 {
 			return errors.New("post does not exist")
 		}
 	}
@@ -146,7 +146,7 @@ func (repository *favoritesRepository) CreateFavorite(ctx context.Context, favor
 	// TODO Check if user can save the post
 	if count == 1 {
 		result = repository.DB.Model(&favoritesPers).Update("collection_id", favoritesPers.CollectionId)
-	}else{
+	} else {
 		result = repository.DB.Create(favoritesPers)
 	}
 
@@ -157,7 +157,7 @@ func (repository *favoritesRepository) CreateFavorite(ctx context.Context, favor
 	return nil
 }
 
-func (repository *favoritesRepository) RemoveFavorite(ctx context.Context, favorites domain.FavoritesRequest) error{
+func (repository *favoritesRepository) RemoveFavorite(ctx context.Context, favorites domain.FavoritesRequest) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveFavorite")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -182,7 +182,7 @@ func (repository *favoritesRepository) CreateCollection(ctx context.Context, col
 	var collectionPers *persistence.Collection
 	collectionPers = collectionPers.ConvertToPersistence(collection)
 
-	err := repository.DB.Transaction(func (tx *gorm.DB) error{
+	err := repository.DB.Transaction(func(tx *gorm.DB) error {
 		result := repository.DB.Create(collectionPers)
 
 		if result.Error != nil || result.RowsAffected != 1 {
@@ -193,7 +193,7 @@ func (repository *favoritesRepository) CreateCollection(ctx context.Context, col
 		if len(collection.Posts) > 0 {
 			for _, post := range collection.Posts {
 				err := repository.CreateFavorite(ctx, domain.FavoritesRequest{
-					UserId: 	  collection.UserId,
+					UserId:       collection.UserId,
 					PostId:       post.Id,
 					CollectionId: collection.Id,
 				})
@@ -205,16 +205,18 @@ func (repository *favoritesRepository) CreateCollection(ctx context.Context, col
 		return nil
 	})
 
-	if err != nil { return *collectionPers, err }
+	if err != nil {
+		return *collectionPers, err
+	}
 	return *collectionPers, nil
 }
 
-func (repository *favoritesRepository) RemoveCollection(ctx context.Context, collectionId string, userId string) error{
+func (repository *favoritesRepository) RemoveCollection(ctx context.Context, collectionId string, userId string) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveCollection")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	err := repository.DB.Transaction(func (tx *gorm.DB) error{
+	err := repository.DB.Transaction(func(tx *gorm.DB) error {
 		collectionPers := persistence.Collection{Id: collectionId, UserId: userId}
 		result := repository.DB.Delete(&collectionPers)
 
@@ -223,19 +225,25 @@ func (repository *favoritesRepository) RemoveCollection(ctx context.Context, col
 		}
 
 		collectionPosts, err := repository.postRepository.GetCollectionsPosts(ctx, collectionId)
-		if err != nil { return err }
+		if err != nil {
+			return err
+		}
 
 		for _, post := range collectionPosts {
 			err := repository.RemoveFavorite(ctx, domain.FavoritesRequest{
 				PostId:       post.Id,
 				CollectionId: collectionId,
 			})
-			if err != nil { return err }
+			if err != nil {
+				return err
+			}
 		}
 
 		return nil
 	})
 
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	return nil
 }

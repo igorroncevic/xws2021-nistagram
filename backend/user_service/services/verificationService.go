@@ -2,10 +2,10 @@ package services
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/user_service/repositories"
-	"github.com/david-drvar/xws2021-nistagram/user_service/saga"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/repositories"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/saga"
 	"gorm.io/gorm"
 )
 

@@ -1,7 +1,7 @@
 package setup
 
 import (
-	"github.com/david-drvar/xws2021-nistagram/agent_application/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/agent_application/model/persistence"
 	"gorm.io/gorm"
 )
 

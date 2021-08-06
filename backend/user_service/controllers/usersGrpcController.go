@@ -2,16 +2,15 @@ package controllers
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/common"
-	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
-	"github.com/david-drvar/xws2021-nistagram/common/logger"
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
-	"github.com/david-drvar/xws2021-nistagram/user_service/saga"
-	"github.com/david-drvar/xws2021-nistagram/user_service/services"
-	//"github.com/david-drvar/xws2021-nistagram/user_service/util/setup"
+	"github.com/igorroncevic/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/common/grpc_common"
+	"github.com/igorroncevic/xws2021-nistagram/common/logger"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/saga"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/services"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -45,10 +44,14 @@ func (s *UserGrpcController) CreateAgentUser(ctx context.Context, in *protopb.Cr
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 	in.User.Role = "Agent"
 	user, err := s.CreateUser(ctx, in)
-	if err != nil { return user, err }
+	if err != nil {
+		return user, err
+	}
 
 	err = grpc_common.CreateUserAdCategories(ctx, user.Id)
-	if err != nil { return user, err }
+	if err != nil {
+		return user, err
+	}
 
 	err = s.requestService.CreateRegistrationRequest(ctx, user.Id)
 	if err != nil {
@@ -83,7 +86,7 @@ func (s *UserGrpcController) CreateUser(ctx context.Context, in *protopb.CreateU
 
 	grpc_common.CreateUserAdCategories(ctx, userDomain.Id)
 
-	s.logger.ToStdoutAndFile("CreateUser", "User registration successful: " +in.User.Email, logger.Info)
+	s.logger.ToStdoutAndFile("CreateUser", "User registration successful: "+in.User.Email, logger.Info)
 	userProto := userDomain.ConvertToGrpc()
 	return userProto, nil
 }

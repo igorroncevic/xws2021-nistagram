@@ -4,14 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
-	"github.com/david-drvar/xws2021-nistagram/user_service/saga"
-	"github.com/david-drvar/xws2021-nistagram/user_service/util"
-	"github.com/david-drvar/xws2021-nistagram/user_service/util/images"
 	"github.com/google/uuid"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/saga"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/util"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/util/images"
 	"gorm.io/gorm"
 	"time"
 )
@@ -59,7 +59,6 @@ func (repository *verificationRepository) CreateVerificationRequest(ctx context.
 			return errors.New("cannot decode document photo")
 		}
 
-		//provera da li postoji vec neki pending od tog usera
 		var verificationRequestPersistence = persistence.VerificationRequest{}
 		repository.DB.Where("user_id = ? AND status = 'Pending'", verificationRequest.UserId).Find(&verificationRequestPersistence)
 		if verificationRequestPersistence.UserId != "" {
@@ -157,7 +156,6 @@ func (repository *verificationRepository) ChangeVerificationRequestStatus(ctx co
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	err := repository.DB.Transaction(func(tx *gorm.DB) error {
-		//ne dozvoljava se menjanje ako je status vec promenjen (!= pending)
 		var verificationRequestPersistence = persistence.VerificationRequest{}
 		if verificationRequest.Id == "" {
 			return errors.New("id cannot be empty")

@@ -22,4 +22,3 @@ func CreateConnection(path string, dbName string, pw string) (neo4j.Driver, erro
 func CloseConnection(driver neo4j.Driver) error {
 	return driver.Close()
 }
-

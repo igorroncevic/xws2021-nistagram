@@ -1,8 +1,8 @@
 package domain
 
 import (
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -21,7 +21,7 @@ func (p *Post) ConvertFromGrpc(post *protopb.Post) *Post {
 			Location:    post.Location,
 			CreatedAt:   post.CreatedAt.AsTime(),
 			Media:       ConvertMultipleMediaFromGrpc(post.Media),
-			Hashtags: 	 ConvertMultipleHashtagFromGrpc(post.Hashtags),
+			Hashtags:    ConvertMultipleHashtagFromGrpc(post.Hashtags),
 		},
 		Comments: ConvertMultipleCommentsFromGrpc(post.Comments),
 		Likes:    ConvertMultipleLikesFromGrpc(post.Likes),
@@ -42,7 +42,7 @@ func (p Post) ConvertToGrpc() *protopb.Post {
 		Comments:    ConvertMultipleCommentsToGrpc(p.Comments),
 		Likes:       ConvertMultipleLikesToGrpc(p.Likes),
 		Dislikes:    ConvertMultipleLikesToGrpc(p.Dislikes),
-		Hashtags: 	 ConvertMultipleHashtagToGrpc(p.Hashtags),
+		Hashtags:    ConvertMultipleHashtagToGrpc(p.Hashtags),
 	}
 }
 
@@ -66,13 +66,15 @@ func (s Story) ConvertToGrpc() *protopb.Story {
 		Location:       s.Location,
 		CreatedAt:      timestamppb.New(s.CreatedAt),
 		Media:          ConvertMultipleMediaToGrpc(s.Media),
-		Hashtags: 	 	ConvertMultipleHashtagToGrpc(s.Hashtags),
+		Hashtags:       ConvertMultipleHashtagToGrpc(s.Hashtags),
 		IsCloseFriends: s.IsCloseFriends,
 	}
 }
 
 func (s *Story) ConvertFromGrpc(story *protopb.Story) *Story {
-	if story == nil {story = &protopb.Story{}}
+	if story == nil {
+		story = &protopb.Story{}
+	}
 	return &Story{
 		Objava: Objava{
 			Id:          story.Id,
@@ -83,7 +85,7 @@ func (s *Story) ConvertFromGrpc(story *protopb.Story) *Story {
 			Location:    story.Location,
 			CreatedAt:   story.CreatedAt.AsTime(),
 			Media:       ConvertMultipleMediaFromGrpc(story.Media),
-			Hashtags: 	 ConvertMultipleHashtagFromGrpc(story.Hashtags),
+			Hashtags:    ConvertMultipleHashtagFromGrpc(story.Hashtags),
 		},
 		IsCloseFriends: story.IsCloseFriends,
 	}
@@ -512,7 +514,9 @@ func ConvertMultipleHashtagToGrpc(t []Hashtag) []*protopb.Hashtag {
 }
 
 func (h *Hashtag) ConvertToGrpc() *protopb.Hashtag {
-	if h == nil { h = &Hashtag{} }
+	if h == nil {
+		h = &Hashtag{}
+	}
 	return &protopb.Hashtag{
 		Id:   h.Id,
 		Text: h.Text,
@@ -544,14 +548,16 @@ func (c *ContentComplaint) ConvertToGrpc() *protopb.ContentComplaint {
 	}
 }
 
-func (a *Ad) ConvertToGrpc() *protopb.Ad{
-	if a == nil { a = &Ad{} }
+func (a *Ad) ConvertToGrpc() *protopb.Ad {
+	if a == nil {
+		a = &Ad{}
+	}
 	return &protopb.Ad{
 		Id:         a.Id,
 		Link:       a.Link,
 		CampaignId: a.CampaignId,
 		LinkClicks: int32(a.LinkClicks),
-		Post:       &protopb.Post{
+		Post: &protopb.Post{
 			Id:          a.Post.Id,
 			UserId:      a.Post.UserId,
 			IsAd:        a.Post.IsAd,
@@ -568,15 +574,19 @@ func (a *Ad) ConvertToGrpc() *protopb.Ad{
 	}
 }
 
-func (a *Ad) ConvertFromGrpc(ad *protopb.Ad) *Ad{
-	if a == nil { a = &Ad{} }
-	if ad == nil { ad = &protopb.Ad{} }
+func (a *Ad) ConvertFromGrpc(ad *protopb.Ad) *Ad {
+	if a == nil {
+		a = &Ad{}
+	}
+	if ad == nil {
+		ad = &protopb.Ad{}
+	}
 	return &Ad{
 		Id:         ad.Id,
 		Link:       ad.Link,
 		CampaignId: ad.CampaignId,
-		Post:       Post{
-			Objava:   Objava{
+		Post: Post{
+			Objava: Objava{
 				Id:          ad.Post.Id,
 				UserId:      ad.Post.UserId,
 				IsAd:        ad.Post.IsAd,
@@ -592,9 +602,9 @@ func (a *Ad) ConvertFromGrpc(ad *protopb.Ad) *Ad{
 	}
 }
 
-func (a Ad) CreateStoryAd() *Story{
+func (a Ad) CreateStoryAd() *Story {
 	return &Story{
-		Objava:         Objava{
+		Objava: Objava{
 			Id:          a.Post.Id,
 			UserId:      a.Post.UserId,
 			IsAd:        true,
@@ -609,7 +619,7 @@ func (a Ad) CreateStoryAd() *Story{
 	}
 }
 
-func ConvertMultipleAdsToGrpc(ads []Ad) []*protopb.Ad{
+func ConvertMultipleAdsToGrpc(ads []Ad) []*protopb.Ad {
 	grpcAds := []*protopb.Ad{}
 	for _, ad := range ads {
 		grpcAds = append(grpcAds, ad.ConvertToGrpc())
@@ -617,7 +627,7 @@ func ConvertMultipleAdsToGrpc(ads []Ad) []*protopb.Ad{
 	return grpcAds
 }
 
-func ConvertMultipleAdsFromGrpc(ads []*protopb.Ad) []Ad{
+func ConvertMultipleAdsFromGrpc(ads []*protopb.Ad) []Ad {
 	domainAds := []Ad{}
 	for _, ad := range ads {
 		var domainAd Ad
@@ -626,59 +636,61 @@ func ConvertMultipleAdsFromGrpc(ads []*protopb.Ad) []Ad{
 	return domainAds
 }
 
-func (c Campaign) ConvertToGrpc() *protopb.Campaign{
+func (c Campaign) ConvertToGrpc() *protopb.Campaign {
 	return &protopb.Campaign{
-		Id:           c.Id,
-		Name:		  c.Name,
-		IsOneTime:    c.IsOneTime,
-		StartDate:    timestamppb.New(c.StartDate),
-		EndDate:      timestamppb.New(c.EndDate),
-		StartTime:	  int32(c.StartTime),
-		EndTime:	  int32(c.EndTime),
-		Placements:   int32(c.Placements),
-		AgentId:      c.AgentId,
-		Category:     c.Category.ConvertToGrpc(),
-		LastUpdated:  timestamppb.New(c.LastUpdated),
-		Ads:          ConvertMultipleAdsToGrpc(c.Ads),
-		Type:         c.Type.String(),
+		Id:          c.Id,
+		Name:        c.Name,
+		IsOneTime:   c.IsOneTime,
+		StartDate:   timestamppb.New(c.StartDate),
+		EndDate:     timestamppb.New(c.EndDate),
+		StartTime:   int32(c.StartTime),
+		EndTime:     int32(c.EndTime),
+		Placements:  int32(c.Placements),
+		AgentId:     c.AgentId,
+		Category:    c.Category.ConvertToGrpc(),
+		LastUpdated: timestamppb.New(c.LastUpdated),
+		Ads:         ConvertMultipleAdsToGrpc(c.Ads),
+		Type:        c.Type.String(),
 	}
 }
 
-func (c Campaign) ConvertFromGrpc(campaign *protopb.Campaign) Campaign{
-	if campaign == nil { campaign = &protopb.Campaign{} }
+func (c Campaign) ConvertFromGrpc(campaign *protopb.Campaign) Campaign {
+	if campaign == nil {
+		campaign = &protopb.Campaign{}
+	}
 	category := AdCategory{}
 	return Campaign{
-		Id:           campaign.Id,
-		Name:		  campaign.Name,
-		IsOneTime:    campaign.IsOneTime,
-		StartDate:    campaign.StartDate.AsTime(),
-		EndDate:      campaign.EndDate.AsTime(),
-		StartTime:	  int(campaign.StartTime),
-		EndTime:	  int(campaign.EndTime),
-		Placements:   int(campaign.Placements),
-		AgentId:      campaign.AgentId,
-		Category:     category.ConvertFromGrpc(campaign.Category),
-		LastUpdated:  campaign.LastUpdated.AsTime(),
-		Ads:          ConvertMultipleAdsFromGrpc(campaign.Ads),
-		Type:         model.PostType(campaign.Type),
+		Id:          campaign.Id,
+		Name:        campaign.Name,
+		IsOneTime:   campaign.IsOneTime,
+		StartDate:   campaign.StartDate.AsTime(),
+		EndDate:     campaign.EndDate.AsTime(),
+		StartTime:   int(campaign.StartTime),
+		EndTime:     int(campaign.EndTime),
+		Placements:  int(campaign.Placements),
+		AgentId:     campaign.AgentId,
+		Category:    category.ConvertFromGrpc(campaign.Category),
+		LastUpdated: campaign.LastUpdated.AsTime(),
+		Ads:         ConvertMultipleAdsFromGrpc(campaign.Ads),
+		Type:        model.PostType(campaign.Type),
 	}
 }
 
-func (ac AdCategory) ConvertToGrpc() *protopb.AdCategory{
+func (ac AdCategory) ConvertToGrpc() *protopb.AdCategory {
 	return &protopb.AdCategory{
-		Id: ac.Id,
+		Id:   ac.Id,
 		Name: ac.Name,
 	}
 }
 
-func (ac AdCategory) ConvertFromGrpc(adCategory *protopb.AdCategory) AdCategory{
+func (ac AdCategory) ConvertFromGrpc(adCategory *protopb.AdCategory) AdCategory {
 	return AdCategory{
-		Id: adCategory.Id,
+		Id:   adCategory.Id,
 		Name: adCategory.Name,
 	}
 }
 
-func (s CampaignStats) ConvertToGrpc() *protopb.CampaignStats{
+func (s CampaignStats) ConvertToGrpc() *protopb.CampaignStats {
 	return &protopb.CampaignStats{
 		Id:          s.Id,
 		Name:        s.Name,
@@ -698,7 +710,7 @@ func (s CampaignStats) ConvertToGrpc() *protopb.CampaignStats{
 	}
 }
 
-func (s InfluencerStats) ConvertToGrpc() *protopb.InfluencerStats{
+func (s InfluencerStats) ConvertToGrpc() *protopb.InfluencerStats {
 	return &protopb.InfluencerStats{
 		Id:            s.Id,
 		Username:      s.Username,
@@ -710,7 +722,7 @@ func (s InfluencerStats) ConvertToGrpc() *protopb.InfluencerStats{
 	}
 }
 
-func (a AdStats) ConvertToGrpc() *protopb.AdStats{
+func (a AdStats) ConvertToGrpc() *protopb.AdStats {
 	return &protopb.AdStats{
 		Id:       a.Id,
 		Media:    a.Media,
@@ -724,19 +736,19 @@ func (a AdStats) ConvertToGrpc() *protopb.AdStats{
 	}
 }
 
-func ConvertMultipleAdStatsToGrpc(adStats []AdStats) []*protopb.AdStats{
+func ConvertMultipleAdStatsToGrpc(adStats []AdStats) []*protopb.AdStats {
 	result := []*protopb.AdStats{}
 	for _, ad := range adStats {
-		result =append(result, ad.ConvertToGrpc())
+		result = append(result, ad.ConvertToGrpc())
 	}
 
 	return result
 }
 
-func ConvertMultipleInfluencerStatsToGrpc(influencerStats []InfluencerStats) []*protopb.InfluencerStats{
+func ConvertMultipleInfluencerStatsToGrpc(influencerStats []InfluencerStats) []*protopb.InfluencerStats {
 	result := []*protopb.InfluencerStats{}
 	for _, stat := range influencerStats {
-		result =append(result, stat.ConvertToGrpc())
+		result = append(result, stat.ConvertToGrpc())
 	}
 
 	return result

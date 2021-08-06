@@ -1,16 +1,12 @@
-module github.com/david-drvar/xws2021-nistagram/common
+module github.com/igorroncevic/xws2021-nistagram/common
 
 go 1.16
 
 require (
 	github.com/HdrHistogram/hdrhistogram-go v1.1.0 // indirect
-	github.com/araddon/gou v0.0.0-20190110011759-c797efecbb61 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.1-0.20190118093823-f849b5445de4
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.4.0
-	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible // indirect
-	github.com/lestrrat-go/strftime v1.0.4 // indirect
-	github.com/lytics/confl v0.0.0-20200313154245-08c6aed5f53f
 	github.com/natefinch/lumberjack v2.0.0+incompatible // indirect
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/rs/cors v1.7.0

@@ -1,7 +1,7 @@
 package setup
 
 import (
-	"github.com/david-drvar/xws2021-nistagram/chat_service/model"
+	"github.com/igorroncevic/xws2021-nistagram/chat_service/model"
 	"gorm.io/gorm"
 )
 

@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/common/logger"
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/common/logger"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	otgo "github.com/opentracing/opentracing-go"
 	"io"
@@ -14,7 +14,7 @@ type Server struct {
 	closer io.Closer
 	tracer otgo.Tracer
 	protopb.UnimplementedFollowersServer
-	followerController *FollowersGrpcController
+	followerController       *FollowersGrpcController
 	recommendationController *RecommendationGrpcController
 }
 
@@ -24,9 +24,9 @@ func NewServer(driver neo4j.Driver, logger *logger.Logger) (*Server, error) {
 	recommendationController, _ := NewRecommendationGrpcController(driver, logger)
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
-		tracer:             tracer,
-		closer:             closer,
-		followerController: followerController,
+		tracer:                   tracer,
+		closer:                   closer,
+		followerController:       followerController,
 		recommendationController: &recommendationController,
 	}, nil
 }
@@ -83,7 +83,7 @@ func (s *Server) GetFollowersConnection(ctx context.Context, in *protopb.Followe
 	return s.followerController.GetFollowersConnection(ctx, in)
 }
 
-func (s *Server)  AcceptFollowRequest(ctx context.Context,in *protopb.CreateFollowerRequest) (*protopb.CreateFollowerResponse, error) {
+func (s *Server) AcceptFollowRequest(ctx context.Context, in *protopb.CreateFollowerRequest) (*protopb.CreateFollowerResponse, error) {
 	return s.followerController.AcceptFollowRequest(ctx, in)
 }
 

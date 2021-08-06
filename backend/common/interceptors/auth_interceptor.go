@@ -2,7 +2,7 @@ package interceptors
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/common"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -10,7 +10,7 @@ import (
 )
 
 type AuthInterceptor struct {
-    jwtManager  *common.JWTManager
+	jwtManager *common.JWTManager
 }
 
 func NewAuthInterceptor(jwtManager *common.JWTManager) *AuthInterceptor {

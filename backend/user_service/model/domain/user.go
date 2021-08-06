@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"github.com/david-drvar/xws2021-nistagram/user_service/model"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model"
 	"regexp"
 	"time"
 )

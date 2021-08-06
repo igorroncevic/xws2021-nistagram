@@ -1,8 +1,8 @@
 package persistence
 
 import (
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 )

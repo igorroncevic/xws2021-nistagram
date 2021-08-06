@@ -6,7 +6,7 @@ type message struct {
 }
 
 type JSON struct {
-	Id string `json:"id"`
+	Id      string `json:"id"`
 	Message string `json:"message"`
 }
 

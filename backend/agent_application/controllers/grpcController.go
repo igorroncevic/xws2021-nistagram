@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/common"
-	"github.com/david-drvar/xws2021-nistagram/common/logger"
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/common/logger"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
 	otgo "github.com/opentracing/opentracing-go"
 	"gorm.io/gorm"
 	"io"
@@ -13,11 +13,11 @@ import (
 
 type Server struct {
 	protopb.UnimplementedAgentServer
-	userController    *UserGrpcController
-	productController *ProductGrpcController
+	userController     *UserGrpcController
+	productController  *ProductGrpcController
 	campaignController *CampaignGrpcController
-	tracer            otgo.Tracer
-	closer            io.Closer
+	tracer             otgo.Tracer
+	closer             io.Closer
 }
 
 func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger) (*Server, error) {
@@ -28,11 +28,11 @@ func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger
 	tracer, closer := tracer.Init("agentService")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
-		userController:    newUserController,
-		productController: newProductController,
+		userController:     newUserController,
+		productController:  newProductController,
 		campaignController: newCampaignController,
-		tracer:            tracer,
-		closer:            closer,
+		tracer:             tracer,
+		closer:             closer,
 	}, nil
 }
 

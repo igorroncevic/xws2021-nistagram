@@ -4,10 +4,10 @@ import (
 	"context"
 	"io"
 
-	"github.com/david-drvar/xws2021-nistagram/common"
-	"github.com/david-drvar/xws2021-nistagram/common/logger"
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/common/logger"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
 	otgo "github.com/opentracing/opentracing-go"
 	"gorm.io/gorm"
 )
@@ -23,7 +23,7 @@ type Server struct {
 	highlightController *HighlightGrpcController
 	complaintController *ComplaintGrpcController
 	campaignController  *CampaignGrpcController
-	adController 		*AdGrpcController
+	adController        *AdGrpcController
 	tracer              otgo.Tracer
 	closer              io.Closer
 }
@@ -50,7 +50,7 @@ func NewServer(db *gorm.DB, manager *common.JWTManager, logger *logger.Logger) (
 		storyController:     storyController,
 		highlightController: highlightController,
 		complaintController: complaintController,
-		adController: 		 adController,
+		adController:        adController,
 		campaignController:  campaignController,
 		tracer:              tracer,
 		closer:              closer,
@@ -221,13 +221,14 @@ func (s *Server) GetAllContentComplaints(ctx context.Context, in *protopb.EmptyR
 	return s.complaintController.GetAllContentComplaints(ctx, in)
 }
 
-func (c *Server) RejectById (ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent,error) {
+func (c *Server) RejectById(ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent, error) {
 	return c.complaintController.RejectById(ctx, in)
 }
 
 func (c *Server) DeleteComplaintByUserId(ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent, error) {
 	return c.complaintController.DeleteComplaintByUserId(ctx, in)
 }
+
 /* Ads */
 func (s *Server) GetAds(ctx context.Context, in *protopb.EmptyRequestContent) (*protopb.AdArray, error) {
 	return s.adController.GetAds(ctx, in)

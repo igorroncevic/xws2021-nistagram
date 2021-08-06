@@ -2,10 +2,10 @@ package services
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/common"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
-	"github.com/david-drvar/xws2021-nistagram/user_service/repositories"
+	"github.com/igorroncevic/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/repositories"
 	"gorm.io/gorm"
 	"time"
 )
@@ -15,9 +15,9 @@ type ApiKeyService struct {
 	jwtManager *common.JWTManager
 }
 
-func NewApiTokenService (db *gorm.DB) (*ApiKeyService, error) {
+func NewApiTokenService(db *gorm.DB) (*ApiKeyService, error) {
 	repo, err := repositories.NewApiTokenRepository(db)
-	jwtManager := common.NewJWTManager("xs-dawer", 500000 * time.Minute)
+	jwtManager := common.NewJWTManager("xs-dawer", 500000*time.Minute)
 
 	return &ApiKeyService{repository: repo, jwtManager: jwtManager}, err
 }
@@ -32,7 +32,7 @@ func (s ApiKeyService) GenerateApiToken(ctx context.Context, id string) (string,
 		return "", err
 	}
 
-	err = s.repository.SaveApiToken(ctx,&persistence.APIKeys{APIKey: token, UserId: id})
+	err = s.repository.SaveApiToken(ctx, &persistence.APIKeys{APIKey: token, UserId: id})
 	if err != nil {
 		return "", err
 	}

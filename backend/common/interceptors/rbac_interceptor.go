@@ -3,9 +3,9 @@ package interceptors
 import (
 	"context"
 	"errors"
-	"github.com/david-drvar/xws2021-nistagram/common"
-	"github.com/david-drvar/xws2021-nistagram/common/interceptors/rbac"
-	"github.com/david-drvar/xws2021-nistagram/common/logger"
+	"github.com/igorroncevic/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/common/interceptors/rbac"
+	"github.com/igorroncevic/xws2021-nistagram/common/logger"
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
 	"strings"

@@ -536,8 +536,8 @@ message Campaign{
   bool   isOneTime = 3;
   google.protobuf.Timestamp startDate = 4;
   google.protobuf.Timestamp endDate = 5;
-  int32 startTime	= 6;
-  int32 endTime =	7;
+  int32 startTime = 6;
+  int32 endTime = 7;
   int32  placements = 8;
   string agentId = 9;
   AdCategory category = 10;
@@ -566,8 +566,8 @@ message CampaignStats {
   bool isOneTime = 3;
   google.protobuf.Timestamp startDate = 4;
   google.protobuf.Timestamp endDate = 5;
-  int32  startTime	= 6;
-  int32  endTime =	7;
+  int32  startTime = 6;
+  int32  endTime = 7;
   int32  placements = 8;
   string category = 9;
   string type = 10;
@@ -599,12 +599,12 @@ message AdStats {
   int32 comments = 8;
   int32 clicks = 9;
 }
-  message  CampaignInfluencerRequest {
-  string id=1;
-  string agentId=2;
-  string influencerId=3;
-  string campaignId=4;
-  string status=5;
+message  CampaignInfluencerRequest {
+  string id = 1;
+  string agentId = 2;
+  string influencerId = 3;
+  string campaignId = 4;
+  string status = 5;
   google.protobuf.Timestamp postAt = 6;
 }
 

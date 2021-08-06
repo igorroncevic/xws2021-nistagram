@@ -3,10 +3,9 @@ package setup
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"github.com/david-drvar/xws2021-nistagram/chat_service/model"
-	"github.com/david-drvar/xws2021-nistagram/chat_service/service"
 	"github.com/gorilla/websocket"
+	"github.com/igorroncevic/xws2021-nistagram/chat_service/model"
+	"github.com/igorroncevic/xws2021-nistagram/chat_service/service"
 	"log"
 	"net/http"
 	"time"
@@ -103,7 +102,6 @@ func (s *subscription) writePump() {
 
 // serveWs handles websocket requests from the peer.
 func serveWs(w http.ResponseWriter, r *http.Request, roomId string, service *service.MessageService) {
-	fmt.Print(roomId)
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {

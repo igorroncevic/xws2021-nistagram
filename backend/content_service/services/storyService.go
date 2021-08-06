@@ -3,22 +3,22 @@ package services
 import (
 	"context"
 	"errors"
-	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/persistence"
-	"github.com/david-drvar/xws2021-nistagram/content_service/repositories"
+	"github.com/igorroncevic/xws2021-nistagram/common/grpc_common"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/repositories"
 	"gorm.io/gorm"
 )
 
 type StoryService struct {
-	storyRepository   	repositories.StoryRepository
-	mediaRepository   	repositories.MediaRepository
-	tagRepository	  	repositories.TagRepository
-	hashtagRepository	repositories.HashtagRepository
+	storyRepository   repositories.StoryRepository
+	mediaRepository   repositories.MediaRepository
+	tagRepository     repositories.TagRepository
+	hashtagRepository repositories.HashtagRepository
 }
 
-func NewStoryService(db *gorm.DB) (*StoryService, error){
+func NewStoryService(db *gorm.DB) (*StoryService, error) {
 	storyRepository, err := repositories.NewStoryRepo(db)
 	if err != nil {
 		return nil, err
@@ -55,15 +55,19 @@ func (service *StoryService) GetStoriesForUser(ctx context.Context, userId strin
 	res, err := grpc_common.CheckIsActive(ctx, userId)
 	if err != nil {
 		return nil, err
-	}else if res == false {
+	} else if res == false {
 		return nil, errors.New("User is not active!")
 	}
 	dbStories, err := service.storyRepository.GetUsersStories(ctx, userId, false)
-	if err != nil { return []domain.Story{}, err }
+	if err != nil {
+		return []domain.Story{}, err
+	}
 
-	if isCloseFriend{
+	if isCloseFriend {
 		closeFriendsStories, err := service.storyRepository.GetUsersStories(ctx, userId, true)
-		if err != nil { return []domain.Story{}, err }
+		if err != nil {
+			return []domain.Story{}, err
+		}
 
 		for _, closeFriendStory := range closeFriendsStories {
 			dbStories = append(dbStories, closeFriendStory)
@@ -71,9 +75,11 @@ func (service *StoryService) GetStoriesForUser(ctx context.Context, userId strin
 	}
 
 	stories := []domain.Story{}
-	for _, dbStory := range dbStories{
+	for _, dbStory := range dbStories {
 		story, err := service.retrieveStoryAdditionalData(ctx, dbStory)
-		if err != nil { return []domain.Story{}, err }
+		if err != nil {
+			return []domain.Story{}, err
+		}
 
 		stories = append(stories, story)
 	}
@@ -89,17 +95,21 @@ func (service *StoryService) GetMyStories(ctx context.Context, userId string) ([
 	res, err := grpc_common.CheckIsActive(ctx, userId)
 	if err != nil {
 		return nil, err
-	}else if res == false {
+	} else if res == false {
 		return nil, errors.New("User is not active!")
 	}
 
 	dbStories, err := service.storyRepository.GetMyStories(ctx, userId)
-	if err != nil { return []domain.Story{}, err }
+	if err != nil {
+		return []domain.Story{}, err
+	}
 
 	stories := []domain.Story{}
-	for _, dbStory := range dbStories{
+	for _, dbStory := range dbStories {
 		story, err := service.retrieveStoryAdditionalData(ctx, dbStory)
-		if err != nil { return []domain.Story{}, err }
+		if err != nil {
+			return []domain.Story{}, err
+		}
 
 		stories = append(stories, story)
 	}
@@ -107,7 +117,7 @@ func (service *StoryService) GetMyStories(ctx context.Context, userId string) ([
 	return stories, nil
 }
 
-func (service *StoryService) GetAllHomeStories(ctx context.Context, userIds []string, isCloseFriends bool) (domain.StoriesHome, error){
+func (service *StoryService) GetAllHomeStories(ctx context.Context, userIds []string, isCloseFriends bool) (domain.StoriesHome, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllHomeStories")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -117,17 +127,21 @@ func (service *StoryService) GetAllHomeStories(ctx context.Context, userIds []st
 		res, err := grpc_common.CheckIsActive(ctx, id)
 		if err != nil {
 			continue
-		}else if res {
+		} else if res {
 			userIdsActive = append(userIdsActive, id)
 		}
 	}
 
 	dbStories, err := service.storyRepository.GetAllHomeStories(ctx, userIdsActive, false)
-	if err != nil { return domain.StoriesHome{}, err }
+	if err != nil {
+		return domain.StoriesHome{}, err
+	}
 
 	if isCloseFriends {
 		closeFriendsStories, err := service.storyRepository.GetAllHomeStories(ctx, userIdsActive, true)
-		if err != nil { return domain.StoriesHome{}, err }
+		if err != nil {
+			return domain.StoriesHome{}, err
+		}
 
 		for _, closeFriendStory := range closeFriendsStories {
 			dbStories = append(dbStories, closeFriendStory)
@@ -135,9 +149,11 @@ func (service *StoryService) GetAllHomeStories(ctx context.Context, userIds []st
 	}
 
 	storiesHome := domain.StoriesHome{}
-	for _, dbStory := range dbStories{
+	for _, dbStory := range dbStories {
 		story, err := service.retrieveStoryAdditionalData(ctx, dbStory)
-		if err != nil { return domain.StoriesHome{}, err }
+		if err != nil {
+			return domain.StoriesHome{}, err
+		}
 
 		// If storiesHome are empty (not initialized), create a new entry with first story
 		if len(storiesHome.Stories) == 0 {
@@ -146,7 +162,7 @@ func (service *StoryService) GetAllHomeStories(ctx context.Context, userIds []st
 				Username: "",
 				Stories:  []domain.Story{story},
 			})
-		}else{
+		} else {
 			// If storiesHome is initialized, check where current story should go
 			updated := false
 			for index, storyHome := range storiesHome.Stories {
@@ -188,26 +204,30 @@ func (service *StoryService) CreateStory(ctx context.Context, story *domain.Stor
 		return errors.New("Could not create notification")
 	}
 	for _, u := range users.Users {
-			grpc_common.CreateNotification(ctx, u.UserId, story.UserId, "Story", story.Id)
+		grpc_common.CreateNotification(ctx, u.UserId, story.UserId, "Story", story.Id)
 	}
 	return nil
 }
 
-func (service *StoryService) GetStoryById(ctx context.Context, id string) (domain.Story, error){
+func (service *StoryService) GetStoryById(ctx context.Context, id string) (domain.Story, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetStoryById")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	dbStory, err := service.storyRepository.GetStoryById(ctx, id)
-	if err != nil { return domain.Story{}, err }
+	if err != nil {
+		return domain.Story{}, err
+	}
 
 	story, err := service.retrieveStoryAdditionalData(ctx, *dbStory)
-	if err != nil { return domain.Story{}, err }
+	if err != nil {
+		return domain.Story{}, err
+	}
 
 	return story, nil
 }
 
-func (service *StoryService) RemoveStory(ctx context.Context, id string, userId string) error{
+func (service *StoryService) RemoveStory(ctx context.Context, id string, userId string) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "RemoveStory")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -225,11 +245,15 @@ func (service *StoryService) retrieveStoryAdditionalData(ctx context.Context, st
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	dbMedia, err := service.mediaRepository.GetMediaForPost(ctx, story.Id)
-	if err != nil { return domain.Story{}, err }
+	if err != nil {
+		return domain.Story{}, err
+	}
 	media := []domain.Media{}
-	for _, single := range dbMedia{
+	for _, single := range dbMedia {
 		tags, err := service.tagRepository.GetTagsForMedia(ctx, single.Id)
-		if err != nil { return domain.Story{}, err }
+		if err != nil {
+			return domain.Story{}, err
+		}
 
 		for index, tag := range tags {
 			username, err := grpc_common.GetUsernameById(ctx, tag.UserId)
@@ -240,13 +264,17 @@ func (service *StoryService) retrieveStoryAdditionalData(ctx context.Context, st
 		}
 
 		converted, err := single.ConvertToDomain(tags)
-		if err != nil { return domain.Story{}, err }
+		if err != nil {
+			return domain.Story{}, err
+		}
 
 		media = append(media, converted)
 	}
 
 	hashtags, err := service.hashtagRepository.GetPostHashtags(ctx, story.Id)
-	if err != nil { return domain.Story{}, err }
+	if err != nil {
+		return domain.Story{}, err
+	}
 
 	converted := story.ConvertToDomain(media, hashtags)
 
@@ -259,12 +287,16 @@ func (service *StoryService) GetStoriesFromHighlight(ctx context.Context, highli
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	dbStories, err := service.storyRepository.GetHighlightsStories(ctx, highlightId)
-	if err != nil { return []domain.Story{}, err }
+	if err != nil {
+		return []domain.Story{}, err
+	}
 
 	stories := []domain.Story{}
 	for _, dbStory := range dbStories {
 		story, err := service.retrieveStoryAdditionalData(ctx, dbStory)
-		if err != nil { return []domain.Story{}, err }
+		if err != nil {
+			return []domain.Story{}, err
+		}
 		stories = append(stories, story)
 	}
 

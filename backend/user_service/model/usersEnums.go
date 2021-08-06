@@ -12,15 +12,16 @@ const (
 )
 
 type UserNotification string
+
 const (
 	Message = "Message"
 	Follow  = "Follow"
-	Like = "Like"
+	Like    = "Like"
 	Dislike = "Dislike"
 	Comment = "Comment"
 )
 
-func (r UserRole) String() string{
+func (r UserRole) String() string {
 	switch r {
 	case Basic:
 		return "Basic"

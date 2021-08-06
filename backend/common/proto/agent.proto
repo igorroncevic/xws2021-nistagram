@@ -149,7 +149,7 @@ message UserAgentApp {
   string sex = 11;
   string address = 12;
   bool isActive = 13;
-  google.protobuf.Timestamp tokenEnd=14;
+  google.protobuf.Timestamp tokenEnd = 14;
 }
 
 message CreateUserRequestAgentApp {

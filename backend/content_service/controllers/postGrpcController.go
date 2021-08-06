@@ -2,24 +2,24 @@ package controllers
 
 import (
 	"context"
-	"github.com/david-drvar/xws2021-nistagram/common"
-	"github.com/david-drvar/xws2021-nistagram/common/grpc_common"
-	"github.com/david-drvar/xws2021-nistagram/common/logger"
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model"
-	"github.com/david-drvar/xws2021-nistagram/content_service/model/domain"
-	"github.com/david-drvar/xws2021-nistagram/content_service/services"
+	"github.com/igorroncevic/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/common/grpc_common"
+	"github.com/igorroncevic/xws2021-nistagram/common/logger"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
+	"github.com/igorroncevic/xws2021-nistagram/content_service/services"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
 
 type PostGrpcController struct {
-	service    		*services.PostService
+	service         *services.PostService
 	campaignService *services.CampaignService
-	jwtManager *common.JWTManager
-	logger     *logger.Logger
+	jwtManager      *common.JWTManager
+	logger          *logger.Logger
 }
 
 func NewPostController(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger) (*PostGrpcController, error) {
@@ -29,7 +29,9 @@ func NewPostController(db *gorm.DB, jwtManager *common.JWTManager, logger *logge
 	}
 
 	campaignService, err := services.NewCampaignService(db)
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 
 	return &PostGrpcController{
 		service,
@@ -181,7 +183,9 @@ func (c *PostGrpcController) GetAllPosts(ctx context.Context, in *protopb.EmptyR
 	}
 
 	ads, err := c.campaignService.GetOngoingCampaignsAds(ctx, userIds, claims.UserId, model.TypePost)
-	if err != nil { return &protopb.PostArray{}, status.Errorf(codes.Unknown, err.Error()) }
+	if err != nil {
+		return &protopb.PostArray{}, status.Errorf(codes.Unknown, err.Error())
+	}
 
 	responseAds := []*protopb.Ad{}
 	for _, ad := range ads {
@@ -190,7 +194,7 @@ func (c *PostGrpcController) GetAllPosts(ctx context.Context, in *protopb.EmptyR
 
 	return &protopb.PostArray{
 		Posts: responsePosts,
-		Ads: responseAds,
+		Ads:   responseAds,
 	}, nil
 }
 
@@ -279,7 +283,7 @@ func (c *PostGrpcController) GetPostById(ctx context.Context, id string) (*proto
 			return &protopb.Post{}, status.Errorf(codes.Unknown, err.Error())
 		}
 
-		if(claims.Role!="Admin") {
+		if claims.Role != "Admin" {
 			if (!following.IsApprovedRequest && !isPublic) || isBlocked {
 				return &protopb.Post{}, status.Errorf(codes.PermissionDenied, "cannot retrieve this post")
 			}

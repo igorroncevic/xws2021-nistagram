@@ -3,11 +3,11 @@ package services
 import (
 	"context"
 	"errors"
-	protopb "github.com/david-drvar/xws2021-nistagram/common/proto"
-	"github.com/david-drvar/xws2021-nistagram/common/tracer"
-	"github.com/david-drvar/xws2021-nistagram/user_service/model/persistence"
-	"github.com/david-drvar/xws2021-nistagram/user_service/repositories"
-	"github.com/david-drvar/xws2021-nistagram/user_service/saga"
+	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
+	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/model/persistence"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/repositories"
+	"github.com/igorroncevic/xws2021-nistagram/user_service/saga"
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
 	"log"
@@ -44,7 +44,6 @@ func (service *PrivacyService) UpdatePrivacy(ctx context.Context, privacy *persi
 }
 
 func (service *PrivacyService) BlockUser(ctx context.Context, block *persistence.BlockedUsers) (bool, error) {
-	//TODO Proveri da li ti useri postoje i posalji zahtev da im se obrise prijateljstvo
 	span := tracer.StartSpanFromContextMetadata(ctx, "BlockUser")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
