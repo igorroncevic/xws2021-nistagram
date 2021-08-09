@@ -22,12 +22,14 @@ const (
 	AgentDatabase          = "AgentDatabase"
 	RecommendationDatabase = "RecommendationDatabase"
 	ChatDatabase           = "ChatDatabase"
+	MonitoringDatabase     = "MonitoringDatabase"
 
 	UsersDatabaseName          = "xws_users"
 	ContentDatabaseName        = "xws_content"
 	AgentDatabaseName          = "xws_agent"
 	ChatDatabaseName           = "xws_chat"
 	RecommendationDatabaseName = "neo4j"
+	MonitoringDatabaseName 	   = "xws_monitoring"
 )
 
 func InitDatabase(dbname string) *gorm.DB {
@@ -42,7 +44,6 @@ func InitDatabase(dbname string) *gorm.DB {
 			" dbname="+os.Getenv("DB_NAME")+
 			" password="+os.Getenv("DB_PW")+
 			" host="+os.Getenv("DB_HOST"))
-
 	} else if dbname == ContentDatabase {
 		dsn = fmt.Sprintf("%s", "user="+os.Getenv("DB_USER")+
 			" dbname="+os.Getenv("DB_NAME")+
@@ -56,6 +57,11 @@ func InitDatabase(dbname string) *gorm.DB {
 	} else if dbname == RecommendationDatabase {
 		dsn = fmt.Sprintf("%s", dbConf.RecommendationDatabaseURL)
 	} else if dbname == ChatDatabase {
+		dsn = fmt.Sprintf("%s", "user="+os.Getenv("DB_USER")+
+			" dbname="+os.Getenv("DB_NAME")+
+			" password="+os.Getenv("DB_PW")+
+			" host="+os.Getenv("DB_HOST"))
+	} else if dbname == MonitoringDatabase {
 		dsn = fmt.Sprintf("%s", "user="+os.Getenv("DB_USER")+
 			" dbname="+os.Getenv("DB_NAME")+
 			" password="+os.Getenv("DB_PW")+

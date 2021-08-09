@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/igorroncevic/xws2021-nistagram/common"
 	"github.com/igorroncevic/xws2021-nistagram/common/grpc_common"
+	"github.com/igorroncevic/xws2021-nistagram/common/kafka_util"
 	"github.com/igorroncevic/xws2021-nistagram/common/logger"
 	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
 	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
@@ -14,16 +15,20 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 type UserGrpcController struct {
-	service        *services.UserService
-	requestService *services.RegistrationRequestService
-	jwtManager     *common.JWTManager
-	logger         *logger.Logger
+	service        		*services.UserService
+	requestService 	    *services.RegistrationRequestService
+	userEventsProducer  *kafka_util.KafkaProducer
+	performanceProducer *kafka_util.KafkaProducer
+	jwtManager     		*common.JWTManager
+	logger         		*logger.Logger
 }
 
-func NewUserController(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger, redis *saga.RedisServer) (*UserGrpcController, error) {
+func NewUserController(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger, redis *saga.RedisServer,
+						userEventsProducer *kafka_util.KafkaProducer, performanceProducer *kafka_util.KafkaProducer) (*UserGrpcController, error) {
 	service, err := services.NewUserService(db, redis)
 	if err != nil {
 		return nil, err
@@ -33,6 +38,8 @@ func NewUserController(db *gorm.DB, jwtManager *common.JWTManager, logger *logge
 	return &UserGrpcController{
 		service,
 		requestService,
+		userEventsProducer,
+		performanceProducer,
 		jwtManager,
 		logger,
 	}, nil
@@ -264,22 +271,26 @@ func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginReq
 	user, err := s.service.LoginUser(ctx, request)
 	if err != nil {
 		s.logger.ToStdoutAndFile("LoginUser", "Login failed by "+in.Email, logger.Warn)
+		s.performanceProducer.WritePerformanceMessage(kafka_util.UserService, kafka_util.Login, "Login attempt by " + in.Email + " failed", http.StatusBadRequest)
 		return &protopb.LoginResponse{}, err
 	}
 
 	token, err := s.jwtManager.GenerateJwt(user.Id, user.Role.String())
 	if err != nil {
 		s.logger.ToStdoutAndFile("LoginUser", "JWT generate failed", logger.Error)
+		s.performanceProducer.WritePerformanceMessage(kafka_util.UserService, kafka_util.Login, "JWT generate failed", http.StatusInternalServerError)
 		return &protopb.LoginResponse{}, err
 	}
 
 	photo, err := s.service.GetUserPhoto(ctx, user.Id)
 	if err != nil {
 		s.logger.ToStdoutAndFile("LoginUser", "Could not retrieve user's photo", logger.Error)
+		s.performanceProducer.WritePerformanceMessage(kafka_util.UserService, kafka_util.Login, "Could not retrieve user's photo", http.StatusInternalServerError)
 		return &protopb.LoginResponse{}, err
 	}
 
 	s.logger.ToStdoutAndFile("LoginUser", "Successful login by "+in.Email, logger.Info)
+	s.performanceProducer.WritePerformanceMessage(kafka_util.UserService, kafka_util.Login, "Successful login by " + in.Email, http.StatusOK)
 
 	return &protopb.LoginResponse{
 		AccessToken: token,

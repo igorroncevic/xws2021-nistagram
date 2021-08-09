@@ -1,17 +1,25 @@
 version: '3'
 
 services:
-  zookeper:
+  zookeeper:
     image: wurstmeister/zookeeper
+    volumes:
+      - ./data/zookeeper_conf:/conf
+      - ./data/zookeeper_data:/data
+      - ./data/zookeeper_datalog:/datalog
     container_name: zookeeper
     ports:
       - "2181:2181"
 
   kafka:
     image: wurstmeister/kafka
-    container_name: kafka_util
+    container_name: kafka
     ports:
       - "9092:9092"
+    volumes:
+      - ./data/kafka_data:/kafka
     environment:
       KAFKA_ADVERTISED_HOST_NAME: localhost
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    depends_on: 
+      - zookeeper

@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"github.com/igorroncevic/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/common/kafka_util"
 	"github.com/igorroncevic/xws2021-nistagram/common/logger"
 	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
 	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
@@ -27,7 +28,10 @@ type Server struct {
 }
 
 func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger, redis *saga.RedisServer) (*Server, error) {
-	newUserController, _ := NewUserController(db, jwtManager, logger, redis)
+	userEventsProducer := kafka_util.NewProducer(kafka_util.UserEventsTopic)
+	performanceProducer := kafka_util.NewProducer(kafka_util.PerformanceTopic)
+
+	newUserController, _ := NewUserController(db, jwtManager, logger, redis, userEventsProducer, performanceProducer)
 	newPrivacyController, _ := NewPrivacyController(db, redis)
 	newEmailController, _ := NewEmailController(db, redis)
 	notificationController, _ := NewNotificationController(db, redis)
@@ -44,7 +48,6 @@ func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger
 		notificationController:        notificationController,
 		verificationController:        newVerificationController,
 		registrationRequestController: newRegistrationRequestController,
-
 		apiTokenController: newApiTokenController,
 		tracer:             tracer,
 		closer:             closer,

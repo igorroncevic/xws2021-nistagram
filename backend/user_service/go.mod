@@ -17,6 +17,7 @@ require (
 	github.com/lytics/confl v0.0.0-20200313154245-08c6aed5f53f
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/satori/go.uuid v1.2.0
+	github.com/segmentio/kafka-go v0.4.17 // indirect
 	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a
 	golang.org/x/net v0.0.0-20210525063256-abc453219eb5 // indirect
 	google.golang.org/genproto v0.0.0-20210524171403-669157292da3

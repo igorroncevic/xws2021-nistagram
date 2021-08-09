@@ -5,6 +5,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"github.com/segmentio/kafka-go"
 	"log"
+	"time"
 )
 
 func NewProducer(topic string) *KafkaProducer {
@@ -23,19 +24,16 @@ type KafkaProducer struct {
 
 func (producer *KafkaProducer) WriteMessage(message string) error {
 	kafkaMessage := kafka.Message{
-		Key:   []byte(uuid.NewV4().String()),
-		Value: []byte(message),
+		Key:           []byte(uuid.NewV4().String()),
+		Value:         []byte(message),
+		Time:          time.Now(),
 	}
 
 	err := producer.Writer.WriteMessages(context.Background(), kafkaMessage)
 
 	if err != nil {
 		log.Println("failed to write messages to '" + producer.Writer.Topic + "' topic: ", err.Error())
-		return err
-	}
-
-	if err := producer.Writer.Close(); err != nil {
-		log.Println("failed to close writer: ", err)
+		producer.WriteMessageToRetry(message, string(kafkaMessage.Key))
 		return err
 	}
 
@@ -46,6 +44,7 @@ func (producer *KafkaProducer) WriteMessageToRetry(message string, key string) e
 	kafkaMessage := kafka.Message{
 		Key:   []byte(key),
 		Value: []byte(message),
+		Time:  time.Now(),
 	}
 
 	err := producer.Writer.WriteMessages(context.Background(), kafkaMessage)
@@ -55,11 +54,23 @@ func (producer *KafkaProducer) WriteMessageToRetry(message string, key string) e
 		return err
 	}
 
-	if err := producer.Writer.Close(); err != nil {
-		log.Println("failed to close writer: ", err)
-		return err
-	}
-
 	return err
 }
 
+func (producer *KafkaProducer) WritePerformanceMessage(service string, function string, message string, status int) error {
+	message, err := MarshalPerformanceMessage(service, function, status, message)
+	if err != nil {
+		log.Println("Couldn't marshal Kafka message")
+		//s.logger.ToStdoutAndFile("KafkaCallback", "Couldn't marshal Kafka message", logger.Error)
+		return err
+	}
+
+	err = producer.WriteMessage(message)
+	if err != nil {
+		log.Println("Couldn't log event to Kafka")
+		//s.logger.ToStdoutAndFile("KafkaCallback", "Couldn't log event to Kafka", logger.Error)
+		return err
+	}
+
+	return nil
+}
