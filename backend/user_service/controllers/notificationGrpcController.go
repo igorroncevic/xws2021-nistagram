@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"github.com/igorroncevic/xws2021-nistagram/common/kafka_util"
 	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
 	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
 	"github.com/igorroncevic/xws2021-nistagram/user_service/model/domain"
@@ -9,20 +10,23 @@ import (
 	"github.com/igorroncevic/xws2021-nistagram/user_service/saga"
 	"github.com/igorroncevic/xws2021-nistagram/user_service/services"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 type NotificationGrpcController struct {
-	service *services.NotificationService
+	service 			*services.NotificationService
+	performanceProducer *kafka_util.KafkaProducer
 }
 
-func NewNotificationController(db *gorm.DB, redis *saga.RedisServer) (*NotificationGrpcController, error) {
+func NewNotificationController(db *gorm.DB, redis *saga.RedisServer, performanceProducer *kafka_util.KafkaProducer) (*NotificationGrpcController, error) {
 	service, err := services.NewNotificationService(db, redis)
 	if err != nil {
 		return nil, err
 	}
 
 	return &NotificationGrpcController{
-		service: service,
+		service,
+		performanceProducer,
 	}, nil
 }
 
@@ -35,6 +39,7 @@ func (c *NotificationGrpcController) CreateNotification(ctx context.Context, in 
 	notification = notification.ConvertFromGrpc(*in)
 	err := c.service.CreateNotification(ctx, notification)
 	if err != nil {
+		c.performanceProducer.WritePerformanceMessage(kafka_util.UserService, kafka_util.CreateNotificationFunction, "Create notification failed", http.StatusInternalServerError)
 		return &protopb.EmptyResponse{}, err
 	}
 

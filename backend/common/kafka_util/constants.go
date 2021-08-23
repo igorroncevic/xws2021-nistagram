@@ -15,5 +15,7 @@ const (
 	ContentService			= "ContentService"
 
 	/* Functions */
-	LoginFunction			= "Login"
+	LoginFunction			   = "Login"
+	GenerateApiTokenFunction   = "GenerateApiToken"
+	CreateNotificationFunction = "CreateNotification"
 )

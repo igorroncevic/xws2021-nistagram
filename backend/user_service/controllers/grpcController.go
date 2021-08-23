@@ -34,10 +34,10 @@ func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger
 	newUserController, _ := NewUserController(db, jwtManager, logger, redis, userEventsProducer, performanceProducer)
 	newPrivacyController, _ := NewPrivacyController(db, redis)
 	newEmailController, _ := NewEmailController(db, redis)
-	notificationController, _ := NewNotificationController(db, redis)
+	notificationController, _ := NewNotificationController(db, redis, performanceProducer)
 	newVerificationController, _ := NewVerificationController(db, jwtManager, logger, redis)
 	newRegistrationRequestController, _ := NewRegistrationRequestController(db, jwtManager, logger, redis)
-	newApiTokenController, _ := NewApiTokenGrpcController(db, jwtManager, logger)
+	newApiTokenController, _ := NewApiTokenGrpcController(db, jwtManager, logger, performanceProducer)
 
 	tracer, closer := tracer.Init("userService")
 	otgo.SetGlobalTracer(tracer)

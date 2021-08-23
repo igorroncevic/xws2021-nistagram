@@ -63,6 +63,8 @@ const (
 	LinkClick UserEventType = "LinkClick"
 	TimeSpent				= "TimeSpent"
 	Login					= "Login"
+	PasswordChange			= "PasswordChange"
+	ProfileUpdate			= "ProfileUpdate"
 )
 
 func (uet UserEventType) String() string {
@@ -73,21 +75,11 @@ func (uet UserEventType) String() string {
 		return "TimeSpent"
 	case Login:
 		return "Login"
+	case PasswordChange:
+		return "PasswordChange"
+	case ProfileUpdate:
+		return "ProfileUpdate"
 	default:
 		return fmt.Sprintf("%s", string(uet))
 	}
 }
-
-func GetPostType(uet string) UserEventType {
-	switch uet {
-	case "LinkClick", "linkClick":
-		return LinkClick
-	case "TimeSpent", "timeSpent":
-		return TimeSpent
-	case "Login", "login":
-		return Login
-	default:
-		return ""
-	}
-}
-
