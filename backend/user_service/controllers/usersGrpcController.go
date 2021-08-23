@@ -270,8 +270,8 @@ func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginReq
 
 	user, err := s.service.LoginUser(ctx, request)
 	if err != nil {
-		s.logger.ToStdoutAndFile("LoginUser", "Login failed by "+in.Email, logger.Warn)
-		s.performanceProducer.WritePerformanceMessage(kafka_util.UserService, kafka_util.Login, "Login attempt by " + in.Email + " failed", http.StatusBadRequest)
+		s.logger.ToStdoutAndFile("LoginUser", "Login failed by " + in.Email, logger.Warn)
+		s.userEventsProducer.WriteUserEventMessage(kafka_util.Login, in.Email, "Login attempt by " + in.Email + " failed")
 		return &protopb.LoginResponse{}, err
 	}
 

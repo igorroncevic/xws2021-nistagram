@@ -30,6 +30,7 @@ func main(){
 	customLogger := logger.NewLogger()
 
 	performanceController := controllers.NewPerformanceController(db, customLogger)
+	userEventController := controllers.NewUserEventController(db, customLogger)
 
 	r := mux.NewRouter()
 
@@ -49,7 +50,12 @@ func main(){
 	})
 	defer performanceConsumer.Close()
 
-	go userEventsConsumer.Consume(nil)
+	go userEventsConsumer.Consume(func(id string, timestamp time.Time, message map[string]interface{}) error {
+		converted := kafka_util.ConvertToUserEventMessage(message)
+
+		persistMessage := model.ConvertUserEventMessageToPersistence(id, timestamp, converted)
+		return userEventController.Service.SaveEntry(context.Background(), persistMessage)
+	})
 	defer userEventsConsumer.Close()
 
 	customLogger.ToStdoutAndFile("Monitoring Service", "Starting service...", logger.Info)

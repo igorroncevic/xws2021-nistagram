@@ -74,3 +74,21 @@ func (producer *KafkaProducer) WritePerformanceMessage(service string, function 
 
 	return nil
 }
+
+func (producer *KafkaProducer) WriteUserEventMessage(eventType UserEventType, userId string, message string) error {
+	message, err := MarshalUserEventMessage(eventType, userId, message)
+	if err != nil {
+		log.Println("Couldn't marshal Kafka message")
+		//s.logger.ToStdoutAndFile("KafkaCallback", "Couldn't marshal Kafka message", logger.Error)
+		return err
+	}
+
+	err = producer.WriteMessage(message)
+	if err != nil {
+		log.Println("Couldn't log event to Kafka")
+		//s.logger.ToStdoutAndFile("KafkaCallback", "Couldn't log event to Kafka", logger.Error)
+		return err
+	}
+
+	return nil
+}

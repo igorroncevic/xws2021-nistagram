@@ -15,3 +15,13 @@ func ConvertPerformanceMessageToPersistence(id string, timestamp time.Time, mess
 		Message:   message.Message,
 	}
 }
+
+func ConvertUserEventMessageToPersistence(id string, timestamp time.Time, message kafka_util.UserEventMessage) UserEventMessage{
+	return UserEventMessage{
+		Id:        id,
+		Timestamp: timestamp,
+		Type: 	   message.Type.String(),
+		UserId:    message.UserId,
+		Message:   message.Message,
+	}
+}
