@@ -7,17 +7,18 @@ services:
     container_name: gateway
     restart: always
     ports:
-      - 8080:8080
+      - "8080:8080"
     environment:
       USER_SERVICE: http://user_service:8001
       CONTENT_SERVICE: http://content_service:8002
       RECOMMENDATION_SERVICE: http://recommendation_service:8005
+      MONITORING_SERVICE: http://monitoring_service:8006
 
   frontend:
     image: frontend
     container_name: frontend
     ports:
-      - 3000:3000
+      - "3000:3000"
     environment:
       REACT_APP_CHECK: docker-compose
       REACT_APP_USER_SERVICE: http://localhost:8080/api/users
@@ -33,8 +34,8 @@ services:
     container_name: neo4j
     restart: always
     ports:
-      - 7474:7474
-      - 7687:7687
+      - "7474:7474"
+      - "7687:7687"
     environment:
       NEO4J_AUTH: neo4j/root
       NEO4J_dbms_default__database: neo4j
@@ -50,8 +51,8 @@ services:
       DB_NAME: neo4j
       DB_PW: root
     ports:
-      - 8005:8005
-      - 8095:8095
+      - "8005:8005"
+      - "8095:8095"
     depends_on:
       - neo4j
 
@@ -75,8 +76,8 @@ services:
       DB_USER: postgres
       DB_PW: root
     ports:
-      - 8001:8001
-      - 8091:8091
+      - "8001:8001"
+      - "8091:8091"
     depends_on:
       - postgres
 
@@ -90,8 +91,48 @@ services:
       DB_USER: postgres
       DB_PW: root
     ports:
-      - 8002:8002
-      - 8092:8092
+      - "8002:8002"
+      - "8092:8092"
     depends_on:
       - user_service
 
+  monitoring_service:
+    image: monitoring_service
+    container_name: monitoring_service
+    restart: always
+    environment:
+      Docker_env: env
+      DB_HOST: postgres
+      DB_NAME: xws_monitoring_service
+      DB_USER: postgres
+      DB_PW: root
+    ports:
+      - "8006:8006"
+      - "8096:8096"
+    depends_on:
+      - kafka
+
+  kafka:
+    image: wurstmeister/kafka
+    container_name: kafka
+    restart: always
+    ports:
+      - "9092:9092"
+    volumes:
+      - ./data/kafka_data:/kafka
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    depends_on:
+      - zookeeper
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    restart: always
+    volumes:
+      - ./data/zookeeper_conf:/conf
+      - ./data/zookeeper_data:/data
+      - ./data/zookeeper_datalog:/datalog
+    container_name: zookeeper
+    ports:
+      - "2181:2181"

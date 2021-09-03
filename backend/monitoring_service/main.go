@@ -50,6 +50,8 @@ func main(){
 	})
 	defer performanceConsumer.Close()
 
+	// userEventsRouter := r.PathPrefix("/user").Subrouter()
+
 	go userEventsConsumer.Consume(func(id string, timestamp time.Time, message map[string]interface{}) error {
 		converted := kafka_util.ConvertToUserEventMessage(message)
 
