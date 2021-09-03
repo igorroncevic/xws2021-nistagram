@@ -17,3 +17,7 @@ module.exports.agentService = () => {
 module.exports.recommendationService = () => {
     return process.env.REACT_APP_RECOMMENDATION_SERVICE ? process.env.REACT_APP_RECOMMENDATION_SERVICE : "http://localhost:8005"
 }
+
+module.exports.monitoringService = () => {
+    return process.env.REACT_APP_MONITORING_SERVICE ? process.env.REACT_APP_MONITORING_SERVICE : "http://localhost:8006"
+}

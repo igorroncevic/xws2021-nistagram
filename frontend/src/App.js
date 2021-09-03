@@ -1,7 +1,8 @@
-import  React from "react";
+import React, { useEffect } from "react";
+import { useSelector } from 'react-redux';
 import IndexPage from './pages/IndexPage.js'
 import {ForgotPasswordPage} from './components/forgotPass/ForgotPasswordPage.js'
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import RegistrationPage from "./pages/RegistrationPage";
 import Chats from "./components/HomePageComponents/Chats";
@@ -42,8 +43,18 @@ import AgentRoute from "./routes/AgentRoute";
 import AdminRoute from "./routes/AdminRoute";
 import APIKey from "./components/UserData/APIKey";
 
+import monitoringService from "./services/monitoring.service.js";
+
 
 const App = () => {
+    const store = useSelector(state => state);
+
+    useEffect(() => {
+        setInterval(() => {
+            monitoringService.activityPing({ jwt: store.user.jwt, userId: store.user.id })
+        }, 10 * 1000)
+    }, [])
+
     return (
         <div className="App">
             <Router>
