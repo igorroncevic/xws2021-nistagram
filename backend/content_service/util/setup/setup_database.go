@@ -6,7 +6,7 @@ import (
 )
 
 func FillDatabase(db *gorm.DB) error {
-	dropTables(db)
+	// dropTables(db)
 
 	db.Migrator().DropTable(&persistence.AdCategory{})
 	err := db.AutoMigrate(&persistence.Post{},
