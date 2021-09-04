@@ -37,11 +37,12 @@ import ComplaintPreview from "./components/AdminComponents/ComplaintPreview";
 import AgentCheck from "./components/AdminComponents/AgentCheck";
 import AgentReg from "./components/AdminComponents/AgentReg";
 import AdCategories from './components/Campaigns/AdCategories'
+import APIKey from "./components/UserData/APIKey";
+import UserActivity from "./components/Monitoring/UserActivity";
 
 import AuthenticatedRoute from "./routes/AuthenticatedRoute";
 import AgentRoute from "./routes/AgentRoute";
 import AdminRoute from "./routes/AdminRoute";
-import APIKey from "./components/UserData/APIKey";
 
 import monitoringService from "./services/monitoring.service.js";
 
@@ -49,11 +50,11 @@ import monitoringService from "./services/monitoring.service.js";
 const App = () => {
     const store = useSelector(state => state);
 
-    useEffect(() => {
+    /* useEffect(() => {
         setInterval(() => {
             monitoringService.activityPing({ jwt: store.user.jwt, userId: store.user.id })
         }, 10 * 1000)
-    }, [])
+    }, []) */
 
     return (
         <div className="App">
@@ -66,6 +67,7 @@ const App = () => {
                 <Route path='/search' exact={true} component={Search}/>
                 <Route path='/profile/:username' exact component={Profile}/>
                 <Route path='/info' exact component={ProfileInfo}/>
+                <Route path='/activity' exact component={UserActivity}/>
 
                 <AuthenticatedRoute path='/new_post' exact component={NewPost} isAdminProhibited={true} />
                 <AuthenticatedRoute path='/chats' exact component={Chats} isAdminProhibited={true} />

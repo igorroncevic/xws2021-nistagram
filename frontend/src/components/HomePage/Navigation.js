@@ -1,9 +1,8 @@
 import React from "react";
 import {Button} from "react-bootstrap";
-import {useHistory} from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import Menu from "./Menu";
 import "../../style/navigation.css";
-import Sidebar from "./Sidebar";
 
 function Navigation() {
     const history = useHistory()
@@ -17,11 +16,10 @@ function Navigation() {
     return (
         <div className="navigation">
             <div className="container">
-                <font face = "Comic Sans MS" size = "5" style={{marginRight:'5em'}}>Ništagram</font>
-                <Button variant="outline-dark" style={{marginRight:'25em'}} onClick={redirectToSearch}>Search...</Button>
+                <font face="Comic Sans MS" size="5">Ništagram</font>
+                <Button variant="outline-dark" onClick={redirectToSearch}>Search...</Button>
             </div>
             <Menu className="menu" />
-
         </div>
     );
 

@@ -57,20 +57,6 @@ function Menu() {
         }
     }
 
-
-    /*async function getUsernameById() {
-        const response = await userService.getUsernameById({
-            id: store.user.id,
-            jwt: store.user.jwt,
-        })
-
-        if (response.status === 200) {
-            setUsername(response.data.username)
-        } else {
-            console.log("getuserbyusername error")
-        }
-    }
-*/
     function getUsername() {
         setUsername(store.user.username)
     }
@@ -172,7 +158,7 @@ function Menu() {
              {store.user.role !== 'Admin' && store.user.jwt !== "" && (
                 <NavLink to={{pathname: "/info"}}> <Explore className="icon"/> </NavLink>)}
 
-            {store.user.jwt !== "" && store.user.role === 'Admin' && (
+            {/* store.user.jwt !== "" && store.user.role === 'Admin' && (
                 <Dropdown>
                     <Dropdown.Toggle variant="link" id="dropdown-basic">
                         <Plus className="icon"/>
@@ -187,7 +173,7 @@ function Menu() {
                             requests</Dropdown.Item>}
                     </Dropdown.Menu>
                 </Dropdown>
-            )}
+            ) */}
 
             {store.user.jwt !== "" && store.user.role === 'Admin' && (
                 <NavLink style={{maxWidth: '35px'}} to={{pathname: "/complaints"}}> <Complaint className="icon"/>
@@ -228,12 +214,12 @@ function Menu() {
             {store.user.jwt !== "" ?
                 <Button variant="outline-danger" onClick={logout}
                         style={{width: "200px", display: "block"}}>Logout</Button> :
-                <div style={{display: 'flex'}}>
-                    <Button variant="primary" onClick={login}style={{width: "100px", maxHeight:'45px',marginLeft: "1em", marginTop:'20px'}}>Login</Button>
+                <div className="login-menu">
+                    <Button variant="primary" onClick={login} className="login-button">Login</Button>
 
-                    <div style={{display:'block', marginLeft:'15px', marginRight:'60px', width:'150px', marginTop:'10px'}}>
-                        <p><a style={{'color': '#6cddda', 'fontWeight': 'bold', padding:'1px'}} href='#' name="workHours" onClick={handleModal}>Register?</a></p>
-                        <p> <a  style={{'color': '#6cddda', 'fontWeight': 'bold'}}  href={'/agent_registration'} >Agent registration?</a></p>
+                    <div className="register-buttons">
+                        <Button variant="outline-primary" className="register-btn" onClick={handleModal}>Register</Button>
+                        {/* <p> <a style={{'color': '#6cddda', 'fontWeight': 'bold'}}  href='/agent_registration' >Agent registration?</a></p> */}
                      </div>
                 </div>
             }
