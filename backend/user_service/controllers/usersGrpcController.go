@@ -146,7 +146,7 @@ func (s *UserGrpcController) UpdateUserPassword(ctx context.Context, in *protopb
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	s.logger.ToStdoutAndFile("UpdateUserPassword", "Updating password attempt by user with id "+in.Password.Id, logger.Info)
+	s.logger.ToStdoutAndFile("UpdateUserPassword", "Updating password attempt by user with id " + in.Password.Id, logger.Info)
 
 	var password domain.Password
 	password = password.ConvertFromGrpc(in.Password)
@@ -162,7 +162,7 @@ func (s *UserGrpcController) UpdateUserPassword(ctx context.Context, in *protopb
 	}
 
 	s.userEventsProducer.WriteUserEventMessage(kafka_util.PasswordChange, in.Password.Id, "Successful password change by " + in.Password.Id)
-	s.logger.ToStdoutAndFile("UpdateUserPassword", "Updating password successful by user with id "+in.Password.Id, logger.Info)
+	s.logger.ToStdoutAndFile("UpdateUserPassword", "Updating password successful by user with id " + in.Password.Id, logger.Info)
 	return &protopb.EmptyResponse{}, nil
 }
 
@@ -294,7 +294,7 @@ func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginReq
 	}
 
 	s.userEventsProducer.WriteUserEventMessage(kafka_util.Login, in.Email, "Successful login attempt by " + in.Email)
-	s.logger.ToStdoutAndFile("LoginUser", "Successful login by "+in.Email, logger.Info)
+	s.logger.ToStdoutAndFile("LoginUser", "Successful login by " + in.Email, logger.Info)
 
 	return &protopb.LoginResponse{
 		AccessToken: token,

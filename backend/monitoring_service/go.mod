@@ -19,6 +19,7 @@ require (
 	github.com/segmentio/kafka-go v0.4.17 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/uber/jaeger-client-go v2.29.1+incompatible // indirect
+	google.golang.org/grpc v1.40.0 // indirect
 	gorm.io/driver/postgres v1.1.0 // indirect
 	gorm.io/gorm v1.21.14 // indirect
 )

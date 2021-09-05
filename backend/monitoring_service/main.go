@@ -50,7 +50,8 @@ func main(){
 	})
 	defer performanceConsumer.Close()
 
-	// userEventsRouter := r.PathPrefix("/user").Subrouter()
+	userEventsRouter := r.PathPrefix("/user").Subrouter()
+	userEventsRouter.HandleFunc("/activity/{id}", userEventController.GetUsersActivity).Methods("GET")
 
 	go userEventsConsumer.Consume(func(id string, timestamp time.Time, message map[string]interface{}) error {
 		converted := kafka_util.ConvertToUserEventMessage(message)
@@ -62,8 +63,11 @@ func main(){
 
 	customLogger.ToStdoutAndFile("Monitoring Service", "Starting service...", logger.Info)
 
-	http.Handle("/", r)
-	http.ListenAndServe(":8006", r)
+
+	corsWrapper := common.SetupCors()
+	corsRouter := corsWrapper.Handler(r)
+	http.Handle("/", corsRouter)
+	http.ListenAndServe(":8006", corsRouter)
 }
 
 func SetupEnvVariables() {

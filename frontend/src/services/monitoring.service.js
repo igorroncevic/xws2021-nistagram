@@ -20,6 +20,20 @@ class MonitoringService extends RootService {
             })
         return response
     }
+
+    async getUsersRecentActivity(data){
+        const { userId, jwt } = data;
+        const headers = this.setupHeaders(jwt)
+
+        const response = await this.apiClient.get(`/activity/${userId}`, { headers })
+            .then(res => {
+                return res
+            }).catch(err => {
+                console.error(err)
+                return err
+            })
+        return response
+    }
 }
 
 const monitoringService = new MonitoringService()

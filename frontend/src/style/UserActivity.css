@@ -30,6 +30,7 @@
 .listing .date .items{
     display: flex;
     flex-direction: column;
+    width: 80%;
 }
 
 .listing .date .items .item{
@@ -38,6 +39,7 @@
     flex-direction: row;
     align-items: center;
     column-gap: 0.75em;
+    width: 100%;
 }
 
 .listing .date .items .item .time{
