@@ -37,10 +37,10 @@ func (service *UserEventService) SaveEntry(ctx context.Context, message model.Us
 	return service.userEventRepository.SaveEntry(ctx, message)
 }
 
-func (service *UserEventService) GetUsersActivity(ctx context.Context, id string) ([]model.UserEventMessage, error) {
+func (service *UserEventService) GetUsersActivity(ctx context.Context, id string, email string) ([]model.UserEventMessage, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "SaveEntry")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	return service.userEventRepository.GetUsersActivity(ctx, id)
+	return service.userEventRepository.GetUsersActivity(ctx, id, email)
 }

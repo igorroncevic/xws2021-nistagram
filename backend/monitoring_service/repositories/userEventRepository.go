@@ -9,7 +9,7 @@ import (
 
 type UserEventRepository interface {
 	SaveEntry(context.Context, model.UserEventMessage) error
-	GetUsersActivity(context.Context, string) ([]model.UserEventMessage, error)
+	GetUsersActivity(context.Context, string, string) ([]model.UserEventMessage, error)
 }
 
 type userEventRepository struct {
@@ -41,13 +41,13 @@ func (repository *userEventRepository) SaveEntry(ctx context.Context, message mo
 	return err
 }
 
-func (repository *userEventRepository) GetUsersActivity(ctx context.Context, id string) ([]model.UserEventMessage, error){
+func (repository *userEventRepository) GetUsersActivity(ctx context.Context, id string, email string) ([]model.UserEventMessage, error){
 	span := tracer.StartSpanFromContextMetadata(ctx, "SaveEntry")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	events := []model.UserEventMessage{}
-	err := repository.DB.Model(&model.UserEventMessage{}).Where("user_id = ?", id).Find(&events)
+	err := repository.DB.Model(&model.UserEventMessage{}).Where("user_id = ? OR user_id = ?", id, email).Find(&events)
 	if err.Error != nil { return []model.UserEventMessage{}, err.Error }
 
 	return events, nil

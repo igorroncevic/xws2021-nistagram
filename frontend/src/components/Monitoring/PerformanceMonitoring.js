@@ -10,15 +10,15 @@ import './../../style/PerformanceMonitoring.css'
 
 const PerformanceMonitoring = () => {
     const [activity, setActivity] = useState({})
+    const store = useSelector(state => state);
 
     useEffect(() => {
         (async function () {
             let tempActivity = []
-            const response = await monitoringService.getPerformanceMessages({ jwt: "" })
+            const response = await monitoringService.getPerformanceMessages({ jwt: store.user.jwt })
             if (response.status === 200) {
                 tempActivity = [...response.data]
             }
-            console.log(tempActivity)
 
             const activityGroup = tempActivity.map(item => {
                 return {

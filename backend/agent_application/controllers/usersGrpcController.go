@@ -46,7 +46,7 @@ func (s *UserGrpcController) LoginUserInAgentApp(ctx context.Context, in *protop
 		return &protopb.LoginResponseAgentApp{}, err
 	}
 
-	token, err := s.jwtManager.GenerateJwt(user.Id, user.Role.String())
+	token, err := s.jwtManager.GenerateJwt(user.Id, user.Role.String(), user.Email)
 	if err != nil {
 		s.logger.ToStdoutAndFile("LoginUser", "JWT generate failed", logger.Error)
 		return &protopb.LoginResponseAgentApp{}, err

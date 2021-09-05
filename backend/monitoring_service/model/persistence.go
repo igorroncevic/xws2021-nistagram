@@ -12,7 +12,7 @@ type PerformanceMessage struct {
 }
 
 type UserEventMessage struct {
-	Id		    string		`gorm:"primaryKey"`
+	Id		    string		`gorm:"primaryKey" json:"id"`
 	Timestamp   time.Time	`json:"timestamp"`
 	Type		string		`json:"type"`
 	UserId		string		`json:"user_id"`

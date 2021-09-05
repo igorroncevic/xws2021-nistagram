@@ -279,7 +279,7 @@ func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginReq
 		return &protopb.LoginResponse{}, err
 	}
 
-	token, err := s.jwtManager.GenerateJwt(user.Id, user.Role.String())
+	token, err := s.jwtManager.GenerateJwt(user.Id, user.Role.String(), user.Email)
 	if err != nil {
 		s.logger.ToStdoutAndFile("LoginUser", "JWT generate failed", logger.Error)
 		s.performanceProducer.WritePerformanceMessage(kafka_util.UserService, kafka_util.LoginFunction, "JWT generate failed", http.StatusInternalServerError)
@@ -397,7 +397,7 @@ func (s *UserGrpcController) GoogleAuth(ctx context.Context, in *protopb.GoogleA
 		return &protopb.LoginResponse{}, status.Errorf(codes.InvalidArgument, "could not create user")
 	}
 
-	token, err := s.jwtManager.GenerateJwt(user.Id, user.Role.String())
+	token, err := s.jwtManager.GenerateJwt(user.Id, user.Role.String(), user.Email)
 	if err != nil {
 		s.logger.ToStdoutAndFile("GoogleAuth", "JWT generate failed", logger.Error)
 		return &protopb.LoginResponse{}, err

@@ -28,9 +28,10 @@ func main(){
 	performanceConsumer := kafka_util.NewConsumer(kafka_util.RegularConsumerMaxWait, kafka_util.ExampleGroupId, kafka_util.PerformanceTopic)
 	userEventsConsumer := kafka_util.NewConsumer(kafka_util.RegularConsumerMaxWait, kafka_util.ExampleGroupId, kafka_util.UserEventsTopic)
 	customLogger := logger.NewLogger()
+	jwtManager := common.NewJWTManager("somesecretkey", 60*time.Minute)
 
 	performanceController := controllers.NewPerformanceController(db, customLogger)
-	userEventController := controllers.NewUserEventController(db, customLogger)
+	userEventController := controllers.NewUserEventController(db, customLogger, jwtManager)
 
 	r := mux.NewRouter()
 
@@ -51,7 +52,7 @@ func main(){
 	defer performanceConsumer.Close()
 
 	userEventsRouter := r.PathPrefix("/user").Subrouter()
-	userEventsRouter.HandleFunc("/activity/{id}", userEventController.GetUsersActivity).Methods("GET")
+	userEventsRouter.HandleFunc("/activity", userEventController.GetUsersActivity).Methods("GET")
 
 	go userEventsConsumer.Consume(func(id string, timestamp time.Time, message map[string]interface{}) error {
 		converted := kafka_util.ConvertToUserEventMessage(message)

@@ -32,5 +32,5 @@ func SetupEnvVariables() {
 	os.Setenv("DB_HOST", "localhost")
 	os.Setenv("DB_NAME", common.ContentDatabaseName)
 	os.Setenv("DB_USER", "postgres")
-	os.Setenv("DB_PW", "admin")
+	os.Setenv("DB_PW", "root")
 }

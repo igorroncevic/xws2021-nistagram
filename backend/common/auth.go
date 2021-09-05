@@ -24,6 +24,7 @@ type Credentials struct {
 
 type Claims struct {
 	UserId string `json:"userId"`
+	Email  string `json:"email"`
 	Role   string `json:"role"`
 	jwt.StandardClaims
 }
@@ -58,9 +59,10 @@ func (manager *JWTManager) AuthMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func (manager *JWTManager) GenerateJwt(id string, role string) (string, error) {
+func (manager *JWTManager) GenerateJwt(id string, role string, email string) (string, error) {
 	claims := &Claims{
 		UserId: id,
+		Email: email,
 		Role:   role,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(manager.tokenDuration).Unix(),
@@ -127,6 +129,15 @@ func (manager *JWTManager) ExtractClaimsFromMetadata(ctx context.Context) (*Clai
 	}
 	accessToken := headerParts[1]
 
+	claims, err := manager.ExtractClaims(accessToken)
+	if err != nil {
+		return &Claims{}, errors.New("invalid token claims")
+	}
+
+	return claims, nil
+}
+
+func (manager *JWTManager) ExtractClaims(accessToken string) (*Claims, error){
 	token, _ := jwt.ParseWithClaims(accessToken, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(manager.secretKey), nil
 	})
@@ -135,7 +146,6 @@ func (manager *JWTManager) ExtractClaimsFromMetadata(ctx context.Context) (*Clai
 	if !ok {
 		return &Claims{}, errors.New("invalid token claims")
 	}
-
 	return claims, nil
 }
 

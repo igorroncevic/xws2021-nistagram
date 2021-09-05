@@ -10,6 +10,7 @@ import './../../style/UserActivity.css'
 
 const UserActivity = () => {
     const [activity, setActivity] = useState({})
+    const store = useSelector(state => state)
 
     useEffect(() => {
         /* const tempActivity = [
@@ -23,11 +24,10 @@ const UserActivity = () => {
         ] */
         (async function () {
             let tempActivity = []
-            const response = await monitoringService.getUsersRecentActivity({ jwt: "", userId: "agentagentic@gmail.com" })
+            const response = await monitoringService.getUsersRecentActivity({ jwt: store.user.jwt })
             if (response.status == 200) {
                 tempActivity = [...response.data]
             }
-            console.log(tempActivity)
 
             const activityGroup = tempActivity.map(item => {
                 return {

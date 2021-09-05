@@ -27,7 +27,7 @@ func (s ApiKeyService) GenerateApiToken(ctx context.Context, id string) (string,
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	token, err := s.jwtManager.GenerateJwt(id, "Agent")
+	token, err := s.jwtManager.GenerateJwt(id, "Agent", "")
 	if err != nil {
 		return "", err
 	}
