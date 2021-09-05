@@ -8,6 +8,7 @@ import (
 )
 
 type PerformanceRepository interface {
+	GetAllEntries(context.Context) ([]model.PerformanceMessage, error)
 	SaveEntry(context.Context, model.PerformanceMessage) error
 }
 
@@ -21,6 +22,18 @@ func NewPerformanceRepo(db *gorm.DB) (*performanceRepository, error) {
 	}
 
 	return &performanceRepository { DB: db }, nil
+}
+
+func (repository *performanceRepository) GetAllEntries(ctx context.Context) ([]model.PerformanceMessage, error){
+	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllEntries")
+	defer span.Finish()
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	messages := []model.PerformanceMessage{}
+	result := repository.DB.Find(&messages)
+	if result.Error != nil { return []model.PerformanceMessage{}, result.Error }
+
+	return messages, nil
 }
 
 func (repository *performanceRepository) SaveEntry(ctx context.Context, message model.PerformanceMessage) error{

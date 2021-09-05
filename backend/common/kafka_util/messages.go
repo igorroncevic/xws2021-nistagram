@@ -1,10 +1,5 @@
 package kafka_util
 
-const (
-	FailedLogin = "Failed login attempt."
-	
-)
-
 func GetUserEventMessage(eventType UserEventType, success bool) string{
 	switch eventType {
 	case Login:

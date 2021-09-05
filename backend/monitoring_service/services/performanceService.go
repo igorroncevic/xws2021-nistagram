@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"github.com/igorroncevic/xws2021-nistagram/common/kafka_util"
 	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
 	"github.com/igorroncevic/xws2021-nistagram/monitoring_service/model"
 	"github.com/igorroncevic/xws2021-nistagram/monitoring_service/repositories"
@@ -21,12 +20,12 @@ func NewPerformanceService(db *gorm.DB) (*PerformanceService, error) {
 	}, nil
 }
 
-func (service *PerformanceService) GetAllStats(ctx context.Context) ([]kafka_util.PerformanceMessage, error) {
+func (service *PerformanceService) GetAllStats(ctx context.Context) ([]model.PerformanceMessage, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllStats")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	return []kafka_util.PerformanceMessage{}, nil
+	return service.performanceRepository.GetAllEntries(ctx)
 }
 
 func (service *PerformanceService) SaveEntry(ctx context.Context, message model.PerformanceMessage) error{

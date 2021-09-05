@@ -3,7 +3,7 @@ import { monitoringService as getMonitoringService } from './../backendPaths';
 
 class MonitoringService extends RootService {
     constructor() {
-        super(getMonitoringService() + "/user")
+        super(getMonitoringService())
     }
 
     // Unimplemented: Ping a server every minute so that we know that he is online. Not needed at the moment.
@@ -25,7 +25,21 @@ class MonitoringService extends RootService {
         const { userId, jwt } = data;
         const headers = this.setupHeaders(jwt)
 
-        const response = await this.apiClient.get(`/activity/${userId}`, { headers })
+        const response = await this.apiClient.get(`/user/activity/${userId}`, { headers })
+            .then(res => {
+                return res
+            }).catch(err => {
+                console.error(err)
+                return err
+            })
+        return response
+    }
+
+    async getPerformanceMessages(data){
+        const { jwt } = data;
+        const headers = this.setupHeaders(jwt)
+
+        const response = await this.apiClient.get('/performance', { headers })
             .then(res => {
                 return res
             }).catch(err => {

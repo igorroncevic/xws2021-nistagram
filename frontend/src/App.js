@@ -39,6 +39,7 @@ import AgentReg from "./components/AdminComponents/AgentReg";
 import AdCategories from './components/Campaigns/AdCategories'
 import APIKey from "./components/UserData/APIKey";
 import UserActivity from "./components/Monitoring/UserActivity";
+import PerformanceMonitoring from "./components/Monitoring/PerformanceMonitoring";
 
 import AuthenticatedRoute from "./routes/AuthenticatedRoute";
 import AgentRoute from "./routes/AgentRoute";
@@ -68,6 +69,7 @@ const App = () => {
                 <Route path='/profile/:username' exact component={Profile}/>
                 <Route path='/info' exact component={ProfileInfo}/>
                 <Route path='/activity' exact component={UserActivity}/>
+                <Route path='/performance' exact component={PerformanceMonitoring}/>
 
                 <AuthenticatedRoute path='/new_post' exact component={NewPost} isAdminProhibited={true} />
                 <AuthenticatedRoute path='/chats' exact component={Chats} isAdminProhibited={true} />
