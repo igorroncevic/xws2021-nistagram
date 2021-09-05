@@ -60,19 +60,13 @@ func MarshalUserEventMessage(eventType UserEventType, userId string, message str
 
 type UserEventType string
 const (
-	LinkClick UserEventType = "LinkClick"
-	TimeSpent				= "TimeSpent"
-	Login					= "Login"
+	Login	  UserEventType	= "Login"
 	PasswordChange			= "PasswordChange"
 	ProfileUpdate			= "ProfileUpdate"
 )
 
 func (uet UserEventType) String() string {
 	switch uet {
-	case LinkClick:
-		return "LinkClick"
-	case TimeSpent:
-		return "TimeSpent"
 	case Login:
 		return "Login"
 	case PasswordChange:

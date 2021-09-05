@@ -127,17 +127,17 @@ func (s *UserGrpcController) UpdateUserProfile(ctx context.Context, in *protopb.
 	var user domain.User
 	user = user.ConvertFromGrpc(in.User)
 	if user.Id == "" {
-		s.userEventsProducer.WriteUserEventMessage(kafka_util.ProfileUpdate, user.Id, "Failed profile update by " + user.Id)
+		s.userEventsProducer.WriteUserEventMessage(kafka_util.ProfileUpdate, user.Id, kafka_util.GetUserEventMessage(kafka_util.ProfileUpdate, false))
 		return &protopb.EmptyResponse{}, status.Errorf(codes.Unknown, "cannot convert user from grpc")
 	}
 
 	_, err := s.service.UpdateUserProfile(ctx, user)
 	if err != nil {
-		s.userEventsProducer.WriteUserEventMessage(kafka_util.ProfileUpdate, user.Id, "Failed profile update by " + user.Id)
+		s.userEventsProducer.WriteUserEventMessage(kafka_util.ProfileUpdate, user.Id, kafka_util.GetUserEventMessage(kafka_util.ProfileUpdate, false))
 		return &protopb.EmptyResponse{}, status.Errorf(codes.Unknown, "Could not update user")
 	}
 
-	s.userEventsProducer.WriteUserEventMessage(kafka_util.ProfileUpdate, user.Id, "Successful profile update by " + user.Id)
+	s.userEventsProducer.WriteUserEventMessage(kafka_util.ProfileUpdate, user.Id, kafka_util.GetUserEventMessage(kafka_util.ProfileUpdate, true))
 	return &protopb.EmptyResponse{}, nil
 }
 
@@ -157,11 +157,11 @@ func (s *UserGrpcController) UpdateUserPassword(ctx context.Context, in *protopb
 	_, err := s.service.UpdateUserPassword(ctx, password)
 	if err != nil {
 		s.logger.ToStdoutAndFile("UpdateUserPassword", "Updating password failed by user with id " + in.Password.Id, logger.Error)
-		s.userEventsProducer.WriteUserEventMessage(kafka_util.PasswordChange, in.Password.Id, "Failed password change by " + in.Password.Id)
+		s.userEventsProducer.WriteUserEventMessage(kafka_util.PasswordChange, in.Password.Id, kafka_util.GetUserEventMessage(kafka_util.PasswordChange, false))
 		return &protopb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Could not update user's password")
 	}
 
-	s.userEventsProducer.WriteUserEventMessage(kafka_util.PasswordChange, in.Password.Id, "Successful password change by " + in.Password.Id)
+	s.userEventsProducer.WriteUserEventMessage(kafka_util.PasswordChange, in.Password.Id, kafka_util.GetUserEventMessage(kafka_util.PasswordChange, true))
 	s.logger.ToStdoutAndFile("UpdateUserPassword", "Updating password successful by user with id " + in.Password.Id, logger.Info)
 	return &protopb.EmptyResponse{}, nil
 }
@@ -275,7 +275,7 @@ func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginReq
 	user, err := s.service.LoginUser(ctx, request)
 	if err != nil {
 		s.logger.ToStdoutAndFile("LoginUser", "Login failed by " + in.Email, logger.Warn)
-		s.userEventsProducer.WriteUserEventMessage(kafka_util.Login, in.Email, "Failed login attempt by " + in.Email)
+		s.userEventsProducer.WriteUserEventMessage(kafka_util.Login, in.Email, kafka_util.GetUserEventMessage(kafka_util.Login, false))
 		return &protopb.LoginResponse{}, err
 	}
 
@@ -293,7 +293,7 @@ func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginReq
 		return &protopb.LoginResponse{}, err
 	}
 
-	s.userEventsProducer.WriteUserEventMessage(kafka_util.Login, in.Email, "Successful login attempt by " + in.Email)
+	s.userEventsProducer.WriteUserEventMessage(kafka_util.Login, in.Email, kafka_util.GetUserEventMessage(kafka_util.Login, true))
 	s.logger.ToStdoutAndFile("LoginUser", "Successful login by " + in.Email, logger.Info)
 
 	return &protopb.LoginResponse{
@@ -351,11 +351,11 @@ func (s *UserGrpcController) ChangeForgottenPass(ctx context.Context, in *protop
 	_, err := s.service.ChangeForgottenPass(ctx, password)
 	if err != nil {
 		s.logger.ToStdoutAndFile("ChangeForgottenPass", "Password change failed: "+in.Password.Id, logger.Error)
-		s.userEventsProducer.WriteUserEventMessage(kafka_util.PasswordChange, in.Password.Id, "Failed password change by " + in.Password.Id)
+		s.userEventsProducer.WriteUserEventMessage(kafka_util.PasswordChange, in.Password.Id, kafka_util.GetUserEventMessage(kafka_util.PasswordChange, false))
 		return &protopb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Could not create user")
 	}
 
-	s.userEventsProducer.WriteUserEventMessage(kafka_util.PasswordChange, in.Password.Id, "Successful password change by " + in.Password.Id)
+	s.userEventsProducer.WriteUserEventMessage(kafka_util.PasswordChange, in.Password.Id, kafka_util.GetUserEventMessage(kafka_util.PasswordChange, true))
 	s.logger.ToStdoutAndFile("ChangeForgottenPass", "Password change successful: "+in.Password.Id, logger.Info)
 	return &protopb.EmptyResponse{}, nil
 }
