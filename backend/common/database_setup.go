@@ -29,7 +29,7 @@ const (
 	AgentDatabaseName          = "xws_agent"
 	ChatDatabaseName           = "xws_chat"
 	RecommendationDatabaseName = "neo4j"
-	MonitoringDatabaseName 	   = "xws_monitoring"
+	MonitoringDatabaseName     = "xws_monitoring"
 )
 
 func InitDatabase(dbname string) *gorm.DB {

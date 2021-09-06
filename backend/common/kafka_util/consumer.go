@@ -6,12 +6,13 @@ import (
 	"fmt"
 	"github.com/igorroncevic/xws2021-nistagram/common/logger"
 	"github.com/segmentio/kafka-go"
+	"os"
 	"time"
 )
 
 func NewConsumer(maxWait time.Duration, groupId string, topicName string) KafkaConsumer {
 	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:   []string{"localhost:9092"},
+		Brokers:   []string{os.Getenv("KAFKA_HOST") + ":9092"},
 		Topic:     topicName,
 		Partition: 0,
 		MaxWait:   maxWait,
@@ -21,9 +22,9 @@ func NewConsumer(maxWait time.Duration, groupId string, topicName string) KafkaC
 
 	l := logger.NewLogger()
 
-	l.ToStdout("Kafka Consumer", "Ready on topic " + topicName, logger.Info)
+	l.ToStdout("Kafka Consumer", "Ready on topic "+topicName, logger.Info)
 
-	return KafkaConsumer{ reader: r, logger: l }
+	return KafkaConsumer{reader: r, logger: l}
 }
 
 type KafkaConsumer struct {
@@ -58,7 +59,9 @@ func (consumer *KafkaConsumer) Consume(consumeLogic func(string, time.Time, map[
 		}
 
 		// Consume logic
-		if consumeLogic == nil { continue }
+		if consumeLogic == nil {
+			continue
+		}
 		err = consumeLogic(string(message.Key), message.Time, jsonMessage)
 		if err != nil {
 			consumer.logger.ToStdout("Kafka Consumer", "Failed to perform consume logic", logger.Error)
@@ -72,7 +75,7 @@ func (consumer *KafkaConsumer) Consume(consumeLogic func(string, time.Time, map[
 			consumer.logger.ToStdout("Kafka Consumer", "Failed to commit message", logger.Error)
 			continue
 		}
-		consumer.logger.ToStdout("Kafka Consumer", "Committed message " + string(message.Key), logger.Info)
+		consumer.logger.ToStdout("Kafka Consumer", "Committed message "+string(message.Key), logger.Info)
 	}
 
 }
@@ -82,7 +85,7 @@ func (consumer *KafkaConsumer) Consume(consumeLogic func(string, time.Time, map[
 func (consumer *KafkaConsumer) resolveError(producer *KafkaProducer, message kafka.Message) {
 	if consumer.reader.Stats().Topic != RetryTopic {
 		consumer.writeToRetry(producer, message)
-	}else{
+	} else {
 		err := consumer.reader.CommitMessages(context.Background(), message)
 		if err != nil {
 			consumer.logger.ToStdout("Kafka Consumer", "Failed to commit message", logger.Error)

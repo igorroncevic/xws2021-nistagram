@@ -8,3 +8,5 @@
 *.bmp
 *.mp4
 *.log
+
+volume_data/**

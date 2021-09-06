@@ -21,22 +21,24 @@ func NewPerformanceRepo(db *gorm.DB) (*performanceRepository, error) {
 		panic("PerformanceRepository not created, gorm.DB is nil")
 	}
 
-	return &performanceRepository { DB: db }, nil
+	return &performanceRepository{DB: db}, nil
 }
 
-func (repository *performanceRepository) GetAllEntries(ctx context.Context) ([]model.PerformanceMessage, error){
+func (repository *performanceRepository) GetAllEntries(ctx context.Context) ([]model.PerformanceMessage, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetAllEntries")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	messages := []model.PerformanceMessage{}
 	result := repository.DB.Find(&messages)
-	if result.Error != nil { return []model.PerformanceMessage{}, result.Error }
+	if result.Error != nil {
+		return []model.PerformanceMessage{}, result.Error
+	}
 
 	return messages, nil
 }
 
-func (repository *performanceRepository) SaveEntry(ctx context.Context, message model.PerformanceMessage) error{
+func (repository *performanceRepository) SaveEntry(ctx context.Context, message model.PerformanceMessage) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "SaveEntry")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)

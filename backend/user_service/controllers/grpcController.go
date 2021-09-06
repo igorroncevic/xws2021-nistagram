@@ -48,9 +48,9 @@ func NewServer(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger
 		notificationController:        notificationController,
 		verificationController:        newVerificationController,
 		registrationRequestController: newRegistrationRequestController,
-		apiTokenController: newApiTokenController,
-		tracer:             tracer,
-		closer:             closer,
+		apiTokenController:            newApiTokenController,
+		tracer:                        tracer,
+		closer:                        closer,
 	}, nil
 }
 

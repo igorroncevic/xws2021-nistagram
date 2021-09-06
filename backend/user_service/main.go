@@ -32,4 +32,6 @@ func SetupEnvVariables() {
 	os.Setenv("DB_NAME", common.UsersDatabaseName)
 	os.Setenv("DB_USER", "postgres")
 	os.Setenv("DB_PW", "root")
+	os.Setenv("REDIS_HOST", "localhost")
+	os.Setenv("KAFKA_HOST", "localhost")
 }

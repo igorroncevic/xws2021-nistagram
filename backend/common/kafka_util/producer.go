@@ -5,17 +5,18 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"github.com/segmentio/kafka-go"
 	"log"
+	"os"
 	"time"
 )
 
 func NewProducer(topic string) *KafkaProducer {
 	writer := &kafka.Writer{
-		Addr:         kafka.TCP("localhost:9092"),
-		Topic:        topic,
-		Balancer:     &kafka.LeastBytes{},
+		Addr:     kafka.TCP(os.Getenv("KAFKA_HOST") + ":9092"),
+		Topic:    topic,
+		Balancer: &kafka.LeastBytes{},
 	}
 
-	return &KafkaProducer{ writer }
+	return &KafkaProducer{writer}
 }
 
 type KafkaProducer struct {
@@ -24,15 +25,15 @@ type KafkaProducer struct {
 
 func (producer *KafkaProducer) WriteMessage(message string) error {
 	kafkaMessage := kafka.Message{
-		Key:           []byte(uuid.NewV4().String()),
-		Value:         []byte(message),
-		Time:          time.Now(),
+		Key:   []byte(uuid.NewV4().String()),
+		Value: []byte(message),
+		Time:  time.Now(),
 	}
 
 	err := producer.Writer.WriteMessages(context.Background(), kafkaMessage)
 
 	if err != nil {
-		log.Println("failed to write messages to '" + producer.Writer.Topic + "' topic: ", err.Error())
+		log.Println("failed to write messages to '"+producer.Writer.Topic+"' topic: ", err.Error())
 		producer.WriteMessageToRetry(message, string(kafkaMessage.Key))
 		return err
 	}
@@ -50,7 +51,7 @@ func (producer *KafkaProducer) WriteMessageToRetry(message string, key string) e
 	err := producer.Writer.WriteMessages(context.Background(), kafkaMessage)
 
 	if err != nil {
-		log.Println("failed to write messages to '" + producer.Writer.Topic + "' topic: ", err.Error())
+		log.Println("failed to write messages to '"+producer.Writer.Topic+"' topic: ", err.Error())
 		return err
 	}
 

@@ -19,16 +19,16 @@ import (
 )
 
 type UserGrpcController struct {
-	service        		*services.UserService
-	requestService 	    *services.RegistrationRequestService
+	service             *services.UserService
+	requestService      *services.RegistrationRequestService
 	userEventsProducer  *kafka_util.KafkaProducer
 	performanceProducer *kafka_util.KafkaProducer
-	jwtManager     		*common.JWTManager
-	logger         		*logger.Logger
+	jwtManager          *common.JWTManager
+	logger              *logger.Logger
 }
 
 func NewUserController(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger, redis *saga.RedisServer,
-						userEventsProducer *kafka_util.KafkaProducer, performanceProducer *kafka_util.KafkaProducer) (*UserGrpcController, error) {
+	userEventsProducer *kafka_util.KafkaProducer, performanceProducer *kafka_util.KafkaProducer) (*UserGrpcController, error) {
 	service, err := services.NewUserService(db, redis)
 	if err != nil {
 		return nil, err
@@ -86,7 +86,7 @@ func (s *UserGrpcController) CreateUser(ctx context.Context, in *protopb.CreateU
 
 	userDomain, err := s.service.CreateUserWithAdditionalInfo(ctx, user, &userAdditionalInfo)
 	if err != nil {
-		s.logger.ToStdoutAndFile("CreateUser", "User registration failed: " + in.User.Email, logger.Error)
+		s.logger.ToStdoutAndFile("CreateUser", "User registration failed: "+in.User.Email, logger.Error)
 		return &protopb.UsersDTO{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
@@ -146,7 +146,7 @@ func (s *UserGrpcController) UpdateUserPassword(ctx context.Context, in *protopb
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	s.logger.ToStdoutAndFile("UpdateUserPassword", "Updating password attempt by user with id " + in.Password.Id, logger.Info)
+	s.logger.ToStdoutAndFile("UpdateUserPassword", "Updating password attempt by user with id "+in.Password.Id, logger.Info)
 
 	var password domain.Password
 	password = password.ConvertFromGrpc(in.Password)
@@ -156,13 +156,13 @@ func (s *UserGrpcController) UpdateUserPassword(ctx context.Context, in *protopb
 
 	_, err := s.service.UpdateUserPassword(ctx, password)
 	if err != nil {
-		s.logger.ToStdoutAndFile("UpdateUserPassword", "Updating password failed by user with id " + in.Password.Id, logger.Error)
+		s.logger.ToStdoutAndFile("UpdateUserPassword", "Updating password failed by user with id "+in.Password.Id, logger.Error)
 		s.userEventsProducer.WriteUserEventMessage(kafka_util.PasswordChange, in.Password.Id, kafka_util.GetUserEventMessage(kafka_util.PasswordChange, false))
 		return &protopb.EmptyResponse{}, status.Errorf(codes.InvalidArgument, "Could not update user's password")
 	}
 
 	s.userEventsProducer.WriteUserEventMessage(kafka_util.PasswordChange, in.Password.Id, kafka_util.GetUserEventMessage(kafka_util.PasswordChange, true))
-	s.logger.ToStdoutAndFile("UpdateUserPassword", "Updating password successful by user with id " + in.Password.Id, logger.Info)
+	s.logger.ToStdoutAndFile("UpdateUserPassword", "Updating password successful by user with id "+in.Password.Id, logger.Info)
 	return &protopb.EmptyResponse{}, nil
 }
 
@@ -274,7 +274,7 @@ func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginReq
 
 	user, err := s.service.LoginUser(ctx, request)
 	if err != nil {
-		s.logger.ToStdoutAndFile("LoginUser", "Login failed by " + in.Email, logger.Warn)
+		s.logger.ToStdoutAndFile("LoginUser", "Login failed by "+in.Email, logger.Warn)
 		s.userEventsProducer.WriteUserEventMessage(kafka_util.Login, in.Email, kafka_util.GetUserEventMessage(kafka_util.Login, false))
 		return &protopb.LoginResponse{}, err
 	}
@@ -294,7 +294,7 @@ func (s *UserGrpcController) LoginUser(ctx context.Context, in *protopb.LoginReq
 	}
 
 	s.userEventsProducer.WriteUserEventMessage(kafka_util.Login, in.Email, kafka_util.GetUserEventMessage(kafka_util.Login, true))
-	s.logger.ToStdoutAndFile("LoginUser", "Successful login by " + in.Email, logger.Info)
+	s.logger.ToStdoutAndFile("LoginUser", "Successful login by "+in.Email, logger.Info)
 
 	return &protopb.LoginResponse{
 		AccessToken: token,
@@ -403,8 +403,8 @@ func (s *UserGrpcController) GoogleAuth(ctx context.Context, in *protopb.GoogleA
 		return &protopb.LoginResponse{}, err
 	}
 
-	s.userEventsProducer.WriteUserEventMessage(kafka_util.Login, user.Email, "Successful login by " + user.Email)
-	s.logger.ToStdoutAndFile("GoogleAuth", "Google SSO attempt success by " + user.Email, logger.Info)
+	s.userEventsProducer.WriteUserEventMessage(kafka_util.Login, user.Email, "Successful login by "+user.Email)
+	s.logger.ToStdoutAndFile("GoogleAuth", "Google SSO attempt success by "+user.Email, logger.Info)
 	return &protopb.LoginResponse{
 		AccessToken: token,
 		UserId:      user.Id,

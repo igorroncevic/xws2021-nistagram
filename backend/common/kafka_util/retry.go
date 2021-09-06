@@ -20,7 +20,7 @@ func NewRetryHandler() RetryHandler {
 
 	l := logger.NewLogger()
 
-	return RetryHandler{ Reader: r, Writer: w, Logger: l }
+	return RetryHandler{Reader: r, Writer: w, Logger: l}
 }
 
 type RetryHandler struct {
@@ -49,7 +49,9 @@ func (handler *RetryHandler) TransferToMainTopic() {
 		if err != nil {
 			// Kafka has been trying for too long to find messages and has found none, therefore we can quit looking
 			kafkaError := strings.TrimSpace(err.Error())
-			if kafkaError == contextDeadlineExceeded { break }
+			if kafkaError == contextDeadlineExceeded {
+				break
+			}
 
 			handler.Logger.ToStdout("Kafka Retry Handler", "Error while fetching message from retry topic", logger.Error)
 			badRunsFetching++
@@ -73,9 +75,15 @@ func (handler *RetryHandler) TransferToMainTopic() {
 }
 
 func determineBadRunError(fetchNum int, transferNum int, commitNum int) error {
-	if fetchNum > badRunsLimit { return errors.New("failed to fetch too many times") }
-	if transferNum > badRunsLimit { return errors.New("failed to transfer too many times") }
-	if commitNum > badRunsLimit { return errors.New("failed to commit too many times") }
+	if fetchNum > badRunsLimit {
+		return errors.New("failed to fetch too many times")
+	}
+	if transferNum > badRunsLimit {
+		return errors.New("failed to transfer too many times")
+	}
+	if commitNum > badRunsLimit {
+		return errors.New("failed to commit too many times")
+	}
 
 	return nil
 }

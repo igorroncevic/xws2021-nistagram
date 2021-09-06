@@ -1,15 +1,21 @@
 package kafka_util
 
-func GetUserEventMessage(eventType UserEventType, success bool) string{
+func GetUserEventMessage(eventType UserEventType, success bool) string {
 	switch eventType {
 	case Login:
-		if success { return "Successful login attempt." }
+		if success {
+			return "Successful login attempt."
+		}
 		return "Failed login attempt."
 	case PasswordChange:
-		if success { return "Successful password change." }
+		if success {
+			return "Successful password change."
+		}
 		return "Failed password change."
 	case ProfileUpdate:
-		if success { return "Successful profile update." }
+		if success {
+			return "Successful profile update."
+		}
 		return "Failed profile update."
 	default:
 		return ""

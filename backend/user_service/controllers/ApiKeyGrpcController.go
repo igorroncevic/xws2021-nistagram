@@ -13,10 +13,10 @@ import (
 )
 
 type ApiTokenGrpcController struct {
-	service    *services.ApiKeyService
+	service             *services.ApiKeyService
 	performanceProducer *kafka_util.KafkaProducer
-	jwtManager *common.JWTManager
-	logger     *logger.Logger
+	jwtManager          *common.JWTManager
+	logger              *logger.Logger
 }
 
 func NewApiTokenGrpcController(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger, performanceProducer *kafka_util.KafkaProducer) (*ApiTokenGrpcController, error) {

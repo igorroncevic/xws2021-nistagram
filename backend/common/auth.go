@@ -62,7 +62,7 @@ func (manager *JWTManager) AuthMiddleware(next http.Handler) http.Handler {
 func (manager *JWTManager) GenerateJwt(id string, role string, email string) (string, error) {
 	claims := &Claims{
 		UserId: id,
-		Email: email,
+		Email:  email,
 		Role:   role,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(manager.tokenDuration).Unix(),
@@ -137,7 +137,12 @@ func (manager *JWTManager) ExtractClaimsFromMetadata(ctx context.Context) (*Clai
 	return claims, nil
 }
 
-func (manager *JWTManager) ExtractClaims(accessToken string) (*Claims, error){
+func (manager *JWTManager) ExtractClaims(accessToken string) (*Claims, error) {
+	_, err := manager.ValidateJWT(accessToken)
+	if err != nil {
+		return &Claims{}, errors.New("invalid JWT")
+	}
+
 	token, _ := jwt.ParseWithClaims(accessToken, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(manager.secretKey), nil
 	})

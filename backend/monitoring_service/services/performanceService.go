@@ -9,7 +9,7 @@ import (
 )
 
 type PerformanceService struct {
-	performanceRepository		repositories.PerformanceRepository
+	performanceRepository repositories.PerformanceRepository
 }
 
 func NewPerformanceService(db *gorm.DB) (*PerformanceService, error) {
@@ -28,7 +28,7 @@ func (service *PerformanceService) GetAllStats(ctx context.Context) ([]model.Per
 	return service.performanceRepository.GetAllEntries(ctx)
 }
 
-func (service *PerformanceService) SaveEntry(ctx context.Context, message model.PerformanceMessage) error{
+func (service *PerformanceService) SaveEntry(ctx context.Context, message model.PerformanceMessage) error {
 	span := tracer.StartSpanFromContextMetadata(ctx, "SaveEntry")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)

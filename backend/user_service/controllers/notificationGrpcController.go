@@ -14,7 +14,7 @@ import (
 )
 
 type NotificationGrpcController struct {
-	service 			*services.NotificationService
+	service             *services.NotificationService
 	performanceProducer *kafka_util.KafkaProducer
 }
 

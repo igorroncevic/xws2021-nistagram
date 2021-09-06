@@ -1,6 +1,6 @@
 package kafka_util
 
-func ConvertToPerformanceMessage(message map[string]interface{}) PerformanceMessage{
+func ConvertToPerformanceMessage(message map[string]interface{}) PerformanceMessage {
 	converted := PerformanceMessage{}
 
 	if _, ok := message["service"]; ok {
@@ -46,4 +46,3 @@ func ConvertToUserEventMessage(message map[string]interface{}) UserEventMessage 
 
 	return converted
 }
-

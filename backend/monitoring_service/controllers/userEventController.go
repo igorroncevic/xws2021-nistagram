@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-type UserEventController struct{
+type UserEventController struct {
 	Service    *services.UserEventService
 	logger     *logger.Logger
 	jwtManager *common.JWTManager
@@ -23,8 +23,8 @@ func NewUserEventController(db *gorm.DB, logger *logger.Logger, jwtManager *comm
 	userEventService, _ := services.NewUserEventService(db)
 
 	return UserEventController{
-		Service: userEventService,
-		logger:  logger,
+		Service:    userEventService,
+		logger:     logger,
 		jwtManager: jwtManager,
 	}
 }
@@ -35,7 +35,6 @@ func (c UserEventController) GetUsersActivity(w http.ResponseWriter, r *http.Req
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	// TODO Implement extracting from JWT
 	header := r.Header.Get("Authorization")
 	token := strings.Split(header, " ")[1]
 

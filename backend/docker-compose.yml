@@ -4,6 +4,8 @@ services:
 
   gateway:
     image: gateway
+    build:
+      context: ../gateway
     container_name: gateway
     restart: always
     ports:
@@ -16,6 +18,8 @@ services:
 
   frontend:
     image: frontend
+    build:
+      context: ../frontend
     container_name: frontend
     ports:
       - "3000:3000"
@@ -33,6 +37,11 @@ services:
     image: neo4j
     container_name: neo4j
     restart: always
+    volumes: 
+      - ./volume_data/neo4j/data:/data
+      - ./volume_data/neo4j/logs:/logs
+      - ./volume_data/neo4j/import:/var/lib/neo4j/import
+      - ./volume_data/neo4j/plugins:/plugins
     ports:
       - "7474:7474"
       - "7687:7687"
@@ -43,6 +52,9 @@ services:
 
   recommendation_service:
     image: recommendation_service
+    build:
+      context: .
+      dockerfile: RecommendationService.Dockerfile
     container_name: recommendation_service
     restart: always
     environment:
@@ -50,24 +62,40 @@ services:
       DB_HOST: bolt://neo4j:7687
       DB_NAME: neo4j
       DB_PW: root
+      REDIS_HOST: redis
+      KAFKA_HOST: kafka
     ports:
       - "8005:8005"
       - "8095:8095"
     depends_on:
       - neo4j
+      - redis
+
+  redis:
+    image: redis:6.2-alpine
+    container_name: redis
+    ports:
+      - 6379:6379
 
   postgres:
     image: postgres
     container_name: postgres
+    restart: always
     volumes:
-      - ./pg-init-scripts:/docker-entrypoint-initdb.d
+      - ./volume_data/pg-init-scripts:/docker-entrypoint-initdb.d
+      - ./volume_data/postgres-data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: root
       POSTGRES_USER: postgres
-      POSTGRES_MULTIPLE_DATABASES: xws_users_service, xws_content_service
+      POSTGRES_MULTIPLE_DATABASES: xws_users_service, xws_content_service, xws_monitoring_service
 
   user_service:
     image: user_service
+    build:
+      context: .
+      dockerfile: UserService.Dockerfile
+    volumes: 
+      - ./volume_data/images/users:/github.com/igorroncevic/xws2021-nistagram/user_service/content
     container_name: user_service
     environment:
       Docker_env: env
@@ -75,29 +103,41 @@ services:
       DB_NAME: xws_users_service
       DB_USER: postgres
       DB_PW: root
+      REDIS_HOST: redis
+      KAFKA_HOST: kafka
     ports:
       - "8001:8001"
       - "8091:8091"
     depends_on:
       - postgres
+      - redis
 
   content_service:
     image: content_service
+    build:
+      context: .
+      dockerfile: ContentService.Dockerfile
     container_name: content_service
+    volumes: 
+      - ./volume_data/images/content:/github.com/igorroncevic/xws2021-nistagram/content_service/content
     environment:
       Docker_env: env
       DB_HOST: postgres
       DB_NAME: xws_content_service
       DB_USER: postgres
       DB_PW: root
+      KAFKA_HOST: kafka
     ports:
       - "8002:8002"
       - "8092:8092"
     depends_on:
-      - user_service
+      - postgres
 
   monitoring_service:
     image: monitoring_service
+    build:
+      context: .
+      dockerfile: MonitoringService.Dockerfile
     container_name: monitoring_service
     restart: always
     environment:
@@ -106,11 +146,13 @@ services:
       DB_NAME: xws_monitoring_service
       DB_USER: postgres
       DB_PW: root
+      KAFKA_HOST: kafka
     ports:
       - "8006:8006"
       - "8096:8096"
     depends_on:
       - kafka
+      - postgres
 
   kafka:
     image: wurstmeister/kafka
@@ -119,7 +161,7 @@ services:
     ports:
       - "9092:9092"
     volumes:
-      - ./data/kafka_data:/kafka
+      - ./volume_data/kafka:/kafka
     environment:
       KAFKA_ADVERTISED_HOST_NAME: localhost
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -128,11 +170,11 @@ services:
 
   zookeeper:
     image: wurstmeister/zookeeper
-    restart: always
-    volumes:
-      - ./data/zookeeper_conf:/conf
-      - ./data/zookeeper_data:/data
-      - ./data/zookeeper_datalog:/datalog
     container_name: zookeeper
+    restart: always
     ports:
       - "2181:2181"
+    volumes:
+      - ./volume_data/zookeeper/conf:/conf
+      - ./volume_data/zookeeper/data:/data
+      - ./volume_data/zookeeper/datalog:/datalog

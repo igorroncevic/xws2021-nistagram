@@ -7,18 +7,18 @@ import (
 )
 
 type PerformanceMessage struct {
-	Service   string		`json:"service"`
-	Function  string		`json:"function"`
-	Status	  int			`json:"status"`
-	Message   string		`json:"message"`
+	Service  string `json:"service"`
+	Function string `json:"function"`
+	Status   int    `json:"status"`
+	Message  string `json:"message"`
 }
 
-func NewPerformanceMessage(service string, function string, status int, message string) PerformanceMessage{
+func NewPerformanceMessage(service string, function string, status int, message string) PerformanceMessage {
 	return PerformanceMessage{
-		Service:   service,
-		Function:  function,
-		Status:    status,
-		Message:   message,
+		Service:  service,
+		Function: function,
+		Status:   status,
+		Message:  message,
 	}
 }
 
@@ -34,16 +34,16 @@ func MarshalPerformanceMessage(service string, function string, status int, mess
 }
 
 type UserEventMessage struct {
-	Type		UserEventType	`json:"type"`
-	UserId		string			`json:"userId"`
-	Message		string			`json:"message"`
+	Type    UserEventType `json:"type"`
+	UserId  string        `json:"userId"`
+	Message string        `json:"message"`
 }
 
 func NewUserEventsMessage(eventType UserEventType, userId string, message string) UserEventMessage {
 	return UserEventMessage{
-		Type:      eventType,
-		UserId:    userId,
-		Message:   message,
+		Type:    eventType,
+		UserId:  userId,
+		Message: message,
 	}
 }
 
@@ -59,10 +59,11 @@ func MarshalUserEventMessage(eventType UserEventType, userId string, message str
 }
 
 type UserEventType string
+
 const (
-	Login	  UserEventType	= "Login"
-	PasswordChange			= "PasswordChange"
-	ProfileUpdate			= "ProfileUpdate"
+	Login          UserEventType = "Login"
+	PasswordChange               = "PasswordChange"
+	ProfileUpdate                = "ProfileUpdate"
 )
 
 func (uet UserEventType) String() string {

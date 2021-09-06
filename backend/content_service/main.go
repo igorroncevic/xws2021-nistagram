@@ -33,4 +33,5 @@ func SetupEnvVariables() {
 	os.Setenv("DB_NAME", common.ContentDatabaseName)
 	os.Setenv("DB_USER", "postgres")
 	os.Setenv("DB_PW", "root")
+	os.Setenv("KAFKA_HOST", "localhost")
 }

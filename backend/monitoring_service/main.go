@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-func main(){
+func main() {
 	if os.Getenv("Docker_env") == "" {
 		SetupEnvVariables()
 	}
@@ -30,7 +30,7 @@ func main(){
 	customLogger := logger.NewLogger()
 	jwtManager := common.NewJWTManager("somesecretkey", 60*time.Minute)
 
-	performanceController := controllers.NewPerformanceController(db, customLogger)
+	performanceController := controllers.NewPerformanceController(db, customLogger, jwtManager)
 	userEventController := controllers.NewUserEventController(db, customLogger, jwtManager)
 
 	r := mux.NewRouter()
@@ -64,7 +64,6 @@ func main(){
 
 	customLogger.ToStdoutAndFile("Monitoring Service", "Starting service...", logger.Info)
 
-
 	corsWrapper := common.SetupCors()
 	corsRouter := corsWrapper.Handler(r)
 	http.Handle("/", corsRouter)
@@ -76,4 +75,5 @@ func SetupEnvVariables() {
 	os.Setenv("DB_NAME", common.MonitoringDatabaseName)
 	os.Setenv("DB_USER", "postgres")
 	os.Setenv("DB_PW", "root")
+	os.Setenv("KAFKA_HOST", "localhost")
 }

@@ -38,6 +38,8 @@ func SetupEnvVariables() {
 	os.Setenv("DB_HOST", "bolt://localhost:7687")
 	os.Setenv("DB_NAME", common.RecommendationDatabaseName)
 	os.Setenv("DB_PW", "root")
+	os.Setenv("REDIS_HOST", "localhost")
+	os.Setenv("KAFKA_HOST", "localhost")
 }
 
 func CreateUniqueConstraint(driver neo4j.Driver) error {
