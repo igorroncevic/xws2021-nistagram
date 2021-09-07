@@ -161,6 +161,38 @@ func GetPerformanceMessage(eventType string, success bool) string {
 		}
 		return "Failed to remove a story"
 
+		/* Recommendation service */
+	case CreateUserConnectionFunction:
+		if success {
+			return "Successfully created user connection"
+		}
+		return "Failed to create user connection"
+	case DeleteBiDirectedConnectionFunction:
+		if success {
+			return "Successfully deleted bidirected user connection"
+		}
+		return "Failed to delete bidirected user connection"
+	case DeleteDirectedConnectionFunction:
+		if success {
+			return "Successfully deleted directed user connection"
+		}
+		return "Failed to delete directed user connection"
+	case CreateUserFunction:
+		if success {
+			return "Successfully created user"
+		}
+		return "Failed to create user"
+	case UpdateUserConnectionFunction:
+		if success {
+			return "Successfully updated user connection"
+		}
+		return "Failed to update user connection"
+	case AcceptFollowRequestFunction:
+		if success {
+			return "Successfully accepted follow request"
+		}
+		return "Failed to accept follow request"
+
 	default:
 		return ""
 	}

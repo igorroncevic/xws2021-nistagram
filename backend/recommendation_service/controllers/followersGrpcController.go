@@ -3,20 +3,23 @@ package controllers
 import (
 	"context"
 	"errors"
+	"github.com/igorroncevic/xws2021-nistagram/common/kafka_util"
 	"github.com/igorroncevic/xws2021-nistagram/common/logger"
 	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
 	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
 	"github.com/igorroncevic/xws2021-nistagram/recommendation_service/model"
 	"github.com/igorroncevic/xws2021-nistagram/recommendation_service/services"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
+	"net/http"
 )
 
 type FollowersGrpcController struct {
 	service *services.FollowersService
 	logger  *logger.Logger
+	performanceProducer *kafka_util.KafkaProducer
 }
 
-func NewFollowersController(driver neo4j.Driver, logger *logger.Logger) (*FollowersGrpcController, error) {
+func NewFollowersController(driver neo4j.Driver, logger *logger.Logger, performanceProducer *kafka_util.KafkaProducer) (*FollowersGrpcController, error) {
 	service, err := services.NewFollowersService(driver)
 	if err != nil {
 		return nil, err
@@ -25,6 +28,7 @@ func NewFollowersController(driver neo4j.Driver, logger *logger.Logger) (*Follow
 	return &FollowersGrpcController{
 		service,
 		logger,
+		performanceProducer,
 	}, nil
 }
 
@@ -38,6 +42,7 @@ func (controller *FollowersGrpcController) CreateUserConnection(ctx context.Cont
 	err := controller.service.CreateUserConnection(ctx, follower)
 
 	if err != nil {
+		controller.performanceProducer.WritePerformanceMessage(kafka_util.RecommendationService, kafka_util.CreateUserConnectionFunction, kafka_util.GetPerformanceMessage(kafka_util.CreateUserConnectionFunction, false) + ", user " + in.Follower.UserId + " requested to follow user " + in.Follower.FollowerId,  http.StatusInternalServerError)
 		return &protopb.EmptyResponseFollowers{}, errors.New("Could not make follow!")
 	}
 	return &protopb.EmptyResponseFollowers{}, nil
@@ -154,6 +159,7 @@ func (controller *FollowersGrpcController) DeleteBiDirectedConnection(ctx contex
 	_, err := controller.service.DeleteBiDirectedConnection(ctx, follower)
 
 	if err != nil {
+		controller.performanceProducer.WritePerformanceMessage(kafka_util.RecommendationService, kafka_util.DeleteBiDirectedConnectionFunction, kafka_util.GetPerformanceMessage(kafka_util.DeleteBiDirectedConnectionFunction, false) + ", user " + in.Follower.UserId + " requested to remove user " + in.Follower.FollowerId,  http.StatusInternalServerError)
 		return &protopb.EmptyResponseFollowers{}, errors.New("Could not delete bidirected connection!")
 	}
 	return &protopb.EmptyResponseFollowers{}, nil
@@ -169,6 +175,7 @@ func (controller *FollowersGrpcController) DeleteDirectedConnection(ctx context.
 	_, err := controller.service.DeleteDirectedConnection(ctx, follower)
 
 	if err != nil {
+		controller.performanceProducer.WritePerformanceMessage(kafka_util.RecommendationService, kafka_util.DeleteDirectedConnectionFunction, kafka_util.GetPerformanceMessage(kafka_util.DeleteDirectedConnectionFunction, false) + ", user " + in.Follower.UserId + " requested to remove user " + in.Follower.FollowerId,  http.StatusInternalServerError)
 		return &protopb.EmptyResponseFollowers{}, errors.New("Could not delete directed connection!")
 	}
 	return &protopb.EmptyResponseFollowers{}, nil
@@ -186,6 +193,7 @@ func (controller *FollowersGrpcController) CreateUser(ctx context.Context, in *p
 	_, err := controller.service.CreateUser(ctx, user)
 
 	if err != nil {
+		controller.performanceProducer.WritePerformanceMessage(kafka_util.RecommendationService, kafka_util.CreateUserFunction, kafka_util.GetPerformanceMessage(kafka_util.CreateUserFunction, false) + ", user id = " + in.User.UserId,  http.StatusInternalServerError)
 		controller.logger.ToStdoutAndFile("CreateUser", "Create user node attempt failed for "+in.User.UserId, logger.Error)
 		return &protopb.EmptyResponseFollowers{}, errors.New("could not create User")
 	}
@@ -204,6 +212,7 @@ func (controller *FollowersGrpcController) UpdateUserConnection(ctx context.Cont
 	result, err := controller.service.UpdateUserConnection(ctx, follower)
 
 	if err != nil {
+		controller.performanceProducer.WritePerformanceMessage(kafka_util.RecommendationService, kafka_util.UpdateUserConnectionFunction, kafka_util.GetPerformanceMessage(kafka_util.UpdateUserConnectionFunction, false) + ", user " + in.Follower.UserId + " updates connection with user " + in.Follower.FollowerId ,  http.StatusInternalServerError)
 		return nil, errors.New("Could not update follower info!")
 	}
 
@@ -220,6 +229,7 @@ func (controller *FollowersGrpcController) AcceptFollowRequest(ctx context.Conte
 	result, err := controller.service.AcceptFollowRequest(ctx, follower)
 
 	if err != nil {
+		controller.performanceProducer.WritePerformanceMessage(kafka_util.RecommendationService, kafka_util.AcceptFollowRequestFunction, kafka_util.GetPerformanceMessage(kafka_util.AcceptFollowRequestFunction, false) + ", user " + in.Follower.UserId + " tried to accept user " + in.Follower.FollowerId,  http.StatusInternalServerError)
 		return nil, errors.New("Could not accept follow request!")
 	}
 
@@ -227,12 +237,12 @@ func (controller *FollowersGrpcController) AcceptFollowRequest(ctx context.Conte
 
 }
 
-func (c *FollowersGrpcController) GetUsersForNotificationEnabled(ctx context.Context, in *protopb.RequestForNotification) (*protopb.CreateUserResponse, error) {
+func (controller *FollowersGrpcController) GetUsersForNotificationEnabled(ctx context.Context, in *protopb.RequestForNotification) (*protopb.CreateUserResponse, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetUsersForNotificationEnabled")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 	var user model.User
-	users, err := c.service.GetUsersForNotificationEnabled(ctx, in.UserId, in.NotificationType)
+	users, err := controller.service.GetUsersForNotificationEnabled(ctx, in.UserId, in.NotificationType)
 	if err != nil {
 		return nil, err
 	}

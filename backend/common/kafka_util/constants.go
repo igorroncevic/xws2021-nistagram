@@ -11,13 +11,15 @@ const (
 	RetryConsumerMaxWait   = time.Duration(5) * time.Second
 
 	/* Services */
-	UserService    = "UserService"
-	ContentService = "ContentService"
+	UserService    			= "UserService"
+	ContentService 			= "ContentService"
+	RecommendationService 	= "RecommendationService"
 
 	/* Functions */
 	LoginFunction              			= "Login"
 	CreateNotificationFunction 			= "CreateNotification"
 	GenerateApiTokenFunction   			= "GenerateApiToken"
+
 	CreateAdFunction 		   			= "CreateAd"
 	CreateAdCategoryFunction   			= "CreateAdCategory"
 	GetUsersAdCategoriesFunction 		= "GetUsersAdCategories"
@@ -38,4 +40,12 @@ const (
 	RemovePostFunction					= "RemovePost"
 	CreateStoryFunction					= "CreateStory"
 	RemoveStoryFunction					= "RemoveStory"
+
+	CreateUserConnectionFunction		= "CreateUserConnection"
+	DeleteBiDirectedConnectionFunction  = "DeleteBiDirectedConnection"
+	DeleteDirectedConnectionFunction	= "DeleteDirectedConnection"
+	CreateUserFunction					= "CreateUser"
+	UpdateUserConnectionFunction		= "UpdateUserConnection"
+	AcceptFollowRequestFunction			= "AcceptFollowRequest"
+
 )

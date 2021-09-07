@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"github.com/igorroncevic/xws2021-nistagram/common/kafka_util"
 	"github.com/igorroncevic/xws2021-nistagram/common/logger"
 	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
 	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
@@ -19,9 +20,12 @@ type Server struct {
 }
 
 func NewServer(driver neo4j.Driver, logger *logger.Logger) (*Server, error) {
-	followerController, _ := NewFollowersController(driver, logger)
-	tracer, closer := tracer.Init("recommendationService")
+	performanceProducer := kafka_util.NewProducer(kafka_util.PerformanceTopic)
+
+	followerController, _ := NewFollowersController(driver, logger, performanceProducer)
 	recommendationController, _ := NewRecommendationGrpcController(driver, logger)
+
+	tracer, closer := tracer.Init("recommendationService")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{
 		tracer:                   tracer,
