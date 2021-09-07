@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/igorroncevic/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/common/kafka_util"
 	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
 	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
 	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
@@ -11,14 +12,17 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 type CampaignGrpcController struct {
-	service    *services.CampaignService
-	jwtManager *common.JWTManager
+	service    			*services.CampaignService
+	jwtManager 			*common.JWTManager
+	userEventsProducer  *kafka_util.KafkaProducer
+	performanceProducer *kafka_util.KafkaProducer
 }
 
-func NewCampaignController(db *gorm.DB, jwtManager *common.JWTManager) (*CampaignGrpcController, error) {
+func NewCampaignController(db *gorm.DB, jwtManager *common.JWTManager, userEventsProducer *kafka_util.KafkaProducer, performanceProducer *kafka_util.KafkaProducer) (*CampaignGrpcController, error) {
 	service, err := services.NewCampaignService(db)
 	if err != nil {
 		return nil, err
@@ -27,6 +31,8 @@ func NewCampaignController(db *gorm.DB, jwtManager *common.JWTManager) (*Campaig
 	return &CampaignGrpcController{
 		service,
 		jwtManager,
+		userEventsProducer,
+		performanceProducer,
 	}, nil
 }
 
@@ -68,7 +74,7 @@ func (controller *CampaignGrpcController) GetCampaigns(ctx context.Context, in *
 func (controller *CampaignGrpcController) CreateCampaign(ctx context.Context, in *protopb.Campaign) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "CreateCampaign")
 	defer span.Finish()
-	// claims, _ := controller.jwtManager.ExtractClaimsFromMetadata(ctx)
+	claims, _ := controller.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	campaign := domain.Campaign{}
@@ -76,6 +82,7 @@ func (controller *CampaignGrpcController) CreateCampaign(ctx context.Context, in
 
 	err := controller.service.CreateCampaign(ctx, campaign)
 	if err != nil {
+		controller.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreateCampaignFunction, kafka_util.GetPerformanceMessage(kafka_util.CreateCampaignFunction, false) + ", user: " + claims.Email, http.StatusInternalServerError)
 		return &protopb.EmptyResponseContent{}, err
 	}
 
@@ -97,23 +104,28 @@ func (controller *CampaignGrpcController) UpdateCampaign(ctx context.Context, in
 
 	err := controller.service.UpdateCampaign(ctx, campaign)
 	if err != nil {
+		controller.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.UpdateCampaignFunction, kafka_util.GetPerformanceMessage(kafka_util.UpdateCampaignFunction, false) + ", user: " + claims.Email, http.StatusInternalServerError)
+		controller.userEventsProducer.WriteUserEventMessage(kafka_util.CampaignUpdate, claims.UserId, kafka_util.GetUserEventMessage(kafka_util.CampaignUpdate, false) + ", campaign id - " + campaign.Id)
 		return &protopb.EmptyResponseContent{}, err
 	}
 
+	controller.userEventsProducer.WriteUserEventMessage(kafka_util.CampaignUpdate, claims.UserId, kafka_util.GetUserEventMessage(kafka_util.CampaignUpdate, true) + ", campaign id - " + campaign.Id)
 	return &protopb.EmptyResponseContent{}, nil
 }
 
 func (controller *CampaignGrpcController) DeleteCampaign(ctx context.Context, in *protopb.RequestId) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "DeleteCampaign")
 	defer span.Finish()
-	// claims, _ := controller.jwtManager.ExtractClaimsFromMetadata(ctx)
+	claims, _ := controller.jwtManager.ExtractClaimsFromMetadata(ctx)
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
 	err := controller.service.DeleteCampaign(ctx, in.Id)
 	if err != nil {
+		controller.userEventsProducer.WriteUserEventMessage(kafka_util.DeleteCampaign, claims.UserId, kafka_util.GetUserEventMessage(kafka_util.DeleteCampaign, false) + ", campaign id - " + in.Id)
 		return &protopb.EmptyResponseContent{}, err
 	}
 
+	controller.userEventsProducer.WriteUserEventMessage(kafka_util.DeleteCampaign, claims.UserId, kafka_util.GetUserEventMessage(kafka_util.DeleteCampaign, true) + ", campaign id - " + in.Id)
 	return &protopb.EmptyResponseContent{}, nil
 }
 
@@ -147,7 +159,7 @@ func (controller *CampaignGrpcController) CreateCampaignRequest(ctx context.Cont
 	return &protopb.EmptyResponseContent{}, nil
 }
 
-func (s *CampaignGrpcController) UpdateCampaignRequest(ctx context.Context, in *protopb.CampaignInfluencerRequest) (*protopb.EmptyResponseContent, error) {
+func (controller *CampaignGrpcController) UpdateCampaignRequest(ctx context.Context, in *protopb.CampaignInfluencerRequest) (*protopb.EmptyResponseContent, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "UpdateCampaignRequest")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
@@ -155,7 +167,7 @@ func (s *CampaignGrpcController) UpdateCampaignRequest(ctx context.Context, in *
 	var campaignRequest *domain.CampaignInfluencerRequest
 	campaignRequest = campaignRequest.ConvertFromGrpc(in)
 
-	err := s.service.UpdateCampaignRequest(ctx, campaignRequest)
+	err := controller.service.UpdateCampaignRequest(ctx, campaignRequest)
 
 	if err != nil {
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.InvalidArgument, "Bad request")
@@ -163,12 +175,12 @@ func (s *CampaignGrpcController) UpdateCampaignRequest(ctx context.Context, in *
 	return &protopb.EmptyResponseContent{}, nil
 }
 
-func (s *CampaignGrpcController) GetCampaignRequestsByAgent(ctx context.Context, in *protopb.CampaignInfluencerRequest) (*protopb.CampaignRequestArray, error) {
+func (controller *CampaignGrpcController) GetCampaignRequestsByAgent(ctx context.Context, in *protopb.CampaignInfluencerRequest) (*protopb.CampaignRequestArray, error) {
 	span := tracer.StartSpanFromContextMetadata(ctx, "GetCampaignRequestsByAgent")
 	defer span.Finish()
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	requests, err := s.service.GetCampaignRequestsByAgent(ctx, in.AgentId)
+	requests, err := controller.service.GetCampaignRequestsByAgent(ctx, in.AgentId)
 	if err != nil {
 		return &protopb.CampaignRequestArray{}, err
 	}

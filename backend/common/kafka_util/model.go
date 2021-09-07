@@ -65,6 +65,13 @@ const (
 	PasswordChange               = "PasswordChange"
 	ProfileUpdate                = "ProfileUpdate"
 	AdCategoryUpdate			 = "AdCategoryUpdate"
+	CampaignUpdate				 = "CampaignUpdate"
+	DeleteCampaign				 = "DeleteCampaign"
+	CreateContentComplaint		 = "CreateContentComplaint"
+	RemovePost					 = "RemovePost"
+	CreatePost					 = "CreatePost"
+	RemoveStory					 = "RemoveStory"
+	CreateStory					 = "CreateStory"
 )
 
 func (uet UserEventType) String() string {
@@ -77,6 +84,20 @@ func (uet UserEventType) String() string {
 		return "ProfileUpdate"
 	case AdCategoryUpdate:
 		return "AdCategoryUpdate"
+	case CampaignUpdate:
+		return "CampaignUpdate"
+	case DeleteCampaign:
+		return "DeleteCampaign"
+	case CreateContentComplaint:
+		return "CreateContentComplaint"
+	case RemovePost:
+		return "RemovePost"
+	case CreatePost:
+		return "CreatePost"
+	case RemoveStory:
+		return "RemoveStory"
+	case CreateStory:
+		return "CreateStory"
 	default:
 		return fmt.Sprintf("%s", string(uet))
 	}

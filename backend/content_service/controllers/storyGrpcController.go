@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/igorroncevic/xws2021-nistagram/common"
 	"github.com/igorroncevic/xws2021-nistagram/common/grpc_common"
+	"github.com/igorroncevic/xws2021-nistagram/common/kafka_util"
 	"github.com/igorroncevic/xws2021-nistagram/common/logger"
 	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
 	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
@@ -13,6 +14,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 type StoryGrpcController struct {
@@ -20,9 +22,11 @@ type StoryGrpcController struct {
 	service         *services.StoryService
 	jwtManager      *common.JWTManager
 	logger          *logger.Logger
+	userEventsProducer *kafka_util.KafkaProducer
+	performanceProducer *kafka_util.KafkaProducer
 }
 
-func NewStoryController(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger) (*StoryGrpcController, error) {
+func NewStoryController(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger, userEventsProducer *kafka_util.KafkaProducer, performanceProducer *kafka_util.KafkaProducer) (*StoryGrpcController, error) {
 	service, err := services.NewStoryService(db)
 	if err != nil {
 		return nil, err
@@ -38,6 +42,8 @@ func NewStoryController(db *gorm.DB, jwtManager *common.JWTManager, logger *logg
 		service,
 		jwtManager,
 		logger,
+		userEventsProducer,
+		performanceProducer,
 	}, nil
 }
 
@@ -265,30 +271,35 @@ func (c *StoryGrpcController) CreateStory(ctx context.Context, in *protopb.Story
 		for _, tag := range media.Tags {
 			following, err := grpc_common.CheckFollowInteraction(ctx, tag.UserId, story.UserId)
 			if err != nil {
+				c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreateStoryFunction, kafka_util.GetPerformanceMessage(kafka_util.CreateStoryFunction, false) + ", user id = " + claims.UserId,  http.StatusInternalServerError)
 				c.logger.ToStdoutAndFile("CreateStory", "Story creation attempt failed by "+claims.UserId+", cannot tag "+tag.UserId, logger.Error)
 				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
 			}
 
 			isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.UserId)
 			if err != nil {
+				c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreateStoryFunction, kafka_util.GetPerformanceMessage(kafka_util.CreateStoryFunction, false) + ", user id = " + claims.UserId,  http.StatusInternalServerError)
 				c.logger.ToStdoutAndFile("CreateStory", "Story creation attempt failed by "+claims.UserId+", cannot tag "+tag.UserId, logger.Error)
 				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 			}
 
 			isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.UserId, claims.UserId)
 			if err != nil {
+				c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreateStoryFunction, kafka_util.GetPerformanceMessage(kafka_util.CreateStoryFunction, false) + ", user id = " + claims.UserId,  http.StatusInternalServerError)
 				c.logger.ToStdoutAndFile("CreateStory", "Story creation attempt failed by "+claims.UserId+", cannot tag "+tag.UserId, logger.Error)
 				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 			}
 
 			// If used is blocked or his profile is private and did not approve your request
 			if isBlocked || (!isPublic && !following.IsApprovedRequest) {
+				c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreateStoryFunction, kafka_util.GetPerformanceMessage(kafka_util.CreateStoryFunction, false) + ", user id = " + claims.UserId,  http.StatusInternalServerError)
 				c.logger.ToStdoutAndFile("CreateStory", "Story creation attempt failed by "+claims.UserId+", cannot tag "+tag.UserId, logger.Error)
 				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
 			}
 
 			username, err := grpc_common.GetUsernameById(ctx, tag.UserId)
 			if username == "" || err != nil {
+				c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreateStoryFunction, kafka_util.GetPerformanceMessage(kafka_util.CreateStoryFunction, false) + ", user id = " + claims.UserId,  http.StatusInternalServerError)
 				c.logger.ToStdoutAndFile("CreateStory", "Story creation attempt failed by "+claims.UserId+", cannot tag "+tag.UserId, logger.Error)
 				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
 			}
@@ -297,10 +308,12 @@ func (c *StoryGrpcController) CreateStory(ctx context.Context, in *protopb.Story
 
 	err = c.service.CreateStory(ctx, story)
 	if err != nil {
+		c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreateStoryFunction, kafka_util.GetPerformanceMessage(kafka_util.CreateStoryFunction, false) + ", user id = " + claims.UserId,  http.StatusInternalServerError)
 		c.logger.ToStdoutAndFile("CreateStory", "Story creation attempt failed by "+claims.UserId+", server error", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create story")
 	}
 
+	c.userEventsProducer.WriteUserEventMessage(kafka_util.CreateStory, claims.UserId, kafka_util.GetUserEventMessage(kafka_util.CreateStory, true))
 	c.logger.ToStdoutAndFile("CreateStory", "Story creation attempt successful by "+claims.UserId, logger.Info)
 	return &protopb.EmptyResponseContent{}, nil
 }
@@ -364,12 +377,18 @@ func (c *StoryGrpcController) RemoveStory(ctx context.Context, in *protopb.Reque
 	c.logger.ToStdoutAndFile("RemoveStory", "Story removal attempt by "+claims.UserId, logger.Info)
 
 	if err != nil {
+		c.userEventsProducer.WriteUserEventMessage(kafka_util.RemoveStory, claims.UserId, kafka_util.GetUserEventMessage(kafka_util.RemoveStory, false) + ", story id = " + in.Id)
+		c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.RemoveStoryFunction, kafka_util.GetPerformanceMessage(kafka_util.RemoveStoryFunction, false) + ", user id = " + claims.UserId + ", story id = " + in.Id,  http.StatusInternalServerError)
 		c.logger.ToStdoutAndFile("RemoveStory", "Story removal attempt failed by "+claims.UserId+", invalid JWT", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 	} else if claims.UserId == "" {
+		c.userEventsProducer.WriteUserEventMessage(kafka_util.RemoveStory, claims.UserId, kafka_util.GetUserEventMessage(kafka_util.RemoveStory, false) + ", story id = " + in.Id)
+		c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.RemoveStoryFunction, kafka_util.GetPerformanceMessage(kafka_util.RemoveStoryFunction, false) + ", user id = " + claims.UserId + ", story id = " + in.Id,  http.StatusInternalServerError)
 		c.logger.ToStdoutAndFile("RemoveStory", "Story removal attempt failed by "+claims.UserId+", invalid JWT", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot remove other people's posts")
 	} else if in.Id == "" {
+		c.userEventsProducer.WriteUserEventMessage(kafka_util.RemoveStory, claims.UserId, kafka_util.GetUserEventMessage(kafka_util.RemoveStory, false) + ", story id = " + in.Id)
+		c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.RemoveStoryFunction, kafka_util.GetPerformanceMessage(kafka_util.RemoveStoryFunction, false) + ", user id = " + claims.UserId + ", story id = " + in.Id,  http.StatusInternalServerError)
 		c.logger.ToStdoutAndFile("RemoveStory", "Story removal attempt failed by "+claims.UserId+", no story id provided", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot remove non-existing posts")
 	}
@@ -377,10 +396,13 @@ func (c *StoryGrpcController) RemoveStory(ctx context.Context, in *protopb.Reque
 	err = c.service.RemoveStory(ctx, in.Id, claims.UserId)
 
 	if err != nil {
+		c.userEventsProducer.WriteUserEventMessage(kafka_util.RemoveStory, claims.UserId, kafka_util.GetUserEventMessage(kafka_util.RemoveStory, false) + ", story id = " + in.Id)
+		c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.RemoveStoryFunction, kafka_util.GetPerformanceMessage(kafka_util.RemoveStoryFunction, false) + ", user id = " + claims.UserId + ", story id = " + in.Id,  http.StatusInternalServerError)
 		c.logger.ToStdoutAndFile("RemoveStory", "Story removal attempt failed by "+claims.UserId+", server error", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
+	c.userEventsProducer.WriteUserEventMessage(kafka_util.RemoveStory, claims.UserId, kafka_util.GetUserEventMessage(kafka_util.RemoveStory, true) + ", story id = " + in.Id)
 	c.logger.ToStdoutAndFile("RemoveStory", "Story removal attempt successful by "+claims.UserId, logger.Info)
 	return &protopb.EmptyResponseContent{}, nil
 }

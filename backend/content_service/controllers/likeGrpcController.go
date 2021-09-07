@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/igorroncevic/xws2021-nistagram/common"
 	"github.com/igorroncevic/xws2021-nistagram/common/grpc_common"
+	"github.com/igorroncevic/xws2021-nistagram/common/kafka_util"
 	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
 	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
 	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
@@ -11,15 +12,17 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 type LikeGrpcController struct {
 	service     *services.LikeService
 	postService *services.PostService
 	jwtManager  *common.JWTManager
+	performanceProducer *kafka_util.KafkaProducer
 }
 
-func NewLikeController(db *gorm.DB, jwtManager *common.JWTManager) (*LikeGrpcController, error) {
+func NewLikeController(db *gorm.DB, jwtManager *common.JWTManager, performanceProducer *kafka_util.KafkaProducer) (*LikeGrpcController, error) {
 	service, err := services.NewLikeService(db)
 	if err != nil {
 		return nil, err
@@ -34,6 +37,7 @@ func NewLikeController(db *gorm.DB, jwtManager *common.JWTManager) (*LikeGrpcCon
 		service,
 		postService,
 		jwtManager,
+		performanceProducer,
 	}, nil
 }
 
@@ -56,6 +60,7 @@ func (c *LikeGrpcController) CreateLike(ctx context.Context, in *protopb.Like) (
 
 	err = c.service.CreateLike(ctx, *like)
 	if err != nil {
+		c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreateLikeFunction, kafka_util.GetPerformanceMessage(kafka_util.CreateLikeFunction, false) + ", user: " + claims.Email + ", post: " + in.PostId, http.StatusInternalServerError)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create like")
 	}
 

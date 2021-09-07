@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/igorroncevic/xws2021-nistagram/common"
 	"github.com/igorroncevic/xws2021-nistagram/common/grpc_common"
+	"github.com/igorroncevic/xws2021-nistagram/common/kafka_util"
 	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
 	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
 	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
@@ -11,15 +12,17 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 type CommentGrpcController struct {
 	service     *services.CommentService
 	postService *services.PostService
 	jwtManager  *common.JWTManager
+	performanceProducer *kafka_util.KafkaProducer
 }
 
-func NewCommentController(db *gorm.DB, jwtManager *common.JWTManager) (*CommentGrpcController, error) {
+func NewCommentController(db *gorm.DB, jwtManager *common.JWTManager, performanceProducer *kafka_util.KafkaProducer) (*CommentGrpcController, error) {
 	service, err := services.NewCommentService(db)
 	if err != nil {
 		return nil, err
@@ -34,6 +37,7 @@ func NewCommentController(db *gorm.DB, jwtManager *common.JWTManager) (*CommentG
 		service,
 		postService,
 		jwtManager,
+		performanceProducer,
 	}, nil
 }
 
@@ -54,6 +58,7 @@ func (s *CommentGrpcController) CreateComment(ctx context.Context, in *protopb.C
 
 	err = s.service.CreateComment(ctx, comment)
 	if err != nil {
+		s.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreateCommentFunction, kafka_util.GetPerformanceMessage(kafka_util.CreateCommentFunction, false) + ", user: " + claims.Email + ", post: " + in.PostId, http.StatusInternalServerError)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create comment")
 	}
 

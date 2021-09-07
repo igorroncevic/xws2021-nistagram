@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/igorroncevic/xws2021-nistagram/common"
 	"github.com/igorroncevic/xws2021-nistagram/common/grpc_common"
+	"github.com/igorroncevic/xws2021-nistagram/common/kafka_util"
 	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
 	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
 	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
@@ -11,15 +12,17 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 type FavoritesGrpcController struct {
 	service     *services.FavoritesService
 	postService *services.PostService
 	jwtManager  *common.JWTManager
+	performanceProducer *kafka_util.KafkaProducer
 }
 
-func NewFavoritesController(db *gorm.DB, jwtManager *common.JWTManager) (*FavoritesGrpcController, error) {
+func NewFavoritesController(db *gorm.DB, jwtManager *common.JWTManager, performanceProducer *kafka_util.KafkaProducer) (*FavoritesGrpcController, error) {
 	service, err := services.NewFavoritesService(db)
 	if err != nil {
 		return nil, err
@@ -34,6 +37,7 @@ func NewFavoritesController(db *gorm.DB, jwtManager *common.JWTManager) (*Favori
 		service,
 		postService,
 		jwtManager,
+		performanceProducer,
 	}, nil
 }
 
@@ -184,6 +188,7 @@ func (c *FavoritesGrpcController) CreateFavorite(ctx context.Context, in *protop
 
 	err = c.service.CreateFavorite(ctx, favoritesRequest)
 	if err != nil {
+		c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreateFavoriteFunction, kafka_util.GetPerformanceMessage(kafka_util.CreateFavoriteFunction, false) + ", user id = " + claims.UserId + ", post id = " + in.PostId,  http.StatusInternalServerError)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create favorite")
 	}
 
@@ -209,6 +214,7 @@ func (c *FavoritesGrpcController) RemoveFavorite(ctx context.Context, in *protop
 
 	err = c.service.RemoveFavorite(ctx, favoritesRequest)
 	if err != nil {
+		c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.RemoveFavoriteFunction, kafka_util.GetPerformanceMessage(kafka_util.RemoveFavoriteFunction, false) + ", user id = " + claims.UserId + ", post id = " + in.PostId,  http.StatusInternalServerError)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not remove favorite")
 	}
 
@@ -234,6 +240,7 @@ func (c *FavoritesGrpcController) CreateCollection(ctx context.Context, in *prot
 
 	collection, err = c.service.CreateCollection(ctx, collection)
 	if err != nil {
+		c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreateCollectionFunction, kafka_util.GetPerformanceMessage(kafka_util.CreateCollectionFunction, false) + ", user id = " + claims.UserId,  http.StatusInternalServerError)
 		return &protopb.Collection{}, status.Errorf(codes.Unknown, "could not create collection")
 	}
 
@@ -255,6 +262,7 @@ func (c *FavoritesGrpcController) RemoveCollection(ctx context.Context, in *prot
 
 	err = c.service.RemoveCollection(ctx, in.Id, claims.UserId)
 	if err != nil {
+		c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.RemoveCollectionFunction, kafka_util.GetPerformanceMessage(kafka_util.RemoveCollectionFunction, false) + ", user id = " + claims.UserId,  http.StatusInternalServerError)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not remove collection")
 	}
 

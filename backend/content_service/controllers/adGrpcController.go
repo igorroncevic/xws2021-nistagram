@@ -11,15 +11,17 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 type AdGrpcController struct {
 	service   		    *services.AdService
 	jwtManager 			*common.JWTManager
 	userEventsProducer  *kafka_util.KafkaProducer
+	performanceProducer  *kafka_util.KafkaProducer
 }
 
-func NewAdController(db *gorm.DB, jwtManager *common.JWTManager, userEventsProducer *kafka_util.KafkaProducer) (*AdGrpcController, error) {
+func NewAdController(db *gorm.DB, jwtManager *common.JWTManager, userEventsProducer *kafka_util.KafkaProducer, performanceProducer *kafka_util.KafkaProducer) (*AdGrpcController, error) {
 	service, err := services.NewAdService(db)
 	if err != nil {
 		return nil, err
@@ -29,6 +31,7 @@ func NewAdController(db *gorm.DB, jwtManager *common.JWTManager, userEventsProdu
 		service,
 		jwtManager,
 		userEventsProducer,
+		performanceProducer,
 	}, nil
 }
 
@@ -79,6 +82,7 @@ func (controller *AdGrpcController) CreateAd(ctx context.Context, in *protopb.Ad
 
 	err := controller.service.CreateAd(ctx, *ad)
 	if err != nil {
+		controller.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreateAdFunction, kafka_util.GetPerformanceMessage(kafka_util.CreateAdFunction, false), http.StatusInternalServerError)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create an ad")
 	}
 
@@ -131,6 +135,7 @@ func (controller *AdGrpcController) CreateAdCategory(ctx context.Context, in *pr
 
 	err := controller.service.CreateAdCategory(ctx, category)
 	if err != nil {
+		controller.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreateAdCategoryFunction, kafka_util.GetPerformanceMessage(kafka_util.CreateAdCategoryFunction, false), http.StatusInternalServerError)
 		return &protopb.EmptyResponseContent{}, err
 	}
 
@@ -145,6 +150,7 @@ func (controller *AdGrpcController) GetUsersAdCategories(ctx context.Context, in
 
 	categories, err := controller.service.GetUsersAdCategories(ctx, claims.UserId)
 	if err != nil {
+		controller.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.GetUsersAdCategoriesFunction, kafka_util.GetPerformanceMessage(kafka_util.GetUsersAdCategoriesFunction, false) + " for user " + claims.Email, http.StatusInternalServerError)
 		return &protopb.AdCategoryArray{}, err
 	}
 

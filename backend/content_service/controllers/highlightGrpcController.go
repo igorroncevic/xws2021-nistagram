@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/igorroncevic/xws2021-nistagram/common"
 	"github.com/igorroncevic/xws2021-nistagram/common/grpc_common"
+	"github.com/igorroncevic/xws2021-nistagram/common/kafka_util"
 	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
 	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
 	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
@@ -11,15 +12,17 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 type HighlightGrpcController struct {
 	service      *services.HighlightService
 	storyService *services.StoryService
 	jwtManager   *common.JWTManager
+	performanceProducer *kafka_util.KafkaProducer
 }
 
-func NewHighlightController(db *gorm.DB, jwtManager *common.JWTManager) (*HighlightGrpcController, error) {
+func NewHighlightController(db *gorm.DB, jwtManager *common.JWTManager, performanceProducer *kafka_util.KafkaProducer) (*HighlightGrpcController, error) {
 	service, err := services.NewHighlightService(db)
 	if err != nil {
 		return nil, err
@@ -34,6 +37,7 @@ func NewHighlightController(db *gorm.DB, jwtManager *common.JWTManager) (*Highli
 		service,
 		storyService,
 		jwtManager,
+		performanceProducer,
 	}, nil
 }
 
@@ -218,6 +222,7 @@ func (c *HighlightGrpcController) CreateHighlightStory(ctx context.Context, in *
 
 	err = c.service.CreateHighlightStory(ctx, *highlightRequest)
 	if err != nil {
+		c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreateHighlightStoryFunction, kafka_util.GetPerformanceMessage(kafka_util.CreateHighlightStoryFunction, false) + ", user id = " + claims.UserId + ", story id = " + in.StoryId + ", highlight id = " + in.HighlightId,  http.StatusInternalServerError)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create story from highlight")
 	}
 
@@ -243,6 +248,7 @@ func (c *HighlightGrpcController) RemoveHighlightStory(ctx context.Context, in *
 
 	err = c.service.RemoveHighlightStory(ctx, *highlightRequest)
 	if err != nil {
+		c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.RemoveHighlightStoryFunction, kafka_util.GetPerformanceMessage(kafka_util.RemoveHighlightStoryFunction, false) + ", user id = " + claims.UserId + ", story id = " + in.StoryId + ", highlight id = " + in.HighlightId,  http.StatusInternalServerError)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not remove story from highlight")
 	}
 
@@ -268,6 +274,7 @@ func (c *HighlightGrpcController) CreateHighlight(ctx context.Context, in *proto
 
 	highlight, err := c.service.CreateHighlight(ctx, *collection)
 	if err != nil {
+		c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreateHighlightFunction, kafka_util.GetPerformanceMessage(kafka_util.CreateHighlightFunction, false) + ", user id = " + claims.UserId,  http.StatusInternalServerError)
 		return &protopb.Highlight{}, status.Errorf(codes.Unknown, "could not create highlight")
 	}
 
@@ -289,6 +296,7 @@ func (c *HighlightGrpcController) RemoveHighlight(ctx context.Context, in *proto
 
 	err = c.service.RemoveHighlight(ctx, in.Id, claims.UserId)
 	if err != nil {
+		c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.RemoveHighlightFunction, kafka_util.GetPerformanceMessage(kafka_util.RemoveHighlightFunction, false) + ", user id = " + claims.UserId,  http.StatusInternalServerError)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not remove highlight")
 	}
 

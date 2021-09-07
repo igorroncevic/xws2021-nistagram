@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"github.com/igorroncevic/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/common/kafka_util"
 	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
 	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
 	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
@@ -10,14 +11,17 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 type ComplaintGrpcController struct {
 	service    *services.ComplaintService
 	jwtManager *common.JWTManager
+	userEventsProducer *kafka_util.KafkaProducer
+	performanceProducer *kafka_util.KafkaProducer
 }
 
-func NewComplaintController(db *gorm.DB, jwtManager *common.JWTManager) (*ComplaintGrpcController, error) {
+func NewComplaintController(db *gorm.DB, jwtManager *common.JWTManager, userEventsProducer *kafka_util.KafkaProducer, performanceProducer *kafka_util.KafkaProducer) (*ComplaintGrpcController, error) {
 	service, err := services.NewComplaintService(db)
 	if err != nil {
 		return nil, err
@@ -26,6 +30,8 @@ func NewComplaintController(db *gorm.DB, jwtManager *common.JWTManager) (*Compla
 	return &ComplaintGrpcController{
 		service,
 		jwtManager,
+		userEventsProducer,
+		performanceProducer,
 	}, nil
 }
 
@@ -46,9 +52,12 @@ func (c *ComplaintGrpcController) CreateContentComplaint(ctx context.Context, in
 
 	err = c.service.CreateContentComplaint(ctx, *contentComplaint)
 	if err != nil {
+		c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreateContentComplaintFunction, kafka_util.GetPerformanceMessage(kafka_util.CreateContentComplaintFunction, false) + ", user: " + claims.Email + ", post id: " + in.PostId, http.StatusInternalServerError)
+		c.userEventsProducer.WriteUserEventMessage(kafka_util.CreateContentComplaint, claims.UserId, kafka_util.GetUserEventMessage(kafka_util.CreateContentComplaint, false) + ", post id = " + in.PostId)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "could not create report")
 	}
 
+	c.userEventsProducer.WriteUserEventMessage(kafka_util.CreateContentComplaint, claims.UserId, kafka_util.GetUserEventMessage(kafka_util.CreateContentComplaint, true) + ", post id = " + in.PostId)
 	return &protopb.EmptyResponseContent{}, nil
 }
 

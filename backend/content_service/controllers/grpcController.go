@@ -31,18 +31,18 @@ type Server struct {
 
 func NewServer(db *gorm.DB, manager *common.JWTManager, logger *logger.Logger) (*Server, error) {
 	userEventsProducer := kafka_util.NewProducer(kafka_util.UserEventsTopic)
-	// performanceProducer := kafka_util.NewProducer(kafka_util.PerformanceTopic)
+	performanceProducer := kafka_util.NewProducer(kafka_util.PerformanceTopic)
 
-	postController, _ := NewPostController(db, manager, logger)
-	storyController, _ := NewStoryController(db, manager, logger)
-	commentController, _ := NewCommentController(db, manager)
-	likeController, _ := NewLikeController(db, manager)
-	favoritesController, _ := NewFavoritesController(db, manager)
+	postController, _ := NewPostController(db, manager, logger, userEventsProducer, performanceProducer)
+	storyController, _ := NewStoryController(db, manager, logger, userEventsProducer, performanceProducer)
+	commentController, _ := NewCommentController(db, manager, performanceProducer)
+	likeController, _ := NewLikeController(db, manager, performanceProducer)
+	favoritesController, _ := NewFavoritesController(db, manager, performanceProducer)
 	hashtagController, _ := NewHashtagController(db)
-	highlightController, _ := NewHighlightController(db, manager)
-	complaintController, _ := NewComplaintController(db, manager)
-	adController, _ := NewAdController(db, manager, userEventsProducer)
-	campaignController, _ := NewCampaignController(db, manager)
+	highlightController, _ := NewHighlightController(db, manager, performanceProducer)
+	complaintController, _ := NewComplaintController(db, manager, userEventsProducer, performanceProducer)
+	adController, _ := NewAdController(db, manager, userEventsProducer, performanceProducer)
+	campaignController, _ := NewCampaignController(db, manager, userEventsProducer, performanceProducer)
 	tracer, closer := tracer.Init("contentService")
 	otgo.SetGlobalTracer(tracer)
 	return &Server{

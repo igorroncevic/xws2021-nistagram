@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/igorroncevic/xws2021-nistagram/common"
 	"github.com/igorroncevic/xws2021-nistagram/common/grpc_common"
+	"github.com/igorroncevic/xws2021-nistagram/common/kafka_util"
 	"github.com/igorroncevic/xws2021-nistagram/common/logger"
 	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
 	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
@@ -13,6 +14,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 type PostGrpcController struct {
@@ -20,9 +22,11 @@ type PostGrpcController struct {
 	campaignService *services.CampaignService
 	jwtManager      *common.JWTManager
 	logger          *logger.Logger
+	userEventsProducer *kafka_util.KafkaProducer
+	performanceProducer *kafka_util.KafkaProducer
 }
 
-func NewPostController(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger) (*PostGrpcController, error) {
+func NewPostController(db *gorm.DB, jwtManager *common.JWTManager, logger *logger.Logger, userEventsProducer *kafka_util.KafkaProducer, performanceProducer *kafka_util.KafkaProducer) (*PostGrpcController, error) {
 	service, err := services.NewPostService(db)
 	if err != nil {
 		return nil, err
@@ -38,6 +42,8 @@ func NewPostController(db *gorm.DB, jwtManager *common.JWTManager, logger *logge
 		campaignService,
 		jwtManager,
 		logger,
+		userEventsProducer,
+		performanceProducer,
 	}, nil
 }
 
@@ -67,30 +73,35 @@ func (c *PostGrpcController) CreatePost(ctx context.Context, in *protopb.Post) (
 		for _, tag := range media.Tags {
 			following, err := grpc_common.CheckFollowInteraction(ctx, tag.UserId, post.UserId)
 			if err != nil {
+				c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreatePostFunction, kafka_util.GetPerformanceMessage(kafka_util.CreatePostFunction, false) + ", user id = " + claims.UserId,  http.StatusInternalServerError)
 				c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by "+claims.UserId+", cannot tag "+tag.UserId, logger.Error)
 				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
 			}
 
 			isPublic, err := grpc_common.CheckIfPublicProfile(ctx, in.UserId)
 			if err != nil {
+				c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreatePostFunction, kafka_util.GetPerformanceMessage(kafka_util.CreatePostFunction, false) + ", user id = " + claims.UserId,  http.StatusInternalServerError)
 				c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by "+claims.UserId+", cannot tag "+tag.UserId, logger.Error)
 				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 			}
 
 			isBlocked, err := grpc_common.CheckIfBlocked(ctx, in.UserId, claims.UserId)
 			if err != nil {
+				c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreatePostFunction, kafka_util.GetPerformanceMessage(kafka_util.CreatePostFunction, false) + ", user id = " + claims.UserId,  http.StatusInternalServerError)
 				c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by "+claims.UserId+", cannot tag "+tag.UserId, logger.Error)
 				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 			}
 
 			// If used is blocked or his profile is private and did not approve your request
 			if isBlocked || (!isPublic && !following.IsApprovedRequest) {
+				c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreatePostFunction, kafka_util.GetPerformanceMessage(kafka_util.CreatePostFunction, false) + ", user id = " + claims.UserId,  http.StatusInternalServerError)
 				c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by "+claims.UserId+", cannot tag "+tag.UserId, logger.Error)
 				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
 			}
 
 			username, err := grpc_common.GetUsernameById(ctx, tag.UserId)
 			if username == "" || err != nil {
+				c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreatePostFunction, kafka_util.GetPerformanceMessage(kafka_util.CreatePostFunction, false) + ", user id = " + claims.UserId,  http.StatusInternalServerError)
 				c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by "+claims.UserId+", cannot tag "+tag.UserId, logger.Error)
 				return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot tag selected users")
 			}
@@ -99,10 +110,12 @@ func (c *PostGrpcController) CreatePost(ctx context.Context, in *protopb.Post) (
 
 	err = c.service.CreatePost(ctx, post)
 	if err != nil {
+		c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.CreatePostFunction, kafka_util.GetPerformanceMessage(kafka_util.CreatePostFunction, false) + ", user id = " + claims.UserId,  http.StatusInternalServerError)
 		c.logger.ToStdoutAndFile("CreatePost", "Post creation attempt failed by "+claims.UserId+", due to server error", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
+	c.userEventsProducer.WriteUserEventMessage(kafka_util.CreatePost, claims.UserId, kafka_util.GetUserEventMessage(kafka_util.CreatePost, true))
 	c.logger.ToStdoutAndFile("CreatePost", "Post creation successful by "+claims.UserId, logger.Info)
 	return &protopb.EmptyResponseContent{}, nil
 }
@@ -303,22 +316,31 @@ func (c *PostGrpcController) RemovePost(ctx context.Context, id string) (*protop
 	c.logger.ToStdoutAndFile("RemovePost", "Post removal attempt by "+claims.UserId, logger.Info)
 
 	if err != nil {
+		c.userEventsProducer.WriteUserEventMessage(kafka_util.RemovePost, claims.UserId, kafka_util.GetUserEventMessage(kafka_util.RemovePost, false) + ", post id = " + id)
+		c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.RemovePostFunction, kafka_util.GetPerformanceMessage(kafka_util.RemovePostFunction, false) + ", user id = " + claims.UserId + ", post id = " + id,  http.StatusInternalServerError)
 		c.logger.ToStdoutAndFile("RemovePost", "Post removal attempt failed by "+claims.UserId+", invalid JWT", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 	} else if claims.UserId == "" {
+		c.userEventsProducer.WriteUserEventMessage(kafka_util.RemovePost, claims.UserId, kafka_util.GetUserEventMessage(kafka_util.RemovePost, false) + ", post id = " + id)
+		c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.RemovePostFunction, kafka_util.GetPerformanceMessage(kafka_util.RemovePostFunction, false) + ", user id = " + claims.UserId + ", post id = " + id,  http.StatusInternalServerError)
 		c.logger.ToStdoutAndFile("RemovePost", "Post removal attempt failed by "+claims.UserId+", invalid JWT", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot remove other people's posts")
 	} else if id == "" {
+		c.userEventsProducer.WriteUserEventMessage(kafka_util.RemovePost, claims.UserId, kafka_util.GetUserEventMessage(kafka_util.RemovePost, false) + ", post id = " + id)
+		c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.RemovePostFunction, kafka_util.GetPerformanceMessage(kafka_util.RemovePostFunction, false) + ", user id = " + claims.UserId + ", post id = " + id,  http.StatusInternalServerError)
 		c.logger.ToStdoutAndFile("RemovePost", "Post removal attempt failed by "+claims.UserId+", no post id provided", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, "cannot remove non-existing posts")
 	}
 
 	err = c.service.RemovePost(ctx, id, claims.UserId)
 	if err != nil {
+		c.userEventsProducer.WriteUserEventMessage(kafka_util.RemovePost, claims.UserId, kafka_util.GetUserEventMessage(kafka_util.RemovePost, false) + ", post id = " + id)
+		c.performanceProducer.WritePerformanceMessage(kafka_util.ContentService, kafka_util.RemovePostFunction, kafka_util.GetPerformanceMessage(kafka_util.RemovePostFunction, false) + ", user id = " + claims.UserId + ", post id = " + id,  http.StatusInternalServerError)
 		c.logger.ToStdoutAndFile("RemovePost", "Post removal attempt failed by "+claims.UserId+", server error", logger.Error)
 		return &protopb.EmptyResponseContent{}, status.Errorf(codes.Unknown, err.Error())
 	}
 
+	c.userEventsProducer.WriteUserEventMessage(kafka_util.RemovePost, claims.UserId, kafka_util.GetUserEventMessage(kafka_util.RemovePost, true) + ", post id = " + id)
 	c.logger.ToStdoutAndFile("RemovePost", "Post removal attempt successful by "+claims.UserId, logger.Info)
 	return &protopb.EmptyResponseContent{}, nil
 }
