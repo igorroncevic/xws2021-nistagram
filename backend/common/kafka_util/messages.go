@@ -17,6 +17,11 @@ func GetUserEventMessage(eventType UserEventType, success bool) string {
 			return "Successful profile update."
 		}
 		return "Failed profile update."
+	case AdCategoryUpdate:
+		if success {
+			return "Successful ad categories update."
+		}
+		return "Failed ad categories update."
 	default:
 		return ""
 	}

@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"github.com/igorroncevic/xws2021-nistagram/common"
+	"github.com/igorroncevic/xws2021-nistagram/common/kafka_util"
 	protopb "github.com/igorroncevic/xws2021-nistagram/common/proto"
 	"github.com/igorroncevic/xws2021-nistagram/common/tracer"
 	"github.com/igorroncevic/xws2021-nistagram/content_service/model/domain"
@@ -13,11 +14,12 @@ import (
 )
 
 type AdGrpcController struct {
-	service    *services.AdService
-	jwtManager *common.JWTManager
+	service   		    *services.AdService
+	jwtManager 			*common.JWTManager
+	userEventsProducer  *kafka_util.KafkaProducer
 }
 
-func NewAdController(db *gorm.DB, jwtManager *common.JWTManager) (*AdGrpcController, error) {
+func NewAdController(db *gorm.DB, jwtManager *common.JWTManager, userEventsProducer *kafka_util.KafkaProducer) (*AdGrpcController, error) {
 	service, err := services.NewAdService(db)
 	if err != nil {
 		return nil, err
@@ -26,6 +28,7 @@ func NewAdController(db *gorm.DB, jwtManager *common.JWTManager) (*AdGrpcControl
 	return &AdGrpcController{
 		service,
 		jwtManager,
+		userEventsProducer,
 	}, nil
 }
 
@@ -169,9 +172,11 @@ func (controller *AdGrpcController) UpdateUsersAdCategories(ctx context.Context,
 
 	err := controller.service.UpdateUsersAdCategories(ctx, claims.UserId, categories)
 	if err != nil {
+		controller.userEventsProducer.WriteUserEventMessage(kafka_util.AdCategoryUpdate, claims.UserId, kafka_util.GetUserEventMessage(kafka_util.AdCategoryUpdate, false))
 		return &protopb.EmptyResponseContent{}, err
 	}
 
+	controller.userEventsProducer.WriteUserEventMessage(kafka_util.AdCategoryUpdate, claims.UserId, kafka_util.GetUserEventMessage(kafka_util.AdCategoryUpdate, true))
 	return &protopb.EmptyResponseContent{}, nil
 }
 

@@ -91,6 +91,7 @@ services:
 
   user_service:
     image: user_service
+    restart: always
     build:
       context: .
       dockerfile: UserService.Dockerfile
@@ -114,6 +115,7 @@ services:
 
   content_service:
     image: content_service
+    restart: always
     build:
       context: .
       dockerfile: ContentService.Dockerfile

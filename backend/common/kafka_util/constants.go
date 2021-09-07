@@ -16,6 +16,6 @@ const (
 
 	/* Functions */
 	LoginFunction              = "Login"
-	GenerateApiTokenFunction   = "GenerateApiToken"
 	CreateNotificationFunction = "CreateNotification"
+	GenerateApiTokenFunction   = "GenerateApiToken"
 )

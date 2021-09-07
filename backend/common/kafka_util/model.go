@@ -64,6 +64,7 @@ const (
 	Login          UserEventType = "Login"
 	PasswordChange               = "PasswordChange"
 	ProfileUpdate                = "ProfileUpdate"
+	AdCategoryUpdate			 = "AdCategoryUpdate"
 )
 
 func (uet UserEventType) String() string {
@@ -74,6 +75,8 @@ func (uet UserEventType) String() string {
 		return "PasswordChange"
 	case ProfileUpdate:
 		return "ProfileUpdate"
+	case AdCategoryUpdate:
+		return "AdCategoryUpdate"
 	default:
 		return fmt.Sprintf("%s", string(uet))
 	}

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"github.com/igorroncevic/xws2021-nistagram/common/kafka_util"
 	"io"
 
 	"github.com/igorroncevic/xws2021-nistagram/common"
@@ -29,6 +30,9 @@ type Server struct {
 }
 
 func NewServer(db *gorm.DB, manager *common.JWTManager, logger *logger.Logger) (*Server, error) {
+	userEventsProducer := kafka_util.NewProducer(kafka_util.UserEventsTopic)
+	// performanceProducer := kafka_util.NewProducer(kafka_util.PerformanceTopic)
+
 	postController, _ := NewPostController(db, manager, logger)
 	storyController, _ := NewStoryController(db, manager, logger)
 	commentController, _ := NewCommentController(db, manager)
@@ -37,7 +41,7 @@ func NewServer(db *gorm.DB, manager *common.JWTManager, logger *logger.Logger) (
 	hashtagController, _ := NewHashtagController(db)
 	highlightController, _ := NewHighlightController(db, manager)
 	complaintController, _ := NewComplaintController(db, manager)
-	adController, _ := NewAdController(db, manager)
+	adController, _ := NewAdController(db, manager, userEventsProducer)
 	campaignController, _ := NewCampaignController(db, manager)
 	tracer, closer := tracer.Init("contentService")
 	otgo.SetGlobalTracer(tracer)
